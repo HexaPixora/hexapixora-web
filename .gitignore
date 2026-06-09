@@ -27,6 +27,15 @@ out/
 build
 dist
 
+# Uploads
+uploads/
+apps/api/uploads/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # Debug
 npm-debug.log*

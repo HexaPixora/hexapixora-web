@@ -1,0 +1,263 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// User & Authentication
+// ==========================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(TEAM_MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  sessions  Session[]
+  auditLogs AuditLog[]
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  TEAM_MEMBER
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// CMS Modules
+// ==========================================
+
+model Service {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  icon             String?
+  banner           String?
+  excerpt          String?
+  content          String
+  features         Json?    // Array of strings or objects
+  faq              Json?    // Array of { question, answer }
+  
+  // SEO
+  metaTitle        String?
+  metaDescription  String?
+  metaKeywords     String?
+  ogImage          String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Portfolio {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  clientName       String?
+  industry         String?
+  description      String
+  challenge        String?
+  solution         String?
+  results          String?
+  technologies     Json?    // Array of strings
+  gallery          Json?    // Array of media URLs
+  
+  // SEO
+  metaTitle        String?
+  metaDescription  String?
+  metaKeywords     String?
+  ogImage          String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Blog {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  excerpt          String?
+  category         String?
+  tags             Json?    // Array of strings
+  thumbnail        String?
+  content          String
+  publishDate      DateTime?
+  isPublished      Boolean  @default(false)
+  readTime         Int?     // Minutes to read, auto-calculated
+  
+  // SEO
+  metaTitle        String?
+  metaDescription  String?
+  metaKeywords     String?
+  ogImage          String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model TeamMember {
+  id               String   @id @default(uuid())
+  name             String
+  designation      String
+  bio              String?
+  image            String?
+  linkedinUrl      String?
+  githubUrl        String?
+  order            Int      @default(0)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Testimonial {
+  id               String   @id @default(uuid())
+  clientName       String
+  company          String?
+  rating           Int      @default(5)
+  review           String
+  image            String?
+  order            Int      @default(0)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Faq {
+  id               String   @id @default(uuid())
+  question         String
+  answer           String
+  category         String?
+  order            Int      @default(0)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Media {
+  id               String   @id @default(uuid())
+  filename         String
+  url              String
+  mimetype         String
+  size             Int
+  folder           String?  @default("general")
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// ==========================================
+// Marketing & Leads
+// ==========================================
+
+model Lead {
+  id               String   @id @default(uuid())
+  name             String
+  email            String
+  phone            String?
+  message          String?
+  type             String   @default("contact") // contact, consultation, quote
+  status           LeadStatus @default(NEW)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+}
+
+model NewsletterSubscriber {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  status           SubscriptionStatus @default(ACTIVE)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  UNSUBSCRIBED
+}
+
+// ==========================================
+// Site Settings & Configuration
+// ==========================================
+
+model SiteSetting {
+  id               String   @id @default("global") // Single row pattern
+  siteName         String   @default("HexaPixora")
+  tagline          String?
+  businessEmail    String?
+  businessPhone    String?
+  address          String?
+  timezone         String?
+  googleMapsUrl    String?
+  socialLinks      Json?    // { linkedin, facebook, etc. }
+  logoUrl          String?
+  faviconUrl       String?
+  
+  // Analytics
+  googleAnalyticsId String?
+  gtmId            String?
+  metaPixelId      String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model LayoutConfig {
+  id               String   @id @default(uuid())
+  key              String   @unique // 'header', 'footer', 'mega-menu'
+  data             Json     // Storing nested configurations
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// ==========================================
+// Custom Pages
+// ==========================================
+
+model Page {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  sections         Json     @default("[]") // Array of modules
+  showHeader       Boolean  @default(true)
+  showFooter       Boolean  @default(true)
+  metaTitle        String?
+  metaDescription  String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
