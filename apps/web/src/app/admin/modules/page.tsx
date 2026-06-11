@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Settings2, Eye, Component, X } from "lucide-react";
+import { Settings2, Eye, Component, X, Upload, ToggleLeft, ToggleRight, Loader2 } from "lucide-react";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
+import { revalidateCMS } from "@/actions/revalidate";
 import HeroModule from "@/components/modules/hero-module";
 import CTAModule from "@/components/modules/cta-module";
 import ServicesModule from "@/components/modules/services-module";
@@ -17,7 +18,11 @@ import TeamModule from "@/components/modules/team-module";
 import FAQModule from "@/components/modules/faq-module";
 import StatsModule from "@/components/modules/stats-module";
 import AboutModule from "@/components/modules/about-module";
-
+import SplideSliderModule from "@/components/modules/splide-slider-module";
+import SplideLogoTickerModule from "@/components/modules/splide-logo-ticker-module";
+import SplideTestimonialsModule from "@/components/modules/splide-testimonials-module";
+import SplideGallerySyncModule from "@/components/modules/splide-gallery-sync-module";
+import ContactFormModule from "@/components/modules/contact-form-module";
 // Map for previews
 const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "HeroSection": HeroModule,
@@ -29,6 +34,11 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "FAQSection": FAQModule,
   "StatsSection": StatsModule,
   "AboutSection": AboutModule,
+  "SplideSliderModule": SplideSliderModule,
+  "SplideLogoTickerModule": SplideLogoTickerModule,
+  "SplideTestimonialsModule": SplideTestimonialsModule,
+  "SplideGallerySyncModule": SplideGallerySyncModule,
+  "ContactFormModule": ContactFormModule,
 };
 
 export default function ModulesLibraryPage() {
@@ -40,8 +50,127 @@ export default function ModulesLibraryPage() {
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<Record<string, any>>({});
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
 
   const activeModuleDef = activeConfigId ? MODULES[activeConfigId] : null;
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>, uploadKey: string | undefined, onChange: (val: string) => void) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    if (uploadKey) setUploadingField(uploadKey);
+
+    try {
+      const res = await apiClient.post("/media/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      onChange(res.data.url);
+    } catch (err) {
+      alert("Failed to upload file.");
+    } finally {
+      if (uploadKey) setUploadingField(null);
+    }
+  };
+
+  const renderFieldInput = (field: any, value: any, onChange: (val: any) => void, uploadKey?: string, itemName?: string) => {
+    switch (field.type) {
+      case 'textarea':
+        return (
+          <Textarea 
+            value={value || ""} 
+            onChange={e => onChange(e.target.value)}
+            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+            rows={field.name === 'content' || field.name === 'description' ? 4 : 2}
+            className="text-sm"
+          />
+        );
+      case 'color':
+        return (
+          <div className="flex gap-3">
+            <Input 
+              type="color" 
+              value={value || "#000000"} 
+              onChange={e => onChange(e.target.value)}
+              className="w-16 h-10 p-1"
+            />
+            <Input 
+              type="text" 
+              value={value || ""} 
+              onChange={e => onChange(e.target.value)}
+              className="flex-1 font-mono"
+            />
+          </div>
+        );
+      case 'boolean':
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onChange(!value)}
+              className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-muted/50 transition-colors"
+            >
+              {value ? <ToggleRight className="text-primary" size={24} /> : <ToggleLeft className="text-muted-foreground" size={24} />}
+              <span className="text-sm font-medium">{value ? "Enabled" : "Disabled"}</span>
+            </button>
+          </div>
+        );
+      case 'select':
+        return (
+          <select
+            value={value || ""}
+            onChange={e => onChange(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {field.options?.map((opt: any) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        );
+      case 'image':
+      case 'video':
+        return (
+          <div className="flex items-center gap-3">
+            <Input 
+              type="text" 
+              value={value || ""} 
+              onChange={e => onChange(e.target.value)}
+              placeholder={`URL or upload ${field.type}...`}
+              className="flex-1 text-sm font-mono"
+            />
+            <div className="relative">
+              <input 
+                type="file" 
+                name={itemName}
+                accept={field.type === 'image' ? "image/*" : "video/*"}
+                onChange={e => handleMediaUpload(e, uploadKey, onChange)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={uploadingField === uploadKey}
+              />
+              <Button type="button" variant="secondary" size="icon" disabled={uploadingField === uploadKey}>
+                {uploadingField === uploadKey ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+              </Button>
+            </div>
+            {value && field.type === 'image' && (
+              <img src={value} alt="Preview" className="h-10 w-10 object-cover rounded border" />
+            )}
+          </div>
+        );
+      case 'text':
+      default:
+        return (
+          <Input 
+            type="text" 
+            value={value || ""} 
+            onChange={e => onChange(e.target.value)}
+            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+            className="text-sm"
+          />
+        );
+    }
+  };
 
   useEffect(() => {
     apiClient.get("/layouts/module-defaults").then(res => {
@@ -70,6 +199,7 @@ export default function ModulesLibraryPage() {
       await apiClient.put("/layouts/module-defaults", updatedDefaults);
       setModuleDefaults(updatedDefaults);
       setSaved(true);
+      await revalidateCMS();
       setTimeout(() => setSaved(false), 3000);
       setActiveConfigId(null);
     } catch (err) {
@@ -127,46 +257,43 @@ export default function ModulesLibraryPage() {
           <div className="space-y-4 py-4">
             {activeModuleDef ? (
               activeModuleDef.fields.map(field => (
-                <div key={field.name} className="space-y-1.5">
-                  <label className="text-sm font-medium">{field.label}</label>
+                <div key={field.name} className="space-y-1.5 border-b pb-4 last:border-0">
+                  <label className="text-sm font-semibold text-foreground/90">{field.label}</label>
+                  {field.description && <p className="text-xs text-muted-foreground mb-2">{field.description}</p>}
+                  
                   {field.type === 'list' ? (
-                    <div className="border rounded-md p-3 space-y-3 bg-muted/20">
+                    <div className="border rounded-md p-3 space-y-3 bg-muted/10">
                       {(editingConfig[field.name] || []).map((item: any, idx: number) => (
-                        <div key={idx} className="border rounded bg-background p-3 relative space-y-3 group">
+                        <div key={idx} className="border rounded bg-card p-4 relative space-y-4 group shadow-sm">
                           <button 
                             onClick={() => {
                               const newArray = [...(editingConfig[field.name] || [])];
                               newArray.splice(idx, 1);
                               setEditingConfig({ ...editingConfig, [field.name]: newArray });
                             }}
-                            className="absolute top-2 right-2 text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-2 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity bg-background rounded-full p-1 border shadow-sm"
+                            title="Remove Item"
                           >
-                            <X size={16} />
+                            <X size={14} />
                           </button>
+                          
+                          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 border-b pb-1">
+                            Item {idx + 1}
+                          </div>
+                          
                           {field.itemFields?.map(subField => (
-                            <div key={subField.name} className="space-y-1">
-                               <label className="text-xs font-medium">{subField.label}</label>
-                               {subField.type === 'textarea' ? (
-                                 <Textarea 
-                                   value={item[subField.name] || ""} 
-                                   onChange={e => {
-                                     const newArray = [...(editingConfig[field.name] || [])];
-                                     newArray[idx] = { ...newArray[idx], [subField.name]: e.target.value };
-                                     setEditingConfig({ ...editingConfig, [field.name]: newArray });
-                                   }}
-                                   rows={2}
-                                   className="text-sm"
-                                 />
-                               ) : (
-                                 <Input 
-                                   value={item[subField.name] || ""} 
-                                   onChange={e => {
-                                     const newArray = [...(editingConfig[field.name] || [])];
-                                     newArray[idx] = { ...newArray[idx], [subField.name]: e.target.value };
-                                     setEditingConfig({ ...editingConfig, [field.name]: newArray });
-                                   }}
-                                   className="h-8 text-sm"
-                                 />
+                            <div key={subField.name} className="space-y-1.5">
+                               <label className="text-xs font-medium text-foreground/80">{subField.label}</label>
+                               {renderFieldInput(
+                                 subField, 
+                                 item[subField.name], 
+                                 (val) => {
+                                   const newArray = [...(editingConfig[field.name] || [])];
+                                   newArray[idx] = { ...newArray[idx], [subField.name]: val };
+                                   setEditingConfig({ ...editingConfig, [field.name]: newArray });
+                                 },
+                                 `${field.name}-${idx}`,
+                                 subField.name
                                )}
                             </div>
                           ))}
@@ -176,42 +303,19 @@ export default function ModulesLibraryPage() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => setEditingConfig({ ...editingConfig, [field.name]: [...(editingConfig[field.name] || []), {}] })}
-                        className="w-full text-xs border-dashed"
+                        className="w-full text-xs border-dashed hover:border-primary hover:text-primary transition-colors mt-2"
                       >
-                        + Add Item
+                        + Add New {field.label.replace(/s$/, '')}
                       </Button>
                     </div>
-                  ) : field.type === 'textarea' ? (
-                    <Textarea 
-                      value={editingConfig[field.name] || ""} 
-                      onChange={e => setEditingConfig({ ...editingConfig, [field.name]: e.target.value })}
-                      placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                      rows={4}
-                    />
-                  ) : field.type === 'color' ? (
-                    <div className="flex gap-3">
-                      <Input 
-                        type="color" 
-                        value={editingConfig[field.name] || "#000000"} 
-                        onChange={e => setEditingConfig({ ...editingConfig, [field.name]: e.target.value })}
-                        className="w-16 h-10 p-1"
-                      />
-                      <Input 
-                        type="text" 
-                        value={editingConfig[field.name] || ""} 
-                        onChange={e => setEditingConfig({ ...editingConfig, [field.name]: e.target.value })}
-                        className="flex-1"
-                      />
-                    </div>
                   ) : (
-                    <Input 
-                      type="text" 
-                      value={editingConfig[field.name] || ""} 
-                      onChange={e => setEditingConfig({ ...editingConfig, [field.name]: e.target.value })}
-                      placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                    />
+                    renderFieldInput(
+                      field, 
+                      editingConfig[field.name], 
+                      (val) => setEditingConfig({ ...editingConfig, [field.name]: val }),
+                      field.name
+                    )
                   )}
-                  {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
                 </div>
               ))
             ) : null}

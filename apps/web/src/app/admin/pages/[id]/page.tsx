@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Upload, Loader2 } from "lucide-react";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
+import { revalidateCMS } from "@/actions/revalidate";
 import Link from "next/link";
 
 type Section = {
@@ -46,6 +47,7 @@ export default function CustomPageBuilderPage() {
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<Record<string, any>>({});
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
   
   const activeSection = sections.find(s => s.id === activeConfigId);
   const activeModuleDef = activeSection ? MODULES[activeSection.type] : null;
@@ -122,6 +124,7 @@ export default function CustomPageBuilderPage() {
         sections
       });
       setSaved(true);
+      await revalidateCMS();
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       alert("Save failed: " + (err.response?.data?.message || err.message));
@@ -150,128 +153,122 @@ export default function CustomPageBuilderPage() {
     setIsAddDrawerOpen(false);
   };
 
-  const handleMediaUpload = async (file: File, callback: (url: string) => void) => {
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>, uploadKey: string | undefined, onChange: (val: string) => void) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    if (uploadKey) setUploadingField(uploadKey);
+
     try {
-      setSaving(true);
-      const formData = new FormData();
-      formData.append('file', file);
       const res = await apiClient.post("/media/upload", formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { "Content-Type": "multipart/form-data" }
       });
-      callback(res.data.url);
-    } catch (err: any) {
-      alert("Upload failed: " + (err.response?.data?.message || err.message));
+      onChange(res.data.url);
+    } catch (err) {
+      alert("Failed to upload file.");
     } finally {
-      setSaving(false);
+      if (uploadKey) setUploadingField(null);
     }
   };
 
-  const renderFieldInput = (field: any, value: any, onChange: (val: any) => void) => {
-    if (field.type === 'textarea') {
-      return (
-        <Textarea 
-          value={value || ""} 
-          onChange={e => onChange(e.target.value)}
-          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-          rows={4}
-        />
-      );
-    }
-    
-    if (field.type === 'color') {
-      return (
-        <div className="flex gap-3">
-          <Input 
-            type="color" 
-            value={value || "#000000"} 
-            onChange={e => onChange(e.target.value)}
-            className="w-16 h-10 p-1"
-          />
-          <Input 
-            type="text" 
+  const renderFieldInput = (field: any, value: any, onChange: (val: any) => void, uploadKey?: string, itemName?: string) => {
+    switch (field.type) {
+      case 'textarea':
+        return (
+          <Textarea 
             value={value || ""} 
             onChange={e => onChange(e.target.value)}
-            className="flex-1"
+            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+            rows={field.name === 'content' || field.name === 'description' ? 4 : 2}
+            className="text-sm"
           />
-        </div>
-      );
-    }
-
-    if (field.type === 'boolean') {
-      return (
-        <div className="flex items-center gap-2 mt-1">
-          <button 
-            onClick={() => onChange(!value)} 
-            className={`text-${value ? 'primary' : 'muted-foreground'}`}
-          >
-            {value ? <ToggleRight size={28} /> : <ToggleLeft size={28} />}
-          </button>
-          <span className="text-sm">{value ? 'Enabled' : 'Disabled'}</span>
-        </div>
-      );
-    }
-
-    if (field.type === 'select') {
-      return (
-        <select 
-          value={value || ""} 
-          onChange={e => onChange(e.target.value)}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {field.options?.map((opt: any) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-      );
-    }
-
-    if (field.type === 'image' || field.type === 'video') {
-      return (
-        <div className="space-y-2">
-          <div className="flex gap-2">
+        );
+      case 'color':
+        return (
+          <div className="flex gap-3">
+            <Input 
+              type="color" 
+              value={value || "#000000"} 
+              onChange={e => onChange(e.target.value)}
+              className="w-16 h-10 p-1"
+            />
             <Input 
               type="text" 
               value={value || ""} 
               onChange={e => onChange(e.target.value)}
-              placeholder={field.placeholder || `Enter ${field.type} URL or upload`}
-              className="flex-1"
+              className="flex-1 font-mono"
+            />
+          </div>
+        );
+      case 'boolean':
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onChange(!value)}
+              className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-muted/50 transition-colors"
+            >
+              {value ? <ToggleRight className="text-primary" size={24} /> : <ToggleLeft className="text-muted-foreground" size={24} />}
+              <span className="text-sm font-medium">{value ? "Enabled" : "Disabled"}</span>
+            </button>
+          </div>
+        );
+      case 'select':
+        return (
+          <select
+            value={value || ""}
+            onChange={e => onChange(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {field.options?.map((opt: any) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        );
+      case 'image':
+      case 'video':
+        return (
+          <div className="flex items-center gap-3">
+            <Input 
+              type="text" 
+              value={value || ""} 
+              onChange={e => onChange(e.target.value)}
+              placeholder={`URL or upload ${field.type}...`}
+              className="flex-1 text-sm font-mono"
             />
             <div className="relative">
-              <Button type="button" variant="secondary" className="relative z-0">Upload</Button>
               <input 
                 type="file" 
-                accept={field.type === 'image' ? 'image/*' : 'video/*'} 
-                className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
-                onChange={e => {
-                  if (e.target.files && e.target.files[0]) {
-                    handleMediaUpload(e.target.files[0], onChange);
-                  }
-                }}
+                name={itemName}
+                accept={field.type === 'image' ? "image/*" : "video/*"}
+                onChange={e => handleMediaUpload(e, uploadKey, onChange)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={uploadingField === uploadKey}
               />
+              <Button type="button" variant="secondary" size="icon" disabled={uploadingField === uploadKey}>
+                {uploadingField === uploadKey ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+              </Button>
             </div>
+            {value && field.type === 'image' && (
+              <img src={value} alt="Preview" className="h-10 w-10 object-cover rounded border" />
+            )}
           </div>
-          {field.type === 'image' && value && (
-            <div className="mt-2 w-full max-w-[200px] rounded overflow-hidden border">
-              <img src={value} alt="Preview" className="w-full h-auto" />
-            </div>
-          )}
-          {field.type === 'video' && value && (
-            <div className="mt-2 w-full max-w-[300px] rounded overflow-hidden border">
-              <video src={value} className="w-full h-auto" controls muted />
-            </div>
-          )}
-        </div>
-      );
+        );
+      case 'text':
+      default:
+        return (
+          <Input 
+            type="text" 
+            value={value || ""} 
+            onChange={e => onChange(e.target.value)}
+            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+            className="text-sm"
+          />
+        );
     }
-
-    return (
-      <Input 
-        type="text" 
-        value={value || ""} 
-        onChange={e => onChange(e.target.value)}
-        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-      />
-    );
   };
 
   if (loading) {
@@ -456,30 +453,44 @@ export default function CustomPageBuilderPage() {
           <div className="space-y-4 py-4">
             {activeModuleDef ? (
               activeModuleDef.fields.map(field => (
-                <div key={field.name} className="space-y-1.5">
-                  <label className="text-sm font-medium">{field.label}</label>
+                <div key={field.name} className="space-y-1.5 border-b pb-4 last:border-0">
+                  <label className="text-sm font-semibold text-foreground/90">{field.label}</label>
+                  {field.description && <p className="text-xs text-muted-foreground mb-2">{field.description}</p>}
+                  
                   {field.type === 'list' ? (
-                    <div className="border rounded-md p-3 space-y-3 bg-muted/20">
+                    <div className="border rounded-md p-3 space-y-3 bg-muted/10">
                       {(editingConfig[field.name] || []).map((item: any, idx: number) => (
-                        <div key={idx} className="border rounded bg-background p-3 relative space-y-3 group">
+                        <div key={idx} className="border rounded bg-card p-4 relative space-y-4 group shadow-sm">
                           <button 
                             onClick={() => {
                               const newArray = [...(editingConfig[field.name] || [])];
                               newArray.splice(idx, 1);
                               setEditingConfig({ ...editingConfig, [field.name]: newArray });
                             }}
-                            className="absolute top-2 right-2 text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                            className="absolute top-2 right-2 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity bg-background rounded-full p-1 border shadow-sm z-10"
+                            title="Remove Item"
                           >
-                            <X size={16} />
+                            <X size={14} />
                           </button>
+                          
+                          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 border-b pb-1">
+                            Item {idx + 1}
+                          </div>
+                          
                           {field.itemFields?.map(subField => (
-                            <div key={subField.name} className="space-y-1">
-                               <label className="text-xs font-medium">{subField.label}</label>
-                               {renderFieldInput(subField, item[subField.name], (val) => {
-                                 const newArray = [...(editingConfig[field.name] || [])];
-                                 newArray[idx] = { ...newArray[idx], [subField.name]: val };
-                                 setEditingConfig({ ...editingConfig, [field.name]: newArray });
-                               })}
+                            <div key={subField.name} className="space-y-1.5">
+                               <label className="text-xs font-medium text-foreground/80">{subField.label}</label>
+                               {renderFieldInput(
+                                 subField, 
+                                 item[subField.name], 
+                                 (val) => {
+                                   const newArray = [...(editingConfig[field.name] || [])];
+                                   newArray[idx] = { ...newArray[idx], [subField.name]: val };
+                                   setEditingConfig({ ...editingConfig, [field.name]: newArray });
+                                 },
+                                 `${field.name}-${idx}`,
+                                 subField.name
+                               )}
                             </div>
                           ))}
                         </div>
@@ -488,17 +499,19 @@ export default function CustomPageBuilderPage() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => setEditingConfig({ ...editingConfig, [field.name]: [...(editingConfig[field.name] || []), {}] })}
-                        className="w-full text-xs border-dashed"
+                        className="w-full text-xs border-dashed hover:border-primary hover:text-primary transition-colors mt-2"
                       >
-                        + Add Item
+                        + Add New {field.label.replace(/s$/, '')}
                       </Button>
                     </div>
                   ) : (
-                    renderFieldInput(field, editingConfig[field.name], (val) => {
-                      setEditingConfig({ ...editingConfig, [field.name]: val });
-                    })
+                    renderFieldInput(
+                      field, 
+                      editingConfig[field.name], 
+                      (val) => setEditingConfig({ ...editingConfig, [field.name]: val }),
+                      field.name
+                    )
                   )}
-                  {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
                 </div>
               ))
             ) : (

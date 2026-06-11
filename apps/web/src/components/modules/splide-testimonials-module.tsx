@@ -1,32 +1,17 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { splideTestimonialsSchema, SplideTestimonialsProps } from "@/lib/module-schemas/splide-testimonials-schema";
+
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
 import { Star, Quote } from "lucide-react";
 
-interface TestimonialItem {
-  name?: string;
-  company?: string;
-  content?: string;
-  avatar?: string;
-  rating?: string;
-}
 
-interface SplideTestimonialsModuleProps {
-  type: string;
-  label: string;
-  config: {
-    heading?: string;
-    subheading?: string;
-    perPage?: string;
-    autoplay?: boolean;
-    interval?: string;
-    items?: TestimonialItem[];
-  };
-}
 
-export default function SplideTestimonialsModule({ config }: SplideTestimonialsModuleProps) {
+
+
+export default function SplideTestimonialsModule({ config }: { config?: SplideTestimonialsProps }) {
   const {
     heading,
     subheading,
@@ -34,7 +19,7 @@ export default function SplideTestimonialsModule({ config }: SplideTestimonialsM
     autoplay = true,
     interval = "4000",
     items = []
-  } = config;
+  } = splideTestimonialsSchema.parse(config || {});
 
   const splideRef = useRef<HTMLDivElement>(null);
 
@@ -146,5 +131,5 @@ export default function SplideTestimonialsModule({ config }: SplideTestimonialsM
         </div>
       </div>
     </section>
-  );
+  )
 }

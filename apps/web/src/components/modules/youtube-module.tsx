@@ -1,16 +1,8 @@
 import React from "react";
+import { youTubeEmbedSchema, YouTubeEmbedProps } from "@/lib/module-schemas/you-tube-embed-schema";
 
-interface YouTubeModuleProps {
-  type: string;
-  label: string;
-  config: {
-    videoUrl?: string;
-    autoplay?: boolean;
-    muted?: boolean;
-    controls?: boolean;
-    loop?: boolean;
-  };
-}
+
+
 
 // Helper to extract YouTube ID from various URL formats
 function getYouTubeId(url: string) {
@@ -20,8 +12,8 @@ function getYouTubeId(url: string) {
   return (match && match[2] && match[2].length === 11) ? match[2] : url; // fallback to assuming it's an ID if no match
 }
 
-export default function YouTubeModule({ config }: YouTubeModuleProps) {
-  const { videoUrl, autoplay, muted, controls, loop } = config;
+export default function YouTubeModule({ config }: { config?: YouTubeEmbedProps }) {
+  const { videoUrl, autoplay, muted, controls, loop } = youTubeEmbedSchema.parse(config || {});
   const videoId = getYouTubeId(videoUrl || "");
 
   if (!videoId) {
@@ -57,5 +49,5 @@ export default function YouTubeModule({ config }: YouTubeModuleProps) {
         </div>
       </div>
     </section>
-  );
+  )
 }

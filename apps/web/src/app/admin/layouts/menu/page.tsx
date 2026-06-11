@@ -5,7 +5,8 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GripVertical, Plus, Trash2, ChevronRight, ChevronDown, ExternalLink } from "lucide-react";
+import { GripVertical, Plus, Trash2, ChevronRight, ChevronDown } from "lucide-react";
+import { revalidateCMS } from "@/actions/revalidate";
 
 type MenuItem = {
   id: string;
@@ -15,23 +16,24 @@ type MenuItem = {
   children: MenuItem[];
 };
 
+type Navigation = {
+  id: string;
+  name: string;
+  items: MenuItem[];
+};
+
 const DEFAULT_MENU: MenuItem[] = [
   { id: "home", label: "Home", url: "/", target: "_self", children: [] },
   { id: "about", label: "About", url: "/about", target: "_self", children: [] },
-  {
-    id: "services", label: "Services", url: "/services", target: "_self",
-    children: [
-      { id: "web-dev", label: "Web Development", url: "/services/web-development", target: "_self", children: [] },
-      { id: "marketing", label: "Digital Marketing", url: "/services/digital-marketing", target: "_self", children: [] },
-    ]
-  },
-  { id: "portfolio", label: "Portfolio", url: "/portfolio", target: "_self", children: [] },
-  { id: "blog", label: "Blog", url: "/blog", target: "_self", children: [] },
   { id: "contact", label: "Contact", url: "/contact", target: "_self", children: [] },
 ];
 
-let idCounter = 1000;
-const newId = () => `item-${++idCounter}`;
+const DEFAULT_NAVIGATIONS: Navigation[] = [
+  { id: "main-menu", name: "Main Menu", items: DEFAULT_MENU },
+  { id: "footer-legal", name: "Footer Legal", items: [{ id: "terms", label: "Terms", url: "/terms", target: "_self", children: [] }] }
+];
+
+const newId = () => `item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
 function MenuItemRow({ item, depth = 0, onUpdate, onDelete, onAddChild }: {
   item: MenuItem;
@@ -104,62 +106,98 @@ function MenuItemRow({ item, depth = 0, onUpdate, onDelete, onAddChild }: {
   );
 }
 
-export default function MegaMenuBuilderPage() {
-  const [items, setItems] = useState<MenuItem[]>(DEFAULT_MENU);
+export default function NavigationsBuilderPage() {
+  const [navigations, setNavigations] = useState<Navigation[]>(DEFAULT_NAVIGATIONS);
+  const [activeNavId, setActiveNavId] = useState<string>("main-menu");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [showJson, setShowJson] = useState(false);
 
   React.useEffect(() => {
-    apiClient.get("/layouts/mega-menu").then(res => {
-      if (res.data?.data?.items) setItems(res.data.data.items);
+    apiClient.get("/layouts/navigations").then(res => {
+      if (res.data?.data?.length > 0) {
+        setNavigations(res.data.data);
+        setActiveNavId(res.data.data[0].id);
+      }
     }).catch(() => {});
   }, []);
 
+  const activeNav = navigations.find(n => n.id === activeNavId) || navigations[0];
+
+  const updateActiveNav = (updatedItems: MenuItem[]) => {
+    setNavigations(navigations.map(n => n.id === activeNavId ? { ...n, items: updatedItems } : n));
+  };
+
+  const renameActiveNav = (newName: string) => {
+    setNavigations(navigations.map(n => n.id === activeNavId ? { ...n, name: newName } : n));
+  };
+
+  const createNav = () => {
+    const id = `nav-${Date.now()}`;
+    setNavigations([...navigations, { id, name: "New Menu", items: [] }]);
+    setActiveNavId(id);
+  };
+
+  const deleteActiveNav = () => {
+    if (navigations.length <= 1) {
+      alert("You must have at least one navigation menu.");
+      return;
+    }
+    if (confirm("Are you sure you want to delete this menu?")) {
+      const remaining = navigations.filter(n => n.id !== activeNavId);
+      setNavigations(remaining);
+      setActiveNavId(remaining[0]?.id || "");
+    }
+  };
+
   const onDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-    const newItems = Array.from(items);
+    if (!result.destination || !activeNav) return;
+    const newItems = Array.from(activeNav.items);
     const [moved] = newItems.splice(result.source.index, 1);
     if (!moved) return;
     newItems.splice(result.destination.index, 0, moved);
-    setItems(newItems);
+    updateActiveNav(newItems);
   };
 
   const updateItem = (id: string, field: keyof MenuItem, value: any) => {
+    if (!activeNav) return;
     const update = (list: MenuItem[]): MenuItem[] =>
       list.map(item =>
         item.id === id
           ? { ...item, [field]: value }
           : { ...item, children: update(item.children) }
       );
-    setItems(update(items));
+    updateActiveNav(update(activeNav.items));
   };
 
   const deleteItem = (id: string) => {
+    if (!activeNav) return;
     const remove = (list: MenuItem[]): MenuItem[] =>
       list.filter(item => item.id !== id).map(item => ({ ...item, children: remove(item.children) }));
-    setItems(remove(items));
+    updateActiveNav(remove(activeNav.items));
   };
 
   const addChild = (parentId: string) => {
+    if (!activeNav) return;
     const add = (list: MenuItem[]): MenuItem[] =>
       list.map(item =>
         item.id === parentId
           ? { ...item, children: [...item.children, { id: newId(), label: "New Sub-item", url: "#", target: "_self", children: [] }] }
           : { ...item, children: add(item.children) }
       );
-    setItems(add(items));
+    updateActiveNav(add(activeNav.items));
   };
 
   const addTopLevel = () => {
-    setItems([...items, { id: newId(), label: "New Item", url: "/", target: "_self", children: [] }]);
+    if (!activeNav) return;
+    updateActiveNav([...activeNav.items, { id: newId(), label: "New Item", url: "/", target: "_self", children: [] }]);
   };
 
   const save = async () => {
     setSaving(true);
     try {
-      await apiClient.put("/layouts/mega-menu", { items });
+      await apiClient.put("/layouts/navigations", navigations);
       setSaved(true);
+      await revalidateCMS();
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       alert("Save failed");
@@ -169,68 +207,94 @@ export default function MegaMenuBuilderPage() {
   };
 
   return (
-    <div className="flex gap-6">
-      {/* Builder Panel */}
-      <div className="flex-1 flex flex-col gap-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Mega Menu Builder</h1>
-            <p className="text-muted-foreground">Drag to reorder. Add sub-items to create dropdowns.</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowJson(!showJson)}>
-              {showJson ? "Hide" : "View"} JSON
-            </Button>
-            <Button onClick={save} disabled={saving}>
-              {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Menu"}
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Sidebar: Navigations List */}
+      <div className="w-full md:w-64 flex-shrink-0 flex flex-col gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Navigations</h1>
+          <p className="text-sm text-muted-foreground mt-1">Create multiple menus to use in the Header and Footer.</p>
+        </div>
+        <div className="bg-card border rounded-xl overflow-hidden flex flex-col">
+          {navigations.map(nav => (
+            <button
+              key={nav.id}
+              onClick={() => setActiveNavId(nav.id)}
+              className={`text-left px-4 py-3 text-sm font-medium transition-colors border-b last:border-b-0 ${
+                activeNavId === nav.id ? "bg-primary/10 text-primary border-l-2 border-l-primary" : "hover:bg-muted"
+              }`}
+            >
+              {nav.name}
+            </button>
+          ))}
+          <div className="p-2 bg-muted/30">
+            <Button variant="outline" size="sm" className="w-full border-dashed" onClick={createNav}>
+              <Plus size={14} className="mr-2" /> New Menu
             </Button>
           </div>
         </div>
-
-        <div className="bg-card p-4 rounded-xl border">
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="mega-menu">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                  {items.map((item, index) => (
-                    <Draggable key={item.id} draggableId={item.id} index={index}>
-                      {(provided) => (
-                        <div 
-                          ref={provided.innerRef} 
-                          {...provided.draggableProps} 
-                          {...provided.dragHandleProps}
-                          style={provided.draggableProps.style as any}
-                        >
-                          <MenuItemRow
-                            item={item}
-                            onUpdate={updateItem}
-                            onDelete={deleteItem}
-                            onAddChild={addChild}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-
-          <Button variant="outline" className="w-full mt-3 border-dashed" onClick={addTopLevel}>
-            <Plus size={15} className="mr-2" /> Add Top-Level Item
-          </Button>
-        </div>
+        <Button onClick={save} disabled={saving} className="w-full shadow-lg">
+          {saved ? "✓ Saved All Menus!" : saving ? "Saving..." : "Save All Menus"}
+        </Button>
       </div>
 
-      {/* JSON Preview Panel */}
-      {showJson && (
-        <div className="w-72 flex-shrink-0">
-          <div className="bg-card border rounded-xl p-4 sticky top-6">
-            <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">Live JSON Output</p>
-            <pre className="text-xs overflow-auto max-h-[500px] text-green-400">
-              {JSON.stringify(items, null, 2)}
-            </pre>
+      {/* Main Panel: Builder */}
+      {activeNav && (
+        <div className="flex-1 flex flex-col gap-4">
+          <div className="bg-card p-5 rounded-xl border flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-4 border-b">
+              <div className="flex-1 max-w-sm">
+                <label className="text-xs font-semibold text-muted-foreground uppercase mb-1 block">Menu Name</label>
+                <Input 
+                  value={activeNav.name} 
+                  onChange={e => renameActiveNav(e.target.value)} 
+                  className="font-bold text-lg"
+                />
+              </div>
+              <Button variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={deleteActiveNav}>
+                <Trash2 size={16} className="mr-2" /> Delete Menu
+              </Button>
+            </div>
+
+            <div className="min-h-[300px]">
+              {activeNav.items.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground border-2 border-dashed rounded-xl">
+                  This menu is empty. Add items to start building.
+                </div>
+              ) : (
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId={`menu-${activeNav.id}`}>
+                    {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                        {activeNav.items.map((item, index) => (
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided) => (
+                              <div 
+                                ref={provided.innerRef} 
+                                {...provided.draggableProps} 
+                                {...provided.dragHandleProps}
+                                style={provided.draggableProps.style as any}
+                              >
+                                <MenuItemRow
+                                  item={item}
+                                  onUpdate={updateItem}
+                                  onDelete={deleteItem}
+                                  onAddChild={addChild}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              )}
+            </div>
+
+            <Button variant="outline" className="w-full mt-2 border-dashed" onClick={addTopLevel}>
+              <Plus size={15} className="mr-2" /> Add Top-Level Item
+            </Button>
           </div>
         </div>
       )}

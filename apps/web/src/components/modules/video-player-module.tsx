@@ -1,25 +1,12 @@
 import React from "react";
+import { videoPlayerSchema, VideoPlayerProps } from "@/lib/module-schemas/video-player-schema";
 
-interface NativeVideo {
-  videoUrl?: string;
-  posterUrl?: string;
-  title?: string;
-}
 
-interface VideoPlayerModuleProps {
-  type: string;
-  label: string;
-  config: {
-    heading?: string;
-    layout?: 'single' | 'grid';
-    autoplay?: boolean;
-    loop?: boolean;
-    controls?: boolean;
-    videos?: NativeVideo[];
-  };
-}
 
-export default function VideoPlayerModule({ config }: VideoPlayerModuleProps) {
+
+
+
+export default function VideoPlayerModule({ config }: { config?: VideoPlayerProps }) {
   const { 
     heading, 
     layout = 'single', 
@@ -27,7 +14,7 @@ export default function VideoPlayerModule({ config }: VideoPlayerModuleProps) {
     loop = true, 
     controls = true, 
     videos = [] 
-  } = config;
+  } = videoPlayerSchema.parse(config || {});
 
   if (!videos || videos.length === 0) {
     return (
@@ -42,7 +29,7 @@ export default function VideoPlayerModule({ config }: VideoPlayerModuleProps) {
   }
 
   // Optimize performance by setting preload strategies
-  const renderVideo = (video: NativeVideo, isHero: boolean) => {
+  const renderVideo = (video: any, isHero: boolean) => {
     if (!video.videoUrl) return null;
 
     return (
@@ -95,5 +82,5 @@ export default function VideoPlayerModule({ config }: VideoPlayerModuleProps) {
         )}
       </div>
     </section>
-  );
+  )
 }

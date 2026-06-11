@@ -1,105 +1,167 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { footerSchema, DEFAULT_FOOTER_CONFIG } from "@/lib/module-schemas/footer-schema";
+import { ArrowRight, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-async function getFooterData() {
-  try {
-    const res = await fetch('http://localhost:3001/api/layouts/footer', { cache: 'no-store' });
-    const json = await res.json();
-    return json?.data || { quickLinks: [], legalLinks: [] };
-  } catch (err) {
-    return { quickLinks: [], legalLinks: [] };
-  }
+interface MenuItem {
+  id: string;
+  label: string;
+  url: string;
+  target: "_self" | "_blank";
+  children: MenuItem[];
 }
 
-export default async function PublicFooter({ settings }: { settings: any }) {
-  const currentYear = new Date().getFullYear();
-  const footerData = await getFooterData();
-  
-  const quickLinks = footerData.quickLinks?.length > 0 ? footerData.quickLinks : [
-    { id: "1", label: "Home", url: "/" },
-    { id: "2", label: "About Us", url: "/about" },
-    { id: "3", label: "Services", url: "/services" },
-    { id: "4", label: "Portfolio", url: "/portfolio" },
-    { id: "5", label: "Blog", url: "/blog" },
-  ];
+interface Navigation {
+  id: string;
+  name: string;
+  items: MenuItem[];
+}
 
-  const legalLinks = footerData.legalLinks?.length > 0 ? footerData.legalLinks : [
-    { id: "1", label: "Privacy Policy", url: "/privacy" },
-    { id: "2", label: "Terms of Service", url: "/terms" },
-    { id: "3", label: "Cookie Policy", url: "/cookies" },
-  ];
-  
+interface FooterProps {
+  settings: any;
+  config: any;
+  navigations: Navigation[];
+}
+
+// Icon mapping helper
+const getIcon = (name: string) => {
+  return <span className="text-sm font-semibold hover:underline underline-offset-4">{name}</span>;
+};
+
+export default function PublicFooter({ settings, config, navigations }: FooterProps) {
+  // Parse config with zod to ensure safe fallbacks
+  const footerConfig = footerSchema.parse(config || DEFAULT_FOOTER_CONFIG);
+  const { 
+    logoUrl, tagline, col1NavId, col1Title, col2NavId, col2Title, 
+    socials, backgroundColor, showNewsletter 
+  } = footerConfig;
+
+  // Resolve Navigations
+  const col1Nav = navigations.find(n => n.id === col1NavId)?.items || [];
+  const col2Nav = navigations.find(n => n.id === col2NavId)?.items || [];
+
+  const finalLogoUrl = logoUrl || settings?.logoUrl;
+  const siteName = settings?.siteName || "HexaPixora";
+  const currentYear = new Date().getFullYear();
+
+  const bgColorMap = {
+    "default": "bg-background border-t text-foreground",
+    "muted": "bg-muted text-foreground border-t",
+    "dark": "bg-slate-950 text-slate-200"
+  };
+
+  const bgClass = bgColorMap[backgroundColor] || bgColorMap["muted"];
+
   return (
-    <footer className="border-t bg-muted/20 pt-16 pb-8">
-      <div className="container grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-        <div className="space-y-4">
-          <Link href="/" className="flex items-center gap-2">
-            {settings?.logoUrl ? (
-              <img src={settings.logoUrl} alt={settings.siteName || "Logo"} className="h-8 w-auto grayscale opacity-80 hover:grayscale-0 transition-all" />
-            ) : (
-              <span className="font-bold text-xl tracking-tight">{settings?.siteName || "HexaPixora"}</span>
+    <footer className={`${bgClass} py-16 md:py-24 transition-colors`}>
+      <div className="container">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
+          
+          {/* Brand & Tagline */}
+          <div className="lg:col-span-4 space-y-6">
+            <Link href="/" className="inline-block">
+              {finalLogoUrl ? (
+                <img src={finalLogoUrl} alt={siteName} className="h-10 w-auto" />
+              ) : (
+                <span className="font-extrabold text-2xl tracking-tight">{siteName}</span>
+              )}
+            </Link>
+            {tagline && (
+              <p className="opacity-80 text-sm leading-relaxed max-w-xs">
+                {tagline}
+              </p>
             )}
-          </Link>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {settings?.tagline || "We build scalable digital solutions for modern businesses."}
+            {socials && socials.length > 0 && (
+              <div className="flex items-center gap-4 pt-2">
+                {socials.map((social, idx) => (
+                  <a 
+                    key={idx} 
+                    href={social.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="opacity-70 hover:opacity-100 hover:text-primary transition-all hover:-translate-y-1"
+                    title={social.platform}
+                  >
+                    {getIcon(social.icon || social.platform)}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Column 1 */}
+          <div className="lg:col-span-2 space-y-6">
+            <h4 className="font-semibold text-sm uppercase tracking-wider">{col1Title}</h4>
+            <ul className="space-y-3">
+              {col1Nav.map((link) => (
+                <li key={link.id}>
+                  <Link 
+                    href={link.url} 
+                    target={link.target}
+                    className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-colors inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              {col1Nav.length === 0 && <li className="text-sm opacity-50 italic">No links configured</li>}
+            </ul>
+          </div>
+
+          {/* Navigation Column 2 */}
+          <div className="lg:col-span-2 space-y-6">
+            <h4 className="font-semibold text-sm uppercase tracking-wider">{col2Title}</h4>
+            <ul className="space-y-3">
+              {col2Nav.map((link) => (
+                <li key={link.id}>
+                  <Link 
+                    href={link.url} 
+                    target={link.target}
+                    className="text-sm opacity-70 hover:opacity-100 hover:text-primary transition-colors inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              {col2Nav.length === 0 && <li className="text-sm opacity-50 italic">No links configured</li>}
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          {showNewsletter && (
+            <div className="lg:col-span-4 space-y-6">
+              <h4 className="font-semibold text-sm uppercase tracking-wider">Stay Updated</h4>
+              <p className="text-sm opacity-80 leading-relaxed">
+                Subscribe to our newsletter for the latest insights and trends. No spam, ever.
+              </p>
+              <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+                <Input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  className={`flex-1 ${backgroundColor === "dark" ? "bg-slate-900 border-slate-800 text-white placeholder:text-slate-500" : ""}`}
+                />
+                <Button type="submit" variant={backgroundColor === "dark" ? "secondary" : "default"}>
+                  Subscribe
+                </Button>
+              </form>
+            </div>
+          )}
+
+        </div>
+
+        <div className="mt-16 pt-8 border-t border-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm opacity-60">
+            &copy; {currentYear} {siteName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 pt-2">
-            {settings?.socialLinks?.facebook && <a href={settings.socialLinks.facebook} target="_blank" className="text-sm text-muted-foreground hover:text-primary transition-colors">Facebook</a>}
-            {settings?.socialLinks?.twitter && <a href={settings.socialLinks.twitter} target="_blank" className="text-sm text-muted-foreground hover:text-primary transition-colors">Twitter</a>}
-            {settings?.socialLinks?.instagram && <a href={settings.socialLinks.instagram} target="_blank" className="text-sm text-muted-foreground hover:text-primary transition-colors">Instagram</a>}
-            {settings?.socialLinks?.linkedin && <a href={settings.socialLinks.linkedin} target="_blank" className="text-sm text-muted-foreground hover:text-primary transition-colors">LinkedIn</a>}
-            {settings?.socialLinks?.youtube && <a href={settings.socialLinks.youtube} target="_blank" className="text-sm text-muted-foreground hover:text-primary transition-colors">YouTube</a>}
+          <div className="flex items-center gap-6 text-sm opacity-60">
+            <Link href="/privacy" className="hover:opacity-100 hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:opacity-100 hover:text-primary transition-colors">Terms of Service</Link>
           </div>
         </div>
-        
-        <div>
-          <h3 className="font-semibold mb-4">Quick Links</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            {quickLinks.map((link: any) => (
-              <li key={link.id}><Link href={link.url} className="hover:text-primary">{link.label}</Link></li>
-            ))}
-          </ul>
-        </div>
-        
-        <div>
-          <h3 className="font-semibold mb-4">Legal</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            {legalLinks.map((link: any) => (
-              <li key={link.id}><Link href={link.url} className="hover:text-primary">{link.label}</Link></li>
-            ))}
-          </ul>
-        </div>
-        
-        <div>
-          <h3 className="font-semibold mb-4">Contact</h3>
-          <ul className="space-y-3 text-sm text-muted-foreground">
-            {settings?.businessEmail && (
-              <li className="flex items-start gap-3">
-                <Mail size={16} className="mt-0.5" />
-                <a href={`mailto:${settings.businessEmail}`} className="hover:text-primary">{settings.businessEmail}</a>
-              </li>
-            )}
-            {settings?.businessPhone && (
-              <li className="flex items-start gap-3">
-                <Phone size={16} className="mt-0.5" />
-                <a href={`tel:${settings.businessPhone}`} className="hover:text-primary">{settings.businessPhone}</a>
-              </li>
-            )}
-            {settings?.address && (
-              <li className="flex items-start gap-3">
-                <MapPin size={16} className="mt-0.5 flex-shrink-0" />
-                <span>{settings.address}</span>
-              </li>
-            )}
-          </ul>
-        </div>
-      </div>
-      
-      <div className="container flex flex-col items-center justify-between gap-4 md:h-10 md:flex-row border-t pt-8">
-        <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-          &copy; {currentYear} {settings?.siteName || "HexaPixora"}. All rights reserved.
-        </p>
       </div>
     </footer>
   );

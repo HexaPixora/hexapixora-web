@@ -2,172 +2,208 @@
 
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
+import { footerSchema, FooterConfig, DEFAULT_FOOTER_CONFIG } from "@/lib/module-schemas/footer-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GripVertical, Plus, Trash2 } from "lucide-react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-
-type FooterLink = {
-  id: string;
-  label: string;
-  url: string;
-};
-
-type FooterData = {
-  quickLinks: FooterLink[];
-  legalLinks: FooterLink[];
-};
-
-const DEFAULT_FOOTER: FooterData = {
-  quickLinks: [
-    { id: "home", label: "Home", url: "/" },
-    { id: "about", label: "About Us", url: "/about" },
-    { id: "services", label: "Services", url: "/services" },
-    { id: "portfolio", label: "Portfolio", url: "/portfolio" },
-    { id: "blog", label: "Blog", url: "/blog" },
-  ],
-  legalLinks: [
-    { id: "privacy", label: "Privacy Policy", url: "/privacy" },
-    { id: "terms", label: "Terms of Service", url: "/terms" },
-    { id: "cookies", label: "Cookie Policy", url: "/cookies" },
-  ],
-};
-
-let idCounter = 1000;
-const newId = () => `footer-item-${++idCounter}`;
+import { Trash2, Plus, Loader2 } from "lucide-react";
+import { revalidateCMS } from "@/actions/revalidate";
 
 export default function FooterBuilderPage() {
-  const [data, setData] = useState<FooterData>(DEFAULT_FOOTER);
+  const [config, setConfig] = useState<FooterConfig>(DEFAULT_FOOTER_CONFIG);
+  const [navigations, setNavigations] = useState<{id: string, name: string}[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get("/layouts/footer").then(res => {
-      if (res.data?.data) {
-        setData({
-          quickLinks: res.data.data.quickLinks || DEFAULT_FOOTER.quickLinks,
-          legalLinks: res.data.data.legalLinks || DEFAULT_FOOTER.legalLinks,
-        });
+    Promise.all([
+      apiClient.get("/layouts/footer").catch(() => null),
+      apiClient.get("/layouts/navigations").catch(() => null)
+    ]).then(([footerRes, navsRes]) => {
+      if (footerRes?.data?.data) {
+        setConfig({ ...DEFAULT_FOOTER_CONFIG, ...footerRes.data.data });
       }
-    }).catch(() => {});
+      if (navsRes?.data?.data) {
+        setNavigations(navsRes.data.data);
+      }
+      setLoading(false);
+    });
   }, []);
 
   const save = async () => {
     setSaving(true);
     try {
-      await apiClient.put("/layouts/footer", data);
+      const validConfig = footerSchema.parse(config);
+      await apiClient.put("/layouts/footer", validConfig);
       setSaved(true);
+      await revalidateCMS();
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      alert("Save failed");
+      alert("Validation failed or server error.");
     } finally {
       setSaving(false);
     }
   };
 
-  const onDragEnd = (result: DropResult, listKey: keyof FooterData) => {
-    if (!result.destination) return;
-    const newItems = Array.from(data[listKey]);
-    const [moved] = newItems.splice(result.source.index, 1);
-    if (!moved) return;
-    newItems.splice(result.destination.index, 0, moved);
-    setData({ ...data, [listKey]: newItems });
+  const update = (key: keyof FooterConfig, value: any) => {
+    setConfig({ ...config, [key]: value });
   };
 
-  const updateItem = (listKey: keyof FooterData, id: string, field: keyof FooterLink, value: string) => {
-    setData({
-      ...data,
-      [listKey]: data[listKey].map(item => item.id === id ? { ...item, [field]: value } : item)
-    });
+  const updateSocial = (index: number, field: "platform" | "url" | "icon", value: string) => {
+    const newSocials = [...(config.socials || [])];
+    newSocials[index] = { ...newSocials[index], [field]: value } as any;
+    update("socials", newSocials);
   };
 
-  const deleteItem = (listKey: keyof FooterData, id: string) => {
-    setData({
-      ...data,
-      [listKey]: data[listKey].filter(item => item.id !== id)
-    });
+  const addSocial = () => {
+    update("socials", [...(config.socials || []), { platform: "New Platform", url: "https://", icon: "" }]);
   };
 
-  const addItem = (listKey: keyof FooterData) => {
-    setData({
-      ...data,
-      [listKey]: [...data[listKey], { id: newId(), label: "New Link", url: "/" }]
-    });
+  const removeSocial = (index: number) => {
+    const newSocials = [...(config.socials || [])];
+    newSocials.splice(index, 1);
+    update("socials", newSocials);
   };
 
-  const ListBuilder = ({ title, listKey }: { title: string, listKey: keyof FooterData }) => (
-    <div className="bg-card p-5 rounded-xl border space-y-4">
-      <h3 className="font-semibold">{title}</h3>
-      <DragDropContext onDragEnd={(res) => onDragEnd(res, listKey)}>
-        <Droppable droppableId={`droppable-${listKey}`}>
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-              {data[listKey].map((item, index) => (
-                <Draggable key={item.id} draggableId={item.id} index={index}>
-                  {(provided) => (
-                    <div 
-                      ref={provided.innerRef} 
-                      {...provided.draggableProps} 
-                      style={provided.draggableProps.style as any}
-                      className="flex items-center gap-3 p-2 bg-background border rounded-lg"
-                    >
-                      <div {...provided.dragHandleProps} className="cursor-grab text-muted-foreground flex-shrink-0">
-                        <GripVertical size={16} />
-                      </div>
-                      <Input
-                        value={item.label}
-                        onChange={e => updateItem(listKey, item.id, "label", e.target.value)}
-                        className="h-8 text-sm flex-1 bg-transparent"
-                        placeholder="Link Label"
-                      />
-                      <Input
-                        value={item.url}
-                        onChange={e => updateItem(listKey, item.id, "url", e.target.value)}
-                        className="h-8 text-sm flex-1 bg-transparent text-muted-foreground"
-                        placeholder="/path"
-                      />
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteItem(listKey, item.id)}>
-                        <Trash2 size={14} />
-                      </Button>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <Button variant="outline" size="sm" className="w-full border-dashed" onClick={() => addItem(listKey)}>
-        <Plus size={14} className="mr-2" /> Add Link
-      </Button>
-    </div>
-  );
+  if (loading) {
+    return <div className="p-8 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
+  }
 
   return (
     <div className="flex flex-col gap-6 max-w-3xl">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Footer Builder</h1>
-          <p className="text-muted-foreground">Manage the Quick Links and Legal Links displayed in the site footer.</p>
+          <p className="text-muted-foreground">Customize the global site footer styling, navigations, and social links.</p>
         </div>
         <Button onClick={save} disabled={saving}>
           {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Footer"}
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ListBuilder title="Quick Links" listKey="quickLinks" />
-        <ListBuilder title="Legal Links" listKey="legalLinks" />
-      </div>
-      
-      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 text-sm text-amber-600 dark:text-amber-400">
-        <p className="font-semibold mb-1">Note regarding other footer items:</p>
-        <ul className="list-disc pl-5 space-y-1 opacity-90">
-          <li><strong>Logo, Tagline, and Social Links</strong> are managed in the <a href="/admin/settings" className="underline hover:text-amber-700 dark:hover:text-amber-300">Global Settings</a> area.</li>
-          <li><strong>Contact Info (Email, Phone, Address)</strong> is also managed in the <a href="/admin/settings" className="underline hover:text-amber-700 dark:hover:text-amber-300">Global Settings</a> area.</li>
-          <li>The copyright year updates automatically.</li>
-        </ul>
+      <div className="bg-card border rounded-xl p-6 space-y-8">
+        
+        {/* Branding & Style */}
+        <div className="space-y-4 border-b pb-6">
+          <h3 className="font-semibold text-lg">Branding & Styling</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Custom Logo URL (Optional)</label>
+              <Input 
+                value={config.logoUrl || ""} 
+                onChange={e => update("logoUrl", e.target.value)} 
+                placeholder="Leave blank to use Global Settings logo"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Background Color Style</label>
+              <select 
+                value={config.backgroundColor} 
+                onChange={e => update("backgroundColor", e.target.value as any)}
+                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="default">Default</option>
+                <option value="muted">Muted (Light gray/dark gray)</option>
+                <option value="dark">Dark Theme Fixed</option>
+              </select>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium">Tagline / Description</label>
+              <Input 
+                value={config.tagline || ""} 
+                onChange={e => update("tagline", e.target.value)} 
+                placeholder="A short description under the logo..."
+              />
+            </div>
+            <div className="space-y-2 md:col-span-2 mt-2">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={config.showNewsletter} onChange={e => update("showNewsletter", e.target.checked)} className="rounded border-gray-300" />
+                Show Newsletter Subscription Box
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Columns */}
+        <div className="space-y-4 border-b pb-6">
+          <h3 className="font-semibold text-lg">Navigation Columns</h3>
+          <p className="text-xs text-muted-foreground mb-4">Select menus from the Navigations builder to display as columns in the footer.</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Column 1 */}
+            <div className="space-y-4 p-4 border rounded-lg bg-muted/10">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Column 1 Title</label>
+                <Input value={config.col1Title || ""} onChange={e => update("col1Title", e.target.value)} placeholder="Quick Links" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Menu</label>
+                <select 
+                  value={config.col1NavId || ""} 
+                  onChange={e => update("col1NavId", e.target.value)}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">No Menu Selected</option>
+                  {navigations.map(nav => (
+                    <option key={nav.id} value={nav.id}>{nav.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Column 2 */}
+            <div className="space-y-4 p-4 border rounded-lg bg-muted/10">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Column 2 Title</label>
+                <Input value={config.col2Title || ""} onChange={e => update("col2Title", e.target.value)} placeholder="Legal" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Menu</label>
+                <select 
+                  value={config.col2NavId || ""} 
+                  onChange={e => update("col2NavId", e.target.value)}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">No Menu Selected</option>
+                  {navigations.map(nav => (
+                    <option key={nav.id} value={nav.id}>{nav.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Social Links */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-lg">Social Links</h3>
+          <div className="space-y-3">
+            {config.socials?.map((social, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-3 bg-background border rounded-lg">
+                <Input 
+                  value={social.platform} 
+                  onChange={e => updateSocial(idx, "platform", e.target.value)} 
+                  placeholder="Platform Name" 
+                  className="w-1/3"
+                />
+                <Input 
+                  value={social.url} 
+                  onChange={e => updateSocial(idx, "url", e.target.value)} 
+                  placeholder="https://..." 
+                  className="flex-1"
+                />
+                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeSocial(idx)}>
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button variant="outline" size="sm" className="border-dashed mt-2" onClick={addSocial}>
+            <Plus size={14} className="mr-2" /> Add Social Link
+          </Button>
+        </div>
+
       </div>
     </div>
   );

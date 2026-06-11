@@ -1,10 +1,12 @@
 import React from "react";
+import { faqsectionSchema, FAQProps } from "@/lib/module-schemas/faqsection-schema";
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 
 
-export default function FAQModule({ config }: { config: any }) {
-  const { heading, subheading, items } = config || {};
+export default function FAQModule({ config }: { config?: FAQProps }) {
+  const { heading, subheading, items } = faqsectionSchema.parse(config || {});
   const faqs = items || [];
 
   return (

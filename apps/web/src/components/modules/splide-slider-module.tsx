@@ -1,36 +1,17 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { splideSliderSchema, SplideSliderProps } from "@/lib/module-schemas/splide-slider-schema";
+
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
 import { ArrowRight } from "lucide-react";
 
-interface SlideItem {
-  image?: string;
-  title?: string;
-  description?: string;
-  buttonText?: string;
-  buttonUrl?: string;
-}
 
-interface SplideSliderModuleProps {
-  type: string;
-  label: string;
-  config: {
-    heading?: string;
-    subheading?: string;
-    type?: "loop" | "slide" | "fade";
-    autoplay?: boolean;
-    interval?: string;
-    speed?: string;
-    arrows?: boolean;
-    pagination?: boolean;
-    height?: string;
-    items?: SlideItem[];
-  };
-}
 
-export default function SplideSliderModule({ config }: SplideSliderModuleProps) {
+
+
+export default function SplideSliderModule({ config }: { config?: SplideSliderProps }) {
   const {
     heading,
     subheading,
@@ -42,7 +23,7 @@ export default function SplideSliderModule({ config }: SplideSliderModuleProps) 
     pagination = true,
     height = "500px",
     items = []
-  } = config;
+  } = splideSliderSchema.parse(config || {});
 
   const splideRef = useRef<HTMLDivElement>(null);
 
@@ -145,5 +126,5 @@ export default function SplideSliderModule({ config }: SplideSliderModuleProps) 
         </div>
       </div>
     </section>
-  );
+  )
 }

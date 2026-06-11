@@ -1,15 +1,17 @@
 import React from "react";
+import { heroSchema, HeroProps } from "@/lib/module-schemas/hero-schema";
 
-export default function HeroModule({ config }: { config: any }) {
+export default function HeroModule({ config }: { config?: HeroProps }) {
   const {
-    heading = "Beautifully designed experiences",
-    subheading = "Built with modern tools. We deliver high performance scalable solutions.",
-    buttonText = "View Services",
-    buttonUrl = "/services",
-    secondaryButtonText = "Contact Us",
-    secondaryButtonUrl = "/contact",
-    backgroundImage = "",
-  } = config || {};
+    heading,
+    subheading,
+    buttonText,
+    buttonUrl,
+    secondaryButtonText,
+    secondaryButtonUrl,
+    backgroundImage,
+  } = heroSchema.parse(config || {});
+
 
   return (
     <section 
