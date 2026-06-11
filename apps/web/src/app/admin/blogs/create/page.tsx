@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import TipTapEditor from "@/components/admin/tiptap-editor";
 import TagInput from "@/components/admin/tag-input";
 import SeoTab from "@/components/admin/seo-tab";
+import { toast } from "sonner";
 import { 
   ArrowLeft, Save, Globe, Eye, FileText, 
   Image as ImageIcon, Settings, Calendar, 
@@ -84,12 +85,18 @@ export default function CreateBlogPage() {
   }, []);
 
   const uploadThumbnail = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await apiClient.post("/media/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    setValue("thumbnail", res.data.url);
+    const toastId = toast.loading("Uploading image...");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await apiClient.post("/media/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setValue("thumbnail", res.data.url);
+      toast.success("Image uploaded successfully", { id: toastId });
+    } catch (err) {
+      toast.error("Failed to upload image", { id: toastId });
+    }
   };
 
   const onSubmit = async (data: FormValues) => {
@@ -100,69 +107,70 @@ export default function CreateBlogPage() {
         publishDate: data.publishDate ? new Date(data.publishDate).toISOString() : null,
       };
       await apiClient.post("/blogs", payload);
+      toast.success("Blog post created successfully!");
       router.push("/admin/blogs");
     } catch (err: any) {
-      alert(err.response?.data?.message || "Save failed");
+      toast.error(err.response?.data?.message || "Failed to create blog post");
     }
   };
 
+  const submitWithStatus = (status: boolean) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setValue("isPublished", status);
+    handleSubmit(onSubmit)();
+  };
+
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto pb-16">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 max-w-[1200px] mx-auto pb-16">
       
       {/* Sticky Premium Top Bar */}
-      <div className="sticky top-[56px] z-20 flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 -mx-6 px-6">
-        <div className="flex items-center gap-3.5">
+      <div className="sticky top-0 z-30 flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 -mx-6 px-6 lg:-mx-8 lg:px-8 shadow-sm">
+        <div className="flex items-center gap-4">
           <button 
             type="button"
             onClick={() => router.push("/admin/blogs")}
-            className="p-2 hover:bg-muted rounded-xl text-muted-foreground hover:text-foreground transition-all border border-muted/50 bg-background/50 shadow-sm"
+            className="p-2 hover:bg-muted rounded-xl text-muted-foreground hover:text-foreground transition-all border border-muted/50 bg-background shadow-sm hover:shadow-md hover:-translate-y-0.5"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={18} />
           </button>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight">Create Blog Post</h1>
-              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">Create Post</h1>
+              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm ${
                 isPublishedWatch 
-                  ? "bg-green-500/10 text-green-500 border-green-500/20" 
-                  : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                  ? "bg-green-500/10 text-green-600 border-green-500/20 shadow-green-500/10" 
+                  : "bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-amber-500/10"
               }`}>
                 {isPublishedWatch ? "Published" : "Draft"}
               </span>
             </div>
             {slugWatch && (
-              <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate max-w-md">
+              <p className="text-sm text-muted-foreground font-mono mt-1 truncate max-w-md opacity-80">
                 /{slugWatch}
               </p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <Button variant="ghost" type="button" onClick={() => router.push("/admin/blogs")} className="rounded-xl">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" type="button" onClick={() => router.push("/admin/blogs")} className="rounded-xl font-medium">
             Cancel
           </Button>
 
           <Button
             variant="outline"
             type="button"
-            onClick={() => {
-              setValue("isPublished", false);
-              handleSubmit(onSubmit)();
-            }}
+            onClick={submitWithStatus(false)}
             disabled={isSubmitting}
-            className="rounded-xl border-muted-foreground/20"
+            className="rounded-xl border-muted-foreground/20 font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
           >
             {isSubmitting ? "Saving..." : "Save Draft"}
           </Button>
           <Button
             type="button"
-            onClick={() => {
-              setValue("isPublished", true);
-              handleSubmit(onSubmit)();
-            }}
+            onClick={submitWithStatus(true)}
             disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-md shadow-green-500/10"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/20 font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all"
           >
             {isSubmitting ? "Publishing..." : "Publish Post"}
           </Button>
@@ -170,51 +178,53 @@ export default function CreateBlogPage() {
       </div>
 
       {/* Main Studio Two-Column Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-2">
         
         {/* LEFT COLUMN: Distraction-free Writing Canvas */}
         <div className="lg:col-span-8 space-y-6">
           
           {/* Main Title & Editor Canvas Card */}
-          <div className="bg-card border rounded-2xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="bg-card border border-muted-foreground/10 rounded-2xl p-6 md:p-10 shadow-xl shadow-muted/20 space-y-8 transition-all duration-300 focus-within:ring-1 focus-within:ring-primary/20">
             
             {/* Borderless Document Title */}
-            <div className="space-y-1.5 pb-2">
+            <div className="space-y-2 pb-4 border-b border-muted-foreground/5">
               <input
                 type="text"
                 {...register("title")}
-                placeholder="Enter post title..."
-                className="w-full text-3xl md:text-4xl font-extrabold tracking-tight bg-transparent border-0 border-b border-transparent hover:border-muted-foreground/20 focus:border-primary focus:ring-0 outline-none transition-all placeholder:text-muted-foreground/30 pb-2.5"
+                placeholder="Enter an engaging title..."
+                className="w-full text-4xl md:text-5xl font-black tracking-tighter bg-transparent border-0 focus:ring-0 outline-none transition-all placeholder:text-muted-foreground/30 text-foreground"
               />
-              {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
+              {errors.title && <p className="text-sm text-destructive font-medium">{errors.title.message}</p>}
             </div>
 
             {/* TipTap Rich Text Editor Container */}
-            <div className="space-y-2.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1.5">
-                <Sparkles size={13} className="text-primary" /> Body Content
+            <div className="space-y-3">
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
+                <Sparkles size={14} className="text-primary" /> Body Content
               </label>
-              <TipTapEditor
-                value={content}
-                onChange={(html) => { setContent(html); setValue("content", html); }}
-                placeholder="Start writing your article body..."
-              />
-              {errors.content && <p className="text-xs text-destructive">{errors.content.message}</p>}
+              <div className="prose-container">
+                <TipTapEditor
+                  value={content}
+                  onChange={(html) => { setContent(html); setValue("content", html); }}
+                  placeholder="Start writing your amazing article..."
+                />
+              </div>
+              {errors.content && <p className="text-sm text-destructive font-medium">{errors.content.message}</p>}
             </div>
           </div>
 
           {/* Excerpt Card */}
-          <div className="bg-card border rounded-2xl p-6 shadow-sm space-y-3">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
+          <div className="bg-card/50 backdrop-blur-sm border border-muted-foreground/10 rounded-2xl p-6 shadow-lg shadow-muted/10 space-y-4 hover:bg-card transition-colors">
+            <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground">
               <FileText size={16} className="text-primary" /> Short Excerpt
             </h3>
             <Textarea
               {...register("excerpt")}
               placeholder="Write a brief, engaging summary shown on cards and social listings..."
               rows={3}
-              className="bg-background resize-none rounded-xl"
+              className="bg-background/50 focus:bg-background resize-none rounded-xl border-muted/50 focus:border-primary/50 text-base"
             />
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs font-medium text-muted-foreground/80">
               Typically displayed on article search indexes. Keep it concise.
             </p>
           </div>
@@ -224,21 +234,21 @@ export default function CreateBlogPage() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Settings & Metadata Card */}
-          <div className="bg-card border rounded-2xl p-5 shadow-sm space-y-5">
-            <h3 className="font-semibold text-sm flex items-center gap-2 border-b pb-2">
+          <div className="bg-card border border-muted-foreground/10 rounded-2xl p-6 shadow-xl shadow-muted/20 space-y-6">
+            <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground border-b border-muted-foreground/10 pb-4">
               <Settings size={16} className="text-primary" /> Configuration
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               
               {/* Category */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground/80">Category</label>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70">Category</label>
                 <Input 
                   {...register("category")} 
                   placeholder="e.g. Marketing, Tech..." 
                   list="cat-list"
-                  className="bg-background rounded-xl h-10"
+                  className="bg-background/50 focus:bg-background rounded-xl h-11 border-muted/50 focus:border-primary/50"
                 />
                 <datalist id="cat-list">
                   {categories.map(c => <option key={c} value={c || ""} />)}
@@ -246,30 +256,30 @@ export default function CreateBlogPage() {
               </div>
 
               {/* URL Slug */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground/80">URL Slug</label>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70">URL Slug</label>
                 <Input 
                   {...register("slug")} 
                   placeholder="url-slug-format" 
-                  className="bg-background rounded-xl h-10 font-mono text-xs"
+                  className="bg-background/50 focus:bg-background rounded-xl h-11 font-mono text-sm border-muted/50 focus:border-primary/50"
                 />
-                {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
+                {errors.slug && <p className="text-xs text-destructive font-medium">{errors.slug.message}</p>}
               </div>
 
               {/* Publish Date */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground/80 flex items-center gap-1.5">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-1.5">
                   <Calendar size={13} className="text-muted-foreground" /> Publish Date
                 </label>
                 <Input 
                   type="datetime-local" 
                   {...register("publishDate")} 
-                  className="bg-background rounded-xl h-10 text-sm"
+                  className="bg-background/50 focus:bg-background rounded-xl h-11 text-sm border-muted/50 focus:border-primary/50"
                 />
               </div>
 
               {/* Tags Selector */}
-              <div className="space-y-1.5 pt-3 border-t">
+              <div className="space-y-2 pt-4 border-t border-muted-foreground/10">
                 <Controller
                   control={control}
                   name="tags"
@@ -287,29 +297,30 @@ export default function CreateBlogPage() {
           </div>
 
           {/* Featured Image Thumbnail Card */}
-          <div className="bg-card border rounded-2xl p-5 shadow-sm space-y-4">
-            <h3 className="font-semibold text-sm flex items-center gap-2 border-b pb-2">
+          <div className="bg-card border border-muted-foreground/10 rounded-2xl p-6 shadow-xl shadow-muted/20 space-y-5">
+            <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground border-b border-muted-foreground/10 pb-4">
               <ImageIcon size={16} className="text-primary" /> Featured Image
             </h3>
 
             {thumbnail ? (
-              <div className="relative aspect-video rounded-xl overflow-hidden group border bg-muted/20 shadow-inner">
+              <div className="relative aspect-video rounded-xl overflow-hidden group border border-muted bg-muted/20 shadow-inner">
                 <img src={thumbnail} alt="Thumbnail Preview" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                   <button
                     type="button"
                     onClick={() => setValue("thumbnail", "")}
-                    className="px-3 py-2 bg-destructive text-destructive-foreground rounded-xl hover:bg-destructive/90 transition-colors shadow-md text-xs flex items-center gap-1.5 font-medium"
+                    className="px-4 py-2 bg-destructive text-destructive-foreground rounded-xl hover:bg-destructive/90 transition-all shadow-xl hover:scale-105 text-sm flex items-center gap-2 font-bold"
                   >
-                    <X size={13} /> Remove Image
+                    <X size={16} /> Remove Image
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="border border-dashed border-muted-foreground/30 rounded-xl p-6 text-center bg-muted/10 hover:border-primary/50 hover:bg-muted/20 transition-all relative overflow-hidden group cursor-pointer">
-                <ImageIcon className="mx-auto mb-2 text-muted-foreground opacity-60 group-hover:scale-105 transition-transform" size={26} />
-                <span className="text-xs font-medium block">Click or drag image to upload</span>
-                <span className="text-[10px] text-muted-foreground block mt-1">Supports PNG, JPG, WebP</span>
+              <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-8 text-center bg-muted/5 hover:border-primary/50 hover:bg-primary/5 transition-all relative overflow-hidden group cursor-pointer">
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ImageIcon className="mx-auto mb-3 text-muted-foreground opacity-50 group-hover:scale-110 group-hover:text-primary transition-all duration-300" size={32} />
+                <span className="text-sm font-bold block text-foreground/80 group-hover:text-foreground">Click or drag image</span>
+                <span className="text-xs font-medium text-muted-foreground block mt-1.5">Supports PNG, JPG, WebP</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -321,37 +332,39 @@ export default function CreateBlogPage() {
               </div>
             )}
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Image URL Fallback</label>
+            <div className="space-y-2 pt-2">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Image URL Fallback</label>
               <Input
                 placeholder="Or paste external image URL..."
                 value={thumbnail || ""}
                 onChange={e => setValue("thumbnail", e.target.value)}
-                className="h-9 text-xs bg-background rounded-xl"
+                className="h-10 text-sm bg-background/50 focus:bg-background rounded-xl border-muted/50 focus:border-primary/50"
               />
             </div>
           </div>
 
           {/* Collapsible SEO Accordion */}
-          <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-card border border-muted-foreground/10 rounded-2xl shadow-xl shadow-muted/20 overflow-hidden transition-all duration-300">
             <button
               type="button"
               onClick={() => setSeoExpanded(!seoExpanded)}
-              className="w-full px-5 py-4 flex items-center justify-between hover:bg-muted/10 transition-colors text-left"
+              className="w-full px-6 py-5 flex items-center justify-between hover:bg-muted/30 transition-colors text-left"
             >
-              <h3 className="font-semibold text-sm flex items-center gap-2">
+              <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground">
                 <Search size={16} className="text-primary" /> SEO Settings
               </h3>
-              <ChevronDown size={16} className={`text-muted-foreground transition-transform duration-300 ${seoExpanded ? 'rotate-180' : ''}`} />
+              <div className={`p-1.5 rounded-full bg-muted/50 transition-transform duration-300 ${seoExpanded ? 'rotate-180 bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
+                <ChevronDown size={14} />
+              </div>
             </button>
             {seoExpanded && (
-              <div className="px-5 pb-5 pt-2 border-t bg-card/40">
+              <div className="px-6 pb-6 pt-2 border-t border-muted-foreground/10 bg-card/40">
                 <SeoTab values={seoVals} onChange={(field, value) => setValue(field as any, value)} />
               </div>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

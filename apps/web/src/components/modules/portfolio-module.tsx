@@ -1,11 +1,13 @@
 import React from "react";
+import { portfolioSchema, PortfolioProps } from "@/lib/module-schemas/portfolio-schema";
+
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 
 
-export default function PortfolioModule({ config }: { config: any }) {
-  const { heading, subheading, items } = config || {};
+export default function PortfolioModule({ config }: { config?: PortfolioProps }) {
+  const { heading, subheading, items } = portfolioSchema.parse(config || {});
   const projects = items || [];
 
   return (

@@ -1,10 +1,12 @@
 import React from "react";
+import { teamSchema, TeamProps } from "@/lib/module-schemas/team-schema";
+
 import { Link2 } from "lucide-react";
 
 
 
-export default function TeamModule({ config }: { config: any }) {
-  const { heading, subheading, items } = config || {};
+export default function TeamModule({ config }: { config?: TeamProps }) {
+  const { heading, subheading, items } = teamSchema.parse(config || {});
   const teamMembers = items || [];
 
   return (

@@ -9,6 +9,7 @@ import {
   Users, Star, HelpCircle, Mail, MessageSquare, Menu, Layers, LogOut,
   ChevronRight, X, FileText
 } from "lucide-react";
+import { Toaster } from "sonner";
 
 const navGroups = [
   {
@@ -24,8 +25,9 @@ const navGroups = [
     label: "Builders",
     items: [
       { href: "/admin/modules", label: "Modules Library", icon: Wrench },
-      { href: "/admin/layouts/menu", label: "Mega Menu", icon: Menu },
-      { href: "/admin/layouts/footer", label: "Footer Menu", icon: Menu },
+      { href: "/admin/layouts/menu", label: "Navigations", icon: Menu },
+      { href: "/admin/layouts/header", label: "Global Header", icon: Layers },
+      { href: "/admin/layouts/footer", label: "Global Footer", icon: Layers },
       { href: "/admin/pages/home", label: "Homepage", icon: Layers },
     ],
   },
@@ -141,8 +143,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex min-h-screen bg-muted/30">
+      <Toaster position="top-center" richColors />
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex">
+      <div className="hidden md:flex sticky top-0 h-screen">
         <Sidebar />
       </div>
 

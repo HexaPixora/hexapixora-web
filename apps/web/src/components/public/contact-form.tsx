@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { contactFormSchema, ContactFormProps } from "@/lib/module-schemas/contact-form-schema";
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -19,7 +20,14 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function ContactForm() {
+export default function ContactForm(props: ContactFormProps) {
+  const {
+    title,
+    subtitle,
+    emailAddress,
+    phoneNumber,
+    physicalAddress,
+  } = contactFormSchema.parse(props || {});
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,49 +67,55 @@ export default function ContactForm() {
             
             <div>
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-foreground via-foreground/95 to-muted-foreground bg-clip-text text-transparent mb-4">
-                Get in Touch
+                {title}
               </h1>
               <p className="text-muted-foreground text-base leading-relaxed">
-                Have a project in mind or want to discuss details? Fill out the form and our team will get back to you within 24 hours.
+                {subtitle}
               </p>
             </div>
 
             <div className="space-y-6 pt-4">
-              <div className="flex items-center gap-4 group">
-                <div className="h-12 w-12 rounded-2xl bg-card border border-muted/60 flex items-center justify-center text-primary group-hover:scale-105 group-hover:border-primary/50 transition-all shadow-sm">
-                  <Mail size={20} />
+              {emailAddress && (
+                <div className="flex items-center gap-4 group">
+                  <div className="h-12 w-12 rounded-2xl bg-card border border-muted/60 flex items-center justify-center text-primary group-hover:scale-105 group-hover:border-primary/50 transition-all shadow-sm">
+                    <Mail size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email Us</p>
+                    <a href={`mailto:${emailAddress}`} className="text-sm font-semibold hover:text-primary transition-colors">
+                      {emailAddress}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email Us</p>
-                  <a href="mailto:hello@hexapixora.com" className="text-sm font-semibold hover:text-primary transition-colors">
-                    hello@hexapixora.com
-                  </a>
-                </div>
-              </div>
+              )}
 
-              <div className="flex items-center gap-4 group">
-                <div className="h-12 w-12 rounded-2xl bg-card border border-muted/60 flex items-center justify-center text-primary group-hover:scale-105 group-hover:border-primary/50 transition-all shadow-sm">
-                  <Phone size={20} />
+              {phoneNumber && (
+                <div className="flex items-center gap-4 group">
+                  <div className="h-12 w-12 rounded-2xl bg-card border border-muted/60 flex items-center justify-center text-primary group-hover:scale-105 group-hover:border-primary/50 transition-all shadow-sm">
+                    <Phone size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Call Us</p>
+                    <a href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`} className="text-sm font-semibold hover:text-primary transition-colors">
+                      {phoneNumber}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Call Us</p>
-                  <a href="tel:+1234567890" className="text-sm font-semibold hover:text-primary transition-colors">
-                    +1 (234) 567-890
-                  </a>
-                </div>
-              </div>
+              )}
 
-              <div className="flex items-center gap-4 group">
-                <div className="h-12 w-12 rounded-2xl bg-card border border-muted/60 flex items-center justify-center text-primary group-hover:scale-105 group-hover:border-primary/50 transition-all shadow-sm">
-                  <MapPin size={20} />
+              {physicalAddress && (
+                <div className="flex items-center gap-4 group">
+                  <div className="h-12 w-12 rounded-2xl bg-card border border-muted/60 flex items-center justify-center text-primary group-hover:scale-105 group-hover:border-primary/50 transition-all shadow-sm">
+                    <MapPin size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Visit Us</p>
+                    <p className="text-sm font-semibold">
+                      {physicalAddress}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Visit Us</p>
-                  <p className="text-sm font-semibold">
-                    123 Innovation Way, Tech Suite 100
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

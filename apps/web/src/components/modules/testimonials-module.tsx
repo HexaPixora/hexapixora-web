@@ -1,10 +1,12 @@
 import React from "react";
+import { testimonialsSchema, TestimonialsProps } from "@/lib/module-schemas/testimonials-schema";
+
 import { Quote } from "lucide-react";
 
 
 
-export default function TestimonialsModule({ config }: { config: any }) {
-  const { heading, subheading, backgroundColor, items } = config || {};
+export default function TestimonialsModule({ config }: { config?: TestimonialsProps }) {
+  const { heading, subheading, backgroundColor, items } = testimonialsSchema.parse(config || {});
   const testimonials = items || [];
 
   return (

@@ -1,31 +1,21 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { splideGallerySyncSchema, SplideGallerySyncProps } from "@/lib/module-schemas/splide-gallery-sync-schema";
+
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
 
-interface GalleryItem {
-  image?: string;
-  title?: string;
-  description?: string;
-}
 
-interface SplideGallerySyncModuleProps {
-  type: string;
-  label: string;
-  config: {
-    heading?: string;
-    height?: string;
-    items?: GalleryItem[];
-  };
-}
 
-export default function SplideGallerySyncModule({ config }: SplideGallerySyncModuleProps) {
+
+
+export default function SplideGallerySyncModule({ config }: { config?: SplideGallerySyncProps }) {
   const {
     heading,
     height = "450px",
     items = []
-  } = config;
+  } = splideGallerySyncSchema.parse(config || {});
 
   const mainRef = useRef<HTMLDivElement>(null);
   const thumbsRef = useRef<HTMLDivElement>(null);
@@ -162,5 +152,5 @@ export default function SplideGallerySyncModule({ config }: SplideGallerySyncMod
         </div>
       </div>
     </section>
-  );
+  )
 }

@@ -1,9 +1,11 @@
 import React from "react";
+import { aboutSchema, AboutProps } from "@/lib/module-schemas/about-schema";
+
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export default function AboutModule({ config }: { config: any }) {
-  const { heading, content, image } = config || {};
+export default function AboutModule({ config }: { config?: AboutProps }) {
+  const { heading, content, image } = aboutSchema.parse(config || {});
 
   return (
     <section className="py-24 overflow-hidden">

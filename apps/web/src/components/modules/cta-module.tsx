@@ -1,13 +1,15 @@
 import React from "react";
+import { ctasectionSchema, CTAProps } from "@/lib/module-schemas/ctasection-schema";
 
-export default function CTAModule({ config }: { config: any }) {
+
+export default function CTAModule({ config }: { config?: CTAProps }) {
   const {
     title = "Ready to get started?",
     subtitle = "Join us today and transform your business.",
     buttonText = "Get in Touch",
     buttonUrl = "/contact",
     backgroundColor = "#0f172a",
-  } = config || {};
+  } = ctasectionSchema.parse(config || {});
 
   // Simple utility to determine text color based on background darkness
   const isDark = (hex: string) => {

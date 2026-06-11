@@ -1,13 +1,15 @@
 import React from "react";
+import { statsSchema, StatsProps } from "@/lib/module-schemas/stats-schema";
 
-export default function StatsModule({ config }: { config: any }) {
+
+export default function StatsModule({ config }: { config?: StatsProps }) {
   const { 
     heading, subheading, 
     stat1Value, stat1Label,
     stat2Value, stat2Label,
     stat3Value, stat3Label,
     stat4Value, stat4Label
-  } = config || {};
+  } = statsSchema.parse(config || {});
 
   const stats = [
     { value: stat1Value, label: stat1Label },

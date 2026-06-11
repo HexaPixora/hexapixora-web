@@ -1,32 +1,22 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { splideLogoTickerSchema, SplideLogoTickerProps } from "@/lib/module-schemas/splide-logo-ticker-schema";
+
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
 
-interface LogoItem {
-  image?: string;
-  name?: string;
-}
 
-interface SplideLogoTickerModuleProps {
-  type: string;
-  label: string;
-  config: {
-    heading?: string;
-    speed?: string;
-    perPage?: string;
-    logos?: LogoItem[];
-  };
-}
 
-export default function SplideLogoTickerModule({ config }: SplideLogoTickerModuleProps) {
+
+
+export default function SplideLogoTickerModule({ config }: { config?: SplideLogoTickerProps }) {
   const {
     heading,
     speed = "1",
     perPage = "5",
     logos = []
-  } = config;
+  } = splideLogoTickerSchema.parse(config || {});
 
   const splideRef = useRef<HTMLDivElement>(null);
 
@@ -112,5 +102,5 @@ export default function SplideLogoTickerModule({ config }: SplideLogoTickerModul
         </div>
       </div>
     </section>
-  );
+  )
 }

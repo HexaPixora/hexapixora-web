@@ -1,11 +1,13 @@
 import React from "react";
+import { servicesSchema, ServicesProps } from "@/lib/module-schemas/services-schema";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 
 
-export default function ServicesModule({ config }: { config: any }) {
-  const { heading, subheading, items } = config || {};
+export default function ServicesModule({ config }: { config?: ServicesProps }) {
+  const { heading, subheading, items } = servicesSchema.parse(config || {});
   const services = items || [];
 
   return (

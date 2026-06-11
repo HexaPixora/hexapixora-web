@@ -1,22 +1,13 @@
 import React from "react";
+import { gallerySchema, GalleryProps } from "@/lib/module-schemas/gallery-schema";
 
-interface GalleryImage {
-  url?: string;
-  caption?: string;
-}
 
-interface GalleryModuleProps {
-  type: string;
-  label: string;
-  config: {
-    heading?: string;
-    columns?: string;
-    images?: GalleryImage[];
-  };
-}
 
-export default function GalleryModule({ config }: GalleryModuleProps) {
-  const { heading, columns = "3", images = [] } = config;
+
+
+
+export default function GalleryModule({ config }: { config?: GalleryProps }) {
+  const { heading, columns = "3", images = [] } = gallerySchema.parse(config || {});
 
   // Determine grid columns based on config
   const gridColsClass = {
@@ -64,5 +55,5 @@ export default function GalleryModule({ config }: GalleryModuleProps) {
         )}
       </div>
     </section>
-  );
+  )
 }

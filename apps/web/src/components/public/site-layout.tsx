@@ -2,22 +2,24 @@ import React from "react";
 import PublicHeader from "@/components/public/header";
 import PublicFooter from "@/components/public/footer";
 
-async function getMenu() {
+async function getLayoutData() {
   try {
-    const res = await fetch('http://localhost:3001/api/layouts/mega-menu', { cache: 'no-store' });
-    const json = await res.json();
-    return json?.data?.items || [];
-  } catch (err) {
-    return [];
-  }
-}
+    const [settingsRes, headerRes, footerRes, navsRes] = await Promise.all([
+      fetch('http://localhost:3001/api/settings', { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch('http://localhost:3001/api/layouts/header', { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch('http://localhost:3001/api/layouts/footer', { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch('http://localhost:3001/api/layouts/navigations', { next: { tags: ['layouts'] } }).catch(() => null),
+    ]);
 
-async function getSettings() {
-  try {
-    const res = await fetch('http://localhost:3001/api/settings', { cache: 'no-store' });
-    return await res.json();
+    return {
+      settings: settingsRes?.ok ? (await settingsRes.json())?.data : null,
+      headerConfig: headerRes?.ok ? (await headerRes.json())?.data : null,
+      footerConfig: footerRes?.ok ? (await footerRes.json())?.data : null,
+      navigations: navsRes?.ok ? (await navsRes.json())?.data : []
+    };
   } catch (err) {
-    return null;
+    console.error("Layout fetch error:", err);
+    return { settings: null, headerConfig: null, footerConfig: null, navigations: [] };
   }
 }
 
@@ -32,17 +34,28 @@ export default async function SiteLayout({
   showHeader = true,
   showFooter = true
 }: SiteLayoutProps) {
-  // If neither header nor footer is shown, we can skip fetching data
-  const shouldFetchData = showHeader || showFooter;
+  const data = (showHeader || showFooter) ? await getLayoutData() : { settings: null, headerConfig: null, footerConfig: null, navigations: [] };
   
-  const menuItems = shouldFetchData ? await getMenu() : [];
-  const settings = shouldFetchData ? await getSettings() : null;
+  console.log("SiteLayout fetched navigations:", data.navigations?.length);
+
 
   return (
     <div className="flex min-h-screen flex-col">
-      {showHeader && <PublicHeader menuItems={menuItems} settings={settings} />}
+      {showHeader && (
+        <PublicHeader 
+          settings={data.settings} 
+          config={data.headerConfig} 
+          navigations={data.navigations} 
+        />
+      )}
       <main className="flex-1 flex flex-col">{children}</main>
-      {showFooter && <PublicFooter settings={settings} />}
+      {showFooter && (
+        <PublicFooter 
+          settings={data.settings} 
+          config={data.footerConfig} 
+          navigations={data.navigations} 
+        />
+      )}
     </div>
   );
 }

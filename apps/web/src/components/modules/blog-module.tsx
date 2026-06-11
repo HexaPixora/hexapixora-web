@@ -1,4 +1,6 @@
 import React from "react";
+import { blogSchema, BlogProps } from "@/lib/module-schemas/blog-schema";
+
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
 
@@ -12,8 +14,8 @@ async function getBlogs(limit: number) {
   }
 }
 
-export default async function BlogModule({ config }: { config: any }) {
-  const { heading, subheading, limit } = config || {};
+export default async function BlogModule({ config }: { config?: BlogProps }) {
+  const { heading, subheading, limit } = blogSchema.parse(config || {});
   const maxItems = parseInt(limit) || 3;
   const posts = await getBlogs(maxItems);
 
