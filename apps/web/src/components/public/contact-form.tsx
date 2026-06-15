@@ -16,6 +16,8 @@ const schema = z.object({
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().optional(),
   message: z.string().min(10, "Message must be at least 10 characters"),
+  // Honeypot — hidden from real users. Bots that auto-fill every field trip it.
+  website: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -37,10 +39,19 @@ export default function ContactForm(props: ContactFormProps) {
 
   const onSubmit = async (data: FormValues) => {
     setError(null);
+
+    // Honeypot tripped: silently pretend it worked, send nothing to the API.
+    const { website, ...lead } = data;
+    if (website && website.trim().length > 0) {
+      setSuccess(true);
+      reset();
+      return;
+    }
+
     try {
       // POST to the Leads API endpoint
       await apiClient.post("/leads", {
-        ...data,
+        ...lead,
         type: "contact",
       });
       setSuccess(true);
@@ -145,6 +156,21 @@ export default function ContactForm(props: ContactFormProps) {
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Honeypot: hidden from humans (offscreen + aria-hidden), bots fill it. */}
+              <div
+                aria-hidden="true"
+                className="absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden"
+              >
+                <label htmlFor="website">Website (leave this empty)</label>
+                <input
+                  id="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  {...register("website")}
+                />
+              </div>
+
               {error && (
                 <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-start gap-2">
                   <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />

@@ -18,6 +18,18 @@ export class MediaService {
     });
   }
 
+  async findOne(id: string) {
+    return this.prisma.media.findUnique({
+      where: { id },
+    });
+  }
+
+  async findByFilename(filename: string) {
+    return this.prisma.media.findFirst({
+      where: { filename },
+    });
+  }
+
   async delete(id: string) {
     return this.prisma.media.delete({
       where: { id },

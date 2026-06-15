@@ -64,12 +64,12 @@ export const VideoPlayerModuleDef = createModuleDefinition(
         itemFields: [
             {
                 name: "videoUrl",
-                label: "Video File",
+                label: "Video File or YouTube URL",
                 type: "video"
             },
             {
                 name: "posterUrl",
-                label: "Poster Image (Optional)",
+                label: "Poster Image (Optional, for native video)",
                 type: "image"
             },
             {

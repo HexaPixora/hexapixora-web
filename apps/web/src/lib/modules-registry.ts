@@ -10,7 +10,6 @@ import { teamSchema, TeamSectionDef } from "./module-schemas/team-schema";
 import { faqsectionSchema, FAQSectionDef } from "./module-schemas/faqsection-schema";
 import { statsSchema, StatsSectionDef } from "./module-schemas/stats-schema";
 import { aboutSchema, AboutSectionDef } from "./module-schemas/about-schema";
-import { youTubeEmbedSchema, YouTubeEmbedModuleDef } from "./module-schemas/you-tube-embed-schema";
 import { gallerySchema, GalleryModuleDef } from "./module-schemas/gallery-schema";
 import { videoPlayerSchema, VideoPlayerModuleDef } from "./module-schemas/video-player-schema";
 import { splideSliderSchema, SplideSliderModuleDef } from "./module-schemas/splide-slider-schema";
@@ -50,7 +49,6 @@ export const MODULES: Record<string, ModuleDefinition> = {
   FAQSection: FAQSectionDef,
   StatsSection: StatsSectionDef,
   AboutSection: AboutSectionDef,
-  YouTubeEmbedModule: YouTubeEmbedModuleDef,
   GalleryModule: GalleryModuleDef,
   VideoPlayerModule: VideoPlayerModuleDef,
   SplideSliderModule: SplideSliderModuleDef,

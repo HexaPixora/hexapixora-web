@@ -1,7 +1,9 @@
 import { Controller, Post, Get, Body, Req, Res, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import type { Response, Request } from 'express';
+import { LoginDto } from './dto/login.dto';
 
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -15,8 +17,10 @@ export class AuthController {
     return req.user;
   }
 
+  // Tight limit on credential checks to blunt brute-force attempts.
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('login')
-  async login(@Body() body: any, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.validateUser(body.email, body.password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

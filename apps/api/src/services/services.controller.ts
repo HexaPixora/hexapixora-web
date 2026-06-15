@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@repo/database';
+import { CreateServiceDto, UpdateServiceDto } from './dto/service.dto';
 
 @Controller('services')
 export class ServicesController {
@@ -24,14 +25,14 @@ export class ServicesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateServiceDto) {
     return this.servicesService.create(body);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Param('id') id: string, @Body() body: UpdateServiceDto) {
     return this.servicesService.update(id, body);
   }
 

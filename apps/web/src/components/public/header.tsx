@@ -43,13 +43,12 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
     <header className={`w-full border-b z-50 transition-all ${isSticky ? "sticky top-0" : ""} ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"}`}>
       <div className={`container flex h-16 items-center ${layoutStyle === "split" ? "justify-between" : "justify-between"}`}>
         
-        {/* Logo */}
+        {/* Logo + Site Name */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          {finalLogoUrl ? (
+          {finalLogoUrl && (
             <img src={finalLogoUrl} alt={siteName} className="h-8 w-auto object-contain" />
-          ) : (
-            <span className="font-bold text-xl tracking-tight text-foreground">{siteName}</span>
           )}
+          <span className="font-bold text-xl tracking-tight text-foreground">{siteName}</span>
         </Link>
         
         {/* Desktop Menu */}

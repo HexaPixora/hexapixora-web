@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { env } from '../config/env';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -24,11 +25,11 @@ export class AuthService {
   async login(user: any) {
     const payload = { email: user.email, sub: user.id, role: user.role };
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_SECRET || 'fallback_access_secret',
+      secret: env.jwtAccessSecret,
       expiresIn: '15m',
     });
     const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret',
+      secret: env.jwtRefreshSecret,
       expiresIn: '7d',
     });
 
