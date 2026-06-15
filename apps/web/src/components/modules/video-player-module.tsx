@@ -1,10 +1,13 @@
 import React from "react";
 import { videoPlayerSchema, VideoPlayerProps } from "@/lib/module-schemas/video-player-schema";
 
-
-
-
-
+// Helper to extract YouTube ID from various URL formats
+function getYouTubeId(url: string) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2] && match[2].length === 11) ? match[2] : null;
+}
 
 export default function VideoPlayerModule({ config }: { config?: VideoPlayerProps }) {
   const { 
@@ -31,6 +34,34 @@ export default function VideoPlayerModule({ config }: { config?: VideoPlayerProp
   // Optimize performance by setting preload strategies
   const renderVideo = (video: any, isHero: boolean) => {
     if (!video.videoUrl) return null;
+
+    const youtubeId = getYouTubeId(video.videoUrl);
+
+    if (youtubeId) {
+      // Construct iframe src with parameters
+      let src = `https://www.youtube.com/embed/${youtubeId}?rel=0`;
+      if (autoplay) src += `&autoplay=1`;
+      if (autoplay) src += `&mute=1`; // Autoplay requires mute in many browsers
+      if (!controls) src += `&controls=0`;
+      if (loop) src += `&loop=1&playlist=${youtubeId}`;
+
+      return (
+        <div className="flex flex-col gap-3 h-full">
+          <div className={`relative bg-black/5 ring-1 ring-border rounded-2xl overflow-hidden shadow-xl ${isHero ? 'aspect-video' : 'aspect-[4/3] sm:aspect-video'}`}>
+            <iframe
+              src={src}
+              className="absolute top-0 left-0 w-full h-full"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+          </div>
+          {video.title && (
+            <h3 className="font-semibold text-lg px-1">{video.title}</h3>
+          )}
+        </div>
+      );
+    }
 
     return (
       <div className="flex flex-col gap-3 h-full">

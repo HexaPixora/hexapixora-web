@@ -12,11 +12,12 @@ export const footerSchema = z.object({
 
   socials: z.array(z.object({
     platform: z.string(),
-    url: z.string(),
-    icon: z.string().optional()
+    url: z.string().optional().default(""),
+    icon: z.string().optional(),       // key into the social icon registry
+    color: z.string().optional()       // hex color; empty = inherit theme color
   })).optional().default([
-    { platform: "Twitter", url: "https://twitter.com", icon: "twitter" },
-    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin" }
+    { platform: "X (Twitter)", url: "https://twitter.com", icon: "x", color: "" },
+    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin", color: "" }
   ]),
 
   backgroundColor: z.enum(["default", "muted", "dark"]).default("muted").describe("Background Color Style"),
@@ -32,7 +33,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   backgroundColor: "muted",
   showNewsletter: true,
   socials: [
-    { platform: "Twitter", url: "https://twitter.com", icon: "twitter" },
-    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin" }
+    { platform: "X (Twitter)", url: "https://twitter.com", icon: "x", color: "" },
+    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin", color: "" }
   ]
 };

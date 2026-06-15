@@ -3,10 +3,11 @@ import { blogSchema, BlogProps } from "@/lib/module-schemas/blog-schema";
 
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
+import { apiUrl } from "@/lib/api-url";
 
 async function getBlogs(limit: number) {
   try {
-    const res = await fetch('http://localhost:3001/api/blogs?published=true', { cache: 'no-store' });
+    const res = await fetch(apiUrl('/blogs?published=true'), { cache: 'no-store' });
     const json = await res.json();
     return (json?.data || []).slice(0, limit);
   } catch (err) {

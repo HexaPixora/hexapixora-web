@@ -2,13 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Pencil, Trash2, Plus, Eye, Search } from "lucide-react";
+import { useHasPermission } from "@/stores/use-auth-store";
 
 export default function AdminBlogsPage() {
+  const canManage = useHasPermission("blogs");
   const [data, setData] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -35,8 +38,9 @@ export default function AdminBlogsPage() {
       await apiClient.delete(`/blogs/${id}`);
       setDeleteConfirm(null);
       fetchBlogs();
+      toast.success("Post deleted");
     } catch (err) {
-      alert("Delete failed");
+      toast.error("Delete failed");
     }
   };
 
@@ -49,9 +53,11 @@ export default function AdminBlogsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Blog Management</h1>
           <p className="text-muted-foreground">{total} posts total</p>
         </div>
-        <Button onClick={() => window.location.href = "/admin/blogs/create"}>
-          <Plus size={16} className="mr-2" /> New Post
-        </Button>
+        {canManage && (
+          <Button onClick={() => window.location.href = "/admin/blogs/create"}>
+            <Plus size={16} className="mr-2" /> New Post
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -134,23 +140,27 @@ export default function AdminBlogsPage() {
                       <Button variant="ghost" size="icon" title="Preview">
                         <Eye size={15} />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        title="Edit"
-                        onClick={() => window.location.href = `/admin/blogs/${blog.id}/edit`}
-                      >
-                        <Pencil size={15} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:bg-destructive/10"
-                        title="Delete"
-                        onClick={() => setDeleteConfirm(blog.id)}
-                      >
-                        <Trash2 size={15} />
-                      </Button>
+                      {canManage && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Edit"
+                          onClick={() => window.location.href = `/admin/blogs/${blog.id}/edit`}
+                        >
+                          <Pencil size={15} />
+                        </Button>
+                      )}
+                      {canManage && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:bg-destructive/10"
+                          title="Delete"
+                          onClick={() => setDeleteConfirm(blog.id)}
+                        >
+                          <Trash2 size={15} />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
+import { apiUrl } from "@/lib/api-url";
 
 async function getPageData(slug: string) {
   try {
     const [pageRes, defaultsRes] = await Promise.all([
-      fetch(`http://localhost:3001/api/pages/${slug}`, { next: { tags: ['pages'] } }),
-      fetch('http://localhost:3001/api/layouts/module-defaults', { next: { tags: ['layouts'] } })
+      fetch(apiUrl(`/pages/${slug}`), { next: { tags: ['pages'] } }),
+      fetch(apiUrl('/layouts/module-defaults'), { next: { tags: ['layouts'] } })
     ]);
     
     if (!pageRes.ok) return null;

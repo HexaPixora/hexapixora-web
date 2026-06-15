@@ -4,6 +4,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@repo/database';
+import { CreateTestimonialDto, UpdateTestimonialDto } from './dto/testimonial.dto';
+import { ReorderDto } from '../common/dto/reorder.dto';
 
 @Controller('testimonials')
 export class TestimonialsController {
@@ -17,21 +19,21 @@ export class TestimonialsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateTestimonialDto) {
     return this.testimonialsService.create(body);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Post('reorder')
-  reorder(@Body() body: { ids: string[] }) {
+  reorder(@Body() body: ReorderDto) {
     return this.testimonialsService.reorder(body.ids);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Param('id') id: string, @Body() body: UpdateTestimonialDto) {
     return this.testimonialsService.update(id, body);
   }
 

@@ -3,6 +3,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import MediaField from "@/components/admin/media-field";
 
 interface SeoTabProps {
   values: {
@@ -62,11 +63,13 @@ export default function SeoTab({ values, onChange }: SeoTabProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">OG Image URL</label>
-        <Input
-          placeholder="https://... (1200×630px recommended)"
+        <label className="text-sm font-medium">OG Image</label>
+        <MediaField
+          type="image"
           value={values.ogImage || ""}
-          onChange={e => onChange("ogImage", e.target.value)}
+          onChange={(url) => onChange("ogImage", url)}
+          placeholder="https://... (1200×630px recommended)"
+          showPreview={false}
         />
         {values.ogImage && (
           <div className="mt-2 rounded-lg overflow-hidden border max-w-sm">

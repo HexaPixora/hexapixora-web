@@ -2,13 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 import { headerSchema, HeaderConfig, DEFAULT_HEADER_CONFIG } from "@/lib/module-schemas/header-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { revalidateCMS } from "@/actions/revalidate";
+import MediaField from "@/components/admin/media-field";
 import { Loader2 } from "lucide-react";
+import { useHasPermission } from "@/stores/use-auth-store";
 
 export default function HeaderBuilderPage() {
+  const canManage = useHasPermission("layouts");
   const [config, setConfig] = useState<HeaderConfig>(DEFAULT_HEADER_CONFIG);
   const [navigations, setNavigations] = useState<{id: string, name: string}[]>([]);
   const [saving, setSaving] = useState(false);
@@ -38,9 +42,10 @@ export default function HeaderBuilderPage() {
       await apiClient.put("/layouts/header", validConfig);
       setSaved(true);
       await revalidateCMS();
+      toast.success("Header saved");
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      alert("Validation failed or server error.");
+      toast.error("Validation failed or server error.");
     } finally {
       setSaving(false);
     }
@@ -61,9 +66,11 @@ export default function HeaderBuilderPage() {
           <h1 className="text-2xl font-bold tracking-tight">Header Builder</h1>
           <p className="text-muted-foreground">Customize the global site header style and navigation.</p>
         </div>
-        <Button onClick={save} disabled={saving}>
-          {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Header"}
-        </Button>
+        {canManage && (
+          <Button onClick={save} disabled={saving}>
+            {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Header"}
+          </Button>
+        )}
       </div>
 
       <div className="bg-card border rounded-xl p-6 space-y-6">
@@ -86,12 +93,19 @@ export default function HeaderBuilderPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Custom Logo URL (Optional)</label>
-            <Input 
-              value={config.logoUrl || ""} 
-              onChange={e => update("logoUrl", e.target.value)} 
+            <label className="text-sm font-medium">Custom Logo (Optional)</label>
+            <MediaField
+              type="image"
+              value={config.logoUrl || ""}
+              onChange={(url) => update("logoUrl", url)}
               placeholder="https://... (Leave blank to use Global Settings logo)"
+              showPreview={false}
             />
+            {config.logoUrl && (
+              <div className="mt-2 p-2 border rounded-md bg-muted/20 inline-block">
+                <img src={config.logoUrl} alt="Logo Preview" className="h-10 w-auto object-contain" />
+              </div>
+            )}
           </div>
         </div>
 
