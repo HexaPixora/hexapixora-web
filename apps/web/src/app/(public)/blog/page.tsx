@@ -3,15 +3,20 @@ import SiteLayout from "@/components/public/site-layout";
 import Link from "next/link";
 import { ArrowRight, Calendar, BookOpen, Clock, Tag } from "lucide-react";
 import { Metadata } from "next";
+import { apiUrl } from "@/lib/api-url";
 
 export const metadata: Metadata = {
   title: "Blog | HexaPixora Digital Agency",
   description: "Read the latest news, insights, trends, and tutorials about design, development, marketing, and technology from the HexaPixora team.",
+  alternates: {
+    canonical: "/blog",
+    types: { "application/rss+xml": "/blog/feed.xml" },
+  },
 };
 
 async function getBlogs(category?: string) {
   try {
-    let url = "http://localhost:3001/api/blogs?published=true&limit=100";
+    let url = apiUrl("/blogs?published=true&limit=100");
     if (category) {
       url += `&category=${encodeURIComponent(category)}`;
     }
@@ -25,7 +30,7 @@ async function getBlogs(category?: string) {
 
 async function getCategories() {
   try {
-    const res = await fetch("http://localhost:3001/api/blogs/categories", { cache: "no-store" });
+    const res = await fetch(apiUrl("/blogs/categories"), { cache: "no-store" });
     return await res.json();
   } catch (err) {
     return [];

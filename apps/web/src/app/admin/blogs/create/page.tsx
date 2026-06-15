@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import TipTapEditor from "@/components/admin/tiptap-editor";
 import TagInput from "@/components/admin/tag-input";
 import SeoTab from "@/components/admin/seo-tab";
+import MediaField from "@/components/admin/media-field";
 import { toast } from "sonner";
 import { 
   ArrowLeft, Save, Globe, Eye, FileText, 
@@ -333,12 +334,13 @@ export default function CreateBlogPage() {
             )}
 
             <div className="space-y-2 pt-2">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Image URL Fallback</label>
-              <Input
-                placeholder="Or paste external image URL..."
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Image URL / Media Library</label>
+              <MediaField
+                type="image"
                 value={thumbnail || ""}
-                onChange={e => setValue("thumbnail", e.target.value)}
-                className="h-10 text-sm bg-background/50 focus:bg-background rounded-xl border-muted/50 focus:border-primary/50"
+                onChange={(url) => setValue("thumbnail", url)}
+                placeholder="Or paste external image URL..."
+                showPreview={false}
               />
             </div>
           </div>

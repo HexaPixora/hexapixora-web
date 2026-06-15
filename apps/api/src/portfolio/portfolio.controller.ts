@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@repo/database';
+import { CreatePortfolioDto, UpdatePortfolioDto } from './dto/portfolio.dto';
 
 @Controller('portfolio')
 export class PortfolioController {
@@ -22,14 +23,14 @@ export class PortfolioController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreatePortfolioDto) {
     return this.portfolioService.create(body);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Param('id') id: string, @Body() body: UpdatePortfolioDto) {
     return this.portfolioService.update(id, body);
   }
 

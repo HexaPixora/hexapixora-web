@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { LeadsService } from './leads.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@repo/database';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { CreateLeadDto } from './dto/create-lead.dto';
+import { UpdateLeadStatusDto } from './dto/update-lead-status.dto';
 
 @Controller('leads')
 export class LeadsController {
@@ -11,12 +12,12 @@ export class LeadsController {
 
   // Public — contact form submissions
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateLeadDto) {
     return this.leadsService.create(body);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('leads')
   @Get()
   findAll(
     @Query('page') page?: string,
@@ -30,15 +31,15 @@ export class LeadsController {
     });
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('leads')
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
+  updateStatus(@Param('id') id: string, @Body() body: UpdateLeadStatusDto) {
     return this.leadsService.updateStatus(id, body.status);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('leads')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.leadsService.remove(id);

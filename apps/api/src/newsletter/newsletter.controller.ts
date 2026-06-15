@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { NewsletterService } from './newsletter.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@repo/database';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { SubscribeDto } from './dto/subscribe.dto';
 
 @Controller('newsletter')
 export class NewsletterController {
@@ -11,12 +11,12 @@ export class NewsletterController {
 
   // Public subscription
   @Post('subscribe')
-  subscribe(@Body() body: { email: string }) {
+  subscribe(@Body() body: SubscribeDto) {
     return this.newsletterService.subscribe(body.email);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('newsletter')
   @Get('subscribers')
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.newsletterService.findAll({
@@ -25,8 +25,8 @@ export class NewsletterController {
     });
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('newsletter')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.newsletterService.remove(id);

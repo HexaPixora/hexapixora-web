@@ -2,10 +2,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { apiClient } from "@/lib/api-client";
+import { absoluteMediaUrl } from "@/lib/site-url";
+import { useHasPermission } from "@/stores/use-auth-store";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Copy, Check, Trash2, Image as ImageIcon, File } from "lucide-react";
 
 export default function AdminMediaPage() {
+  const canManage = useHasPermission("media");
   const [mediaList, setMediaList] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -41,7 +45,7 @@ export default function AdminMediaPage() {
       await fetchMedia();
     } catch (err) {
       console.error(err);
-      alert("Upload failed");
+      toast.error("Upload failed");
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -60,9 +64,9 @@ export default function AdminMediaPage() {
   };
 
   const copyUrl = (url: string) => {
-    const absoluteUrl = typeof window !== "undefined" ? window.location.origin + url : url;
-    navigator.clipboard.writeText(absoluteUrl);
+    navigator.clipboard.writeText(absoluteMediaUrl(url));
     setCopied(url);
+    toast.success("URL copied to clipboard");
     setTimeout(() => setCopied(null), 2000);
   };
 
@@ -71,9 +75,10 @@ export default function AdminMediaPage() {
       await apiClient.delete(`/media/${id}`);
       setMediaList(mediaList.filter(m => m.id !== id));
       setDeleteConfirm(null);
+      toast.success("Media deleted");
     } catch (err) {
       console.error(err);
-      alert("Delete failed");
+      toast.error("Delete failed");
     }
   };
 
@@ -162,13 +167,15 @@ export default function AdminMediaPage() {
                 >
                   {copied === media.url ? <Check size={16} /> : <Copy size={16} />}
                 </button>
-                <button
-                  onClick={() => setDeleteConfirm(media.id)}
-                  className="p-2 bg-destructive/80 hover:bg-destructive rounded-lg text-white transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 size={16} />
-                </button>
+                {canManage && (
+                  <button
+                    onClick={() => setDeleteConfirm(media.id)}
+                    className="p-2 bg-destructive/80 hover:bg-destructive rounded-lg text-white transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </div>
 
               {/* Filename */}
