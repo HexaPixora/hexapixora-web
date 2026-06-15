@@ -1,18 +1,21 @@
 import React from "react";
 import PublicHeader from "@/components/public/header";
 import PublicFooter from "@/components/public/footer";
+import { apiUrl } from "@/lib/api-url";
 
 async function getLayoutData() {
   try {
     const [settingsRes, headerRes, footerRes, navsRes] = await Promise.all([
-      fetch('http://localhost:3001/api/settings', { next: { tags: ['layouts'] } }).catch(() => null),
-      fetch('http://localhost:3001/api/layouts/header', { next: { tags: ['layouts'] } }).catch(() => null),
-      fetch('http://localhost:3001/api/layouts/footer', { next: { tags: ['layouts'] } }).catch(() => null),
-      fetch('http://localhost:3001/api/layouts/navigations', { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch(apiUrl('/settings'), { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch(apiUrl('/layouts/header'), { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch(apiUrl('/layouts/footer'), { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch(apiUrl('/layouts/navigations'), { next: { tags: ['layouts'] } }).catch(() => null),
     ]);
 
     return {
-      settings: settingsRes?.ok ? (await settingsRes.json())?.data : null,
+      // /settings returns the SiteSetting row directly (a flat object), unlike
+      // the layout endpoints which nest their config under a `data` column.
+      settings: settingsRes?.ok ? await settingsRes.json() : null,
       headerConfig: headerRes?.ok ? (await headerRes.json())?.data : null,
       footerConfig: footerRes?.ok ? (await footerRes.json())?.data : null,
       navigations: navsRes?.ok ? (await navsRes.json())?.data : []
@@ -53,6 +56,7 @@ export default async function SiteLayout({
         <PublicFooter 
           settings={data.settings} 
           config={data.footerConfig} 
+          headerConfig={data.headerConfig}
           navigations={data.navigations} 
         />
       )}

@@ -24,7 +24,6 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   FAQSection: dynamic(() => import("@/components/modules/faq-module")),
   StatsSection: dynamic(() => import("@/components/modules/stats-module")),
   AboutSection: dynamic(() => import("@/components/modules/about-module")),
-  YouTubeEmbedModule: dynamic(() => import("@/components/modules/youtube-module")),
   GalleryModule: dynamic(() => import("@/components/modules/gallery-module")),
   VideoPlayerModule: dynamic(() => import("@/components/modules/video-player-module")),
   SplideSliderModule: dynamic(() => import("@/components/modules/splide-slider-module")),
@@ -47,19 +46,38 @@ export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRen
   return (
     <>
       {sections.filter((s) => s.isVisible).map((section) => {
-        const Component = SECTION_MAP[section.type] || DefaultSection;
-
         // Merge config: Section specific config > Global Module Default > Empty
         const globalDefault = moduleDefaults[section.type] || {};
-        const mergedConfig =
+        let mergedConfig =
           section.config && Object.keys(section.config).length > 0
             ? section.config
             : globalDefault;
+        
+        let typeToRender = section.type;
+
+        if (typeToRender === 'YouTubeEmbedModule') {
+          // Transform old config format to new VideoPlayer format
+          mergedConfig = {
+            heading: "",
+            layout: "single",
+            autoplay: mergedConfig.autoplay,
+            loop: mergedConfig.loop,
+            controls: mergedConfig.controls,
+            videos: [{
+              videoUrl: mergedConfig.videoUrl,
+              posterUrl: "",
+              title: ""
+            }]
+          };
+          typeToRender = 'VideoPlayerModule';
+        }
+
+        const Component = SECTION_MAP[typeToRender] || DefaultSection;
 
         return (
           <Component
             key={section.id}
-            type={section.type}
+            type={typeToRender}
             label={section.label}
             config={mergedConfig}
           />

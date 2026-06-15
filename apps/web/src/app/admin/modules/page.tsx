@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
+import { useHasPermission } from "@/stores/use-auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Settings2, Eye, Component, X, Upload, ToggleLeft, ToggleRight, Loader2 } from "lucide-react";
+import MediaField from "@/components/admin/media-field";
+import { Settings2, Eye, Component, X, ToggleLeft, ToggleRight } from "lucide-react";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import HeroModule from "@/components/modules/hero-module";
@@ -42,6 +45,7 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
 };
 
 export default function ModulesLibraryPage() {
+  const canManage = useHasPermission("layouts");
   const [moduleDefaults, setModuleDefaults] = useState<Record<string, any>>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -50,30 +54,8 @@ export default function ModulesLibraryPage() {
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<Record<string, any>>({});
   const [previewId, setPreviewId] = useState<string | null>(null);
-  const [uploadingField, setUploadingField] = useState<string | null>(null);
 
   const activeModuleDef = activeConfigId ? MODULES[activeConfigId] : null;
-
-  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>, uploadKey: string | undefined, onChange: (val: string) => void) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("file", file);
-
-    if (uploadKey) setUploadingField(uploadKey);
-
-    try {
-      const res = await apiClient.post("/media/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      onChange(res.data.url);
-    } catch (err) {
-      alert("Failed to upload file.");
-    } finally {
-      if (uploadKey) setUploadingField(null);
-    }
-  };
 
   const renderFieldInput = (field: any, value: any, onChange: (val: any) => void, uploadKey?: string, itemName?: string) => {
     switch (field.type) {
@@ -132,31 +114,12 @@ export default function ModulesLibraryPage() {
       case 'image':
       case 'video':
         return (
-          <div className="flex items-center gap-3">
-            <Input 
-              type="text" 
-              value={value || ""} 
-              onChange={e => onChange(e.target.value)}
-              placeholder={`URL or upload ${field.type}...`}
-              className="flex-1 text-sm font-mono"
-            />
-            <div className="relative">
-              <input 
-                type="file" 
-                name={itemName}
-                accept={field.type === 'image' ? "image/*" : "video/*"}
-                onChange={e => handleMediaUpload(e, uploadKey, onChange)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                disabled={uploadingField === uploadKey}
-              />
-              <Button type="button" variant="secondary" size="icon" disabled={uploadingField === uploadKey}>
-                {uploadingField === uploadKey ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-              </Button>
-            </div>
-            {value && field.type === 'image' && (
-              <img src={value} alt="Preview" className="h-10 w-10 object-cover rounded border" />
-            )}
-          </div>
+          <MediaField
+            type={field.type}
+            value={value || ""}
+            onChange={onChange}
+            placeholder={`URL or upload ${field.type}...`}
+          />
         );
       case 'text':
       default:
@@ -200,10 +163,11 @@ export default function ModulesLibraryPage() {
       setModuleDefaults(updatedDefaults);
       setSaved(true);
       await revalidateCMS();
+      toast.success("Default content saved");
       setTimeout(() => setSaved(false), 3000);
       setActiveConfigId(null);
     } catch (err) {
-      alert("Failed to save default content.");
+      toast.error("Failed to save default content.");
     } finally {
       setSaving(false);
     }
@@ -246,7 +210,7 @@ export default function ModulesLibraryPage() {
 
       {/* Dynamic Settings Modal */}
       <Dialog open={!!activeConfigId} onOpenChange={(open) => !open && setActiveConfigId(null)}>
-        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Global Defaults: {activeModuleDef?.label}</DialogTitle>
             <p className="text-xs text-muted-foreground">
@@ -323,16 +287,18 @@ export default function ModulesLibraryPage() {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setActiveConfigId(null)} disabled={saving}>Cancel</Button>
-            <Button onClick={saveSettings} disabled={saving}>
-              {saving ? "Saving..." : saved ? "✓ Saved!" : "Save Defaults"}
-            </Button>
+            {canManage && (
+              <Button onClick={saveSettings} disabled={saving}>
+                {saving ? "Saving..." : saved ? "✓ Saved!" : "Save Defaults"}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Preview Modal */}
       <Dialog open={!!previewId} onOpenChange={(open) => !open && setPreviewId(null)}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto w-[90vw]">
+        <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto w-[90vw]">
           <DialogHeader>
             <DialogTitle>Preview: {previewId ? MODULES[previewId]?.label : ''}</DialogTitle>
           </DialogHeader>

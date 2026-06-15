@@ -3,9 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { footerSchema, DEFAULT_FOOTER_CONFIG } from "@/lib/module-schemas/footer-schema";
-import { ArrowRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SocialIcon } from "@/components/icons/social-icons";
 
 interface MenuItem {
   id: string;
@@ -24,15 +24,11 @@ interface Navigation {
 interface FooterProps {
   settings: any;
   config: any;
+  headerConfig?: any;
   navigations: Navigation[];
 }
 
-// Icon mapping helper
-const getIcon = (name: string) => {
-  return <span className="text-sm font-semibold hover:underline underline-offset-4">{name}</span>;
-};
-
-export default function PublicFooter({ settings, config, navigations }: FooterProps) {
+export default function PublicFooter({ settings, config, headerConfig, navigations }: FooterProps) {
   // Parse config with zod to ensure safe fallbacks
   const footerConfig = footerSchema.parse(config || DEFAULT_FOOTER_CONFIG);
   const { 
@@ -44,7 +40,7 @@ export default function PublicFooter({ settings, config, navigations }: FooterPr
   const col1Nav = navigations.find(n => n.id === col1NavId)?.items || [];
   const col2Nav = navigations.find(n => n.id === col2NavId)?.items || [];
 
-  const finalLogoUrl = logoUrl || settings?.logoUrl;
+  const finalLogoUrl = logoUrl || headerConfig?.logoUrl || settings?.logoUrl;
   const siteName = settings?.siteName || "HexaPixora";
   const currentYear = new Date().getFullYear();
 
@@ -77,18 +73,23 @@ export default function PublicFooter({ settings, config, navigations }: FooterPr
             )}
             {socials && socials.length > 0 && (
               <div className="flex items-center gap-4 pt-2">
-                {socials.map((social, idx) => (
-                  <a 
-                    key={idx} 
-                    href={social.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="opacity-70 hover:opacity-100 hover:text-primary transition-all hover:-translate-y-1"
-                    title={social.platform}
-                  >
-                    {getIcon(social.icon || social.platform)}
-                  </a>
-                ))}
+                {socials.map((social, idx) => {
+                  const href = social.url;
+                  if (!href) return null;
+                  return (
+                    <a
+                      key={idx}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="opacity-70 hover:opacity-100 transition-all hover:-translate-y-1"
+                      style={social.color ? { color: social.color } : undefined}
+                      title={social.platform}
+                    >
+                      <SocialIcon name={social.icon} size={20} />
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>

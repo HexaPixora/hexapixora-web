@@ -4,10 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Clock, BookOpen, User } from "lucide-react";
 import { Metadata } from "next";
+import { apiUrl } from "@/lib/api-url";
+import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
+import { JsonLd } from "@/components/seo/json-ld";
 
 async function getBlogPost(slug: string) {
   try {
-    const res = await fetch(`http://localhost:3001/api/blogs/slug/${slug}`, { cache: "no-store" });
+    const res = await fetch(apiUrl(`/blogs/slug/${slug}`), { cache: "no-store" });
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
@@ -17,7 +20,7 @@ async function getBlogPost(slug: string) {
 
 async function getRecentBlogs(excludeSlug: string) {
   try {
-    const res = await fetch("http://localhost:3001/api/blogs/recent?limit=4", { cache: "no-store" });
+    const res = await fetch(apiUrl("/blogs/recent?limit=4"), { cache: "no-store" });
     if (!res.ok) return [];
     const list = await res.json();
     return list.filter((post: any) => post.slug !== excludeSlug).slice(0, 3);
@@ -39,6 +42,7 @@ export async function generateMetadata(props: BlogPostPageProps): Promise<Metada
     title: `${post.metaTitle || post.title} | HexaPixora Blog`,
     description: post.metaDescription || post.excerpt || `Read our latest article: ${post.title}`,
     keywords: post.metaKeywords || undefined,
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title: post.title,
       description: post.metaDescription || post.excerpt || undefined,
@@ -57,8 +61,34 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
   const recentPosts = await getRecentBlogs(params.slug);
 
+  const canonical = siteUrl(`/blog/${post.slug}`);
+  const image = post.ogImage || post.thumbnail;
+  const articleLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.metaTitle || post.title,
+    description: post.metaDescription || post.excerpt || undefined,
+    image: image ? absoluteMediaUrl(image) : undefined,
+    datePublished: post.publishDate || post.createdAt || undefined,
+    dateModified: post.updatedAt || post.publishDate || post.createdAt || undefined,
+    ...(post.category ? { articleSection: post.category } : {}),
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    publisher: { "@type": "Organization", name: "HexaPixora" },
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl("/") },
+      { "@type": "ListItem", position: 2, name: "Blog", item: siteUrl("/blog") },
+      { "@type": "ListItem", position: 3, name: post.title, item: canonical },
+    ],
+  };
+
   return (
     <SiteLayout showHeader={true} showFooter={true}>
+      <JsonLd data={articleLd} />
+      <JsonLd data={breadcrumbLd} />
       <article className="flex-1 bg-background relative overflow-hidden pb-24">
         {/* Top Gradient background */}
         <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-primary/5 via-primary/0 to-transparent pointer-events-none" />

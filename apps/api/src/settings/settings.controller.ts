@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@repo/database';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
+import { UpdateSettingsDto } from './dto/settings.dto';
 
 @Controller('settings')
 export class SettingsController {
@@ -15,10 +15,10 @@ export class SettingsController {
     return this.settingsService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('settings')
   @Post()
-  upsert(@Body() body: any) {
+  upsert(@Body() body: UpdateSettingsDto) {
     return this.settingsService.upsert(body);
   }
 }

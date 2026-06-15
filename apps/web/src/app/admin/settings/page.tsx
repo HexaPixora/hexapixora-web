@@ -2,19 +2,26 @@
 
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SeoTab from "@/components/admin/seo-tab";
-import { 
-  Settings, Globe, Palette, Search, Code, Share2, 
-  UploadCloud, X, Mail, Phone, MapPin, Map, Clock, Image as ImageIcon
+import MediaPicker from "@/components/admin/media-picker";
+import { revalidateCMS } from "@/actions/revalidate";
+import { useHasPermission } from "@/stores/use-auth-store";
+import {
+  Settings, Globe, Palette, Search, Code,
+  UploadCloud, Mail, Phone, MapPin, Map, Clock, Image as ImageIcon, ImagePlus
 } from "lucide-react";
 
 export default function AdminSettingsPage() {
+  const canManage = useHasPermission("settings");
   const [settings, setSettings] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  // Which branding field currently has the media library picker open.
+  const [pickerField, setPickerField] = useState<string | null>(null);
 
   useEffect(() => {
     apiClient.get("/settings").then(res => setSettings(res.data || {})).catch(console.error);
@@ -24,23 +31,20 @@ export default function AdminSettingsPage() {
     setSettings((prev: any) => ({ ...prev, [field]: value }));
   };
 
-  const updateSocial = (platform: string, value: string) => {
-    setSettings((prev: any) => ({
-      ...prev,
-      socialLinks: { ...(prev.socialLinks || {}), [platform]: value }
-    }));
-  };
-
   const handleSave = async () => {
     setSaving(true);
     try {
       const res = await apiClient.post("/settings", settings);
       setSettings(res.data);
+      // Bust the public site's cached layout data so the new logo/branding
+      // (used as the header/footer fallback) shows up immediately.
+      await revalidateCMS();
       setSaved(true);
+      toast.success("Settings saved");
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || "Save failed");
+      toast.error(err.response?.data?.message || "Save failed");
     } finally {
       setSaving(false);
     }
@@ -49,10 +53,22 @@ export default function AdminSettingsPage() {
   const uploadLogo = async (field: string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await apiClient.post("/media/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    update(field, res.data.url);
+    try {
+      const res = await apiClient.post("/media/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      update(field, res.data.url);
+      // The backend deduplicates by content: a re-upload of the same asset
+      // returns the existing record rather than storing a copy.
+      if (res.data.deduped) {
+        toast.info("This image already existed in your library — reused it.");
+      } else {
+        toast.success("Image uploaded");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Upload failed");
+    }
   };
 
   const LogoUploader = ({ field, label, description }: { field: string; label: string, description: string }) => (
@@ -61,7 +77,7 @@ export default function AdminSettingsPage() {
         <h4 className="text-sm font-semibold">{label}</h4>
         <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
         
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <label className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-4 py-2">
             <UploadCloud size={16} className="mr-2" />
             {settings[field] ? "Replace Image" : "Upload Image"}
@@ -72,6 +88,10 @@ export default function AdminSettingsPage() {
               onChange={e => e.target.files?.[0] && uploadLogo(field, e.target.files[0])}
             />
           </label>
+          <Button variant="outline" size="sm" className="h-9" onClick={() => setPickerField(field)}>
+            <ImagePlus size={16} className="mr-2" />
+            Select from Media
+          </Button>
           {settings[field] && (
             <Button variant="ghost" size="sm" onClick={() => update(field, "")} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
               Remove
@@ -95,7 +115,16 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="flex flex-col gap-8 max-w-5xl mx-auto pb-12">
-      
+
+      {/* Media library picker for branding assets */}
+      <MediaPicker
+        open={pickerField !== null}
+        onClose={() => setPickerField(null)}
+        onSelect={(url) => pickerField && update(pickerField, url)}
+        title="Select Branding Image"
+        description="Pick an existing image from your media library, or upload a new one."
+      />
+
       {/* Premium Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-background to-background border p-8 shadow-sm">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
@@ -109,9 +138,11 @@ export default function AdminSettingsPage() {
               <p className="text-sm text-muted-foreground mt-1">Manage core configuration, branding, and integrations.</p>
             </div>
           </div>
-          <Button onClick={handleSave} disabled={saving} size="lg" className="shadow-md shadow-primary/20 transition-all hover:scale-[1.02]">
-            {saved ? "✓ Saved Successfully!" : saving ? "Saving changes..." : "Save Configuration"}
-          </Button>
+          {canManage && (
+            <Button onClick={handleSave} disabled={saving} size="lg" className="shadow-md shadow-primary/20 transition-all hover:scale-[1.02]">
+              {saved ? "✓ Saved Successfully!" : saving ? "Saving changes..." : "Save Configuration"}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -129,9 +160,6 @@ export default function AdminSettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="integrations" className="justify-start gap-3 px-4 py-3 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none hover:bg-muted/50 transition-all">
             <Code size={18} className="opacity-70" /> Tracking
-          </TabsTrigger>
-          <TabsTrigger value="social" className="justify-start gap-3 px-4 py-3 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none hover:bg-muted/50 transition-all">
-            <Share2 size={18} className="opacity-70" /> Social Links
           </TabsTrigger>
         </TabsList>
 
@@ -285,40 +313,6 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
 
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* SOCIAL TAB */}
-        <TabsContent value="social" className="mt-0">
-          <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b bg-muted/10">
-              <h3 className="font-semibold text-lg">Social Media Profiles</h3>
-              <p className="text-xs text-muted-foreground">Provide full URLs to your social media profiles. These will appear in the footer.</p>
-            </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/company/...", color: "bg-[#0A66C2]/10 text-[#0A66C2]" },
-                { key: "twitter", label: "X (Twitter)", placeholder: "https://x.com/...", color: "bg-foreground/10 text-foreground" },
-                { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/...", color: "bg-[#1877F2]/10 text-[#1877F2]" },
-                { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/...", color: "bg-[#E4405F]/10 text-[#E4405F]" },
-                { key: "youtube", label: "YouTube", placeholder: "https://youtube.com/@...", color: "bg-[#FF0000]/10 text-[#FF0000]" },
-              ].map(({ key, label, placeholder, color }) => (
-                <div key={key} className="space-y-2 bg-background p-4 border rounded-xl">
-                  <label className="text-sm font-semibold flex items-center gap-2">
-                    <div className={`h-6 w-6 rounded-md flex items-center justify-center ${color}`}>
-                      <Share2 size={12} />
-                    </div>
-                    {label}
-                  </label>
-                  <Input
-                    value={settings.socialLinks?.[key] || ""}
-                    onChange={e => updateSocial(key, e.target.value)}
-                    placeholder={placeholder}
-                    className="mt-2"
-                  />
-                </div>
-              ))}
             </div>
           </div>
         </TabsContent>

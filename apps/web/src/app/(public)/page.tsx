@@ -1,12 +1,13 @@
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
 import HeroModule from "@/components/modules/hero-module"; // Needed for fallback
+import { apiUrl } from "@/lib/api-url";
 
 async function getHomepageLayout() {
   try {
     const [layoutRes, defaultsRes] = await Promise.all([
-      fetch('http://localhost:3001/api/layouts/homepage', { next: { tags: ['layouts'] } }),
-      fetch('http://localhost:3001/api/layouts/module-defaults', { next: { tags: ['layouts'] } })
+      fetch(apiUrl('/layouts/homepage'), { next: { tags: ['layouts'] } }),
+      fetch(apiUrl('/layouts/module-defaults'), { next: { tags: ['layouts'] } })
     ]);
     
     let layoutJson = null;

@@ -17,11 +17,16 @@ model User {
   password  String
   name      String?
   role      Role     @default(TEAM_MEMBER)
+  // Section keys this user may access (e.g. ["blogs","media"]). Ignored for
+  // ADMIN/SUPER_ADMIN, who have full access. Drives TEAM_MEMBER capabilities.
+  permissions String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   sessions  Session[]
   auditLogs AuditLog[]
+  assignedConversations Conversation[]
+  chatMessages          ChatMessage[]
 }
 
 enum Role {
@@ -181,9 +186,11 @@ model Lead {
   email            String
   phone            String?
   message          String?
-  type             String   @default("contact") // contact, consultation, quote
+  type             String   @default("contact") // contact, consultation, quote, chat
   status           LeadStatus @default(NEW)
-  
+
+  conversations    Conversation[]
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -222,7 +229,6 @@ model SiteSetting {
   address          String?
   timezone         String?
   googleMapsUrl    String?
-  socialLinks      Json?    // { linkedin, facebook, etc. }
   logoUrl          String?
   faviconUrl       String?
   
@@ -257,7 +263,107 @@ model Page {
   showFooter       Boolean  @default(true)
   metaTitle        String?
   metaDescription  String?
-  
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+// ==========================================
+// AI Support Chat ("HexaPixora Support AI")
+// ==========================================
+
+// Single-row ("global") admin-managed configuration for the public chat widget.
+model ChatbotConfig {
+  id               String   @id @default("global")
+  enabled          Boolean  @default(true)
+  botName          String   @default("HexaPixora Support AI")
+  welcomeMessage   String   @default("Hi! I'm the HexaPixora Support AI. How can I help you today?")
+  // Extra guidance appended to the auto-generated, services-scoped system prompt.
+  systemPrompt     String?
+  aiEnabled        Boolean  @default(true)
+  // OpenAI-compatible model name. The endpoint + API key live in env, never the
+  // DB. Default targets Groq's free tier; change it if you override AI_BASE_URL
+  // (e.g. a Gemini or Ollama model name).
+  aiModel          String   @default("llama-3.3-70b-versatile")
+  accentColor      String   @default("#4f46e5")
+  // Shown when AI is off / unconfigured and no agent is available.
+  offlineMessage   String   @default("Thanks for your message! Our team will get back to you by email shortly.")
+  // Encourage the AI to collect name/email and create a CRM lead.
+  collectLeads     Boolean  @default(true)
+  // Quick-reply chips shown in the widget. Array of { label, reply? }: a chip
+  // with a `reply` answers instantly with that text; without one it sends the
+  // label to the AI.
+  quickReplies     Json     @default("[{\"label\":\"What services do you offer?\"},{\"label\":\"How much does a website cost?\"},{\"label\":\"I'd like to start a project\"}]")
+
+  // ---- Widget appearance / behavior ----
+  // "bottom-right" | "bottom-left"
+  position         String   @default("bottom-right")
+  // Launcher + header icon: message-circle | message-square | bot | sparkles | headset
+  launcherIcon     String   @default("message-circle")
+  // Subtitle under the bot name in the header.
+  headerSubtitle   String   @default("Typically replies instantly")
+  // Show the "Talk to a human" button.
+  showAgentHandoff Boolean  @default(true)
+  // Identity shown in the header once a team member takes the chat over.
+  teamName         String   @default("Support Team")
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+enum ConversationStatus {
+  BOT            // AI is handling the conversation
+  WAITING_AGENT  // Visitor asked for / needs a human; queued for the team
+  AGENT          // A team member has taken over
+  CLOSED
+}
+
+model Conversation {
+  id            String             @id @default(uuid())
+  // Opaque token the anonymous visitor uses to authorize their own messages.
+  visitorToken  String             @unique
+  visitorName   String?
+  visitorEmail  String?
+  status        ConversationStatus @default(BOT)
+
+  // Team member who took the conversation over, if any.
+  assignedToId  String?
+  assignedTo    User?              @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  // CRM lead created/linked from this conversation (lead qualification).
+  leadId        String?
+  lead          Lead?              @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  // Last time a visitor message went unanswered-by-agent — drives inbox badges.
+  unreadForAgent Boolean           @default(false)
+  lastMessageAt  DateTime          @default(now())
+
+  messages      ChatMessage[]
+
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([status, lastMessageAt])
+}
+
+enum ChatRole {
+  USER    // The website visitor
+  AI      // The bot
+  AGENT   // A human team member
+  SYSTEM  // System notices (e.g. "Agent joined")
+}
+
+model ChatMessage {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           ChatRole
+  content        String
+  // Set when role = AGENT — which team member sent it.
+  senderId       String?
+  sender         User?        @relation(fields: [senderId], references: [id], onDelete: SetNull)
+
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
 }

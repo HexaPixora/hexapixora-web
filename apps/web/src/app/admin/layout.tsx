@@ -6,57 +6,79 @@ import { apiClient } from "@/lib/api-client";
 import { useAuthStore } from "@/stores/use-auth-store";
 import {
   LayoutDashboard, Wrench, Image as ImageIcon, BookOpen, Briefcase, Settings,
-  Users, Star, HelpCircle, Mail, MessageSquare, Menu, Layers, LogOut,
+  Users, Star, HelpCircle, Mail, MessageSquare, MessageCircle, Bot, Menu, Layers, LogOut,
   ChevronRight, X, FileText
 } from "lucide-react";
 import { Toaster } from "sonner";
+import { ConfirmProvider } from "@/components/admin/confirm-dialog";
+import { siteUrl } from "@/lib/site-url";
+import { useIsAdmin } from "@/stores/use-auth-store";
 
+// Each item may declare a `permission` (section key) — shown only to admins or
+// team members granted that section — or `adminOnly` for admin-exclusive pages.
+// Items with neither (Dashboard) are always visible.
 const navGroups = [
   {
     label: "Content",
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-      { href: "/admin/pages", label: "Pages", icon: FileText },
-      { href: "/admin/blogs", label: "Blog", icon: BookOpen },
-      { href: "/admin/media", label: "Media Library", icon: ImageIcon },
+      { href: "/admin/pages", label: "Pages", icon: FileText, permission: "pages" },
+      { href: "/admin/blogs", label: "Blog", icon: BookOpen, permission: "blogs" },
+      { href: "/admin/media", label: "Media Library", icon: ImageIcon, permission: "media" },
     ],
   },
   {
     label: "Builders",
     items: [
-      { href: "/admin/modules", label: "Modules Library", icon: Wrench },
-      { href: "/admin/layouts/menu", label: "Navigations", icon: Menu },
-      { href: "/admin/layouts/header", label: "Global Header", icon: Layers },
-      { href: "/admin/layouts/footer", label: "Global Footer", icon: Layers },
-      { href: "/admin/pages/home", label: "Homepage", icon: Layers },
+      { href: "/admin/modules", label: "Modules Library", icon: Wrench, permission: "layouts" },
+      { href: "/admin/layouts/menu", label: "Navigations", icon: Menu, permission: "layouts" },
+      { href: "/admin/layouts/header", label: "Global Header", icon: Layers, permission: "layouts" },
+      { href: "/admin/layouts/footer", label: "Global Footer", icon: Layers, permission: "layouts" },
+      { href: "/admin/pages/home", label: "Homepage", icon: Layers, permission: "layouts" },
     ],
   },
   {
     label: "Marketing",
     items: [
-      { href: "/admin/leads", label: "Leads / CRM", icon: MessageSquare },
-      { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+      { href: "/admin/leads", label: "Leads / CRM", icon: MessageSquare, permission: "leads" },
+      { href: "/admin/chat", label: "Conversations", icon: MessageCircle, permission: "chat", exact: true },
+      { href: "/admin/chat/settings", label: "Chatbot AI", icon: Bot, permission: "chat" },
+      { href: "/admin/newsletter", label: "Newsletter", icon: Mail, permission: "newsletter" },
     ],
   },
   {
     label: "System",
     items: [
-      { href: "/admin/settings", label: "Settings", icon: Settings },
+      { href: "/admin/settings", label: "Settings", icon: Settings, permission: "settings" },
+      { href: "/admin/users", label: "Team Members", icon: Users, adminOnly: true },
     ],
   },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { setUser, user } = useAuthStore();
+  const isAdmin = useIsAdmin();
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [settings, setSettings] = useState<any>(null);
   const pathname = usePathname();
+
+  // Visibility of a nav item for the current user.
+  const canSeeNavItem = (item: any) => {
+    if (item.adminOnly) return isAdmin;
+    if (item.permission) {
+      return isAdmin || (Array.isArray(user?.permissions) && user.permissions.includes(item.permission));
+    }
+    return true;
+  };
 
   useEffect(() => {
     // Verify session on mount
     apiClient.get("/auth/me")
       .then(res => { setUser(res.data); setLoading(false); })
       .catch(() => { window.location.href = "/login"; });
+    // Load branding (logo + site name) for the sidebar.
+    apiClient.get("/settings").then(res => setSettings(res.data)).catch(() => {});
   }, []);
 
   const logout = async () => {
@@ -85,22 +107,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const Sidebar = () => (
     <aside className="flex flex-col h-full bg-background border-r w-64 flex-shrink-0">
-      {/* Logo */}
+      {/* Logo + Site Name (from branding settings) */}
       <div className="flex items-center justify-between h-14 px-5 border-b">
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">H</div>
-          <span className="font-bold text-base">HexaPixora</span>
+        <div className="flex items-center gap-2 min-w-0">
+          {settings?.logoUrl ? (
+            <img
+              src={settings.logoUrl}
+              alt={settings?.siteName || "HexaPixora"}
+              className="h-7 w-auto object-contain flex-shrink-0"
+            />
+          ) : (
+            <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">
+              {settings?.siteName?.[0]?.toUpperCase() || "H"}
+            </div>
+          )}
+          <span className="font-bold text-base truncate">{settings?.siteName || "HexaPixora"}</span>
         </div>
-        <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">CMS</span>
+        <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex-shrink-0">CMS</span>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
-        {navGroups.map(group => (
+        {navGroups.map(group => {
+          const items = group.items.filter(canSeeNavItem);
+          if (items.length === 0) return null;
+          return (
           <div key={group.label}>
             <p className="text-xs font-semibold uppercase text-muted-foreground px-2 mb-1.5 tracking-wider">{group.label}</p>
             <div className="space-y-0.5">
-              {group.items.map(item => {
+              {items.map(item => {
                 const active = isActive(item.href, (item as any).exact);
                 return (
                   <a
@@ -120,7 +155,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* User footer */}
@@ -182,7 +218,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </nav>
           </div>
           <a
-            href="http://localhost:3000"
+            href={siteUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
@@ -192,7 +228,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-6 lg:p-8">
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </main>
       </div>
     </div>
   );

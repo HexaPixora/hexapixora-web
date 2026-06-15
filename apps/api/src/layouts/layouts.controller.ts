@@ -1,9 +1,8 @@
 import { Controller, Get, Put, Body, Param, UseGuards } from '@nestjs/common';
 import { LayoutsService } from './layouts.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@repo/database';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Permissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('layouts')
 export class LayoutsController {
@@ -15,8 +14,8 @@ export class LayoutsController {
     return this.layoutsService.findByKey(key);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('layouts')
   @Put(':key')
   upsert(@Param('key') key: string, @Body() body: any) {
     return this.layoutsService.upsert(key, body);

@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/admin/confirm-dialog";
+import { useHasPermission } from "@/stores/use-auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GripVertical, Plus, Trash2, ChevronRight, ChevronDown } from "lucide-react";
@@ -107,6 +110,8 @@ function MenuItemRow({ item, depth = 0, onUpdate, onDelete, onAddChild }: {
 }
 
 export default function NavigationsBuilderPage() {
+  const confirm = useConfirm();
+  const canManage = useHasPermission("layouts");
   const [navigations, setNavigations] = useState<Navigation[]>(DEFAULT_NAVIGATIONS);
   const [activeNavId, setActiveNavId] = useState<string>("main-menu");
   const [saving, setSaving] = useState(false);
@@ -137,12 +142,18 @@ export default function NavigationsBuilderPage() {
     setActiveNavId(id);
   };
 
-  const deleteActiveNav = () => {
+  const deleteActiveNav = async () => {
     if (navigations.length <= 1) {
-      alert("You must have at least one navigation menu.");
+      toast.error("You must have at least one navigation menu.");
       return;
     }
-    if (confirm("Are you sure you want to delete this menu?")) {
+    const ok = await confirm({
+      title: "Delete menu?",
+      description: "This navigation menu and its items will be removed.",
+      confirmText: "Delete",
+      destructive: true,
+    });
+    if (ok) {
       const remaining = navigations.filter(n => n.id !== activeNavId);
       setNavigations(remaining);
       setActiveNavId(remaining[0]?.id || "");
@@ -198,9 +209,10 @@ export default function NavigationsBuilderPage() {
       await apiClient.put("/layouts/navigations", navigations);
       setSaved(true);
       await revalidateCMS();
+      toast.success("Navigation saved");
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      alert("Save failed");
+      toast.error("Save failed");
     } finally {
       setSaving(false);
     }
@@ -232,9 +244,11 @@ export default function NavigationsBuilderPage() {
             </Button>
           </div>
         </div>
-        <Button onClick={save} disabled={saving} className="w-full shadow-lg">
-          {saved ? "✓ Saved All Menus!" : saving ? "Saving..." : "Save All Menus"}
-        </Button>
+        {canManage && (
+          <Button onClick={save} disabled={saving} className="w-full shadow-lg">
+            {saved ? "✓ Saved All Menus!" : saving ? "Saving..." : "Save All Menus"}
+          </Button>
+        )}
       </div>
 
       {/* Main Panel: Builder */}

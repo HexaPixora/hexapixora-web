@@ -3,9 +3,15 @@
 import React, { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, Eye, LayoutTemplate } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/admin/confirm-dialog";
+import { siteUrl } from "@/lib/site-url";
+import { useHasPermission } from "@/stores/use-auth-store";
 
 type Page = {
   id: string;
@@ -17,7 +23,12 @@ type Page = {
 export default function PagesListPage() {
   const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [creating, setCreating] = useState(false);
   const router = useRouter();
+  const confirm = useConfirm();
+  const canManage = useHasPermission("pages");
 
   const fetchPages = async () => {
     try {
@@ -37,35 +48,45 @@ export default function PagesListPage() {
   }, []);
 
   const createNewPage = async () => {
+    const title = newTitle.trim();
+    if (!title) return;
+    setCreating(true);
     try {
-      const newPageTitle = prompt("Enter a title for the new page:");
-      if (!newPageTitle) return;
-
-      const slug = newPageTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       const res = await apiClient.post("/pages", {
-        title: newPageTitle,
-        slug: slug,
+        title,
+        slug,
         sections: "[]",
         showHeader: true,
         showFooter: true
       });
 
       if (res.data?.data?.id) {
+        setCreateOpen(false);
+        setNewTitle("");
         router.push(`/admin/pages/${res.data.data.id}`);
       }
     } catch (err: any) {
-      alert("Failed to create page: " + (err.response?.data?.message || err.message));
+      toast.error("Failed to create page: " + (err.response?.data?.message || err.message));
+    } finally {
+      setCreating(false);
     }
   };
 
   const deletePage = async (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete the page "${title}"? This cannot be undone.`)) {
-      try {
-        await apiClient.delete(`/pages/${id}`);
-        setPages(pages.filter(p => p.id !== id));
-      } catch (err: any) {
-        alert("Failed to delete page: " + (err.response?.data?.message || err.message));
-      }
+    const ok = await confirm({
+      title: "Delete page?",
+      description: `"${title}" will be permanently deleted. This cannot be undone.`,
+      confirmText: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/pages/${id}`);
+      setPages(pages.filter(p => p.id !== id));
+      toast.success("Page deleted");
+    } catch (err: any) {
+      toast.error("Failed to delete page: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -76,10 +97,12 @@ export default function PagesListPage() {
           <h1 className="text-2xl font-bold tracking-tight">Custom Pages</h1>
           <p className="text-muted-foreground">Manage dynamically built pages across your website.</p>
         </div>
-        <Button onClick={createNewPage}>
-          <Plus size={16} className="mr-2" />
-          Create New Page
-        </Button>
+        {canManage && (
+          <Button onClick={() => { setNewTitle(""); setCreateOpen(true); }}>
+            <Plus size={16} className="mr-2" />
+            Create New Page
+          </Button>
+        )}
       </div>
 
       <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
@@ -112,15 +135,17 @@ export default function PagesListPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <a href={`http://localhost:3000/${page.slug}`} target="_blank" rel="noreferrer" className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10" title="View Page">
+                      <a href={siteUrl(page.slug)} target="_blank" rel="noreferrer" className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10" title="View Page">
                         <Eye size={16} />
                       </a>
                       <Link href={`/admin/pages/${page.id}`} className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10" title="Edit Page">
                         <Edit size={16} />
                       </Link>
-                      <button onClick={() => deletePage(page.id, page.title)} className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10" title="Delete Page">
-                        <Trash2 size={16} />
-                      </button>
+                      {canManage && (
+                        <button onClick={() => deletePage(page.id, page.title)} className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10" title="Delete Page">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -137,6 +162,35 @@ export default function PagesListPage() {
           </table>
         )}
       </div>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Page</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1.5 py-2">
+            <label className="text-sm font-medium">Page Title</label>
+            <Input
+              autoFocus
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && newTitle.trim()) createNewPage(); }}
+              placeholder="e.g. About Us"
+            />
+            {newTitle.trim() && (
+              <p className="text-xs text-muted-foreground font-mono pt-1">
+                /{newTitle.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button onClick={createNewPage} disabled={!newTitle.trim() || creating}>
+              {creating ? "Creating..." : "Create Page"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
