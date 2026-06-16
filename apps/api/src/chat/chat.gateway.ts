@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -32,8 +33,11 @@ const AGENTS_ROOM = 'agents';
   namespace: '/chat',
   cors: { origin: env.corsOrigins, credentials: true },
 })
-export class ChatGateway implements OnGatewayConnection {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
+
+  // Connected team-member socket counts, keyed by userId (presence).
+  private readonly onlineAgents = new Map<string, number>();
 
   @WebSocketServer()
   server: Server;
@@ -72,6 +76,7 @@ export class ChatGateway implements OnGatewayConnection {
         socket.data.role = 'agent';
         socket.data.userId = userId;
         await socket.join(AGENTS_ROOM);
+        this.onlineAgents.set(userId, (this.onlineAgents.get(userId) ?? 0) + 1);
         return;
       }
 
@@ -80,6 +85,20 @@ export class ChatGateway implements OnGatewayConnection {
       this.logger.warn(`Rejected socket connection: ${(err as Error).message}`);
       socket.disconnect(true);
     }
+  }
+
+  handleDisconnect(socket: Socket): void {
+    if (socket.data?.role !== 'agent') return;
+    const userId = socket.data.userId as string | undefined;
+    if (!userId) return;
+    const next = (this.onlineAgents.get(userId) ?? 1) - 1;
+    if (next <= 0) this.onlineAgents.delete(userId);
+    else this.onlineAgents.set(userId, next);
+  }
+
+  /** userIds of team members currently connected to the inbox. */
+  getOnlineAgentIds(): string[] {
+    return Array.from(this.onlineAgents.keys());
   }
 
   /** Agents opening a conversation in the inbox subscribe to its live messages. */
