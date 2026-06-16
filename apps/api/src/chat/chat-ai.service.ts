@@ -51,9 +51,14 @@ export class ChatAiService {
       .join('\n\n');
   }
 
-  /** Returns the assistant reply text, or null on any failure (caller falls back). */
-  async generateReply(args: GenerateArgs): Promise<string | null> {
-    if (!this.isConfigured()) return null;
+  /**
+   * Returns the assistant reply text (or null on failure), plus a rateLimited
+   * flag so the caller can alert the team when the provider throttles (429).
+   */
+  async generateReply(
+    args: GenerateArgs,
+  ): Promise<{ text: string | null; rateLimited: boolean }> {
+    if (!this.isConfigured()) return { text: null, rateLimited: false };
 
     const messages: AiMessage[] = [
       { role: 'system', content: this.buildSystemPrompt(args) },
@@ -77,16 +82,19 @@ export class ChatAiService {
 
       if (!res.ok) {
         const detail = await res.text().catch(() => '');
-        this.logger.error(`AI endpoint error (${res.status}): ${detail.slice(0, 400)}`);
-        return null;
+        const rateLimited = res.status === 429;
+        this.logger[rateLimited ? 'warn' : 'error'](
+          `AI endpoint ${rateLimited ? 'rate-limited (429)' : `error (${res.status})`}: ${detail.slice(0, 400)}`,
+        );
+        return { text: null, rateLimited };
       }
 
       const json: any = await res.json();
       const text: string | undefined = json?.choices?.[0]?.message?.content;
-      return text?.trim() || null;
+      return { text: text?.trim() || null, rateLimited: false };
     } catch (err) {
       this.logger.error(`AI request failed: ${(err as Error).message}`);
-      return null;
+      return { text: null, rateLimited: false };
     }
   }
 

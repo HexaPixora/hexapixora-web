@@ -28,13 +28,10 @@ export default function LoginPage() {
     try {
       const res = await apiClient.post("/auth/login", data);
       setUser(res.data.user);
-      
-      // Redirect based on role
-      if (res.data.user.role === 'TEAM_MEMBER') {
-        window.location.href = "/team";
-      } else {
-        window.location.href = "/admin";
-      }
+
+      // Everyone manages content from /admin. The admin layout shows only the
+      // sections each user is allowed to see (team members get a subset).
+      window.location.href = "/admin";
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid credentials. Have you seeded the database?");
     }
