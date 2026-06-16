@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -26,6 +27,7 @@ import { ChatModule } from './chat/chat.module';
     // Global baseline rate limit: 100 requests / minute / IP.
     // Sensitive routes (e.g. login) tighten this further with @Throttle.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+    ScheduleModule.forRoot(),
     AuthModule, UsersModule, RolesModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, TeamModule, TestimonialsModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, ChatModule],
   controllers: [AppController],
   providers: [

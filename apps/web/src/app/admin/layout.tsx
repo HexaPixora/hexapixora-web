@@ -13,6 +13,7 @@ import { Toaster } from "sonner";
 import { ConfirmProvider } from "@/components/admin/confirm-dialog";
 import { siteUrl } from "@/lib/site-url";
 import { useIsAdmin } from "@/stores/use-auth-store";
+import { useChatUnread } from "@/lib/use-chat-unread";
 
 // Each item may declare a `permission` (section key) — shown only to admins or
 // team members granted that section — or `adminOnly` for admin-exclusive pages.
@@ -41,8 +42,8 @@ const navGroups = [
     label: "Marketing",
     items: [
       { href: "/admin/leads", label: "Leads / CRM", icon: MessageSquare, permission: "leads" },
-      { href: "/admin/chat", label: "Conversations", icon: MessageCircle, permission: "chat", exact: true },
-      { href: "/admin/chat/settings", label: "Chatbot AI", icon: Bot, permission: "chat" },
+      { href: "/admin/chat", label: "Conversations", icon: MessageCircle, permission: "chat", exact: true, badge: "chatUnread" },
+      { href: "/admin/chat/settings", label: "Chatbot AI", icon: Bot, adminOnly: true },
       { href: "/admin/newsletter", label: "Newsletter", icon: Mail, permission: "newsletter" },
     ],
   },
@@ -71,6 +72,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
     return true;
   };
+
+  // Live "needs attention" badge for the Conversations nav item.
+  const canSeeChat = isAdmin || (Array.isArray(user?.permissions) && user.permissions.includes("chat"));
+  const chatUnread = useChatUnread(!!canSeeChat && !loading);
 
   useEffect(() => {
     // Verify session on mount
@@ -149,7 +154,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   >
                     <item.icon size={16} className={active ? "text-primary" : ""} />
                     {item.label}
-                    {active && <ChevronRight size={13} className="ml-auto text-primary" />}
+                    {(item as any).badge === "chatUnread" && chatUnread > 0 && (
+                      <span className="ml-auto flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
+                        {chatUnread > 99 ? "99+" : chatUnread}
+                      </span>
+                    )}
+                    {active && !((item as any).badge === "chatUnread" && chatUnread > 0) && (
+                      <ChevronRight size={13} className="ml-auto text-primary" />
+                    )}
                   </a>
                 );
               })}

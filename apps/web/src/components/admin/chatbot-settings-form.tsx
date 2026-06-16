@@ -4,9 +4,12 @@ import React, { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import MediaField from "@/components/admin/media-field";
+import QuickReplyEditor, { cleanQuickReplies, type QuickReply } from "@/components/admin/quick-reply-editor";
+import { useIsAdmin } from "@/stores/use-auth-store";
 import {
   Loader2, Save, Bot, MessageCircle, MessageSquare, Sparkles, Send, X, Headset,
-  Palette, ShieldCheck, Zap, Power, MessageSquarePlus, Plus, Trash2, GripVertical,
+  Palette, ShieldCheck, Zap, Power, MessageSquarePlus, Plus, Trash2, BookText,
 } from "lucide-react";
 
 const PREVIEW_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -17,9 +20,9 @@ const PREVIEW_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
   headset: Headset,
 };
 
-interface QuickReply {
-  label: string;
-  reply?: string;
+interface CannedReply {
+  title: string;
+  text: string;
 }
 interface Config {
   enabled: boolean;
@@ -34,9 +37,13 @@ interface Config {
   quickReplies: QuickReply[];
   position: string;
   launcherIcon: string;
+  launcherIconUrl: string | null;
   headerSubtitle: string;
   showAgentHandoff: boolean;
   teamName: string;
+  teamSubtitle: string;
+  retentionDays: number;
+  cannedReplies: CannedReply[];
 }
 
 const ICON_OPTIONS = [
@@ -56,18 +63,29 @@ export default function ChatbotSettingsForm() {
   const [config, setConfig] = useState<Config | null>(null);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const isAdmin = useIsAdmin();
 
   useEffect(() => {
+    if (!isAdmin) return;
     apiClient
       .get("/chat/admin/config")
       .then((res) =>
         setConfig({
           ...res.data,
           quickReplies: Array.isArray(res.data?.quickReplies) ? res.data.quickReplies : [],
+          cannedReplies: Array.isArray(res.data?.cannedReplies) ? res.data.cannedReplies : [],
         }),
       )
       .catch(() => toast.error("Failed to load chatbot settings"));
-  }, []);
+  }, [isAdmin]);
+
+  if (!isAdmin) {
+    return (
+      <div className="rounded-xl border bg-background p-8 text-center text-sm text-muted-foreground">
+        Only administrators can configure the chatbot.
+      </div>
+    );
+  }
 
   const set = <K extends keyof Config>(key: K, value: Config[K]) => {
     setConfig((c) => (c ? { ...c, [key]: value } : c));
@@ -76,10 +94,13 @@ export default function ChatbotSettingsForm() {
 
   const chips = config?.quickReplies ?? [];
   const setChips = (next: QuickReply[]) => set("quickReplies", next);
-  const addChip = () => setChips([...chips, { label: "", reply: "" }]);
-  const updateChip = (i: number, field: keyof QuickReply, value: string) =>
-    setChips(chips.map((c, idx) => (idx === i ? { ...c, [field]: value } : c)));
-  const removeChip = (i: number) => setChips(chips.filter((_, idx) => idx !== i));
+
+  const saved = config?.cannedReplies ?? [];
+  const setSaved = (next: CannedReply[]) => set("cannedReplies", next);
+  const addSaved = () => setSaved([...saved, { title: "", text: "" }]);
+  const updateSaved = (i: number, field: keyof CannedReply, value: string) =>
+    setSaved(saved.map((c, idx) => (idx === i ? { ...c, [field]: value } : c)));
+  const removeSaved = (i: number) => setSaved(saved.filter((_, idx) => idx !== i));
 
   const save = async () => {
     if (!config) return;
@@ -88,9 +109,10 @@ export default function ChatbotSettingsForm() {
       // Drop chips with no label; trim everything so validation passes cleanly.
       const cleaned: Config = {
         ...config,
-        quickReplies: chips
-          .map((c) => ({ label: c.label.trim(), reply: c.reply?.trim() || undefined }))
-          .filter((c) => c.label.length > 0),
+        quickReplies: cleanQuickReplies(chips),
+        cannedReplies: saved
+          .map((c) => ({ title: c.title.trim(), text: c.text.trim() }))
+          .filter((c) => c.title.length > 0 && c.text.length > 0),
       };
       await apiClient.put("/chat/admin/config", cleaned);
       setConfig(cleaned);
@@ -173,6 +195,13 @@ export default function ChatbotSettingsForm() {
               </select>
             </Field>
           </div>
+          <Field label="Custom launcher image" hint="Optional. Upload or pick an image to use instead of the icon above (square works best).">
+            <MediaField
+              type="image"
+              value={config.launcherIconUrl || ""}
+              onChange={(url) => set("launcherIconUrl", url || null)}
+            />
+          </Field>
           <Field label="Accent color">
             <div className="flex items-center gap-2">
               <label className="relative h-9 w-9 cursor-pointer overflow-hidden rounded-lg border" style={{ background: config.accentColor }}>
@@ -228,39 +257,74 @@ export default function ChatbotSettingsForm() {
             checked={config.showAgentHandoff}
             onChange={(v) => set("showAgentHandoff", v)}
           />
-          <Field label="Team display name" hint="Replaces the bot name in the chat header once a team member joins.">
-            <input className={INPUT} value={config.teamName} onChange={(e) => set("teamName", e.target.value)} placeholder="Support Team" />
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Team display name" hint="Replaces the bot name in the header once a team member joins.">
+              <input className={INPUT} value={config.teamName} onChange={(e) => set("teamName", e.target.value)} placeholder="Support Team" />
+            </Field>
+            <Field label="Team header subtitle" hint="Replaces the subtitle once a team member takes over.">
+              <input className={INPUT} value={config.teamSubtitle} onChange={(e) => set("teamSubtitle", e.target.value)} placeholder="A team member is here to help" />
+            </Field>
+          </div>
         </Card>
 
-        {/* Quick replies card */}
+        {/* Quick replies card (nested decision-tree menu) */}
         <Card
           icon={<MessageSquarePlus size={16} />}
           title="Quick reply chips"
-          subtitle="Clickable suggestions shown in the chat. Leave the answer blank to let the AI respond, or fill it in for an instant canned reply."
+          subtitle="Clickable suggestions in the chat. Add sub-questions to build a clarifying menu; a chip with no sub-questions answers instantly (with its text) or via the AI (if left blank)."
+        >
+          <QuickReplyEditor value={chips} onChange={setChips} />
+        </Card>
+
+        {/* Data retention card */}
+        <Card icon={<Trash2 size={16} />} title="Data retention" subtitle="Automatically clean up old chat history.">
+          <Field
+            label="Delete conversations after (days)"
+            hint="Conversations with no activity for this many days are deleted daily. Linked leads are always kept. Set to 0 to keep chat history forever."
+          >
+            <input
+              type="number"
+              min={0}
+              max={3650}
+              className={cn(INPUT, "max-w-[10rem]")}
+              value={config.retentionDays}
+              onChange={(e) => set("retentionDays", Math.max(0, parseInt(e.target.value || "0", 10)))}
+            />
+          </Field>
+          <p className="text-xs text-muted-foreground">
+            {config.retentionDays > 0
+              ? `Chats inactive for ${config.retentionDays} day(s) are removed automatically.`
+              : "Chat history is kept indefinitely."}
+          </p>
+        </Card>
+
+        {/* Agent saved replies card */}
+        <Card
+          icon={<BookText size={16} />}
+          title="Saved replies (agents)"
+          subtitle='Reusable replies your team can insert by typing "/" in the inbox composer. Not shown to visitors.'
         >
           <div className="space-y-3">
-            {chips.length === 0 && (
+            {saved.length === 0 && (
               <p className="rounded-lg border border-dashed py-6 text-center text-xs text-muted-foreground">
-                No quick replies yet. Add one to guide visitors.
+                No saved replies yet.
               </p>
             )}
-            {chips.map((chip, i) => (
+            {saved.map((r, i) => (
               <div key={i} className="rounded-lg border bg-muted/20 p-3">
                 <div className="flex items-center gap-2">
-                  <GripVertical size={14} className="flex-shrink-0 text-muted-foreground/50" />
                   <input
                     className={cn(INPUT, "flex-1")}
-                    value={chip.label}
-                    onChange={(e) => updateChip(i, "label", e.target.value)}
-                    placeholder="Chip label, e.g. What does it cost?"
+                    value={r.title}
+                    onChange={(e) => updateSaved(i, "title", e.target.value)}
+                    placeholder="Shortcut title, e.g. Pricing"
                     maxLength={80}
                   />
                   <button
                     type="button"
-                    onClick={() => removeChip(i)}
+                    onClick={() => removeSaved(i)}
                     className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    aria-label="Remove chip"
+                    aria-label="Remove saved reply"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -268,26 +332,19 @@ export default function ChatbotSettingsForm() {
                 <textarea
                   className={cn(INPUT, "mt-2")}
                   rows={2}
-                  value={chip.reply || ""}
-                  onChange={(e) => updateChip(i, "reply", e.target.value)}
-                  placeholder="Instant answer (optional). Leave blank to let the AI answer."
+                  value={r.text}
+                  onChange={(e) => updateSaved(i, "text", e.target.value)}
+                  placeholder="The full reply text the agent inserts."
                   maxLength={2000}
                 />
-                <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-                  {chip.reply && chip.reply.trim() ? (
-                    <><Zap size={11} className="text-amber-500" /> Answers instantly with the text above.</>
-                  ) : (
-                    <><Bot size={11} /> Sends to the AI for an answer.</>
-                  )}
-                </p>
               </div>
             ))}
             <button
               type="button"
-              onClick={addChip}
+              onClick={addSaved}
               className="inline-flex items-center gap-1.5 rounded-lg border border-dashed px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary"
             >
-              <Plus size={14} /> Add quick reply
+              <Plus size={14} /> Add saved reply
             </button>
           </div>
         </Card>
@@ -329,8 +386,12 @@ function WidgetPreview({ config }: { config: Config }) {
       <div className="overflow-hidden rounded-2xl border border-muted/40 bg-background shadow-lg">
         <div className="flex items-center justify-between px-3 py-2.5 text-white" style={{ background: accent }}>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
-              <Icon size={13} />
+            <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-white/20">
+              {config.launcherIconUrl ? (
+                <img src={config.launcherIconUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <Icon size={13} />
+              )}
             </span>
             <div className="leading-tight">
               <p className="text-xs font-semibold">{config.botName || "Support AI"}</p>
@@ -345,28 +406,25 @@ function WidgetPreview({ config }: { config: Config }) {
               {config.welcomeMessage || "Hi! How can I help?"}
             </div>
           </div>
-          <div className="flex justify-end">
-            <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3 py-2 text-xs text-white" style={{ background: accent }}>
-              Do you build online stores?
+          {/* Chips inline under the bot message, matching the live widget */}
+          {config.quickReplies?.some((q) => q.label.trim()) && (
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {config.quickReplies
+                .filter((q) => q.label.trim())
+                .slice(0, 4)
+                .map((q, i) => (
+                  <span
+                    key={i}
+                    className="rounded-full border px-2.5 py-1 text-[10px] font-medium"
+                    style={{ borderColor: `${accent}55`, color: accent }}
+                  >
+                    {q.label}
+                    {q.children && q.children.length > 0 ? " ›" : ""}
+                  </span>
+                ))}
             </div>
-          </div>
+          )}
         </div>
-        {config.quickReplies?.some((q) => q.label.trim()) && (
-          <div className="flex flex-wrap gap-1.5 border-t border-muted/30 px-2.5 pb-1 pt-2">
-            {config.quickReplies
-              .filter((q) => q.label.trim())
-              .slice(0, 4)
-              .map((q, i) => (
-                <span
-                  key={i}
-                  className="rounded-full border px-2.5 py-1 text-[10px] font-medium"
-                  style={{ borderColor: `${accent}55`, color: accent }}
-                >
-                  {q.label}
-                </span>
-              ))}
-          </div>
-        )}
         <div className="flex items-center gap-2 border-t border-muted/30 p-2">
           <div className="flex-1 rounded-full border border-muted/50 px-3 py-1.5 text-[11px] text-muted-foreground">
             Type your message…
@@ -377,8 +435,12 @@ function WidgetPreview({ config }: { config: Config }) {
         </div>
       </div>
       <div className={cn("mt-3 flex", leftSide ? "justify-start" : "justify-end")}>
-        <span className="flex h-11 w-11 items-center justify-center rounded-full text-white shadow-lg" style={{ background: accent }}>
-          <Icon size={20} />
+        <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full text-white shadow-lg" style={{ background: accent }}>
+          {config.launcherIconUrl ? (
+            <img src={config.launcherIconUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <Icon size={20} />
+          )}
         </span>
       </div>
     </div>
