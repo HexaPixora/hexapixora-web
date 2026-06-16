@@ -7,9 +7,12 @@ import { apiClient } from "@/lib/api-client";
 import { createChatSocket } from "@/lib/chat-socket";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/admin/confirm-dialog";
+import { useAuthStore, useIsAdmin } from "@/stores/use-auth-store";
 import {
-  Send, Bot, User as UserIcon, Headset, CheckCircle2, RotateCcw,
+  Send, Bot, User as UserIcon, Headset, CheckCircle2, RotateCcw, RotateCw, Trash2,
   Settings as Cog, Mail, Search, MessageCircle, ExternalLink, Inbox, Wifi, WifiOff,
+  Download, StickyNote, UserCheck, Zap,
 } from "lucide-react";
 
 type Status = "BOT" | "WAITING_AGENT" | "AGENT" | "CLOSED";
@@ -77,10 +80,25 @@ export default function ChatInbox() {
   const [filter, setFilter] = useState<"all" | Status>("all");
   const [search, setSearch] = useState("");
   const [connected, setConnected] = useState(false);
+  const [mineOnly, setMineOnly] = useState(false);
+  const [agents, setAgents] = useState<{ id: string; name: string | null; email: string }[]>([]);
+  const [canned, setCanned] = useState<{ title: string; text: string }[]>([]);
+  const [noteInput, setNoteInput] = useState("");
+  const [exporting, setExporting] = useState(false);
 
+  const confirm = useConfirm();
+  const { user } = useAuthStore();
+  const isAdmin = useIsAdmin();
   const socketRef = useRef<Socket | null>(null);
   const activeIdRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const removeFromList = useCallback((id: string) => {
+    setConversations((prev) => prev.filter((c) => c.id !== id));
+    setActive((a: any) => (a?.id === id ? null : a));
+    setActiveId((cur) => (cur === id ? null : cur));
+    if (activeIdRef.current === id) activeIdRef.current = null;
+  }, []);
 
   const upsertSummary = useCallback((s: Summary | null) => {
     if (!s) return;
@@ -95,15 +113,32 @@ export default function ChatInbox() {
       .get("/chat/admin/conversations")
       .then((res) => setConversations(res.data || []))
       .catch(() => toast.error("Failed to load conversations"));
+    // Agent assignment is admin-only; only admins fetch the team list.
+    if (isAdmin) {
+      apiClient.get("/chat/admin/agents").then((res) => setAgents(res.data || [])).catch(() => {});
+    }
+    apiClient
+      .get("/chat/admin/canned")
+      .then((res) => setCanned(Array.isArray(res.data?.cannedReplies) ? res.data.cannedReplies : []))
+      .catch(() => {});
 
     const socket = createChatSocket();
     socket.on("connect", () => setConnected(true));
     socket.on("disconnect", () => setConnected(false));
+    socket.on("ai:rate-limited", () =>
+      toast.warning("AI is being rate-limited — a visitor may need a human reply.", { duration: 8000 }),
+    );
+    // Team members only track conversations assigned to them (admins see all).
+    const isMine = (s: Summary) => isAdmin || s.assignedTo?.id === user?.id;
     socket.on("conversation:new", (s: Summary) => {
+      if (!isMine(s)) return;
       upsertSummary(s);
       toast.message("New conversation started");
     });
-    socket.on("conversation:updated", (s: Summary) => upsertSummary(s));
+    socket.on("conversation:updated", (s: Summary) =>
+      isMine(s) ? upsertSummary(s) : removeFromList(s.id),
+    );
+    socket.on("conversation:deleted", (p: { id: string }) => removeFromList(p.id));
     socket.on("message", (m: Message) => {
       if (activeIdRef.current) {
         setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
@@ -111,7 +146,7 @@ export default function ChatInbox() {
     });
     socketRef.current = socket;
     return () => { socket.disconnect(); };
-  }, [upsertSummary]);
+  }, [upsertSummary, removeFromList, isAdmin, user?.id]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -127,12 +162,13 @@ export default function ChatInbox() {
     const q = search.trim().toLowerCase();
     return conversations.filter((c) => {
       if (filter !== "all" && c.status !== filter) return false;
+      if (mineOnly && c.assignedTo?.id !== user?.id) return false;
       if (!q) return true;
       return `${c.visitorName || ""} ${c.visitorEmail || ""} ${c.lastMessage?.content || ""}`
         .toLowerCase()
         .includes(q);
     });
-  }, [conversations, filter, search]);
+  }, [conversations, filter, search, mineOnly, user?.id]);
 
   const openConversation = async (id: string) => {
     if (activeIdRef.current && socketRef.current) {
@@ -167,7 +203,7 @@ export default function ChatInbox() {
     }
   };
 
-  const act = async (action: "takeover" | "release" | "close") => {
+  const act = async (action: "takeover" | "release" | "close" | "reopen") => {
     if (!activeId) return;
     try {
       const res = await apiClient.patch(`/chat/admin/conversations/${activeId}`, { action });
@@ -184,11 +220,90 @@ export default function ChatInbox() {
         lastMessageAt: res.data.lastMessageAt,
         lastMessage: null,
       });
-      toast.success(action === "close" ? "Conversation closed" : action === "release" ? "Handed back to AI" : "You're now handling this chat");
+      const labels: Record<string, string> = {
+        close: "Conversation closed",
+        release: "Handed back to AI",
+        reopen: "Conversation reopened",
+        takeover: "You're now handling this chat",
+      };
+      toast.success(labels[action]);
     } catch {
       toast.error("Action failed");
     }
   };
+
+  const del = async () => {
+    if (!activeId) return;
+    const ok = await confirm({
+      title: "Delete conversation?",
+      description: "This permanently removes the conversation and its messages. The linked lead (if any) is kept.",
+      confirmText: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const id = activeId;
+    try {
+      await apiClient.delete(`/chat/admin/conversations/${id}`);
+      removeFromList(id);
+      toast.success("Conversation deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  const assign = async (assigneeId: string) => {
+    if (!activeId) return;
+    try {
+      const res = await apiClient.patch(`/chat/admin/conversations/${activeId}/assign`, {
+        assigneeId: assigneeId || null,
+      });
+      setActive(res.data);
+      upsertSummary({
+        id: res.data.id, status: res.data.status, visitorName: res.data.visitorName,
+        visitorEmail: res.data.visitorEmail, assignedTo: res.data.assignedTo, leadId: res.data.leadId,
+        unreadForAgent: false, lastMessageAt: res.data.lastMessageAt, lastMessage: null,
+      });
+      toast.success(assigneeId ? "Assigned" : "Unassigned");
+    } catch {
+      toast.error("Failed to assign");
+    }
+  };
+
+  const addNote = async () => {
+    const content = noteInput.trim();
+    if (!content || !activeId) return;
+    setNoteInput("");
+    try {
+      const res = await apiClient.post(`/chat/admin/conversations/${activeId}/notes`, { content });
+      setActive(res.data);
+    } catch {
+      toast.error("Failed to add note");
+    }
+  };
+
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const res = await apiClient.get("/chat/admin/conversations/export", { responseType: "blob" });
+      const url = URL.createObjectURL(res.data as Blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "conversations.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Canned replies suggested when the composer text starts with "/".
+  const cannedMatches = useMemo(() => {
+    if (!input.startsWith("/")) return [];
+    const q = input.slice(1).toLowerCase();
+    return canned.filter((c) => !q || c.title.toLowerCase().includes(q)).slice(0, 6);
+  }, [input, canned]);
 
   return (
     <div className="flex h-[calc(100vh-9rem)] gap-4">
@@ -205,9 +320,23 @@ export default function ChatInbox() {
               {connected ? "Live" : "Off"}
             </span>
           </div>
-          <Link href="/admin/chat/settings" className="text-muted-foreground transition-colors hover:text-foreground" title="Chatbot settings">
-            <Cog size={16} />
-          </Link>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <button
+                onClick={() => void exportCsv()}
+                disabled={exporting}
+                title="Export all conversations as CSV"
+                className="text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+              >
+                <Download size={16} />
+              </button>
+            )}
+            {isAdmin && (
+              <Link href="/admin/chat/settings" className="text-muted-foreground transition-colors hover:text-foreground" title="Chatbot settings">
+                <Cog size={16} />
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Search */}
@@ -238,6 +367,17 @@ export default function ChatInbox() {
               {counts[f.key] ? <span className="opacity-70">{counts[f.key]}</span> : null}
             </button>
           ))}
+          {isAdmin && (
+            <button
+              onClick={() => setMineOnly((v) => !v)}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
+                mineOnly ? "bg-primary text-primary-foreground" : "bg-muted/60 text-muted-foreground hover:bg-muted",
+              )}
+            >
+              <UserCheck size={12} /> Mine
+            </button>
+          )}
         </div>
 
         {/* List items */}
@@ -325,14 +465,40 @@ export default function ChatInbox() {
                 </div>
               </div>
               <div className="flex flex-shrink-0 items-center gap-2">
+                {isAdmin && (
+                  <select
+                    value={active.assignedTo?.id || ""}
+                    onChange={(e) => void assign(e.target.value)}
+                    title="Assign to a team member"
+                    className="max-w-[9rem] rounded-lg border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary"
+                  >
+                    <option value="">Unassigned</option>
+                    {agents.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name || a.email}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {active.status !== "AGENT" && active.status !== "CLOSED" && (
                   <ActionBtn onClick={() => act("takeover")} icon={<Headset size={13} />} label="Take over" primary />
                 )}
                 {active.status === "AGENT" && (
                   <ActionBtn onClick={() => act("release")} icon={<RotateCcw size={13} />} label="Back to AI" />
                 )}
-                {active.status !== "CLOSED" && (
+                {active.status !== "CLOSED" ? (
                   <ActionBtn onClick={() => act("close")} icon={<CheckCircle2 size={13} />} label="Close" />
+                ) : (
+                  <ActionBtn onClick={() => act("reopen")} icon={<RotateCw size={13} />} label="Reopen" primary />
+                )}
+                {isAdmin && (
+                  <button
+                    onClick={() => void del()}
+                    title="Delete conversation"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 )}
               </div>
             </div>
@@ -350,9 +516,60 @@ export default function ChatInbox() {
               )}
             </div>
 
+            {/* Internal notes — team-only, never shown to the visitor */}
+            <div className="border-t bg-amber-500/5 px-4 py-2.5">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-amber-600/80">
+                <StickyNote size={12} /> Internal notes
+              </div>
+              {Array.isArray(active.notes) && active.notes.length > 0 && (
+                <div className="mb-2 max-h-24 space-y-1.5 overflow-y-auto">
+                  {active.notes.map((n: any) => (
+                    <div key={n.id} className="rounded-md bg-background/70 px-2 py-1 text-xs">
+                      <span className="text-[10px] text-muted-foreground">{n.author} · {timeAgo(n.createdAt)}</span>
+                      <p className="whitespace-pre-wrap">{n.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <input
+                  value={noteInput}
+                  onChange={(e) => setNoteInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void addNote(); } }}
+                  placeholder="Add a private note for the team…"
+                  className="flex-1 rounded-lg border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary"
+                />
+                <button
+                  onClick={() => void addNote()}
+                  disabled={!noteInput.trim()}
+                  className="rounded-lg border bg-background px-2.5 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
             {/* Composer */}
             {active.status !== "CLOSED" ? (
-              <div className="border-t p-3">
+              <div className="relative border-t p-3">
+                {/* Canned reply menu (type "/" to open) */}
+                {cannedMatches.length > 0 && (
+                  <div className="absolute bottom-full left-3 right-3 mb-1 max-h-52 overflow-y-auto rounded-lg border bg-background shadow-lg">
+                    <p className="border-b px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Saved replies</p>
+                    {cannedMatches.map((c, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setInput(c.text)}
+                        className="flex w-full flex-col items-start gap-0.5 border-b px-3 py-2 text-left last:border-0 hover:bg-muted/50"
+                      >
+                        <span className="flex items-center gap-1 text-xs font-medium">
+                          <Zap size={11} className="text-amber-500" /> {c.title}
+                        </span>
+                        <span className="line-clamp-1 text-[11px] text-muted-foreground">{c.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {active.status !== "AGENT" && (
                   <p className="mb-2 flex items-center gap-1.5 text-[11px] text-amber-500">
                     <Headset size={12} /> Replying will take this chat over from the AI.
@@ -365,7 +582,7 @@ export default function ChatInbox() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(); }
                     }}
-                    placeholder="Type your reply…"
+                    placeholder="Type your reply…  (type / for saved replies)"
                     className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                   />
                   <button

@@ -1,5 +1,6 @@
 import React from "react";
 import ChatInbox from "@/components/admin/chat-inbox";
+import ChatStats from "@/components/admin/chat-stats";
 
 export default function AdminChatPage() {
   return (
@@ -10,6 +11,7 @@ export default function AdminChatPage() {
           Live support chats. Take over from the AI to talk to visitors directly.
         </p>
       </div>
+      <ChatStats />
       <ChatInbox />
     </div>
   );

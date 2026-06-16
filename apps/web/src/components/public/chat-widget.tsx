@@ -16,6 +16,10 @@ interface ChatMessage {
   content: string;
   createdAt?: string;
 }
+interface Chip {
+  label: string;
+  children?: Chip[];
+}
 interface PublicConfig {
   enabled: boolean;
   botName: string;
@@ -23,10 +27,12 @@ interface PublicConfig {
   accentColor: string;
   position?: "bottom-right" | "bottom-left";
   launcherIcon?: string;
+  launcherIconUrl?: string | null;
   headerSubtitle?: string;
   showAgentHandoff?: boolean;
   teamName?: string;
-  quickReplies?: { label: string }[];
+  teamSubtitle?: string;
+  quickReplies?: Chip[];
 }
 
 const LAUNCHER_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
@@ -51,6 +57,10 @@ export default function ChatWidget() {
   const [requestedAgent, setRequestedAgent] = useState(false);
   // Once the visitor types their own message, the starter chips are hidden.
   const [typedCustom, setTypedCustom] = useState(false);
+  // Drill-down path through nested chip menus (each entry is the tapped parent).
+  const [chipTrail, setChipTrail] = useState<Chip[]>([]);
+  // Live conversation status — drives chip visibility / human-handoff state.
+  const [status, setStatus] = useState<"BOT" | "WAITING_AGENT" | "AGENT" | "CLOSED">("BOT");
 
   // Pre-chat form state.
   const [name, setName] = useState("");
@@ -96,6 +106,15 @@ export default function ChatWidget() {
       addMessages([msg]);
       if (msg.role === "AI" || msg.role === "AGENT") setBotTyping(false);
     });
+    socket.on("conversation:status", (p: { status: typeof status }) => {
+      setStatus(p.status);
+      // Closing the chat resets it to a fresh, selectable chip menu.
+      if (p.status === "CLOSED") {
+        setChipTrail([]);
+        setTypedCustom(false);
+        setRequestedAgent(false);
+      }
+    });
     socketRef.current = socket;
   }, [addMessages]);
 
@@ -115,6 +134,7 @@ export default function ChatWidget() {
           headers: { "x-visitor-token": storedToken },
         });
         addMessages(res.data.messages || []);
+        if (res.data.status) setStatus(res.data.status);
         connectSocket();
         setView("chat");
         return;
@@ -156,6 +176,7 @@ export default function ChatWidget() {
       localStorage.setItem(CONV_KEY, res.data.conversationId);
       localStorage.setItem(TOKEN_KEY, res.data.visitorToken);
       addMessages(res.data.messages || []);
+      if (res.data.status) setStatus(res.data.status);
       connectSocket();
       setView("chat");
     } catch {
@@ -216,8 +237,9 @@ export default function ChatWidget() {
   const accent = config.accentColor || "#4f46e5";
   const leftSide = config.position === "bottom-left";
   const LauncherIcon = LAUNCHER_ICONS[config.launcherIcon || "message-circle"] || MessageCircle;
-  // Once a human replies, the widget presents the support team instead of the bot.
-  const hasAgent = messages.some((m) => m.role === "AGENT");
+  const customIcon = config.launcherIconUrl || null;
+  // While a human is handling the chat, present the support team instead of the bot.
+  const hasAgent = status === "AGENT";
 
   return (
     <div
@@ -231,15 +253,23 @@ export default function ChatWidget() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 text-white" style={{ background: accent }}>
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
-                {hasAgent ? <Headset size={16} /> : <LauncherIcon size={16} />}
+              <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-white/20">
+                {hasAgent ? (
+                  <Headset size={16} />
+                ) : customIcon ? (
+                  <img src={customIcon} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <LauncherIcon size={16} />
+                )}
               </span>
               <div className="leading-tight">
                 <p className="text-sm font-semibold">
                   {hasAgent ? config.teamName || "Support Team" : config.botName}
                 </p>
                 <p className="text-[11px] text-white/80">
-                  {hasAgent ? "A team member is here to help" : config.headerSubtitle || "Typically replies instantly"}
+                  {hasAgent
+                    ? config.teamSubtitle || "A team member is here to help"
+                    : config.headerSubtitle || "Typically replies instantly"}
                 </p>
               </div>
             </div>
@@ -342,31 +372,52 @@ export default function ChatWidget() {
                     </div>
                   </div>
                 )}
+
+                {/* Quick-reply chips — inline in the conversation. Hidden while a
+                    human is being requested/handling; shown again once closed. */}
+                {(() => {
+                  const top = (config.quickReplies || []).filter((q) => q.label.trim());
+                  const closed = status === "CLOSED";
+                  const handing = requestedAgent || status === "WAITING_AGENT" || status === "AGENT";
+                  if (!top.length || botTyping || (!closed && (typedCustom || handing))) return null;
+                  const parent = chipTrail[chipTrail.length - 1];
+                  const level = (parent ? parent.children || [] : top).filter((q) => q.label.trim());
+                  const onChip = (c: Chip) => {
+                    if (c.children && c.children.length) {
+                      setChipTrail((t) => [...t, c]);
+                    } else {
+                      void send(c.label);
+                      setChipTrail([]);
+                    }
+                  };
+                  return (
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {chipTrail.length > 0 && (
+                        <button
+                          onClick={() => setChipTrail((t) => t.slice(0, -1))}
+                          className="rounded-full border border-muted/50 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/40"
+                        >
+                          ← Back
+                        </button>
+                      )}
+                      {level.map((c, i) => (
+                        <button
+                          key={i}
+                          onClick={() => onChip(c)}
+                          disabled={sending}
+                          className="rounded-full border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/40 disabled:opacity-50"
+                          style={{ borderColor: `${accent}55`, color: accent }}
+                        >
+                          {c.label}
+                          {c.children && c.children.length ? " ›" : ""}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
-              {/* Quick-reply chips — hidden after the visitor types their own
-                  message or once a human agent joins. */}
-              {(() => {
-                const chips = (config.quickReplies || []).filter((q) => q.label.trim());
-                if (!chips.length || typedCustom || hasAgent) return null;
-                return (
-                  <div className="flex flex-wrap gap-1.5 border-t border-muted/30 px-2.5 pb-1 pt-2.5">
-                    {chips.map((q, i) => (
-                      <button
-                        key={i}
-                        onClick={() => void send(q.label)}
-                        disabled={sending}
-                        className="rounded-full border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/40 disabled:opacity-50"
-                        style={{ borderColor: `${accent}55`, color: accent }}
-                      >
-                        {q.label}
-                      </button>
-                    ))}
-                  </div>
-                );
-              })()}
-
-              {config.showAgentHandoff !== false && !requestedAgent && !hasAgent && (
+              {config.showAgentHandoff !== false && !requestedAgent && status === "BOT" && (
                 <button
                   onClick={requestAgent}
                   className="flex items-center justify-center gap-1.5 border-t border-muted/30 py-2 text-xs text-muted-foreground hover:text-foreground"
@@ -407,10 +458,14 @@ export default function ChatWidget() {
       <button
         onClick={toggle}
         aria-label={open ? "Close chat" : "Open chat"}
-        className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-transform hover:scale-105"
+        className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-white shadow-xl transition-transform hover:scale-105"
         style={{ background: accent }}
       >
-        {open ? <X size={24} /> : <LauncherIcon size={24} />}
+        {open ? <X size={24} /> : customIcon ? (
+          <img src={customIcon} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <LauncherIcon size={24} />
+        )}
       </button>
     </div>
   );

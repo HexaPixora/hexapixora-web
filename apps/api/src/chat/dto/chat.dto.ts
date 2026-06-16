@@ -4,9 +4,12 @@ import {
   IsBoolean,
   IsEmail,
   IsIn,
+  IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
   ValidateNested,
 } from 'class-validator';
@@ -17,12 +20,35 @@ export class QuickReplyDto {
   @MaxLength(80)
   label: string;
 
-  // Optional canned answer. When present, the chip answers instantly with this
-  // text; when omitted, clicking the chip sends the label to the AI.
+  // Optional canned answer. When present (and the chip has no children), the
+  // chip answers instantly with this text; when omitted, clicking sends the
+  // label to the AI.
   @IsOptional()
   @IsString()
   @MaxLength(2000)
   reply?: string;
+
+  // Nested sub-question chips. Clicking a chip that has children drills into
+  // them instead of sending a message (a clarifying menu).
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => QuickReplyDto)
+  children?: QuickReplyDto[];
+}
+
+export class CannedReplyDto {
+  @IsString() @MinLength(1) @MaxLength(80) title: string;
+  @IsString() @MinLength(1) @MaxLength(2000) text: string;
+}
+
+export class AddNoteDto {
+  @IsString() @MinLength(1) @MaxLength(2000) content: string;
+}
+
+export class AssignConversationDto {
+  // null/empty clears the assignment.
+  @IsOptional() @IsString() assigneeId?: string | null;
 }
 
 export class StartConversationDto {
@@ -39,9 +65,9 @@ export class SendMessageDto {
 
 export class ConversationActionDto {
   // takeover: a team member assumes control; release: hand back to the AI;
-  // close: end the conversation.
-  @IsIn(['takeover', 'release', 'close'])
-  action: 'takeover' | 'release' | 'close';
+  // close: end the conversation; reopen: bring a closed chat back to life.
+  @IsIn(['takeover', 'release', 'close', 'reopen'])
+  action: 'takeover' | 'release' | 'close' | 'reopen';
 }
 
 export class UpdateChatbotConfigDto {
@@ -69,4 +95,13 @@ export class UpdateChatbotConfigDto {
   @IsOptional() @IsString() @MaxLength(120) headerSubtitle?: string;
   @IsOptional() @IsBoolean() showAgentHandoff?: boolean;
   @IsOptional() @IsString() @MaxLength(80) teamName?: string;
+  @IsOptional() @IsString() @MaxLength(120) teamSubtitle?: string;
+  @IsOptional() @IsString() @MaxLength(500) launcherIconUrl?: string;
+  @IsOptional() @IsInt() @Min(0) @Max(3650) retentionDays?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CannedReplyDto)
+  cannedReplies?: CannedReplyDto[];
 }

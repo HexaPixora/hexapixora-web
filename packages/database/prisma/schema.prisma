@@ -27,6 +27,7 @@ model User {
   auditLogs AuditLog[]
   assignedConversations Conversation[]
   chatMessages          ChatMessage[]
+  chatNotes             ConversationNote[]
 }
 
 enum Role {
@@ -306,6 +307,17 @@ model ChatbotConfig {
   showAgentHandoff Boolean  @default(true)
   // Identity shown in the header once a team member takes the chat over.
   teamName         String   @default("Support Team")
+  // Header subtitle shown once a team member takes the chat over.
+  teamSubtitle     String   @default("A team member is here to help")
+  // Optional custom image (URL) used as the launcher/header icon. Overrides
+  // launcherIcon when set.
+  launcherIconUrl  String?
+  // Auto-delete conversations whose last activity is older than this many days.
+  // 0 = keep forever.
+  retentionDays    Int      @default(0)
+  // Agent-only saved replies. Array of { title, text } inserted via "/" in the
+  // inbox composer. Not exposed to visitors.
+  cannedReplies    Json     @default("[]")
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -339,6 +351,7 @@ model Conversation {
   lastMessageAt  DateTime          @default(now())
 
   messages      ChatMessage[]
+  notes         ConversationNote[]
 
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
@@ -362,6 +375,20 @@ model ChatMessage {
   // Set when role = AGENT — which team member sent it.
   senderId       String?
   sender         User?        @relation(fields: [senderId], references: [id], onDelete: SetNull)
+
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+// Internal team-only notes on a conversation (never shown to the visitor).
+model ConversationNote {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  content        String
+  authorId       String?
+  author         User?        @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   createdAt      DateTime     @default(now())
 
