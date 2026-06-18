@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Pencil, Trash2, Plus, Eye, Search } from "lucide-react";
 import { useHasPermission } from "@/stores/use-auth-store";
+import { StatusBadge } from "@/components/admin/status-badge";
 
 export default function AdminBlogsPage() {
   const canManage = useHasPermission("blogs");
@@ -126,9 +127,10 @@ export default function AdminBlogsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${blog.isPublished ? "bg-green-500/20 text-green-400" : "bg-yellow-500/20 text-yellow-400"}`}>
-                      {blog.isPublished ? "Published" : "Draft"}
-                    </span>
+                    <StatusBadge
+                      status={blog.status ?? (blog.isPublished ? "PUBLISHED" : "DRAFT")}
+                      publishAt={blog.publishAt}
+                    />
                   </td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">
                     {blog.publishDate

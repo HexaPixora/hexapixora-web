@@ -12,11 +12,15 @@ import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { siteUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
+import { StatusBadge } from "@/components/admin/status-badge";
+import type { ContentStatus } from "@/components/admin/status-control";
 
 type Page = {
   id: string;
   title: string;
   slug: string;
+  status?: ContentStatus;
+  publishAt?: string | null;
   createdAt: string;
 };
 
@@ -32,7 +36,8 @@ export default function PagesListPage() {
 
   const fetchPages = async () => {
     try {
-      const res = await apiClient.get("/pages");
+      // Admin list includes drafts and scheduled pages.
+      const res = await apiClient.get("/pages/admin/list");
       if (res.data?.data) {
         setPages(res.data.data);
       }
@@ -114,6 +119,7 @@ export default function PagesListPage() {
               <tr>
                 <th className="px-6 py-4 font-semibold">Title</th>
                 <th className="px-6 py-4 font-semibold">URL Slug</th>
+                <th className="px-6 py-4 font-semibold">Status</th>
                 <th className="px-6 py-4 font-semibold">Created</th>
                 <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
@@ -129,6 +135,9 @@ export default function PagesListPage() {
                   </td>
                   <td className="px-6 py-4 font-mono text-muted-foreground">
                     /{page.slug}
+                  </td>
+                  <td className="px-6 py-4">
+                    <StatusBadge status={page.status} publishAt={page.publishAt} />
                   </td>
                   <td className="px-6 py-4 text-muted-foreground">
                     {new Date(page.createdAt).toLocaleDateString()}
@@ -153,7 +162,7 @@ export default function PagesListPage() {
               
               {pages.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground border-dashed">
+                  <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground border-dashed">
                     No custom pages created yet.
                   </td>
                 </tr>

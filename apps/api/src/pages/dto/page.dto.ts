@@ -1,4 +1,13 @@
-import { Allow, IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  Allow,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+import { ContentStatus } from '@prisma/client';
 
 class PageFields {
   // sections is free-form JSON (array of module configs from the builder, or a
@@ -6,6 +15,8 @@ class PageFields {
   @IsOptional() @Allow() sections?: any;
   @IsOptional() @IsBoolean() showHeader?: boolean;
   @IsOptional() @IsBoolean() showFooter?: boolean;
+  @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;
+  @IsOptional() @IsDateString() publishAt?: string;
   @IsOptional() @IsString() @MaxLength(255) metaTitle?: string;
   @IsOptional() @IsString() @MaxLength(500) metaDescription?: string;
 }

@@ -104,6 +104,15 @@ model Portfolio {
   updatedAt        DateTime @updatedAt
 }
 
+// Publishing lifecycle shared by Page and Blog. DRAFT = not public; SCHEDULED =
+// goes live automatically once publishAt passes (a cron flips it to PUBLISHED);
+// PUBLISHED = visible on the live site.
+enum ContentStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+}
+
 model Blog {
   id               String   @id @default(uuid())
   title            String
@@ -115,6 +124,12 @@ model Blog {
   content          String
   publishDate      DateTime?
   isPublished      Boolean  @default(false)
+  // Richer publishing state. Kept in sync with isPublished by BlogsService
+  // (isPublished stays the canonical public filter). Legacy rows default to
+  // DRAFT — backfill once with: UPDATE "Blog" SET status='PUBLISHED' WHERE "isPublished"=true;
+  status           ContentStatus @default(DRAFT)
+  // When set with status=SCHEDULED, the publish cron makes the post live at this time.
+  publishAt        DateTime?
   readTime         Int?     // Minutes to read, auto-calculated
   
   // SEO
@@ -237,7 +252,10 @@ model SiteSetting {
   googleAnalyticsId String?
   gtmId            String?
   metaPixelId      String?
-  
+
+  // Scheduling / booking — list of meeting types: [{ label, url }] (Calendly etc.)
+  bookingLinks     Json     @default("[{\"label\":\"Free Strategy Call\",\"url\":\"https://calendly.com/umairbreet/free-strategy-call\"}]")
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -262,6 +280,11 @@ model Page {
   sections         Json     @default("[]") // Array of modules
   showHeader       Boolean  @default(true)
   showFooter       Boolean  @default(true)
+  // Publishing lifecycle. Defaults to PUBLISHED so existing pages stay live
+  // after the column is added; new pages may be saved as DRAFT/SCHEDULED.
+  status           ContentStatus @default(PUBLISHED)
+  // When set with status=SCHEDULED, the publish cron makes the page live at this time.
+  publishAt        DateTime?
   metaTitle        String?
   metaDescription  String?
 

@@ -1,11 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 import { apiUrl } from "@/lib/api-url";
 import { SITE_URL } from "@/lib/site-url";
 
 const inter = Inter({ subsets: ["latin"] });
+
+// The app is dark-mode only — no light theme, no switching. Declaring the dark
+// color scheme here makes native UI (form controls, scrollbars) and the mobile
+// browser chrome render dark on every device.
+export const viewport: Viewport = {
+  colorScheme: "dark",
+  themeColor: "#070b14",
+};
 
 // Pull branding (favicon, site name) from site settings. Tagged 'layouts' so it
 // revalidates when settings are saved in the admin. The favicon URL is an
@@ -39,16 +46,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // `dark` is hardcoded (not toggled at runtime) so the dark theme is applied
+    // during SSR / first paint — no white flash on any device, JS or not.
+    <html lang="en" className="dark">
       <body className={`${inter.className} min-h-screen bg-background font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   );

@@ -21,6 +21,7 @@ import { SettingsModule } from './settings/settings.module';
 import { PagesModule } from './pages/pages.module';
 import { LayoutsModule } from './layouts/layouts.module';
 import { ChatModule } from './chat/chat.module';
+import { PreviewModule } from './preview/preview.module';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { ChatModule } from './chat/chat.module';
     // Sensitive routes (e.g. login) tighten this further with @Throttle.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     ScheduleModule.forRoot(),
-    AuthModule, UsersModule, RolesModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, TeamModule, TestimonialsModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, ChatModule],
+    AuthModule, UsersModule, RolesModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, TeamModule, TestimonialsModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, ChatModule, PreviewModule],
   controllers: [AppController],
   providers: [
     AppService,

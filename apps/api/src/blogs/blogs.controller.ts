@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Headers, UseGuards } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { CreateBlogDto, UpdateBlogDto } from './dto/blog.dto';
+import { hasPreviewAccess } from '../common/preview.util';
 
 @Controller('blogs')
 export class BlogsController {
@@ -35,8 +36,11 @@ export class BlogsController {
   }
 
   @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.blogsService.findBySlug(slug);
+  findBySlug(
+    @Param('slug') slug: string,
+    @Headers('x-preview-token') previewToken?: string,
+  ) {
+    return this.blogsService.findBySlug(slug, hasPreviewAccess(previewToken));
   }
 
   @Get(':id')

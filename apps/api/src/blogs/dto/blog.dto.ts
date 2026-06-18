@@ -1,10 +1,13 @@
 import {
   IsArray,
   IsBoolean,
+  IsDateString,
+  IsEnum,
   IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
+import { ContentStatus } from '@prisma/client';
 
 // SEO fields shared by several content types.
 class SeoFields {
@@ -25,6 +28,8 @@ export class CreateBlogDto extends SeoFields {
   @IsOptional() @IsString() thumbnail?: string;
   @IsOptional() @IsString() publishDate?: string;
   @IsOptional() @IsBoolean() isPublished?: boolean;
+  @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;
+  @IsOptional() @IsDateString() publishAt?: string;
 }
 
 export class UpdateBlogDto extends SeoFields {
@@ -37,4 +42,6 @@ export class UpdateBlogDto extends SeoFields {
   @IsOptional() @IsString() thumbnail?: string;
   @IsOptional() @IsString() publishDate?: string;
   @IsOptional() @IsBoolean() isPublished?: boolean;
+  @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;
+  @IsOptional() @IsDateString() publishAt?: string;
 }
