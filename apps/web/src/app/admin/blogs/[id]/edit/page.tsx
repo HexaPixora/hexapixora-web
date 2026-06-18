@@ -13,11 +13,16 @@ import TipTapEditor from "@/components/admin/tiptap-editor";
 import TagInput from "@/components/admin/tag-input";
 import SeoTab from "@/components/admin/seo-tab";
 import MediaField from "@/components/admin/media-field";
+import { StatusControl, ContentStatus } from "@/components/admin/status-control";
+import { StatusBadge } from "@/components/admin/status-badge";
+import { getDraftPreviewUrl } from "@/lib/preview-link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { 
-  ArrowLeft, Save, Globe, Eye, FileText, 
-  Image as ImageIcon, Settings, Calendar, 
-  Search, ChevronDown, X, Sparkles, CheckCircle2 
+import {
+  ArrowLeft, Save, Globe, Eye, FileText,
+  Image as ImageIcon, Settings, Calendar,
+  Search, ChevronDown, X, Sparkles, CheckCircle2,
+  Monitor, ExternalLink, RefreshCw
 } from "lucide-react";
 
 const schema = z.object({
@@ -28,7 +33,8 @@ const schema = z.object({
   category: z.string().optional(),
   tags: z.array(z.string()).default([]),
   thumbnail: z.string().optional(),
-  isPublished: z.boolean().default(false),
+  status: z.enum(["DRAFT", "SCHEDULED", "PUBLISHED"]),
+  publishAt: z.string().nullable().optional(),
   publishDate: z.string().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -44,7 +50,8 @@ interface FormValues {
   category?: string;
   tags?: string[];
   thumbnail?: string;
-  isPublished?: boolean;
+  status: ContentStatus;
+  publishAt?: string | null;
   publishDate?: string;
   metaTitle?: string;
   metaDescription?: string;
@@ -60,14 +67,20 @@ export default function EditBlogPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [seoExpanded, setSeoExpanded] = useState(false);
 
-  const { register, control, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, control, handleSubmit, setValue, watch, reset, getValues, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { tags: [], isPublished: false },
+    defaultValues: { tags: [], status: "DRAFT" },
   });
+
+  // Live preview (draft render in an iframe)
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
 
   const title = watch("title");
   const thumbnail = watch("thumbnail");
-  const isPublishedWatch = watch("isPublished");
+  const statusWatch = watch("status");
+  const publishAtWatch = watch("publishAt");
   const slugWatch = watch("slug");
 
   const seoVals = {
@@ -98,7 +111,8 @@ export default function EditBlogPage() {
           category: blog.category || "",
           tags: Array.isArray(blog.tags) ? blog.tags : [],
           thumbnail: blog.thumbnail || "",
-          isPublished: blog.isPublished || false,
+          status: (blog.status as ContentStatus) || (blog.isPublished ? "PUBLISHED" : "DRAFT"),
+          publishAt: blog.publishAt || null,
           publishDate: formattedDate,
           metaTitle: blog.metaTitle || "",
           metaDescription: blog.metaDescription || "",
@@ -129,14 +143,21 @@ export default function EditBlogPage() {
     }
   };
 
+  // Persist the post. The API derives `isPublished` from `status`, and a
+  // SCHEDULED post with a past time publishes immediately.
+  const persist = async (data: FormValues) => {
+    const payload = {
+      ...data,
+      content,
+      publishDate: data.publishDate ? new Date(data.publishDate).toISOString() : null,
+      publishAt: data.status === "SCHEDULED" ? data.publishAt || null : null,
+    };
+    await apiClient.patch(`/blogs/${id}`, payload);
+  };
+
   const onSubmit = async (data: FormValues) => {
     try {
-      const payload = {
-        ...data,
-        content,
-        publishDate: data.publishDate ? new Date(data.publishDate).toISOString() : null,
-      };
-      await apiClient.patch(`/blogs/${id}`, payload);
+      await persist(data);
       toast.success("Blog post saved successfully!");
       router.push("/admin/blogs");
     } catch (err: any) {
@@ -144,10 +165,42 @@ export default function EditBlogPage() {
     }
   };
 
-  const submitWithStatus = (status: boolean) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    setValue("isPublished", status);
-    handleSubmit(onSubmit)();
+  // Save the current form (without leaving) so the preview reflects latest edits.
+  const resolvePreviewUrl = async (): Promise<string | null> => {
+    try {
+      await persist(getValues());
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Save failed — fix errors before previewing");
+      return null;
+    }
+    try {
+      const url = await getDraftPreviewUrl(`/blog/${getValues("slug")}`);
+      return `${url}&_=${Date.now()}`;
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || "Preview unavailable");
+      return null;
+    }
+  };
+
+  const openPreviewTab = async () => {
+    setPreviewBusy(true);
+    const url = await resolvePreviewUrl();
+    setPreviewBusy(false);
+    if (url) window.open(url, "_blank", "noopener");
+  };
+
+  const openLivePreview = async () => {
+    setPreviewBusy(true);
+    const url = await resolvePreviewUrl();
+    setPreviewBusy(false);
+    if (url) { setPreviewSrc(url); setPreviewOpen(true); }
+  };
+
+  const refreshPreview = async () => {
+    setPreviewBusy(true);
+    const url = await resolvePreviewUrl();
+    setPreviewBusy(false);
+    if (url) setPreviewSrc(url);
   };
 
   if (loading) {
@@ -177,13 +230,7 @@ export default function EditBlogPage() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">Edit Post</h1>
-              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm ${
-                isPublishedWatch 
-                  ? "bg-green-500/10 text-green-600 border-green-500/20 shadow-green-500/10" 
-                  : "bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-amber-500/10"
-              }`}>
-                {isPublishedWatch ? "Published" : "Draft"}
-              </span>
+              <StatusBadge status={statusWatch} publishAt={publishAtWatch} />
             </div>
             {slugWatch && (
               <p className="text-sm text-muted-foreground font-mono mt-1 truncate max-w-md opacity-80">
@@ -197,47 +244,19 @@ export default function EditBlogPage() {
           <Button variant="ghost" type="button" onClick={() => router.push("/admin/blogs")} className="rounded-xl font-medium">
             Cancel
           </Button>
-
-          {isPublishedWatch ? (
-            <>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={submitWithStatus(false)}
-                disabled={isSubmitting}
-                className="text-amber-600 hover:text-amber-700 hover:bg-amber-500/10 border-amber-500/20 rounded-xl font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
-              >
-                Revert to Draft
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/20 font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all"
-              >
-                {isSubmitting ? "Saving..." : "Save Changes"}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={submitWithStatus(false)}
-                disabled={isSubmitting}
-                className="rounded-xl border-muted-foreground/20 font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
-              >
-                {isSubmitting ? "Saving..." : "Save Draft"}
-              </Button>
-              <Button
-                type="button"
-                onClick={submitWithStatus(true)}
-                disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg shadow-green-500/20 font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all"
-              >
-                {isSubmitting ? "Publishing..." : "Publish Post"}
-              </Button>
-            </>
-          )}
+          <Button variant="outline" type="button" onClick={openLivePreview} disabled={previewBusy || isSubmitting} className="rounded-xl font-semibold">
+            <Monitor size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Live preview"}
+          </Button>
+          <Button variant="outline" type="button" onClick={openPreviewTab} disabled={previewBusy || isSubmitting} className="rounded-xl font-semibold">
+            <ExternalLink size={16} className="mr-2" /> Preview tab
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/20 font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          >
+            {isSubmitting ? "Saving..." : statusWatch === "SCHEDULED" ? "Schedule" : statusWatch === "PUBLISHED" ? "Publish" : "Save Draft"}
+          </Button>
         </div>
       </div>
 
@@ -296,7 +315,22 @@ export default function EditBlogPage() {
 
         {/* RIGHT COLUMN: Sidebar Settings Panel */}
         <div className="lg:col-span-4 space-y-6">
-          
+
+          {/* Publishing Card */}
+          <div className="bg-card border border-muted-foreground/10 rounded-2xl p-6 shadow-xl shadow-muted/20 space-y-4">
+            <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground border-b border-muted-foreground/10 pb-4">
+              <Globe size={16} className="text-primary" /> Publishing
+            </h3>
+            <StatusControl
+              status={statusWatch}
+              publishAt={publishAtWatch}
+              onChange={(s, p) => {
+                setValue("status", s, { shouldDirty: true });
+                setValue("publishAt", p, { shouldDirty: true });
+              }}
+            />
+          </div>
+
           {/* Settings & Metadata Card */}
           <div className="bg-card border border-muted-foreground/10 rounded-2xl p-6 shadow-xl shadow-muted/20 space-y-6">
             <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground border-b border-muted-foreground/10 pb-4">
@@ -430,6 +464,33 @@ export default function EditBlogPage() {
           </div>
         </div>
       </div>
+
+      {/* Live Preview (draft render in an iframe) */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] p-0 flex flex-col gap-0 overflow-hidden">
+          <DialogHeader className="flex flex-row items-center justify-between gap-3 border-b px-4 py-2.5 space-y-0">
+            <DialogTitle className="text-sm font-medium flex items-center gap-2">
+              <Monitor size={15} /> Live preview
+              <span className="text-xs font-normal text-muted-foreground">reflects your last save</span>
+            </DialogTitle>
+            <div className="flex items-center gap-2 pr-6">
+              <Button size="sm" variant="outline" type="button" onClick={refreshPreview} disabled={previewBusy}>
+                <RefreshCw size={14} className={`mr-1.5 ${previewBusy ? "animate-spin" : ""}`} /> Save & refresh
+              </Button>
+              {previewSrc && (
+                <a href={previewSrc} target="_blank" rel="noreferrer" className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-foreground">
+                  <ExternalLink size={14} className="mr-1" /> Open in tab
+                </a>
+              )}
+            </div>
+          </DialogHeader>
+          <div className="flex-1 bg-muted/30">
+            {previewSrc && (
+              <iframe key={previewSrc} src={previewSrc} className="w-full h-full border-0" title="Post preview" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }

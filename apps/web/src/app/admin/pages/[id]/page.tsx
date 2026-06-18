@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2 } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2, Monitor, RefreshCw, ExternalLink } from "lucide-react";
 import MediaField from "@/components/admin/media-field";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { siteUrl } from "@/lib/site-url";
+import { getDraftPreviewUrl } from "@/lib/preview-link";
+import { StatusControl, ContentStatus } from "@/components/admin/status-control";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 import { useHasPermission } from "@/stores/use-auth-store";
 
@@ -32,6 +33,8 @@ type PageData = {
   slug: string;
   showHeader: boolean;
   showFooter: boolean;
+  status: ContentStatus;
+  publishAt: string | null;
   metaTitle: string;
   metaDescription: string;
 };
@@ -56,12 +59,18 @@ export default function CustomPageBuilderPage() {
   const [editingConfig, setEditingConfig] = useState<Record<string, any>>({});
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
+  // Live preview (iframe of the draft render)
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
+
   const activeSection = sections.find(s => s.id === activeConfigId);
   const activeModuleDef = activeSection ? MODULES[activeSection.type] : null;
 
   useEffect(() => {
     Promise.all([
-      apiClient.get(`/pages/${id}`).catch(() => null),
+      // Admin endpoint returns the page regardless of publish status (so drafts load).
+      apiClient.get(`/pages/admin/${id}`).catch(() => null),
       apiClient.get("/layouts/module-defaults").catch(() => null)
     ]).then(([pageRes, defaultsRes]) => {
       if (!pageRes?.data?.data) {
@@ -69,14 +78,16 @@ export default function CustomPageBuilderPage() {
         router.push("/admin/pages");
         return;
       }
-      
+
       const pData = pageRes.data.data;
-      const loadedPage = {
+      const loadedPage: PageData = {
         id: pData.id,
         title: pData.title || "",
         slug: pData.slug || "",
         showHeader: pData.showHeader ?? true,
         showFooter: pData.showFooter ?? true,
+        status: (pData.status as ContentStatus) || "PUBLISHED",
+        publishAt: pData.publishAt || null,
         metaTitle: pData.metaTitle || "",
         metaDescription: pData.metaDescription || "",
       };
@@ -142,8 +153,8 @@ export default function CustomPageBuilderPage() {
     setActiveConfigId(null);
   };
 
-  const save = async () => {
-    if (!pageData) return;
+  const save = async (opts: { silent?: boolean } = {}): Promise<boolean> => {
+    if (!pageData) return false;
     setSaving(true);
     try {
       await apiClient.put(`/pages/${id}`, {
@@ -153,13 +164,54 @@ export default function CustomPageBuilderPage() {
       setSavedSnapshot(JSON.stringify({ page: pageData, sections }));
       setSaved(true);
       await revalidateCMS();
-      toast.success("Page saved");
+      if (!opts.silent) toast.success("Page saved");
       setTimeout(() => setSaved(false), 3000);
+      return true;
     } catch (err: any) {
       toast.error("Save failed: " + (err.response?.data?.message || err.message));
+      return false;
     } finally {
       setSaving(false);
     }
+  };
+
+  // Build a Draft Mode preview URL, saving first so the render reflects the
+  // latest edits (the iframe/tab shows server-rendered draft content).
+  const resolvePreviewUrl = async (): Promise<string | null> => {
+    if (!pageData) return null;
+    if (isDirty && !(await save({ silent: true }))) return null;
+    try {
+      const url = await getDraftPreviewUrl(`/${pageData.slug}`);
+      // Cache-bust so re-opening forces a fresh navigation.
+      return `${url}&_=${Date.now()}`;
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || "Preview unavailable");
+      return null;
+    }
+  };
+
+  const openPreviewTab = async () => {
+    setPreviewBusy(true);
+    const url = await resolvePreviewUrl();
+    setPreviewBusy(false);
+    if (url) window.open(url, "_blank", "noopener");
+  };
+
+  const openLivePreview = async () => {
+    setPreviewBusy(true);
+    const url = await resolvePreviewUrl();
+    setPreviewBusy(false);
+    if (url) {
+      setPreviewSrc(url);
+      setPreviewOpen(true);
+    }
+  };
+
+  const refreshPreview = async () => {
+    setPreviewBusy(true);
+    const url = await resolvePreviewUrl();
+    setPreviewBusy(false);
+    if (url) setPreviewSrc(url);
   };
 
   const removeSection = async (sid: string) => {
@@ -296,11 +348,14 @@ export default function CustomPageBuilderPage() {
               <Plus size={16} className="mr-2" /> Add Module
             </Button>
           )}
-          <a href={siteUrl(pageData.slug)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-            <Eye size={16} className="mr-2" /> Preview
-          </a>
+          <Button variant="outline" onClick={openLivePreview} disabled={previewBusy} className="bg-background shadow-sm hover:border-primary">
+            <Monitor size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Live preview"}
+          </Button>
+          <Button variant="outline" onClick={openPreviewTab} disabled={previewBusy} className="bg-background shadow-sm hover:border-primary">
+            <ExternalLink size={16} className="mr-2" /> Preview tab
+          </Button>
           {canManage && (
-            <Button onClick={save} disabled={saving} className="shadow-md">
+            <Button onClick={() => save()} disabled={saving} className="shadow-md">
               {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Page"}
             </Button>
           )}
@@ -311,6 +366,16 @@ export default function CustomPageBuilderPage() {
         
         {/* Left Column: Page Settings */}
         <div className="col-span-1 space-y-6">
+          <div className="bg-card border rounded-xl p-5 shadow-sm space-y-4">
+            <h3 className="font-semibold text-lg border-b pb-2">Publishing</h3>
+            <StatusControl
+              status={pageData.status}
+              publishAt={pageData.publishAt}
+              disabled={!canManage}
+              onChange={(status, publishAt) => setPageData({ ...pageData, status, publishAt })}
+            />
+          </div>
+
           <div className="bg-card border rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="font-semibold text-lg border-b pb-2">Page Settings</h3>
             
@@ -561,6 +626,33 @@ export default function CustomPageBuilderPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Live Preview (draft render in an iframe) */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] p-0 flex flex-col gap-0 overflow-hidden">
+          <DialogHeader className="flex flex-row items-center justify-between gap-3 border-b px-4 py-2.5 space-y-0">
+            <DialogTitle className="text-sm font-medium flex items-center gap-2">
+              <Monitor size={15} /> Live preview
+              <span className="text-xs font-normal text-muted-foreground">reflects your last save</span>
+            </DialogTitle>
+            <div className="flex items-center gap-2 pr-6">
+              <Button size="sm" variant="outline" onClick={refreshPreview} disabled={previewBusy}>
+                <RefreshCw size={14} className={`mr-1.5 ${previewBusy ? "animate-spin" : ""}`} /> Save & refresh
+              </Button>
+              {previewSrc && (
+                <a href={previewSrc} target="_blank" rel="noreferrer" className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-foreground">
+                  <ExternalLink size={14} className="mr-1" /> Open in tab
+                </a>
+              )}
+            </div>
+          </DialogHeader>
+          <div className="flex-1 bg-muted/30">
+            {previewSrc && (
+              <iframe key={previewSrc} src={previewSrc} className="w-full h-full border-0" title="Page preview" />
+            )}
           </div>
         </DialogContent>
       </Dialog>

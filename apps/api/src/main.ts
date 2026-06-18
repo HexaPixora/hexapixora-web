@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { env } from './config/env';
+import { corsOrigin } from './config/cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,10 +38,14 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: env.corsOrigins,
+    origin: corsOrigin,
     credentials: true,
   });
 
-  await app.listen(env.port);
+  // Bind IPv4 on all interfaces. Without the explicit host, Nest binds IPv6
+  // (`::`) only, so server-side fetches to http://localhost:3001 — which Node 18+
+  // resolves to 127.0.0.1 (IPv4) first — get ECONNREFUSED. 0.0.0.0 also makes the
+  // API reachable from other devices on the LAN.
+  await app.listen(env.port, '0.0.0.0');
 }
 bootstrap();

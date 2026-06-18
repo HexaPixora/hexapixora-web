@@ -16,6 +16,9 @@ import { splideSliderSchema, SplideSliderModuleDef } from "./module-schemas/spli
 import { splideLogoTickerSchema, SplideLogoTickerModuleDef } from "./module-schemas/splide-logo-ticker-schema";
 import { splideTestimonialsSchema, SplideTestimonialsModuleDef } from "./module-schemas/splide-testimonials-schema";
 import { splideGallerySyncSchema, SplideGallerySyncModuleDef } from "./module-schemas/splide-gallery-sync-schema";
+import { bookingSchema, BookingModuleDef } from "./module-schemas/booking-schema";
+import { pricingSchema, PricingModuleDef } from "./module-schemas/pricing-schema";
+import { leadMagnetSchema, LeadMagnetModuleDef } from "./module-schemas/lead-magnet-schema";
 
 export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list';
 
@@ -55,5 +58,8 @@ export const MODULES: Record<string, ModuleDefinition> = {
   SplideLogoTickerModule: SplideLogoTickerModuleDef,
   SplideTestimonialsModule: SplideTestimonialsModuleDef,
   SplideGallerySyncModule: SplideGallerySyncModuleDef,
-  ContactFormModule: ContactFormModuleDef
+  ContactFormModule: ContactFormModuleDef,
+  BookingModule: BookingModuleDef,
+  PricingModule: PricingModuleDef,
+  LeadMagnetModule: LeadMagnetModuleDef
 };

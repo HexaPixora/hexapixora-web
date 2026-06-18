@@ -45,6 +45,12 @@ export const env = {
     'http://127.0.0.1:3000',
   ]),
 
+  // Shared server-to-server secret that lets the web app's Draft Mode fetch
+  // unpublished/scheduled content for preview. Sent as the `x-preview-token`
+  // header on server-side RSC fetches only — it never reaches the browser. Must
+  // match the web app's PREVIEW_TOKEN. When unset, preview bypass is disabled.
+  previewToken: process.env.PREVIEW_TOKEN ?? '',
+
   // Transactional email (Resend). All optional — when the API key is absent the
   // MailService no-ops with a warning, so lead capture still works without it.
   mail: {

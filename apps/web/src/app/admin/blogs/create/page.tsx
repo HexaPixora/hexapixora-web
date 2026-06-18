@@ -13,11 +13,13 @@ import TipTapEditor from "@/components/admin/tiptap-editor";
 import TagInput from "@/components/admin/tag-input";
 import SeoTab from "@/components/admin/seo-tab";
 import MediaField from "@/components/admin/media-field";
+import { StatusControl, ContentStatus } from "@/components/admin/status-control";
+import { StatusBadge } from "@/components/admin/status-badge";
 import { toast } from "sonner";
-import { 
-  ArrowLeft, Save, Globe, Eye, FileText, 
-  Image as ImageIcon, Settings, Calendar, 
-  Search, ChevronDown, X, Sparkles, CheckCircle2 
+import {
+  ArrowLeft, Save, Globe, Eye, FileText,
+  Image as ImageIcon, Settings, Calendar,
+  Search, ChevronDown, X, Sparkles, CheckCircle2
 } from "lucide-react";
 
 const schema = z.object({
@@ -28,7 +30,8 @@ const schema = z.object({
   category: z.string().optional(),
   tags: z.array(z.string()).default([]),
   thumbnail: z.string().optional(),
-  isPublished: z.boolean().default(false),
+  status: z.enum(["DRAFT", "SCHEDULED", "PUBLISHED"]),
+  publishAt: z.string().nullable().optional(),
   publishDate: z.string().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -44,7 +47,8 @@ interface FormValues {
   category?: string;
   tags?: string[];
   thumbnail?: string;
-  isPublished?: boolean;
+  status: ContentStatus;
+  publishAt?: string | null;
   publishDate?: string;
   metaTitle?: string;
   metaDescription?: string;
@@ -60,12 +64,13 @@ export default function CreateBlogPage() {
 
   const { register, control, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { tags: [], isPublished: false },
+    defaultValues: { tags: [], status: "DRAFT" },
   });
 
   const title = watch("title");
   const thumbnail = watch("thumbnail");
-  const isPublishedWatch = watch("isPublished");
+  const statusWatch = watch("status");
+  const publishAtWatch = watch("publishAt");
   const slugWatch = watch("slug");
 
   const seoVals = {
@@ -106,6 +111,7 @@ export default function CreateBlogPage() {
         ...data,
         content,
         publishDate: data.publishDate ? new Date(data.publishDate).toISOString() : null,
+        publishAt: data.status === "SCHEDULED" ? data.publishAt || null : null,
       };
       await apiClient.post("/blogs", payload);
       toast.success("Blog post created successfully!");
@@ -113,12 +119,6 @@ export default function CreateBlogPage() {
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to create blog post");
     }
-  };
-
-  const submitWithStatus = (status: boolean) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    setValue("isPublished", status);
-    handleSubmit(onSubmit)();
   };
 
   return (
@@ -137,13 +137,7 @@ export default function CreateBlogPage() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">Create Post</h1>
-              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm ${
-                isPublishedWatch 
-                  ? "bg-green-500/10 text-green-600 border-green-500/20 shadow-green-500/10" 
-                  : "bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-amber-500/10"
-              }`}>
-                {isPublishedWatch ? "Published" : "Draft"}
-              </span>
+              <StatusBadge status={statusWatch} publishAt={publishAtWatch} />
             </div>
             {slugWatch && (
               <p className="text-sm text-muted-foreground font-mono mt-1 truncate max-w-md opacity-80">
@@ -159,21 +153,11 @@ export default function CreateBlogPage() {
           </Button>
 
           <Button
-            variant="outline"
-            type="button"
-            onClick={submitWithStatus(false)}
-            disabled={isSubmitting}
-            className="rounded-xl border-muted-foreground/20 font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
-          >
-            {isSubmitting ? "Saving..." : "Save Draft"}
-          </Button>
-          <Button
-            type="button"
-            onClick={submitWithStatus(true)}
+            type="submit"
             disabled={isSubmitting}
             className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/20 font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all"
           >
-            {isSubmitting ? "Publishing..." : "Publish Post"}
+            {isSubmitting ? "Saving..." : statusWatch === "SCHEDULED" ? "Schedule" : statusWatch === "PUBLISHED" ? "Publish" : "Save Draft"}
           </Button>
         </div>
       </div>
@@ -233,7 +217,22 @@ export default function CreateBlogPage() {
 
         {/* RIGHT COLUMN: Sidebar Settings Panel */}
         <div className="lg:col-span-4 space-y-6">
-          
+
+          {/* Publishing Card */}
+          <div className="bg-card border border-muted-foreground/10 rounded-2xl p-6 shadow-xl shadow-muted/20 space-y-4">
+            <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground border-b border-muted-foreground/10 pb-4">
+              <Globe size={16} className="text-primary" /> Publishing
+            </h3>
+            <StatusControl
+              status={statusWatch}
+              publishAt={publishAtWatch}
+              onChange={(s, p) => {
+                setValue("status", s, { shouldDirty: true });
+                setValue("publishAt", p, { shouldDirty: true });
+              }}
+            />
+          </div>
+
           {/* Settings & Metadata Card */}
           <div className="bg-card border border-muted-foreground/10 rounded-2xl p-6 shadow-xl shadow-muted/20 space-y-6">
             <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground border-b border-muted-foreground/10 pb-4">

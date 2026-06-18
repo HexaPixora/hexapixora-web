@@ -5,12 +5,15 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Clock, BookOpen, User } from "lucide-react";
 import { Metadata } from "next";
 import { apiUrl } from "@/lib/api-url";
+import { cmsFetch } from "@/lib/cms-fetch";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
+import PreviewBanner from "@/components/public/preview-banner";
 
 async function getBlogPost(slug: string) {
   try {
-    const res = await fetch(apiUrl(`/blogs/slug/${slug}`), { cache: "no-store" });
+    // cmsFetch unlocks unpublished posts when the admin is in Draft Mode.
+    const res = await cmsFetch(`/blogs/slug/${slug}`, { cache: "no-store" });
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
@@ -89,6 +92,7 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
     <SiteLayout showHeader={true} showFooter={true}>
       <JsonLd data={articleLd} />
       <JsonLd data={breadcrumbLd} />
+      <PreviewBanner path={`/blog/${post.slug}`} />
       <article className="flex-1 bg-background relative overflow-hidden pb-24">
         {/* Top Gradient background */}
         <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-primary/5 via-primary/0 to-transparent pointer-events-none" />

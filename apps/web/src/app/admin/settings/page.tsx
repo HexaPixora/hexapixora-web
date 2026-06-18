@@ -12,7 +12,7 @@ import { revalidateCMS } from "@/actions/revalidate";
 import { useHasPermission } from "@/stores/use-auth-store";
 import {
   Settings, Globe, Palette, Search, Code,
-  UploadCloud, Mail, Phone, MapPin, Map, Clock, Image as ImageIcon, ImagePlus
+  UploadCloud, Mail, Phone, MapPin, Map, Clock, Image as ImageIcon, ImagePlus, Trash2
 } from "lucide-react";
 
 export default function AdminSettingsPage() {
@@ -315,6 +315,59 @@ export default function AdminSettingsPage() {
 
             </div>
           </div>
+
+          {/* Scheduling & Booking */}
+          {(() => {
+            const links: { label: string; url: string }[] = Array.isArray(settings.bookingLinks)
+              ? settings.bookingLinks
+              : [];
+            const setLinks = (next: { label: string; url: string }[]) => update("bookingLinks", next);
+            return (
+              <div className="bg-card border rounded-2xl shadow-sm overflow-hidden mt-6">
+                <div className="px-6 py-5 border-b bg-muted/10">
+                  <h3 className="font-semibold text-lg">Scheduling & Booking</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Meeting types used by the &ldquo;Booking&rdquo; page module and booking buttons. Paste your Calendly (or similar) event links.
+                  </p>
+                </div>
+                <div className="p-6 space-y-3">
+                  {links.length === 0 && (
+                    <p className="rounded-lg border border-dashed py-6 text-center text-xs text-muted-foreground">
+                      No meeting types yet. Add one to enable &ldquo;Book a call&rdquo;.
+                    </p>
+                  )}
+                  {links.map((l, i) => (
+                    <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <Input
+                        className="sm:w-60"
+                        value={l.label || ""}
+                        onChange={(e) => setLinks(links.map((x, idx) => (idx === i ? { ...x, label: e.target.value } : x)))}
+                        placeholder="Free Strategy Call"
+                      />
+                      <Input
+                        className="flex-1"
+                        value={l.url || ""}
+                        onChange={(e) => setLinks(links.map((x, idx) => (idx === i ? { ...x, url: e.target.value } : x)))}
+                        placeholder="https://calendly.com/you/30min"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => setLinks(links.filter((_, idx) => idx !== i))}
+                        title="Remove"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={() => setLinks([...links, { label: "", url: "" }])}>
+                    + Add meeting type
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
         </TabsContent>
         </div>
       </Tabs>

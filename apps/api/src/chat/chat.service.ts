@@ -144,30 +144,15 @@ export class ChatService {
       throw new ForbiddenException('Chat is currently disabled.');
     }
 
-    // The widget gates the chat behind a name + email form, so we usually have
-    // contact details up front — turn them into a CRM lead immediately. A CRM
-    // failure must never block the chat from opening, so this is best-effort.
-    let leadId: string | undefined;
-    if (!config.collectLeads) {
-      this.logger.warn('Lead not created: collectLeads is OFF in Chatbot AI settings.');
-    } else if (!dto.visitorEmail) {
-      this.logger.warn('Lead not created: no visitorEmail received from the widget.');
-    } else {
-      try {
-        leadId = await this.findOrCreateChatLead(dto.visitorEmail, dto.visitorName);
-        this.logger.log(`Chat lead linked: ${leadId} <${dto.visitorEmail}>`);
-      } catch (err) {
-        this.logger.error(`Failed to create chat lead: ${(err as Error).message}`);
-      }
-    }
-
+    // We keep the visitor's name/email on the conversation, but do NOT create a
+    // CRM lead yet — a lead is created only when they send their first actual
+    // message (see captureLead), so chat openers who never engage aren't leads.
     const visitorToken = `${randomUUID()}.${randomUUID()}`;
     const conversation = await this.prisma.conversation.create({
       data: {
         visitorToken,
         visitorName: dto.visitorName,
         visitorEmail: dto.visitorEmail,
-        leadId,
         messages: {
           create: { role: ChatRole.AI, content: config.welcomeMessage },
         },
@@ -651,26 +636,28 @@ export class ChatService {
   }
 
   /**
-   * Lead qualification: pull name/email out of what the visitor typed and,
-   * once we have an email, create (or update) a linked CRM Lead.
+   * Lead qualification, run on every visitor message. Creates a linked CRM Lead
+   * on the visitor's FIRST message (using the email from the pre-chat form, or
+   * one typed into the chat), so chat openers who never engage aren't leads.
    */
   private async captureLead(id: string, content: string) {
     const config = await this.getConfig();
     if (!config.collectLeads) return;
 
-    const found = this.ai.extractContact(content);
-    if (!found.email && !found.name) return;
-
     const convo = await this.prisma.conversation.findUnique({ where: { id } });
     if (!convo) return;
 
+    const found = this.ai.extractContact(content);
     const email = found.email || convo.visitorEmail || undefined;
     const name = found.name || convo.visitorName || undefined;
 
-    await this.prisma.conversation.update({
-      where: { id },
-      data: { visitorEmail: email, visitorName: name },
-    });
+    // Persist any newly-learned contact details onto the conversation.
+    if (found.email || found.name) {
+      await this.prisma.conversation.update({
+        where: { id },
+        data: { visitorEmail: email, visitorName: name },
+      });
+    }
 
     // Need an email to make the lead actionable; wait until we have one.
     if (!email) return;

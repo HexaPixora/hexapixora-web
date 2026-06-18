@@ -12,6 +12,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from '../prisma/prisma.service';
 import { env } from '../config/env';
+import { corsOrigin } from '../config/cors';
 
 function roomFor(conversationId: string): string {
   return `conv:${conversationId}`;
@@ -31,7 +32,7 @@ const AGENTS_ROOM = 'agents';
  */
 @WebSocketGateway({
   namespace: '/chat',
-  cors: { origin: env.corsOrigins, credentials: true },
+  cors: { origin: corsOrigin, credentials: true },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);

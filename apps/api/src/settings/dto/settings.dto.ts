@@ -1,4 +1,19 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+
+export class BookingLinkDto {
+  @IsString() @MinLength(1) @MaxLength(80) label: string;
+  // Scheduling URL (e.g. a Calendly event-type link).
+  @IsUrl({ require_protocol: true }) @MaxLength(500) url: string;
+}
 
 // Single-row site configuration. All fields optional — the service merges into
 // the existing "global" row. Server-managed fields (id, timestamps) are
@@ -16,4 +31,10 @@ export class UpdateSettingsDto {
   @IsOptional() @IsString() googleAnalyticsId?: string;
   @IsOptional() @IsString() gtmId?: string;
   @IsOptional() @IsString() metaPixelId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => BookingLinkDto)
+  bookingLinks?: BookingLinkDto[];
 }

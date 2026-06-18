@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { headerSchema, DEFAULT_HEADER_CONFIG } from "@/lib/module-schemas/header-schema";
 
@@ -38,6 +39,36 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
   const siteName = settings?.siteName || "HexaPixora";
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  // Which parent items are expanded in the mobile accordion.
+  const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({});
+  // The drawer is portaled to <body>; only render it after mount (client) so it
+  // escapes the header's `backdrop-blur` containing block — otherwise a
+  // `position: fixed` descendant is clipped to the 64px header, not the viewport.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  const closeMenu = React.useCallback(() => {
+    setIsMobileMenuOpen(false);
+    setOpenGroups({});
+  }, []);
+
+  const toggleGroup = (id: string) =>
+    setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  // Lock body scroll and close on Escape while the mobile menu is open.
+  React.useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isMobileMenuOpen, closeMenu]);
 
   return (
     <header className={`w-full border-b z-50 transition-all ${isSticky ? "sticky top-0" : ""} ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"}`}>
@@ -96,57 +127,126 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
             </Button>
           )}
           
-          <button className="md:hidden p-1 text-foreground" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          <button
+            className="md:hidden relative h-10 w-10 inline-flex items-center justify-center rounded-lg text-foreground hover:bg-muted/60 active:scale-95 transition-all"
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
+          >
+            {/* Cross-fade between hamburger and close icon */}
+            <Menu
+              size={24}
+              className={`absolute transition-all duration-300 ${isMobileMenuOpen ? "opacity-0 rotate-90 scale-75" : "opacity-100 rotate-0 scale-100"}`}
+            />
+            <X
+              size={24}
+              className={`absolute transition-all duration-300 ${isMobileMenuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-75"}`}
+            />
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t bg-background">
-          <nav className="container py-4 flex flex-col gap-4">
-            {menuItems.map((item) => (
-              <div key={item.id} className="flex flex-col">
-                {item.children && item.children.length > 0 ? (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-bold text-foreground">{item.label}</span>
-                    <div className="pl-4 flex flex-col gap-2 border-l ml-1">
-                      {item.children.map(child => (
-                        <Link 
-                          key={child.id} 
-                          href={child.url} 
-                          target={child.target}
-                          className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <Link 
-                    href={item.url} 
-                    target={item.target}
-                    className="text-sm font-bold hover:text-primary transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+      {/* Mobile Menu — slide-in drawer, portaled to <body> so `fixed` is
+          relative to the viewport (not the blurred header). Kept mounted for
+          enter/exit animation. */}
+      {mounted && createPortal(
+        <div
+          className={`md:hidden fixed inset-0 z-[60] ${isMobileMenuOpen ? "" : "pointer-events-none"}`}
+          aria-hidden={!isMobileMenuOpen}
+        >
+        {/* Backdrop */}
+        <div
+          onClick={closeMenu}
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100" : "opacity-0"}`}
+        />
+
+        {/* Panel */}
+        <div
+          id="mobile-menu"
+          className={`absolute right-0 top-0 h-full w-[85%] max-w-sm bg-background border-l shadow-2xl flex flex-col transition-transform duration-300 ease-out ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+        >
+          {/* Panel header */}
+          <div className="flex items-center justify-between h-16 px-5 border-b flex-shrink-0">
+            <Link href="/" onClick={closeMenu} className="flex items-center gap-2">
+              {finalLogoUrl && (
+                <img src={finalLogoUrl} alt={siteName} className="h-7 w-auto object-contain" />
+              )}
+              <span className="font-bold text-lg tracking-tight text-foreground">{siteName}</span>
+            </Link>
+            <button
+              onClick={closeMenu}
+              aria-label="Close menu"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Scrollable nav */}
+          <nav className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-1">
+            {menuItems.map((item) =>
+              item.children && item.children.length > 0 ? (
+                <div key={item.id} className="flex flex-col">
+                  <button
+                    onClick={() => toggleGroup(item.id)}
+                    aria-expanded={!!openGroups[item.id]}
+                    className="flex items-center justify-between w-full px-3 py-3 rounded-lg text-base font-semibold text-foreground hover:bg-muted/60 transition-colors"
                   >
                     {item.label}
-                  </Link>
-                )}
-              </div>
-            ))}
-            
-            {ctaText && (
-              <div className="pt-4 border-t mt-2">
-                <Button asChild variant={ctaStyle as any} className="w-full">
-                  <Link href={ctaUrl || "/"} onClick={() => setIsMobileMenuOpen(false)}>{ctaText}</Link>
-                </Button>
-              </div>
+                    <ChevronDown
+                      size={18}
+                      className={`text-muted-foreground transition-transform duration-300 ${openGroups[item.id] ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  <div
+                    className={`grid transition-all duration-300 ease-out ${openGroups[item.id] ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="ml-3 pl-3 my-1 border-l flex flex-col">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.id}
+                            href={child.url}
+                            target={child.target}
+                            onClick={closeMenu}
+                            className="px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={item.id}
+                  href={item.url}
+                  target={item.target}
+                  onClick={closeMenu}
+                  className="px-3 py-3 rounded-lg text-base font-semibold text-foreground hover:bg-muted/60 hover:text-primary transition-colors"
+                >
+                  {item.label}
+                </Link>
+              )
             )}
           </nav>
+
+          {/* CTA pinned to the bottom */}
+          {ctaText && (
+            <div className="p-4 border-t flex-shrink-0">
+              <Button asChild variant={ctaStyle as any} size="lg" className="w-full justify-center gap-2 text-base">
+                <Link href={ctaUrl || "/"} onClick={closeMenu}>
+                  {ctaText}
+                  <ArrowRight size={18} />
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
+        </div>,
+        document.body
       )}
     </header>
   );

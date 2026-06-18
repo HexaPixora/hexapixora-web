@@ -20,7 +20,7 @@ export class CreateLeadDto {
   message?: string;
 
   @IsOptional()
-  @IsIn(['contact', 'consultation', 'quote'])
+  @IsIn(['contact', 'consultation', 'quote', 'download'])
   type?: string;
 
   // Honeypot. A hidden field real users never see or fill — if it arrives

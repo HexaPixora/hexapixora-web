@@ -31,6 +31,9 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   SplideTestimonialsModule: dynamic(() => import("@/components/modules/splide-testimonials-module")),
   SplideGallerySyncModule: dynamic(() => import("@/components/modules/splide-gallery-sync-module")),
   ContactFormModule: dynamic(() => import("@/components/modules/contact-form-module")),
+  BookingModule: dynamic(() => import("@/components/modules/booking-module")),
+  PricingModule: dynamic(() => import("@/components/modules/pricing-module")),
+  LeadMagnetModule: dynamic(() => import("@/components/modules/lead-magnet-module")),
 };
 
 interface DynamicRendererProps {

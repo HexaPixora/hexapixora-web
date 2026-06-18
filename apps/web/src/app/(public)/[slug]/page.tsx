@@ -1,13 +1,18 @@
 import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
-import { apiUrl } from "@/lib/api-url";
+import PreviewBanner from "@/components/public/preview-banner";
+import { cmsFetch } from "@/lib/cms-fetch";
+
+// Time-revalidate (in addition to tag revalidation) so pages whose schedule
+// fires auto-appear within a minute without a manual republish.
+export const revalidate = 60;
 
 async function getPageData(slug: string) {
   try {
     const [pageRes, defaultsRes] = await Promise.all([
-      fetch(apiUrl(`/pages/${slug}`), { next: { tags: ['pages'] } }),
-      fetch(apiUrl('/layouts/module-defaults'), { next: { tags: ['layouts'] } })
+      cmsFetch(`/pages/${slug}`, { next: { tags: ['pages'] } }),
+      cmsFetch('/layouts/module-defaults', { next: { tags: ['layouts'] } })
     ]);
     
     if (!pageRes.ok) return null;
@@ -70,6 +75,7 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
         
         <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} />
       </div>
+      <PreviewBanner path={`/${page.slug}`} />
     </SiteLayout>
   );
 }
