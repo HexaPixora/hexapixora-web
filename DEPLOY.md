@@ -29,18 +29,24 @@ browser everything is **same-origin HTTPS** — login cookies and CORS just work
    - `CORS_ORIGINS` = your Vercel URL (set after step 3, e.g.
      `https://hexapixora.vercel.app`) — only needed for the chat websocket
    - `PREVIEW_TOKEN` = run `openssl rand -hex 32`, save it (Vercel needs the same value)
+   - `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` = the first admin login to create
+     (see step 5). Set both, or leave unset to skip seeding.
    - `AI_API_KEY`, `RESEND_API_KEY`, `MAIL_FROM` — optional
    - `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` are auto-generated.
 3. Deploy. Build runs `prisma generate` + `nest build`; start runs
-   `prisma db push` (creates the schema on Neon) then boots. Health check: `/api`.
+   `prisma db push` (creates the schema on Neon) → `prisma db seed` (creates the
+   first admin) → boots. Health checks: `/api` (liveness) and `/api/health`
+   (readiness, includes a DB ping).
 4. Note the URL, e.g. `https://hexapixora-api.onrender.com`.
-5. **Create the first admin user** — the new database is empty and there is **no
-   seed script or public registration**, so you can't log in until one exists.
-   Pick one:
-   - Point Prisma at Neon and copy your existing local admin over, or
-   - Add a seed script (recommended — ask and I'll wire `prisma db seed` to create
-     an admin from `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` env vars, runnable
-     from the Render shell or on deploy).
+5. **First admin login.** The seed runs automatically on every deploy and is
+   **idempotent**: it creates a `SUPER_ADMIN` from `SEED_ADMIN_EMAIL` /
+   `SEED_ADMIN_PASSWORD` only if that email doesn't already exist (so it never
+   clobbers a password you later change). Set both env vars (step 2) and deploy,
+   then log in. To seed manually instead (Render shell or locally):
+   ```sh
+   SEED_ADMIN_EMAIL=you@example.com SEED_ADMIN_PASSWORD='a-strong-password' \
+     npm run db:seed --workspace=@repo/database
+   ```
 
    *(Free Render instances sleep when idle — the first request after a while takes ~50s.)*
 

@@ -8,13 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { revalidateCMS } from "@/actions/revalidate";
 import MediaField from "@/components/admin/media-field";
-import { Loader2 } from "lucide-react";
 import { useHasPermission } from "@/stores/use-auth-store";
+import { PageHeader, SectionCard, Field, PageLoading } from "@/components/admin/ui";
+
+const SELECT_CLASS =
+  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export default function HeaderBuilderPage() {
   const canManage = useHasPermission("layouts");
   const [config, setConfig] = useState<HeaderConfig>(DEFAULT_HEADER_CONFIG);
-  const [navigations, setNavigations] = useState<{id: string, name: string}[]>([]);
+  const [navigations, setNavigations] = useState<{ id: string; name: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -22,14 +25,10 @@ export default function HeaderBuilderPage() {
   useEffect(() => {
     Promise.all([
       apiClient.get("/layouts/header").catch(() => null),
-      apiClient.get("/layouts/navigations").catch(() => null)
+      apiClient.get("/layouts/navigations").catch(() => null),
     ]).then(([headerRes, navsRes]) => {
-      if (headerRes?.data?.data) {
-        setConfig({ ...DEFAULT_HEADER_CONFIG, ...headerRes.data.data });
-      }
-      if (navsRes?.data?.data) {
-        setNavigations(navsRes.data.data);
-      }
+      if (headerRes?.data?.data) setConfig({ ...DEFAULT_HEADER_CONFIG, ...headerRes.data.data });
+      if (navsRes?.data?.data) setNavigations(navsRes.data.data);
       setLoading(false);
     });
   }, []);
@@ -37,143 +36,98 @@ export default function HeaderBuilderPage() {
   const save = async () => {
     setSaving(true);
     try {
-      // Validate before saving
       const validConfig = headerSchema.parse(config);
       await apiClient.put("/layouts/header", validConfig);
       setSaved(true);
       await revalidateCMS();
       toast.success("Header saved");
       setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
+    } catch {
       toast.error("Validation failed or server error.");
     } finally {
       setSaving(false);
     }
   };
 
-  const update = (key: keyof HeaderConfig, value: any) => {
-    setConfig({ ...config, [key]: value });
-  };
+  const update = (key: keyof HeaderConfig, value: any) => setConfig({ ...config, [key]: value });
 
-  if (loading) {
-    return <div className="p-8 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
-  }
+  if (loading) return <PageLoading label="Loading header settings…" />;
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Header Builder</h1>
-          <p className="text-muted-foreground">Customize the global site header style and navigation.</p>
-        </div>
+    <div className="flex max-w-3xl flex-col gap-6">
+      <PageHeader title="Header Builder" description="Customize the global site header style and navigation.">
         {canManage && (
           <Button onClick={save} disabled={saving}>
-            {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Header"}
+            {saved ? "✓ Saved!" : saving ? "Saving…" : "Save Header"}
           </Button>
         )}
-      </div>
+      </PageHeader>
 
-      <div className="bg-card border rounded-xl p-6 space-y-6">
-        <div className="space-y-4 border-b pb-6">
-          <h3 className="font-semibold text-lg">Navigation & Branding</h3>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Select Navigation Menu</label>
-            <select 
-              value={config.navId} 
-              onChange={e => update("navId", e.target.value)}
-              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              <option value="">No Menu Selected</option>
-              {navigations.map(nav => (
-                <option key={nav.id} value={nav.id}>{nav.name}</option>
-              ))}
+      <SectionCard title="Navigation & Branding" bodyClassName="space-y-5">
+        <Field label="Navigation Menu" hint="Menus can be created in the Navigations builder.">
+          <select value={config.navId} onChange={(e) => update("navId", e.target.value)} className={SELECT_CLASS}>
+            <option value="">No menu selected</option>
+            {navigations.map((nav) => (
+              <option key={nav.id} value={nav.id}>{nav.name}</option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Custom Logo (optional)">
+          <MediaField
+            type="image"
+            value={config.logoUrl || ""}
+            onChange={(url) => update("logoUrl", url)}
+            placeholder="https://… (leave blank to use the Global Settings logo)"
+            showPreview={false}
+          />
+          {config.logoUrl && (
+            <div className="mt-2 inline-block rounded-md border bg-muted/20 p-2">
+              <img src={config.logoUrl} alt="Logo preview" className="h-10 w-auto object-contain" />
+            </div>
+          )}
+        </Field>
+      </SectionCard>
+
+      <SectionCard title="Layout & Styling" bodyClassName="space-y-5">
+        <Field label="Layout Style">
+          <select value={config.layoutStyle} onChange={(e) => update("layoutStyle", e.target.value as any)} className={SELECT_CLASS}>
+            <option value="logo-left">Logo Left, Menu Right</option>
+            <option value="logo-center">Logo Center</option>
+            <option value="split">Split (Logo Left, CTA Right, Menu Center)</option>
+          </select>
+        </Field>
+
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={config.isSticky} onChange={(e) => update("isSticky", e.target.checked)} className="rounded border-input" />
+            Sticky header (stays at top while scrolling)
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={config.glassmorphism} onChange={(e) => update("glassmorphism", e.target.checked)} className="rounded border-input" />
+            Glassmorphism (blur effect)
+          </label>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Call to Action (CTA) Button">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Button Text">
+            <Input value={config.ctaText || ""} onChange={(e) => update("ctaText", e.target.value)} placeholder="Get in Touch" />
+          </Field>
+          <Field label="Button Link">
+            <Input value={config.ctaUrl || ""} onChange={(e) => update("ctaUrl", e.target.value)} placeholder="/contact" />
+          </Field>
+          <Field label="Button Style" className="sm:col-span-2">
+            <select value={config.ctaStyle} onChange={(e) => update("ctaStyle", e.target.value as any)} className={SELECT_CLASS}>
+              <option value="default">Default</option>
+              <option value="primary">Primary</option>
+              <option value="outline">Outline</option>
+              <option value="ghost">Ghost (text only)</option>
             </select>
-            <p className="text-xs text-muted-foreground">Menus can be created in the Navigations builder.</p>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Custom Logo (Optional)</label>
-            <MediaField
-              type="image"
-              value={config.logoUrl || ""}
-              onChange={(url) => update("logoUrl", url)}
-              placeholder="https://... (Leave blank to use Global Settings logo)"
-              showPreview={false}
-            />
-            {config.logoUrl && (
-              <div className="mt-2 p-2 border rounded-md bg-muted/20 inline-block">
-                <img src={config.logoUrl} alt="Logo Preview" className="h-10 w-auto object-contain" />
-              </div>
-            )}
-          </div>
+          </Field>
         </div>
-
-        <div className="space-y-4 border-b pb-6">
-          <h3 className="font-semibold text-lg">Layout & Styling</h3>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Layout Style</label>
-            <select 
-              value={config.layoutStyle} 
-              onChange={e => update("layoutStyle", e.target.value as any)}
-              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              <option value="logo-left">Logo Left, Menu Right</option>
-              <option value="logo-center">Logo Center</option>
-              <option value="split">Split (Logo Left, CTA Right, Menu Center)</option>
-            </select>
-          </div>
-
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={config.isSticky} onChange={e => update("isSticky", e.target.checked)} className="rounded border-gray-300" />
-              Sticky Header (Stays at top while scrolling)
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={config.glassmorphism} onChange={e => update("glassmorphism", e.target.checked)} className="rounded border-gray-300" />
-              Glassmorphism (Blur effect)
-            </label>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Call to Action (CTA) Button</h3>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Button Text</label>
-              <Input 
-                value={config.ctaText || ""} 
-                onChange={e => update("ctaText", e.target.value)} 
-                placeholder="Get in Touch"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Button Link</label>
-              <Input 
-                value={config.ctaUrl || ""} 
-                onChange={e => update("ctaUrl", e.target.value)} 
-                placeholder="/contact"
-              />
-            </div>
-            <div className="space-y-2 col-span-2">
-              <label className="text-sm font-medium">Button Style</label>
-              <select 
-                value={config.ctaStyle} 
-                onChange={e => update("ctaStyle", e.target.value as any)}
-                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="default">Default</option>
-                <option value="primary">Primary</option>
-                <option value="outline">Outline</option>
-                <option value="ghost">Ghost (Text only)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-      </div>
+      </SectionCard>
     </div>
   );
 }

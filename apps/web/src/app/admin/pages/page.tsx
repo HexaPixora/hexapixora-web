@@ -14,6 +14,7 @@ import { siteUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { StatusBadge } from "@/components/admin/status-badge";
 import type { ContentStatus } from "@/components/admin/status-control";
+import { Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, RowActions, EmptyRow, TableSkeleton } from "@/components/admin/ui";
 
 type Page = {
   id: string;
@@ -97,100 +98,95 @@ export default function PagesListPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Custom Pages</h1>
-          <p className="text-muted-foreground">Manage dynamically built pages across your website.</p>
-        </div>
+      <PageHeader title="Custom Pages" description="Manage dynamically built pages across your website.">
         {canManage && (
           <Button onClick={() => { setNewTitle(""); setCreateOpen(true); }}>
             <Plus size={16} className="mr-2" />
             Create New Page
           </Button>
         )}
-      </div>
+      </PageHeader>
 
-      <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
-        {loading ? (
-          <div className="p-12 text-center text-muted-foreground">Loading pages...</div>
-        ) : (
-          <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 border-b text-muted-foreground uppercase text-xs">
-              <tr>
-                <th className="px-6 py-4 font-semibold">Title</th>
-                <th className="px-6 py-4 font-semibold">URL Slug</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Created</th>
-                <th className="px-6 py-4 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {pages.map((page) => (
-                <tr key={page.id} className="hover:bg-muted/30 transition-colors group">
-                  <td className="px-6 py-4">
+      {loading ? (
+        <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+          <TableSkeleton cols={5} />
+        </div>
+      ) : (
+        <TableCard>
+          <THead>
+            <tr>
+              <TH>Title</TH>
+              <TH>URL Slug</TH>
+              <TH>Status</TH>
+              <TH>Created</TH>
+              <TH align="right">Actions</TH>
+            </tr>
+          </THead>
+          <TBody>
+            {pages.length === 0 ? (
+              <EmptyRow
+                colSpan={5}
+                icon={LayoutTemplate}
+                title="No custom pages yet"
+                hint="Create a page to start building with modules."
+                action={canManage ? (
+                  <Button size="sm" onClick={() => { setNewTitle(""); setCreateOpen(true); }}>
+                    <Plus size={14} className="mr-1.5" /> Create page
+                  </Button>
+                ) : undefined}
+              />
+            ) : (
+              pages.map((page) => (
+                <TR key={page.id}>
+                  <TD>
                     <div className="flex items-center gap-3 font-medium text-foreground">
                       <LayoutTemplate size={16} className="text-primary/70" />
                       {page.title}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 font-mono text-muted-foreground">
-                    /{page.slug}
-                  </td>
-                  <td className="px-6 py-4">
-                    <StatusBadge status={page.status} publishAt={page.publishAt} />
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground">
-                    {new Date(page.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <a href={siteUrl(page.slug)} target="_blank" rel="noreferrer" className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10" title="View Page">
+                  </TD>
+                  <TD className="font-mono text-muted-foreground">/{page.slug}</TD>
+                  <TD><StatusBadge status={page.status} publishAt={page.publishAt} /></TD>
+                  <TD className="text-muted-foreground">{new Date(page.createdAt).toLocaleDateString()}</TD>
+                  <TD align="right">
+                    <RowActions>
+                      <a href={siteUrl(page.slug)} target="_blank" rel="noreferrer" className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="View Page">
                         <Eye size={16} />
                       </a>
-                      <Link href={`/admin/pages/${page.id}`} className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10" title="Edit Page">
+                      <Link href={`/admin/pages/${page.id}`} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="Edit Page">
                         <Edit size={16} />
                       </Link>
                       {canManage && (
-                        <button onClick={() => deletePage(page.id, page.title)} className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10" title="Delete Page">
+                        <button onClick={() => deletePage(page.id, page.title)} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" title="Delete Page">
                           <Trash2 size={16} />
                         </button>
                       )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              
-              {pages.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground border-dashed">
-                    No custom pages created yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
-      </div>
+                    </RowActions>
+                  </TD>
+                </TR>
+              ))
+            )}
+          </TBody>
+        </TableCard>
+      )}
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create New Page</DialogTitle>
           </DialogHeader>
-          <div className="space-y-1.5 py-2">
-            <label className="text-sm font-medium">Page Title</label>
-            <Input
-              autoFocus
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && newTitle.trim()) createNewPage(); }}
-              placeholder="e.g. About Us"
-            />
-            {newTitle.trim() && (
-              <p className="text-xs text-muted-foreground font-mono pt-1">
-                /{newTitle.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}
-              </p>
-            )}
+          <div className="py-2">
+            <Field
+              label="Page Title"
+              hint={newTitle.trim() ? `/${newTitle.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")}` : undefined}
+            >
+              <Input
+                autoFocus
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && newTitle.trim()) createNewPage(); }}
+                placeholder="e.g. About Us"
+              />
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>

@@ -6,17 +6,20 @@ import { absoluteMediaUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Upload, X, Copy, Check, Trash2, Image as ImageIcon, File } from "lucide-react";
+import { Upload, Copy, Check, Trash2, Image as ImageIcon, File } from "lucide-react";
+import { useConfirm } from "@/components/admin/confirm-dialog";
+import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { cn } from "@/lib/utils";
 
 export default function AdminMediaPage() {
   const canManage = useHasPermission("media");
+  const confirm = useConfirm();
   const [mediaList, setMediaList] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "image" | "document">("all");
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchMedia = async () => {
@@ -70,11 +73,17 @@ export default function AdminMediaPage() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const deleteMedia = async (id: string) => {
+  const deleteMedia = async (media: any) => {
+    const ok = await confirm({
+      title: "Delete media file?",
+      description: `"${media.filename}" will be permanently deleted. This cannot be undone.`,
+      confirmText: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
     try {
-      await apiClient.delete(`/media/${id}`);
-      setMediaList(mediaList.filter(m => m.id !== id));
-      setDeleteConfirm(null);
+      await apiClient.delete(`/media/${media.id}`);
+      setMediaList((list) => list.filter((m) => m.id !== media.id));
       toast.success("Media deleted");
     } catch (err) {
       console.error(err);
@@ -91,23 +100,22 @@ export default function AdminMediaPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Media Library</h1>
-          <p className="text-muted-foreground">{mediaList.length} files stored</p>
-        </div>
+      <PageHeader title="Media Library" description={`${mediaList.length} files stored`}>
         <Button onClick={() => fileInputRef.current?.click()} disabled={uploading}>
           <Upload size={16} className="mr-2" /> Upload Files
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Filter tabs */}
-      <div className="flex gap-2">
-        {(["all", "image", "document"] as const).map(f => (
+      <div className="flex flex-wrap gap-2">
+        {(["all", "image", "document"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+            className={cn(
+              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              filter === f ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
+            )}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
@@ -138,9 +146,8 @@ export default function AdminMediaPage() {
 
       {/* Media Grid */}
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <ImageIcon size={48} className="mx-auto mb-4 opacity-30" />
-          <p>No media found. Upload your first file!</p>
+        <div className="rounded-xl border border-dashed">
+          <EmptyState icon={ImageIcon} title="No media found" hint="Upload an image or document to get started." />
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -169,8 +176,8 @@ export default function AdminMediaPage() {
                 </button>
                 {canManage && (
                   <button
-                    onClick={() => setDeleteConfirm(media.id)}
-                    className="p-2 bg-destructive/80 hover:bg-destructive rounded-lg text-white transition-colors"
+                    onClick={() => deleteMedia(media)}
+                    className="rounded-lg bg-destructive/80 p-2 text-white transition-colors hover:bg-destructive"
                     title="Delete"
                   >
                     <Trash2 size={16} />
@@ -185,20 +192,6 @@ export default function AdminMediaPage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-background border rounded-xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="font-semibold text-lg mb-2">Delete Media File</h3>
-            <p className="text-muted-foreground text-sm mb-4">This will permanently delete the file. This action cannot be undone.</p>
-            <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-              <Button variant="destructive" onClick={() => deleteMedia(deleteConfirm)}>Delete</Button>
-            </div>
-          </div>
         </div>
       )}
     </div>
