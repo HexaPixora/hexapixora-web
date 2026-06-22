@@ -4,12 +4,11 @@ import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useHasPermission } from "@/stores/use-auth-store";
+import { PageHeader } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import MediaField from "@/components/admin/media-field";
-import { Settings2, Eye, Component, X, ToggleLeft, ToggleRight } from "lucide-react";
+import { ModuleConfigForm } from "@/components/admin/module-config-form";
+import { Settings2, Eye, Component } from "lucide-react";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import HeroModule from "@/components/modules/hero-module";
@@ -57,84 +56,6 @@ export default function ModulesLibraryPage() {
 
   const activeModuleDef = activeConfigId ? MODULES[activeConfigId] : null;
 
-  const renderFieldInput = (field: any, value: any, onChange: (val: any) => void, uploadKey?: string, itemName?: string) => {
-    switch (field.type) {
-      case 'textarea':
-        return (
-          <Textarea 
-            value={value || ""} 
-            onChange={e => onChange(e.target.value)}
-            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-            rows={field.name === 'content' || field.name === 'description' ? 4 : 2}
-            className="text-sm"
-          />
-        );
-      case 'color':
-        return (
-          <div className="flex gap-3">
-            <Input 
-              type="color" 
-              value={value || "#000000"} 
-              onChange={e => onChange(e.target.value)}
-              className="w-16 h-10 p-1"
-            />
-            <Input 
-              type="text" 
-              value={value || ""} 
-              onChange={e => onChange(e.target.value)}
-              className="flex-1 font-mono"
-            />
-          </div>
-        );
-      case 'boolean':
-        return (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onChange(!value)}
-              className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-muted/50 transition-colors"
-            >
-              {value ? <ToggleRight className="text-primary" size={24} /> : <ToggleLeft className="text-muted-foreground" size={24} />}
-              <span className="text-sm font-medium">{value ? "Enabled" : "Disabled"}</span>
-            </button>
-          </div>
-        );
-      case 'select':
-        return (
-          <select
-            value={value || ""}
-            onChange={e => onChange(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {field.options?.map((opt: any) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        );
-      case 'image':
-      case 'video':
-        return (
-          <MediaField
-            type={field.type}
-            value={value || ""}
-            onChange={onChange}
-            placeholder={`URL or upload ${field.type}...`}
-          />
-        );
-      case 'text':
-      default:
-        return (
-          <Input 
-            type="text" 
-            value={value || ""} 
-            onChange={e => onChange(e.target.value)}
-            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-            className="text-sm"
-          />
-        );
-    }
-  };
-
   useEffect(() => {
     apiClient.get("/layouts/module-defaults").then(res => {
       if (res.data?.data) {
@@ -175,12 +96,7 @@ export default function ModulesLibraryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Modules Library</h1>
-          <p className="text-muted-foreground">Manage global default content for all builder components.</p>
-        </div>
-      </div>
+      <PageHeader title="Modules Library" description="Manage global default content for all builder components." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.values(MODULES).map((mod) => (
@@ -218,71 +134,8 @@ export default function ModulesLibraryPage() {
             </p>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
-            {activeModuleDef ? (
-              activeModuleDef.fields.map(field => (
-                <div key={field.name} className="space-y-1.5 border-b pb-4 last:border-0">
-                  <label className="text-sm font-semibold text-foreground/90">{field.label}</label>
-                  {field.description && <p className="text-xs text-muted-foreground mb-2">{field.description}</p>}
-                  
-                  {field.type === 'list' ? (
-                    <div className="border rounded-md p-3 space-y-3 bg-muted/10">
-                      {(editingConfig[field.name] || []).map((item: any, idx: number) => (
-                        <div key={idx} className="border rounded bg-card p-4 relative space-y-4 group shadow-sm">
-                          <button 
-                            onClick={() => {
-                              const newArray = [...(editingConfig[field.name] || [])];
-                              newArray.splice(idx, 1);
-                              setEditingConfig({ ...editingConfig, [field.name]: newArray });
-                            }}
-                            className="absolute top-2 right-2 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity bg-background rounded-full p-1 border shadow-sm"
-                            title="Remove Item"
-                          >
-                            <X size={14} />
-                          </button>
-                          
-                          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 border-b pb-1">
-                            Item {idx + 1}
-                          </div>
-                          
-                          {field.itemFields?.map(subField => (
-                            <div key={subField.name} className="space-y-1.5">
-                               <label className="text-xs font-medium text-foreground/80">{subField.label}</label>
-                               {renderFieldInput(
-                                 subField, 
-                                 item[subField.name], 
-                                 (val) => {
-                                   const newArray = [...(editingConfig[field.name] || [])];
-                                   newArray[idx] = { ...newArray[idx], [subField.name]: val };
-                                   setEditingConfig({ ...editingConfig, [field.name]: newArray });
-                                 },
-                                 `${field.name}-${idx}`,
-                                 subField.name
-                               )}
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => setEditingConfig({ ...editingConfig, [field.name]: [...(editingConfig[field.name] || []), {}] })}
-                        className="w-full text-xs border-dashed hover:border-primary hover:text-primary transition-colors mt-2"
-                      >
-                        + Add New {field.label.replace(/s$/, '')}
-                      </Button>
-                    </div>
-                  ) : (
-                    renderFieldInput(
-                      field, 
-                      editingConfig[field.name], 
-                      (val) => setEditingConfig({ ...editingConfig, [field.name]: val }),
-                      field.name
-                    )
-                  )}
-                </div>
-              ))
-            ) : null}
+          <div className="py-4">
+            <ModuleConfigForm def={activeModuleDef} value={editingConfig} onChange={setEditingConfig} />
           </div>
           
           <DialogFooter>

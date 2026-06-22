@@ -10,8 +10,9 @@ import SeoTab from "@/components/admin/seo-tab";
 import MediaPicker from "@/components/admin/media-picker";
 import { revalidateCMS } from "@/actions/revalidate";
 import { useHasPermission } from "@/stores/use-auth-store";
+import { PageHeader } from "@/components/admin/ui";
 import {
-  Settings, Globe, Palette, Search, Code,
+  Globe, Palette, Search, Code,
   UploadCloud, Mail, Phone, MapPin, Map, Clock, Image as ImageIcon, ImagePlus, Trash2
 } from "lucide-react";
 
@@ -125,26 +126,13 @@ export default function AdminSettingsPage() {
         description="Pick an existing image from your media library, or upload a new one."
       />
 
-      {/* Premium Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-background to-background border p-8 shadow-sm">
-        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
-              <Settings size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Global Settings</h1>
-              <p className="text-sm text-muted-foreground mt-1">Manage core configuration, branding, and integrations.</p>
-            </div>
-          </div>
-          {canManage && (
-            <Button onClick={handleSave} disabled={saving} size="lg" className="shadow-md shadow-primary/20 transition-all hover:scale-[1.02]">
-              {saved ? "✓ Saved Successfully!" : saving ? "Saving changes..." : "Save Configuration"}
-            </Button>
-          )}
-        </div>
-      </div>
+      <PageHeader title="Global Settings" description="Manage core configuration, branding, and integrations.">
+        {canManage && (
+          <Button onClick={handleSave} disabled={saving} size="lg">
+            {saved ? "✓ Saved!" : saving ? "Saving…" : "Save Configuration"}
+          </Button>
+        )}
+      </PageHeader>
 
       <Tabs defaultValue="general" className="flex flex-col md:flex-row gap-8 w-full">
         
@@ -166,7 +154,7 @@ export default function AdminSettingsPage() {
         <div className="flex-1 w-full min-w-0">
           {/* GENERAL TAB */}
           <TabsContent value="general" className="mt-0 outline-none">
-          <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-5 border-b bg-muted/10">
               <h3 className="font-semibold text-lg">Basic Information</h3>
               <p className="text-xs text-muted-foreground">This information is used throughout the website and email communications.</p>
@@ -224,7 +212,7 @@ export default function AdminSettingsPage() {
 
         {/* BRANDING TAB */}
         <TabsContent value="branding" className="mt-0">
-          <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-5 border-b bg-muted/10">
               <h3 className="font-semibold text-lg">Visual Identity</h3>
               <p className="text-xs text-muted-foreground">Upload your brand assets to ensure consistency across the platform.</p>
@@ -246,7 +234,7 @@ export default function AdminSettingsPage() {
 
         {/* SEO TAB */}
         <TabsContent value="seo" className="mt-0">
-          <div className="bg-card border rounded-2xl shadow-sm overflow-hidden p-6">
+          <div className="bg-card border rounded-xl shadow-sm overflow-hidden p-6">
             <SeoTab
               values={{
                 metaTitle: settings.seoTitle,
@@ -267,7 +255,7 @@ export default function AdminSettingsPage() {
 
         {/* INTEGRATIONS TAB */}
         <TabsContent value="integrations" className="mt-0">
-          <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-5 border-b bg-muted/10">
               <h3 className="font-semibold text-lg">Analytics & Tracking</h3>
               <p className="text-xs text-muted-foreground">Inject analytics scripts without touching code. These automatically apply to the entire site.</p>
@@ -323,7 +311,7 @@ export default function AdminSettingsPage() {
               : [];
             const setLinks = (next: { label: string; url: string }[]) => update("bookingLinks", next);
             return (
-              <div className="bg-card border rounded-2xl shadow-sm overflow-hidden mt-6">
+              <div className="bg-card border rounded-xl shadow-sm overflow-hidden mt-6">
                 <div className="px-6 py-5 border-b bg-muted/10">
                   <h3 className="font-semibold text-lg">Scheduling & Booking</h3>
                   <p className="text-xs text-muted-foreground">

@@ -10,9 +10,10 @@ services:
     plan: free
     # Install the whole workspace, generate the Prisma client, build the API.
     buildCommand: npm install && npx prisma generate --schema=packages/database/prisma/schema.prisma && npm run build --workspace=api
-    # Apply the schema to the database, then boot. `db push` is idempotent and
-    # only applies diffs; --accept-data-loss keeps deploys non-interactive.
-    startCommand: npx prisma db push --schema=packages/database/prisma/schema.prisma --skip-generate --accept-data-loss && node apps/api/dist/main.js
+    # Apply the schema, seed the first admin (idempotent — no-op unless
+    # SEED_ADMIN_PASSWORD is set and the user doesn't exist yet), then boot.
+    # `db push` only applies diffs; --accept-data-loss keeps deploys non-interactive.
+    startCommand: npx prisma db push --schema=packages/database/prisma/schema.prisma --skip-generate --accept-data-loss && npm run db:seed --workspace=@repo/database && node apps/api/dist/main.js
     healthCheckPath: /api
     autoDeploy: true
     envVars:
@@ -33,6 +34,12 @@ services:
         sync: false
       # Must MATCH the web app's PREVIEW_TOKEN on Vercel (draft preview).
       - key: PREVIEW_TOKEN
+        sync: false
+      # First-admin bootstrap (used by the seed on deploy). Set both to enable
+      # login on a fresh database; leave unset to skip seeding.
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
         sync: false
       # Support-chat AI (Groq). Optional — bot stays silent if unset.
       - key: AI_API_KEY

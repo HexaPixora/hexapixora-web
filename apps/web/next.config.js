@@ -19,6 +19,10 @@ function apiProxyOrigin() {
 }
 
 const nextConfig = {
+  // Allow the dev server to be reached through a Cloudflare quick tunnel
+  // (https://*.trycloudflare.com) so phones/other devices can load it without
+  // Next blocking the cross-origin dev request.
+  allowedDevOrigins: ['*.trycloudflare.com'],
   async rewrites() {
     return [
       {

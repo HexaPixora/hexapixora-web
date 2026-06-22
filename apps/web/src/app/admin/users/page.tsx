@@ -16,6 +16,7 @@ import { Plus, Pencil, Trash2, ShieldCheck, User as UserIcon } from "lucide-reac
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { useAuthStore, useIsAdmin } from "@/stores/use-auth-store";
 import { SECTIONS } from "@/lib/permissions";
+import { Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, RowActions, EmptyRow, TableSkeleton } from "@/components/admin/ui";
 
 type AdminUser = {
   id: string;
@@ -168,35 +169,35 @@ export default function UsersAdminPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Team Members</h1>
-          <p className="text-muted-foreground">Create members and control which sections they can access.</p>
-        </div>
+      <PageHeader title="Team Members" description="Create members and control which sections they can access.">
         <Button onClick={openCreate}>
           <Plus size={16} className="mr-2" /> Add Member
         </Button>
-      </div>
+      </PageHeader>
 
-      <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
-        {loading ? (
-          <div className="p-12 text-center text-muted-foreground">Loading members...</div>
-        ) : (
-          <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 border-b text-muted-foreground uppercase text-xs">
-              <tr>
-                <th className="px-6 py-4 font-semibold">Member</th>
-                <th className="px-6 py-4 font-semibold">Role</th>
-                <th className="px-6 py-4 font-semibold">Access</th>
-                <th className="px-6 py-4 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {users.map((u) => (
-                <tr key={u.id} className="hover:bg-muted/30 transition-colors group">
-                  <td className="px-6 py-4">
+      {loading ? (
+        <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+          <TableSkeleton cols={4} />
+        </div>
+      ) : (
+        <TableCard>
+          <THead>
+            <tr>
+              <TH>Member</TH>
+              <TH>Role</TH>
+              <TH>Access</TH>
+              <TH align="right">Actions</TH>
+            </tr>
+          </THead>
+          <TBody>
+            {users.length === 0 ? (
+              <EmptyRow colSpan={4} icon={UserIcon} title="No team members yet" hint="Add a member and grant them section access." />
+            ) : (
+              users.map((u) => (
+                <TR key={u.id}>
+                  <TD>
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-semibold">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
                         {(u.name?.[0] || u.email[0] || "?").toUpperCase()}
                       </div>
                       <div>
@@ -204,14 +205,14 @@ export default function UsersAdminPage() {
                         <p className="text-xs text-muted-foreground">{u.email}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center gap-1 text-xs font-medium bg-muted px-2 py-1 rounded">
+                  </TD>
+                  <TD>
+                    <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs font-medium">
                       {u.role !== "TEAM_MEMBER" && <ShieldCheck size={12} className="text-primary" />}
                       {ROLE_LABELS[u.role]}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TD>
+                  <TD>
                     {u.role !== "TEAM_MEMBER" ? (
                       <span className="text-xs text-muted-foreground">Full access</span>
                     ) : u.permissions.length === 0 ? (
@@ -219,38 +220,33 @@ export default function UsersAdminPage() {
                     ) : (
                       <div className="flex flex-wrap gap-1">
                         {u.permissions.map((p) => (
-                          <span key={p} className="text-[10px] uppercase tracking-wide bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                          <span key={p} className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-primary">
                             {p}
                           </span>
                         ))}
                       </div>
                     )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  </TD>
+                  <TD align="right">
+                    <RowActions>
                       {u.role !== "SUPER_ADMIN" && (
-                        <button onClick={() => openEdit(u)} className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-md hover:bg-primary/10" title="Edit">
+                        <button onClick={() => openEdit(u)} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="Edit">
                           <Pencil size={15} />
                         </button>
                       )}
                       {u.id !== currentUserId && u.role !== "SUPER_ADMIN" && (
-                        <button onClick={() => remove(u)} className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10" title="Delete">
+                        <button onClick={() => remove(u)} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" title="Delete">
                           <Trash2 size={15} />
                         </button>
                       )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {users.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">No team members yet.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
-      </div>
+                    </RowActions>
+                  </TD>
+                </TR>
+              ))
+            )}
+          </TBody>
+        </TableCard>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
@@ -259,8 +255,7 @@ export default function UsersAdminPage() {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Email</label>
+            <Field label="Email">
               <Input
                 type="email"
                 value={form.email}
@@ -268,29 +263,26 @@ export default function UsersAdminPage() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="member@hexapixora.com"
               />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Name</label>
+            </Field>
+            <Field label="Name">
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Full name"
               />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">
-                {editingId ? "New Password" : "Password"}
-                {editingId && <span className="text-muted-foreground font-normal"> (leave blank to keep current)</span>}
-              </label>
+            </Field>
+            <Field
+              label={editingId ? "New Password" : "Password"}
+              hint={editingId ? "Leave blank to keep the current password." : undefined}
+            >
               <Input
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="Min. 8 characters"
               />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Role</label>
+            </Field>
+            <Field label="Role">
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value as FormState["role"] })}
@@ -299,7 +291,7 @@ export default function UsersAdminPage() {
                 <option value="TEAM_MEMBER">Team Member (limited access)</option>
                 <option value="ADMIN">Admin (full access)</option>
               </select>
-            </div>
+            </Field>
 
             <div className="space-y-2 border-t pt-4">
               <div className="flex items-center gap-2">

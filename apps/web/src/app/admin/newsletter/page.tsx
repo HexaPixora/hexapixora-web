@@ -2,29 +2,64 @@
 
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Trash2, Download } from "lucide-react";
+import { Trash2, Download, Mail } from "lucide-react";
+import { useConfirm } from "@/components/admin/confirm-dialog";
+import {
+  PageHeader,
+  TableCard,
+  THead,
+  TH,
+  TBody,
+  TR,
+  TD,
+  RowActions,
+  EmptyRow,
+  TableSkeleton,
+  StatusPill,
+} from "@/components/admin/ui";
+import { cn } from "@/lib/utils";
+
+type Subscriber = { id: string; email: string; status: string; createdAt: string };
 
 export default function AdminNewsletterPage() {
-  const [data, setData] = useState<any[]>([]);
+  const confirm = useConfirm();
+  const [data, setData] = useState<Subscriber[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [page] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   const fetchSubscribers = async () => {
-    const res = await apiClient.get("/newsletter/subscribers", { params: { page, limit: 50 } });
-    setData(res.data.data);
-    setTotal(res.data.total);
-    setTotalPages(res.data.totalPages);
+    try {
+      const res = await apiClient.get("/newsletter/subscribers", { params: { page, limit: 50 } });
+      setData(res.data.data);
+      setTotal(res.data.total);
+    } catch {
+      toast.error("Failed to load subscribers");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchSubscribers(); }, [page]);
 
-  const deleteSubscriber = async (id: string) => {
-    await apiClient.delete(`/newsletter/${id}`);
-    setDeleteConfirm(null);
-    fetchSubscribers();
+  const deleteSubscriber = async (sub: Subscriber) => {
+    const ok = await confirm({
+      title: "Remove subscriber?",
+      description: `${sub.email}'s subscription record will be permanently deleted.`,
+      confirmText: "Remove",
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/newsletter/${sub.id}`);
+      setData((list) => list.filter((s) => s.id !== sub.id));
+      setTotal((t) => Math.max(0, t - 1));
+      toast.success("Subscriber removed");
+    } catch {
+      toast.error("Delete failed");
+    }
   };
 
   const exportCSV = () => {
@@ -40,87 +75,73 @@ export default function AdminNewsletterPage() {
     URL.revokeObjectURL(url);
   };
 
+  const activeCount = data.filter((d) => d.status === "ACTIVE").length;
+  const unsubCount = data.filter((d) => d.status === "UNSUBSCRIBED").length;
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Newsletter Subscribers</h1>
-          <p className="text-muted-foreground">{total} total subscribers</p>
-        </div>
+      <PageHeader title="Newsletter Subscribers" description={`${total} total subscribers`}>
         <Button variant="outline" onClick={exportCSV} disabled={data.length === 0}>
           <Download size={15} className="mr-2" /> Export CSV
         </Button>
+      </PageHeader>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {[
+          { label: "Total Subscribers", value: total, cls: "" },
+          { label: "Active", value: activeCount, cls: "text-emerald-600 dark:text-emerald-400" },
+          { label: "Unsubscribed", value: unsubCount, cls: "text-muted-foreground" },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-xl border bg-card p-5 shadow-sm">
+            <p className={cn("text-2xl font-bold", stat.cls)}>{stat.value}</p>
+            <p className="text-sm text-muted-foreground">{stat.label}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Subscriber stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-card border rounded-xl p-4">
-          <p className="text-2xl font-bold">{total}</p>
-          <p className="text-sm text-muted-foreground">Total Subscribers</p>
+      {loading ? (
+        <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+          <TableSkeleton cols={4} />
         </div>
-        <div className="bg-card border rounded-xl p-4">
-          <p className="text-2xl font-bold text-green-400">{data.filter(d => d.status === "ACTIVE").length}</p>
-          <p className="text-sm text-muted-foreground">Active</p>
-        </div>
-        <div className="bg-card border rounded-xl p-4">
-          <p className="text-2xl font-bold text-muted-foreground">{data.filter(d => d.status === "UNSUBSCRIBED").length}</p>
-          <p className="text-sm text-muted-foreground">Unsubscribed</p>
-        </div>
-      </div>
-
-      <div className="border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+      ) : (
+        <TableCard>
+          <THead>
             <tr>
-              <th className="px-4 py-3 text-left">Email</th>
-              <th className="px-4 py-3 text-left">Status</th>
-              <th className="px-4 py-3 text-left">Subscribed</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <TH>Email</TH>
+              <TH>Status</TH>
+              <TH>Subscribed</TH>
+              <TH align="right">Actions</TH>
             </tr>
-          </thead>
-          <tbody className="divide-y">
+          </THead>
+          <TBody>
             {data.length === 0 ? (
-              <tr><td colSpan={4} className="px-4 py-16 text-center text-muted-foreground">No subscribers yet</td></tr>
+              <EmptyRow colSpan={4} icon={Mail} title="No subscribers yet" hint="Subscriptions from the site will appear here." />
             ) : (
-              data.map(sub => (
-                <tr key={sub.id} className="hover:bg-muted/20 transition-colors">
-                  <td className="px-4 py-3">{sub.email}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sub.status === "ACTIVE" ? "bg-green-500/20 text-green-400" : "bg-muted text-muted-foreground"}`}>
-                      {sub.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
-                    {new Date(sub.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => setDeleteConfirm(sub.id)}
-                    >
-                      <Trash2 size={15} />
-                    </Button>
-                  </td>
-                </tr>
+              data.map((sub) => (
+                <TR key={sub.id}>
+                  <TD className="font-medium">{sub.email}</TD>
+                  <TD>
+                    <StatusPill
+                      style={
+                        sub.status === "ACTIVE"
+                          ? { label: "Active", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" }
+                          : { label: "Unsubscribed", cls: "bg-muted text-muted-foreground", dot: "bg-muted-foreground" }
+                      }
+                    />
+                  </TD>
+                  <TD className="text-xs text-muted-foreground">{new Date(sub.createdAt).toLocaleDateString()}</TD>
+                  <TD align="right">
+                    <RowActions>
+                      <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => deleteSubscriber(sub)}>
+                        <Trash2 size={15} />
+                      </Button>
+                    </RowActions>
+                  </TD>
+                </TR>
               ))
             )}
-          </tbody>
-        </table>
-      </div>
-
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-background border rounded-xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="font-semibold text-lg mb-2">Remove Subscriber</h3>
-            <p className="text-muted-foreground text-sm mb-4">This will permanently delete this subscription record.</p>
-            <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-              <Button variant="destructive" onClick={() => deleteSubscriber(deleteConfirm)}>Remove</Button>
-            </div>
-          </div>
-        </div>
+          </TBody>
+        </TableCard>
       )}
     </div>
   );
