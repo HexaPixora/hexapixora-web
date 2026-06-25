@@ -10,7 +10,18 @@ import { BadRequestException } from '@nestjs/common';
  * Requires a PUBLIC bucket (default name "media") created in the Supabase
  * dashboard so the object's public URL is readable without auth.
  */
-const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/+$/, '');
+// Use ONLY the origin of SUPABASE_URL, so a pasted REST/storage path or a
+// trailing slash (e.g. https://<ref>.supabase.co/rest/v1) can't corrupt the
+// storage request URL — that produced a misleading PostgREST "PGRST125" error.
+const SUPABASE_URL = (() => {
+  const raw = process.env.SUPABASE_URL;
+  if (!raw) return undefined;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return raw.replace(/\/+$/, '');
+  }
+})();
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'media';
 
