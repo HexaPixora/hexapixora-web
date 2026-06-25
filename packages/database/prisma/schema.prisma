@@ -113,12 +113,25 @@ enum ContentStatus {
   PUBLISHED
 }
 
+// Shared content taxonomy. Curated in the admin (distinct from free-form `tags`)
+// and referenced by blog posts (many-to-many) and the portfolio module (by name).
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  color       String?  // optional hex for admin/badge tinting
+  blogs       Blog[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Blog {
   id               String   @id @default(uuid())
   title            String
   slug             String   @unique
   excerpt          String?
-  category         String?
+  categories       Category[]
   tags             Json?    // Array of strings
   thumbnail        String?
   content          String
@@ -280,6 +293,9 @@ model Page {
   sections         Json     @default("[]") // Array of modules
   showHeader       Boolean  @default(true)
   showFooter       Boolean  @default(true)
+  // Exactly one page may be the site home (rendered at "/"). Enforced in the
+  // service (setting one clears the others); indexed for the public lookup.
+  isHomepage       Boolean  @default(false)
   // Publishing lifecycle. Defaults to PUBLISHED so existing pages stay live
   // after the column is added; new pages may be saved as DRAFT/SCHEDULED.
   status           ContentStatus @default(PUBLISHED)
@@ -290,6 +306,8 @@ model Page {
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([isHomepage])
 }
 
 // ==========================================

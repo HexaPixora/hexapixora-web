@@ -12,5 +12,9 @@ export async function getDraftPreviewUrl(path: string): Promise<string> {
   const token = res.data?.token;
   if (!token) throw new Error("Preview is not configured.");
   const qs = new URLSearchParams({ secret: token, path });
-  return `${siteUrl("/api/preview")}?${qs.toString()}`;
+  // Open preview on the SAME origin the admin is currently using (localhost, a
+  // tunnel, prod, …) so the Draft Mode cookie and redirect line up. Falls back
+  // to the configured site URL for any non-browser caller.
+  const origin = typeof window !== "undefined" ? window.location.origin : siteUrl();
+  return `${origin}/api/preview?${qs.toString()}`;
 }

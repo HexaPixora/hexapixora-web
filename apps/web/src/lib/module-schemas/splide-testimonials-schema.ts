@@ -8,11 +8,11 @@ export const splideTestimonialsSchema = z.object({
   autoplay: z.boolean().default(true),
   interval: z.string().default("4000"),
   items: z.array(z.object({
-      name: z.string(),
-      company: z.string(),
-      content: z.string(),
-      avatar: z.string(),
-      rating: z.string()
+      name: z.string().default(""),
+      company: z.string().default(""),
+      content: z.string().default(""),
+      avatar: z.string().default(""),
+      rating: z.string().default("")
     })).default([{"name":"Alex Johnson","company":"Global Solutions","content":"Antigravity CMS has completely transformed our publishing speeds. Highly recommend this team!","avatar":"","rating":"5"},{"name":"Sarah Miller","company":"Alpha Design Agency","content":"The dynamic visual builder and the video performance is state-of-the-art. Amazing UX.","avatar":"","rating":"5"},{"name":"David Lee","company":"Nova Tech","content":"Reliable, lightning-fast rendering and extremely high visual polish. Superb CMS modules.","avatar":"","rating":"5"}]),
 });
 

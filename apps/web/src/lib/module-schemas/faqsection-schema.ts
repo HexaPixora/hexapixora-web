@@ -5,8 +5,8 @@ export const faqsectionSchema = z.object({
   heading: z.string().default("Frequently Asked Questions"),
   subheading: z.string().default("Got questions? We have answers."),
   items: z.array(z.object({
-      question: z.string(),
-      answer: z.string()
+      question: z.string().default(""),
+      answer: z.string().default("")
     })).default([{"question":"What is your turnaround time?","answer":"Typically 2-4 weeks depending on the project scope."},{"question":"Do you provide ongoing support?","answer":"Yes, we offer maintenance plans for all our clients."}]),
 });
 

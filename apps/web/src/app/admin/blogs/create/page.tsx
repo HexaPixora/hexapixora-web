@@ -13,6 +13,7 @@ import TipTapEditor from "@/components/admin/tiptap-editor";
 import TagInput from "@/components/admin/tag-input";
 import SeoTab from "@/components/admin/seo-tab";
 import MediaField from "@/components/admin/media-field";
+import { CategorySelect } from "@/components/admin/category-select";
 import { StatusControl, ContentStatus } from "@/components/admin/status-control";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { toast } from "sonner";
@@ -27,7 +28,7 @@ const schema = z.object({
   slug: z.string().min(2, "Slug required").regex(/^[a-z0-9-]+$/),
   excerpt: z.string().optional(),
   content: z.string().min(10, "Content required"),
-  category: z.string().optional(),
+  categoryIds: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]),
   thumbnail: z.string().optional(),
   status: z.enum(["DRAFT", "SCHEDULED", "PUBLISHED"]),
@@ -44,7 +45,7 @@ interface FormValues {
   slug: string;
   excerpt?: string;
   content: string;
-  category?: string;
+  categoryIds?: string[];
   tags?: string[];
   thumbnail?: string;
   status: ContentStatus;
@@ -59,12 +60,11 @@ interface FormValues {
 export default function CreateBlogPage() {
   const router = useRouter();
   const [content, setContent] = useState("");
-  const [categories, setCategories] = useState<string[]>([]);
   const [seoExpanded, setSeoExpanded] = useState(false);
 
   const { register, control, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { tags: [], status: "DRAFT" },
+    defaultValues: { tags: [], categoryIds: [], status: "DRAFT" },
   });
 
   const title = watch("title");
@@ -85,10 +85,6 @@ export default function CreateBlogPage() {
       setValue("slug", title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
     }
   }, [title, setValue]);
-
-  useEffect(() => {
-    apiClient.get("/blogs/categories").then(res => setCategories(res.data || [])).catch(() => {});
-  }, []);
 
   const uploadThumbnail = async (file: File) => {
     const toastId = toast.loading("Uploading image...");
@@ -241,18 +237,16 @@ export default function CreateBlogPage() {
 
             <div className="space-y-5">
               
-              {/* Category */}
+              {/* Categories */}
               <div className="space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70">Category</label>
-                <Input 
-                  {...register("category")} 
-                  placeholder="e.g. Marketing, Tech..." 
-                  list="cat-list"
-                  className="bg-background/50 focus:bg-background rounded-xl h-11 border-muted/50 focus:border-primary/50"
+                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70">Categories</label>
+                <Controller
+                  control={control}
+                  name="categoryIds"
+                  render={({ field }) => (
+                    <CategorySelect value={field.value || []} onChange={field.onChange} by="id" />
+                  )}
                 />
-                <datalist id="cat-list">
-                  {categories.map(c => <option key={c} value={c || ""} />)}
-                </datalist>
               </div>
 
               {/* URL Slug */}

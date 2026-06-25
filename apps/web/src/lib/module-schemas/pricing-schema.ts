@@ -8,14 +8,14 @@ export const pricingSchema = z.object({
   plans: z
     .array(
       z.object({
-        name: z.string(),
-        price: z.string(),
-        period: z.string(),
-        description: z.string(),
+        name: z.string().default(""),
+        price: z.string().default(""),
+        period: z.string().default(""),
+        description: z.string().default(""),
         // One feature per line.
-        features: z.string(),
-        buttonText: z.string(),
-        buttonUrl: z.string(),
+        features: z.string().default(""),
+        buttonText: z.string().default(""),
+        buttonUrl: z.string().default(""),
         highlighted: z.boolean(),
       }),
     )

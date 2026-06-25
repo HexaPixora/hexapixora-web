@@ -14,13 +14,9 @@ export const metadata: Metadata = {
   },
 };
 
-async function getBlogs(category?: string) {
+async function getBlogs() {
   try {
-    let url = apiUrl("/blogs?published=true&limit=100");
-    if (category) {
-      url += `&category=${encodeURIComponent(category)}`;
-    }
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(apiUrl("/blogs?published=true&limit=100"), { cache: "no-store" });
     const json = await res.json();
     return json?.data || [];
   } catch (err) {
@@ -30,25 +26,15 @@ async function getBlogs(category?: string) {
 
 async function getCategories() {
   try {
-    const res = await fetch(apiUrl("/blogs/categories"), { cache: "no-store" });
+    const res = await fetch(apiUrl("/categories"), { cache: "no-store" });
     return await res.json();
   } catch (err) {
     return [];
   }
 }
 
-interface BlogPageProps {
-  searchParams: Promise<{ category?: string }>;
-}
-
-export default async function PublicBlogPage(props: BlogPageProps) {
-  const searchParams = await props.searchParams;
-  const currentCategory = searchParams.category || "";
-  
-  const [posts, categories] = await Promise.all([
-    getBlogs(currentCategory),
-    getCategories()
-  ]);
+export default async function PublicBlogPage() {
+  const [posts, categories] = await Promise.all([getBlogs(), getCategories()]);
 
   return (
     <SiteLayout showHeader={true} showFooter={true}>
@@ -74,30 +60,19 @@ export default async function PublicBlogPage(props: BlogPageProps) {
         </div>
 
         <div className="container mt-12 relative z-10">
-          {/* Category Filter Pills */}
+          {/* Category Pills — link to the per-category archive */}
           {categories.length > 0 && (
             <div className="flex flex-wrap items-center justify-center gap-2 mb-12 border-b pb-8">
-              <Link
-                href="/blog"
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  !currentCategory
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.03]"
-                    : "bg-muted/60 text-muted-foreground hover:bg-muted"
-                }`}
-              >
+              <span className="px-4 py-2 rounded-full text-sm font-medium bg-primary text-primary-foreground shadow-lg shadow-primary/20">
                 All Articles
-              </Link>
-              {categories.map((cat: string) => (
+              </span>
+              {categories.map((cat: any) => (
                 <Link
-                  key={cat}
-                  href={`/blog?category=${encodeURIComponent(cat)}`}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all capitalize ${
-                    currentCategory === cat
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.03]"
-                      : "bg-muted/60 text-muted-foreground hover:bg-muted"
-                  }`}
+                  key={cat.id}
+                  href={`/category/${cat.slug}`}
+                  className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-muted/60 text-muted-foreground hover:bg-muted"
                 >
-                  {cat}
+                  {cat.name}
                 </Link>
               ))}
             </div>
@@ -109,13 +84,8 @@ export default async function PublicBlogPage(props: BlogPageProps) {
               <Tag size={40} className="mx-auto mb-4 text-muted-foreground opacity-40 animate-pulse" />
               <h3 className="text-lg font-bold mb-2">No articles found</h3>
               <p className="text-muted-foreground text-sm">
-                We couldn't find any published articles {currentCategory ? `in "${currentCategory}"` : ""}. Check back later!
+                We couldn&apos;t find any published articles yet. Check back later!
               </p>
-              {currentCategory && (
-                <Link href="/blog" className="inline-block mt-4 text-sm text-primary font-semibold hover:underline">
-                  Clear filter & view all
-                </Link>
-              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -137,9 +107,9 @@ export default async function PublicBlogPage(props: BlogPageProps) {
                         No Image Available
                       </div>
                     )}
-                    {post.category && (
+                    {post.categories?.[0]?.name && (
                       <div className="absolute top-4 left-4 bg-primary/95 text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                        {post.category}
+                        {post.categories[0].name}
                       </div>
                     )}
                   </div>

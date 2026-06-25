@@ -13,16 +13,16 @@ import TipTapEditor from "@/components/admin/tiptap-editor";
 import TagInput from "@/components/admin/tag-input";
 import SeoTab from "@/components/admin/seo-tab";
 import MediaField from "@/components/admin/media-field";
+import { CategorySelect } from "@/components/admin/category-select";
 import { StatusControl, ContentStatus } from "@/components/admin/status-control";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { getDraftPreviewUrl } from "@/lib/preview-link";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   ArrowLeft, Save, Globe, Eye, FileText,
   Image as ImageIcon, Settings, Calendar,
   Search, ChevronDown, X, Sparkles, CheckCircle2,
-  Monitor, ExternalLink, RefreshCw
+  ExternalLink
 } from "lucide-react";
 
 const schema = z.object({
@@ -30,7 +30,7 @@ const schema = z.object({
   slug: z.string().min(2, "Slug required").regex(/^[a-z0-9-]+$/),
   excerpt: z.string().optional(),
   content: z.string().min(10, "Content required"),
-  category: z.string().optional(),
+  categoryIds: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]),
   thumbnail: z.string().optional(),
   status: z.enum(["DRAFT", "SCHEDULED", "PUBLISHED"]),
@@ -47,7 +47,7 @@ interface FormValues {
   slug: string;
   excerpt?: string;
   content: string;
-  category?: string;
+  categoryIds?: string[];
   tags?: string[];
   thumbnail?: string;
   status: ContentStatus;
@@ -64,17 +64,13 @@ export default function EditBlogPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState("");
-  const [categories, setCategories] = useState<string[]>([]);
   const [seoExpanded, setSeoExpanded] = useState(false);
 
   const { register, control, handleSubmit, setValue, watch, reset, getValues, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { tags: [], status: "DRAFT" },
+    defaultValues: { tags: [], categoryIds: [], status: "DRAFT" },
   });
 
-  // Live preview (draft render in an iframe)
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const [previewBusy, setPreviewBusy] = useState(false);
 
   const title = watch("title");
@@ -91,8 +87,6 @@ export default function EditBlogPage() {
   };
 
   useEffect(() => {
-    // Fetch categories
-    apiClient.get("/blogs/categories").then(res => setCategories(res.data || [])).catch(() => {});
     
     // Fetch blog post details
     apiClient.get(`/blogs/${id}`)
@@ -108,7 +102,7 @@ export default function EditBlogPage() {
           slug: blog.slug,
           excerpt: blog.excerpt || "",
           content: blog.content,
-          category: blog.category || "",
+          categoryIds: Array.isArray(blog.categories) ? blog.categories.map((c: any) => c.id) : [],
           tags: Array.isArray(blog.tags) ? blog.tags : [],
           thumbnail: blog.thumbnail || "",
           status: (blog.status as ContentStatus) || (blog.isPublished ? "PUBLISHED" : "DRAFT"),
@@ -189,20 +183,6 @@ export default function EditBlogPage() {
     if (url) window.open(url, "_blank", "noopener");
   };
 
-  const openLivePreview = async () => {
-    setPreviewBusy(true);
-    const url = await resolvePreviewUrl();
-    setPreviewBusy(false);
-    if (url) { setPreviewSrc(url); setPreviewOpen(true); }
-  };
-
-  const refreshPreview = async () => {
-    setPreviewBusy(true);
-    const url = await resolvePreviewUrl();
-    setPreviewBusy(false);
-    if (url) setPreviewSrc(url);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -244,11 +224,8 @@ export default function EditBlogPage() {
           <Button variant="ghost" type="button" onClick={() => router.push("/admin/blogs")} className="rounded-xl font-medium">
             Cancel
           </Button>
-          <Button variant="outline" type="button" onClick={openLivePreview} disabled={previewBusy || isSubmitting} className="rounded-xl font-semibold">
-            <Monitor size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Live preview"}
-          </Button>
           <Button variant="outline" type="button" onClick={openPreviewTab} disabled={previewBusy || isSubmitting} className="rounded-xl font-semibold">
-            <ExternalLink size={16} className="mr-2" /> Preview tab
+            <ExternalLink size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Preview"}
           </Button>
           <Button
             type="submit"
@@ -339,18 +316,16 @@ export default function EditBlogPage() {
 
             <div className="space-y-5">
               
-              {/* Category */}
+              {/* Categories */}
               <div className="space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70">Category</label>
-                <Input 
-                  {...register("category")} 
-                  placeholder="e.g. Marketing, Tech..." 
-                  list="cat-list"
-                  className="bg-background/50 focus:bg-background rounded-xl h-11 border-muted/50 focus:border-primary/50"
+                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70">Categories</label>
+                <Controller
+                  control={control}
+                  name="categoryIds"
+                  render={({ field }) => (
+                    <CategorySelect value={field.value || []} onChange={field.onChange} by="id" />
+                  )}
                 />
-                <datalist id="cat-list">
-                  {categories.map(c => <option key={c} value={c || ""} />)}
-                </datalist>
               </div>
 
               {/* URL Slug */}
@@ -464,33 +439,6 @@ export default function EditBlogPage() {
           </div>
         </div>
       </div>
-
-      {/* Live Preview (draft render in an iframe) */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] p-0 flex flex-col gap-0 overflow-hidden">
-          <DialogHeader className="flex flex-row items-center justify-between gap-3 border-b px-4 py-2.5 space-y-0">
-            <DialogTitle className="text-sm font-medium flex items-center gap-2">
-              <Monitor size={15} /> Live preview
-              <span className="text-xs font-normal text-muted-foreground">reflects your last save</span>
-            </DialogTitle>
-            <div className="flex items-center gap-2 pr-6">
-              <Button size="sm" variant="outline" type="button" onClick={refreshPreview} disabled={previewBusy}>
-                <RefreshCw size={14} className={`mr-1.5 ${previewBusy ? "animate-spin" : ""}`} /> Save & refresh
-              </Button>
-              {previewSrc && (
-                <a href={previewSrc} target="_blank" rel="noreferrer" className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-foreground">
-                  <ExternalLink size={14} className="mr-1" /> Open in tab
-                </a>
-              )}
-            </div>
-          </DialogHeader>
-          <div className="flex-1 bg-muted/30">
-            {previewSrc && (
-              <iframe key={previewSrc} src={previewSrc} className="w-full h-full border-0" title="Post preview" />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </form>
   );
 }

@@ -46,6 +46,32 @@ export class PagesService {
     return page;
   }
 
+  // The page designated as the site home (rendered at "/"). Respects publish
+  // status unless this is a preview request. Returns null when none is set.
+  async findHomepage(preview = false) {
+    return this.prisma.page.findFirst({
+      where: {
+        isHomepage: true,
+        ...(preview ? {} : { status: ContentStatus.PUBLISHED }),
+      },
+    });
+  }
+
+  // Make `id` the one and only homepage (clears any previous one atomically).
+  async setHomepage(id: string) {
+    const page = await this.prisma.page.findUnique({ where: { id } });
+    if (!page) throw new NotFoundException(`Page with id ${id} not found`);
+
+    await this.prisma.$transaction([
+      this.prisma.page.updateMany({
+        where: { isHomepage: true, id: { not: id } },
+        data: { isHomepage: false },
+      }),
+      this.prisma.page.update({ where: { id }, data: { isHomepage: true } }),
+    ]);
+    return { id, isHomepage: true };
+  }
+
   async create(data: any) {
     return this.prisma.page.create({ data: this.normalizeStatus(data) });
   }

@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Put,
   Param,
@@ -35,6 +36,14 @@ export class PagesController {
   @Get('admin/:id')
   async findOneAdmin(@Param('id') id: string) {
     const page = await this.pagesService.findOneAdmin(id);
+    return { data: page };
+  }
+
+  // Public — the page designated as the site home (rendered at "/"). Declared
+  // before ":idOrSlug" so "homepage" isn't swallowed as a slug.
+  @Get('homepage')
+  async findHomepage(@Headers('x-preview-token') previewToken?: string) {
+    const page = await this.pagesService.findHomepage(hasPreviewAccess(previewToken));
     return { data: page };
   }
 
@@ -72,6 +81,14 @@ export class PagesController {
   async update(@Param('id') id: string, @Body() updatePageDto: UpdatePageDto) {
     const page = await this.pagesService.update(id, updatePageDto);
     return { data: page, message: 'Page updated successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('pages')
+  @Patch(':id/homepage')
+  async setHomepage(@Param('id') id: string) {
+    const result = await this.pagesService.setHomepage(id);
+    return { data: result, message: 'Homepage updated successfully' };
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)

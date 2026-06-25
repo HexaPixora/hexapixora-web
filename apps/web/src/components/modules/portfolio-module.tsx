@@ -26,7 +26,13 @@ export default function PortfolioModule({ config }: { config?: PortfolioProps })
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {projects.map((project: any, idx: number) => {
             const image = project.image;
-            
+            // New multi-category array, falling back to the legacy single string.
+            const cats: string[] = Array.isArray(project.categories) && project.categories.length
+              ? project.categories
+              : project.category
+                ? [project.category]
+                : [];
+
             return (
               <Link key={idx} href="#" className="group block">
                 <div className="relative overflow-hidden rounded-2xl aspect-[4/3] bg-muted mb-6">
@@ -44,13 +50,15 @@ export default function PortfolioModule({ config }: { config?: PortfolioProps })
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    {project.category && (
-                      <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                        {project.category}
-                      </span>
-                    )}
-                  </div>
+                  {cats.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      {cats.map((c) => (
+                        <span key={c} className="text-xs font-semibold uppercase tracking-wider text-primary">
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <h3 className="text-2xl font-bold group-hover:text-primary transition-colors">{project.title}</h3>
                 </div>
               </Link>

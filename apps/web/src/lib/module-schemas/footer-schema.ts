@@ -11,7 +11,7 @@ export const footerSchema = z.object({
   col2Title: z.string().optional().default("Legal").describe("Column 2 Title"),
 
   socials: z.array(z.object({
-    platform: z.string(),
+    platform: z.string().default(""),
     url: z.string().optional().default(""),
     icon: z.string().optional(),       // key into the social icon registry
     color: z.string().optional()       // hex color; empty = inherit theme color

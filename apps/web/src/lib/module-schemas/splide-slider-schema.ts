@@ -12,11 +12,11 @@ export const splideSliderSchema = z.object({
   pagination: z.boolean().default(true),
   height: z.string().default("500px"),
   items: z.array(z.object({
-      image: z.string(),
-      title: z.string(),
-      description: z.string(),
-      buttonText: z.string(),
-      buttonUrl: z.string()
+      image: z.string().default(""),
+      title: z.string().default(""),
+      description: z.string().default(""),
+      buttonText: z.string().default(""),
+      buttonUrl: z.string().default("")
     })).default([{"image":"","title":"Scale Your Business","description":"We design top-tier products to boost your operations.","buttonText":"Explore More","buttonUrl":"/services"},{"image":"","title":"Strategic Analytics","description":"Make decisions based on accurate historical insights and real tracking data.","buttonText":"Contact Us","buttonUrl":"/contact"}]),
 });
 

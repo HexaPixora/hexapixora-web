@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import MediaField from "@/components/admin/media-field";
+import { CategorySelect } from "@/components/admin/category-select";
 import { ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 
 const SELECT_CLASS =
@@ -62,6 +63,9 @@ function FieldControl({
     case "image":
     case "video":
       return <MediaField type={field.type} value={value || ""} onChange={onChange} placeholder={`URL or upload ${field.type}...`} />;
+    case "categories":
+      // Stores an array of category NAMES from the shared pool (presentational).
+      return <CategorySelect by="name" value={Array.isArray(value) ? value : []} onChange={onChange} />;
     case "text":
     default:
       return (

@@ -5,9 +5,9 @@ export const servicesSchema = z.object({
   heading: z.string().default("Our Services"),
   subheading: z.string().default("What we can do for you"),
   items: z.array(z.object({
-      title: z.string(),
-      description: z.string(),
-      icon: z.string()
+      title: z.string().default(""),
+      description: z.string().default(""),
+      icon: z.string().default("")
     })).default([{"title":"Web Development","description":"Custom web applications built with modern tools.","icon":"Code"},{"title":"UI/UX Design","description":"Beautiful and intuitive user interfaces.","icon":"PenTool"},{"title":"Digital Marketing","description":"Grow your business with targeted campaigns.","icon":"TrendingUp"}]),
 });
 

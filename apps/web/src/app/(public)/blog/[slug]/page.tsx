@@ -21,12 +21,12 @@ async function getBlogPost(slug: string) {
   }
 }
 
-async function getRecentBlogs(excludeSlug: string) {
+async function getRelatedBlogs(slug: string) {
   try {
-    const res = await fetch(apiUrl("/blogs/recent?limit=4"), { cache: "no-store" });
+    // Posts sharing a category with this one (falls back to recent server-side).
+    const res = await fetch(apiUrl(`/blogs/slug/${slug}/related?limit=3`), { cache: "no-store" });
     if (!res.ok) return [];
-    const list = await res.json();
-    return list.filter((post: any) => post.slug !== excludeSlug).slice(0, 3);
+    return await res.json();
   } catch (err) {
     return [];
   }
@@ -62,7 +62,7 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
     notFound();
   }
 
-  const recentPosts = await getRecentBlogs(params.slug);
+  const relatedPosts = await getRelatedBlogs(params.slug);
 
   const canonical = siteUrl(`/blog/${post.slug}`);
   const image = post.ogImage || post.thumbnail;
@@ -74,7 +74,7 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
     image: image ? absoluteMediaUrl(image) : undefined,
     datePublished: post.publishDate || post.createdAt || undefined,
     dateModified: post.updatedAt || post.publishDate || post.createdAt || undefined,
-    ...(post.category ? { articleSection: post.category } : {}),
+    ...(post.categories?.[0]?.name ? { articleSection: post.categories[0].name } : {}),
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     publisher: { "@type": "Organization", name: "HexaPixora" },
   };
@@ -109,10 +109,18 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
           {/* Article Header */}
           <div className="space-y-6">
-            {post.category && (
-              <span className="inline-block bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                {post.category}
-              </span>
+            {Array.isArray(post.categories) && post.categories.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.categories.map((c: any) => (
+                  <Link
+                    key={c.id}
+                    href={`/category/${c.slug}`}
+                    className="inline-block bg-primary/10 border border-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider hover:bg-primary/20 transition-colors"
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+              </div>
             )}
             
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight text-foreground">
@@ -182,7 +190,7 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
         </div>
 
         {/* Recent Articles Section */}
-        {recentPosts.length > 0 && (
+        {relatedPosts.length > 0 && (
           <div className="border-t border-muted/20 bg-muted/10 mt-20 py-20">
             <div className="container max-w-6xl">
               <h2 className="text-2xl font-bold tracking-tight mb-10 flex items-center gap-2">
@@ -190,7 +198,7 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
                 <span>Continue Reading</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {recentPosts.map((recent: any) => (
+                {relatedPosts.map((recent: any) => (
                   <Link
                     key={recent.id}
                     href={`/blog/${recent.slug}`}
