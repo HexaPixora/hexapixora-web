@@ -2,7 +2,7 @@ import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
 import PreviewBanner from "@/components/public/preview-banner";
 import HeroModule from "@/components/modules/hero-module"; // fallback when no homepage is set
-import { cmsFetch } from "@/lib/cms-fetch";
+import { cmsFetch, readJson } from "@/lib/cms-fetch";
 
 // Render live on every request so admin edits (and scheduled publishes) appear
 // immediately. On-demand tag revalidation proved unreliable on Vercel's edge for
@@ -16,17 +16,10 @@ async function getHomepage() {
       cmsFetch("/layouts/module-defaults", { cache: "no-store" }),
     ]);
 
-    let page: any = null;
-    if (pageRes.ok) {
-      const json = await pageRes.json();
-      page = json?.data ?? null;
-    }
-
-    let moduleDefaults = {};
-    if (defaultsRes.ok) {
-      const json = await defaultsRes.json();
-      moduleDefaults = json?.data ?? {};
-    }
+    // readJson never throws on an empty/invalid body (e.g. module-defaults),
+    // so a bad sub-response can't blank out the homepage.
+    const page: any = (await readJson(pageRes))?.data ?? null;
+    const moduleDefaults = (await readJson(defaultsRes))?.data ?? {};
 
     let sections: any[] = [];
     if (page) {

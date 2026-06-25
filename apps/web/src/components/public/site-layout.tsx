@@ -2,6 +2,7 @@ import React from "react";
 import PublicHeader from "@/components/public/header";
 import PublicFooter from "@/components/public/footer";
 import { apiUrl } from "@/lib/api-url";
+import { readJson } from "@/lib/cms-fetch";
 
 async function getLayoutData() {
   try {
@@ -14,13 +15,15 @@ async function getLayoutData() {
       fetch(apiUrl('/layouts/navigations'), { cache: "no-store" }).catch(() => null),
     ]);
 
+    // readJson never throws on an empty/invalid body, so one missing layout
+    // record (empty 200) can't blank out the whole header/footer/nav.
     return {
       // /settings returns the SiteSetting row directly (a flat object), unlike
       // the layout endpoints which nest their config under a `data` column.
-      settings: settingsRes?.ok ? await settingsRes.json() : null,
-      headerConfig: headerRes?.ok ? (await headerRes.json())?.data : null,
-      footerConfig: footerRes?.ok ? (await footerRes.json())?.data : null,
-      navigations: navsRes?.ok ? (await navsRes.json())?.data : []
+      settings: await readJson(settingsRes),
+      headerConfig: (await readJson(headerRes))?.data ?? null,
+      footerConfig: (await readJson(footerRes))?.data ?? null,
+      navigations: (await readJson(navsRes))?.data ?? []
     };
   } catch (err) {
     console.error("Layout fetch error:", err);
