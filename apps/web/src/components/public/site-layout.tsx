@@ -5,11 +5,13 @@ import { apiUrl } from "@/lib/api-url";
 
 async function getLayoutData() {
   try {
+    // no-store so header/footer/menu/settings edits reflect immediately on the
+    // public site (this layout renders on every page).
     const [settingsRes, headerRes, footerRes, navsRes] = await Promise.all([
-      fetch(apiUrl('/settings'), { next: { tags: ['layouts'] } }).catch(() => null),
-      fetch(apiUrl('/layouts/header'), { next: { tags: ['layouts'] } }).catch(() => null),
-      fetch(apiUrl('/layouts/footer'), { next: { tags: ['layouts'] } }).catch(() => null),
-      fetch(apiUrl('/layouts/navigations'), { next: { tags: ['layouts'] } }).catch(() => null),
+      fetch(apiUrl('/settings'), { cache: "no-store" }).catch(() => null),
+      fetch(apiUrl('/layouts/header'), { cache: "no-store" }).catch(() => null),
+      fetch(apiUrl('/layouts/footer'), { cache: "no-store" }).catch(() => null),
+      fetch(apiUrl('/layouts/navigations'), { cache: "no-store" }).catch(() => null),
     ]);
 
     return {
