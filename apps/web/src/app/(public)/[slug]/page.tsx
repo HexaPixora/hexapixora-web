@@ -2,12 +2,16 @@ import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
 import PreviewBanner from "@/components/public/preview-banner";
-import { cmsFetch } from "@/lib/cms-fetch";
+import { cmsFetch, isPreview } from "@/lib/cms-fetch";
+import { apiUrl } from "@/lib/api-url";
 
 // Render live on every request so admin edits (and scheduled publishes) appear
 // immediately, instead of relying on Vercel edge-cache invalidation that proved
 // unreliable for prerendered routes.
 export const dynamic = "force-dynamic";
+// Belt-and-suspenders: force EVERY fetch in this route to bypass the Next data
+// cache, so a stale cached result for a slug can never be served.
+export const fetchCache = "force-no-store";
 
 async function getPageData(slug: string) {
   try {
@@ -59,7 +63,12 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
   const data = await getPageData(params.slug);
 
   if (!data) {
-    notFound();
+    // TEMP DIAG — compare raw fetch vs cmsFetch in THIS page context.
+    const preview = await isPreview();
+    let raw: any, viaCms: any;
+    try { const r = await fetch(apiUrl(`/pages/${params.slug}`), { cache: "no-store" }); raw = { status: r.status, ok: r.ok }; } catch (e: any) { raw = { threw: String(e?.message ?? e) }; }
+    try { const r = await cmsFetch(`/pages/${params.slug}`, { cache: "no-store" }); const t = await r.text(); viaCms = { status: r.status, ok: r.ok, bodyStart: t.slice(0, 100) }; } catch (e: any) { viaCms = { threw: String(e?.message ?? e) }; }
+    return <pre style={{ padding: 24, whiteSpace: "pre-wrap" }}>{JSON.stringify({ slug: params.slug, preview, raw, viaCms }, null, 2)}</pre>;
   }
 
   const { page, sections, moduleDefaults } = data;
