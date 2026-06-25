@@ -19,6 +19,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { sanitizeSvg } from './svg-sanitizer';
+import {
+  isSupabaseStorageEnabled,
+  uploadToSupabase,
+  deleteFromSupabase,
+} from './supabase-storage';
 import type { Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -109,10 +114,20 @@ export class MediaController {
       return { ...existing, deduped: true };
     }
 
-    fs.renameSync(tmpPath, path.join(UPLOAD_DIR, finalName));
+    // Persist to Supabase Storage in production (survives Railway redeploys);
+    // fall back to the local ./uploads disk when Supabase isn't configured.
+    let url: string;
+    if (isSupabaseStorageEnabled()) {
+      url = await uploadToSupabase(finalName, buffer, file.mimetype);
+      fs.unlinkSync(tmpPath); // the local copy is ephemeral; don't keep it
+    } else {
+      fs.renameSync(tmpPath, path.join(UPLOAD_DIR, finalName));
+      url = `/api/media/file/${finalName}`;
+    }
+
     const created = await this.mediaService.create({
       filename: finalName,
-      url: `/api/media/file/${finalName}`,
+      url,
       mimetype: file.mimetype,
       size: buffer.length,
     });
@@ -135,8 +150,15 @@ export class MediaController {
       throw new NotFoundException('Media not found');
     }
     // basename() neutralizes any path segments stored on the record.
-    const filePath = path.join(UPLOAD_DIR, basename(item.filename));
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    const safeName = basename(item.filename);
+    // Remote (Supabase) objects are stored as absolute https URLs; local ones
+    // as /api/media/file/... — delete from wherever it actually lives.
+    if (/^https?:\/\//i.test(item.url)) {
+      await deleteFromSupabase(safeName);
+    } else {
+      const filePath = path.join(UPLOAD_DIR, safeName);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
     return this.mediaService.delete(id);
   }
 
