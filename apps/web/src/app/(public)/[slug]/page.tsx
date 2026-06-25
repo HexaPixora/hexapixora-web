@@ -59,7 +59,12 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
   const data = await getPageData(params.slug);
 
   if (!data) {
-    notFound();
+    // TEMP DEBUG — reveal what slug the route actually received.
+    return (
+      <pre style={{ padding: 24 }}>
+        DEBUG no data — slug={JSON.stringify(params.slug)} type={typeof params.slug}
+      </pre>
+    );
   }
 
   const { page, sections, moduleDefaults } = data;
