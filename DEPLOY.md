@@ -21,9 +21,16 @@ browser everything is **same-origin HTTPS** — login cookies and CORS just work
 ## 1. Database — Supabase
 1. Create a project at <https://supabase.com> (free). Pick a region close to your
    Railway region. Save the database password you set.
-2. **Connect → "Session pooler"** and copy that connection string. It looks like:
-   `postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres`
+2. **Connect → "Session pooler"** and copy that connection string, then **append
+   `?connection_limit=5`**. It should look like:
+   `postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?connection_limit=5`
    Keep it for Railway's `DATABASE_URL`.
+
+   ⚠️ **The `?connection_limit=5` is required.** Supabase's pooler caps total
+   client connections at 15; Prisma's default pool is sized to the container's
+   CPU count and will hog all 15 by itself, which then makes the *next* deploy's
+   `prisma db push` fail with `EMAXCONNSESSION`. Capping it leaves room for
+   redeploys. (If it ever recurs, lower it to `3`.)
 
    ⚠️ **Use the *Session* pooler (port 5432), not the Transaction pooler (6543)
    and not the `db.<ref>.supabase.co` direct string.** The direct host is
