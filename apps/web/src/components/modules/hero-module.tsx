@@ -22,10 +22,10 @@ export default function HeroModule({ config }: { config?: HeroProps }) {
         backgroundPosition: 'center',
       } : {}}
     >
-      {backgroundImage && <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0"></div>}
+      {backgroundImage && <div className="absolute inset-0 bg-background/50 z-0"></div>}
 
       <div className="container relative z-2 grid grid-cols-12 gap-6 py-20 md:py-32 w-full">
-        <div className="flex flex-col col-span-12 md:col-span-12 items-start gap-6">
+        <div className="flex flex-col col-span-12 md:col-span-7 items-start gap-y-12">
           <h1 className="text-6xl font-extrabold leading-tight tracking-tighter md:text-5xl lg:text-9xl">
             {heading}
           </h1>
