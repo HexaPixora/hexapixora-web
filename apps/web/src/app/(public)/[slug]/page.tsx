@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
@@ -13,7 +14,11 @@ export const dynamic = "force-dynamic";
 // cache, so a stale cached result for a slug can never be served.
 export const fetchCache = "force-no-store";
 
-async function getPageData(slug: string) {
+// Wrapped in React cache() so generateMetadata and the page component share ONE
+// execution per request. Without this, the two invocations race through Next's
+// fetch request-memoization and the component can reuse an aborted/poisoned
+// in-flight fetch from generateMetadata — which returned null and 404'd valid pages.
+const getPageData = cache(async (slug: string) => {
   try {
     const [pageRes, defaultsRes] = await Promise.all([
       cmsFetch(`/pages/${slug}`, { cache: "no-store" }),
@@ -45,7 +50,7 @@ async function getPageData(slug: string) {
     console.error("Failed to fetch custom page:", err);
     return null;
   }
-}
+});
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
