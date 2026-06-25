@@ -1,0 +1,13 @@
+# Netlify deploy config for the web app (apps/web) in this npm/Turborepo monorepo.
+# Netlify detects the workspace and installs the full tree from the repo root,
+# then builds apps/web. The Next.js plugin handles SSR / ISR / middleware.
+[build]
+  base = "apps/web"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
