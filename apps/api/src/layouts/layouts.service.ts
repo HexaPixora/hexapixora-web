@@ -6,7 +6,10 @@ export class LayoutsService {
   constructor(private prisma: PrismaService) {}
 
   async findByKey(key: string) {
-    return this.prisma.layoutConfig.findUnique({ where: { key } });
+    const found = await this.prisma.layoutConfig.findUnique({ where: { key } });
+    // Never return bare null — NestJS serializes that as an empty body, which
+    // makes the frontend's res.json() throw. Always return valid JSON.
+    return found ?? { key, data: null };
   }
 
   async upsert(key: string, data: any) {
