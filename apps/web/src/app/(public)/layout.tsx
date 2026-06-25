@@ -6,7 +6,7 @@ import ChatWidget from "@/components/public/chat-widget";
 
 async function getSettings(): Promise<any | null> {
   try {
-    const res = await fetch(apiUrl("/settings"), { next: { tags: ["layouts"] } });
+    const res = await fetch(apiUrl("/settings"), { cache: "no-store" });
     if (res.ok) return await res.json();
   } catch {
     // ignore — JSON-LD is best-effort

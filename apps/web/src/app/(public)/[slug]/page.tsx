@@ -4,15 +4,16 @@ import DynamicRenderer from "@/components/DynamicRenderer";
 import PreviewBanner from "@/components/public/preview-banner";
 import { cmsFetch } from "@/lib/cms-fetch";
 
-// Time-revalidate (in addition to tag revalidation) so pages whose schedule
-// fires auto-appear within a minute without a manual republish.
-export const revalidate = 60;
+// Render live on every request so admin edits (and scheduled publishes) appear
+// immediately, instead of relying on Vercel edge-cache invalidation that proved
+// unreliable for prerendered routes.
+export const dynamic = "force-dynamic";
 
 async function getPageData(slug: string) {
   try {
     const [pageRes, defaultsRes] = await Promise.all([
-      cmsFetch(`/pages/${slug}`, { next: { tags: ['pages'] } }),
-      cmsFetch('/layouts/module-defaults', { next: { tags: ['layouts'] } })
+      cmsFetch(`/pages/${slug}`, { cache: "no-store" }),
+      cmsFetch('/layouts/module-defaults', { cache: "no-store" })
     ]);
     
     if (!pageRes.ok) return null;

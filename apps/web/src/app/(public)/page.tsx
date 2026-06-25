@@ -4,14 +4,16 @@ import PreviewBanner from "@/components/public/preview-banner";
 import HeroModule from "@/components/modules/hero-module"; // fallback when no homepage is set
 import { cmsFetch } from "@/lib/cms-fetch";
 
-// Time-revalidate so a scheduled homepage appears within a minute (mirrors [slug]).
-export const revalidate = 60;
+// Render live on every request so admin edits (and scheduled publishes) appear
+// immediately. On-demand tag revalidation proved unreliable on Vercel's edge for
+// prerendered routes, so we render dynamically like the blog/category routes.
+export const dynamic = "force-dynamic";
 
 async function getHomepage() {
   try {
     const [pageRes, defaultsRes] = await Promise.all([
-      cmsFetch("/pages/homepage", { next: { tags: ["pages"] } }),
-      cmsFetch("/layouts/module-defaults", { next: { tags: ["layouts"] } }),
+      cmsFetch("/pages/homepage", { cache: "no-store" }),
+      cmsFetch("/layouts/module-defaults", { cache: "no-store" }),
     ]);
 
     let page: any = null;
