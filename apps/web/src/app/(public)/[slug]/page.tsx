@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
 import PreviewBanner from "@/components/public/preview-banner";
-import { cmsFetch, isPreview } from "@/lib/cms-fetch";
-import { apiUrl } from "@/lib/api-url";
+import { cmsFetch } from "@/lib/cms-fetch";
 
 // Render live on every request so admin edits (and scheduled publishes) appear
 // immediately, instead of relying on Vercel edge-cache invalidation that proved
@@ -18,45 +17,43 @@ export const fetchCache = "force-no-store";
 // execution per request. Without this, the two invocations race through Next's
 // fetch request-memoization and the component can reuse an aborted/poisoned
 // in-flight fetch from generateMetadata — which returned null and 404'd valid pages.
-const getPageData = cache(async (slug: string) => {
+const getPageData = cache(async (slug: string): Promise<any> => {
+  const dbg: any = { slug };
   try {
-    const [pageRes, defaultsRes] = await Promise.all([
-      cmsFetch(`/pages/${slug}`, { cache: "no-store" }),
-      cmsFetch('/layouts/module-defaults', { cache: "no-store" })
-    ]);
-    
-    if (!pageRes.ok) return null;
-    
+    const pageRes = await cmsFetch(`/pages/${slug}`, { cache: "no-store" });
+    dbg.pageStatus = pageRes.status;
+    dbg.pageOk = pageRes.ok;
+    if (!pageRes.ok) return { __dbg: { ...dbg, reason: "pageRes not ok" } };
+
     const pageJson = await pageRes.json();
-    let defaultsJson = { data: {} };
-    if (defaultsRes.ok) {
-      defaultsJson = await defaultsRes.json();
-    }
-    
+    dbg.hasData = Boolean(pageJson?.data);
     const pageData = pageJson.data;
-    if (!pageData) return null;
-    
-    let parsedSections = [];
+    if (!pageData) return { __dbg: { ...dbg, reason: "pageJson.data null", keys: Object.keys(pageJson || {}) } };
+
+    const defaultsRes = await cmsFetch('/layouts/module-defaults', { cache: "no-store" });
+    let defaultsJson: any = { data: {} };
+    if (defaultsRes.ok) defaultsJson = await defaultsRes.json();
+
+    let parsedSections: any = [];
     try {
       parsedSections = typeof pageData.sections === 'string' ? JSON.parse(pageData.sections) : pageData.sections;
-    } catch(e) {}
+    } catch (e) {}
 
     return {
       page: pageData,
       sections: Array.isArray(parsedSections) ? parsedSections : [],
-      moduleDefaults: defaultsJson?.data || {}
+      moduleDefaults: defaultsJson?.data || {},
     };
-  } catch (err) {
-    console.error("Failed to fetch custom page:", err);
-    return null;
+  } catch (err: any) {
+    return { __dbg: { ...dbg, reason: "threw", err: String(err?.message ?? err) } };
   }
 });
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const data = await getPageData(params.slug);
-  if (!data || !data.page) return {};
-  
+  if (!data || data.__dbg || !data.page) return {};
+
   return {
     title: data.page.metaTitle || data.page.title,
     description: data.page.metaDescription,
@@ -67,13 +64,9 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
   const params = await props.params;
   const data = await getPageData(params.slug);
 
-  if (!data) {
-    // TEMP DIAG — compare raw fetch vs cmsFetch in THIS page context.
-    const preview = await isPreview();
-    let raw: any, viaCms: any;
-    try { const r = await fetch(apiUrl(`/pages/${params.slug}`), { cache: "no-store" }); raw = { status: r.status, ok: r.ok }; } catch (e: any) { raw = { threw: String(e?.message ?? e) }; }
-    try { const r = await cmsFetch(`/pages/${params.slug}`, { cache: "no-store" }); const t = await r.text(); viaCms = { status: r.status, ok: r.ok, bodyStart: t.slice(0, 100) }; } catch (e: any) { viaCms = { threw: String(e?.message ?? e) }; }
-    return <pre style={{ padding: 24, whiteSpace: "pre-wrap" }}>{JSON.stringify({ slug: params.slug, preview, raw, viaCms }, null, 2)}</pre>;
+  if (!data || data.__dbg) {
+    // TEMP DIAG — surface getPageData's actual failure reason.
+    return <pre style={{ padding: 24, whiteSpace: "pre-wrap" }}>{JSON.stringify(data?.__dbg ?? { reason: "data was null" }, null, 2)}</pre>;
   }
 
   const { page, sections, moduleDefaults } = data;
