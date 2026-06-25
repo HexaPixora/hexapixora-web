@@ -32,6 +32,9 @@ export async function uploadToSupabase(
     {
       method: 'POST',
       headers: {
+        // Send the key in both headers so either a new `sb_secret_...` key or a
+        // legacy service_role JWT works.
+        apikey: SERVICE_KEY as string,
         Authorization: `Bearer ${SERVICE_KEY}`,
         'Content-Type': contentType,
         // Content is content-addressed (sha256 filename), so caching forever is safe.
@@ -56,7 +59,13 @@ export async function deleteFromSupabase(objectPath: string): Promise<void> {
   try {
     await fetch(
       `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encodeURIComponent(objectPath)}`,
-      { method: 'DELETE', headers: { Authorization: `Bearer ${SERVICE_KEY}` } },
+      {
+        method: 'DELETE',
+        headers: {
+          apikey: SERVICE_KEY as string,
+          Authorization: `Bearer ${SERVICE_KEY}`,
+        },
+      },
     );
   } catch {
     // Best-effort: a failed remote delete shouldn't block deleting the DB record.
