@@ -59,20 +59,7 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
   const data = await getPageData(params.slug);
 
   if (!data) {
-    // TEMP DEBUG — run the fetch inline in this page context and surface the result.
-    let diag: any = {};
-    try {
-      const r = await cmsFetch(`/pages/${params.slug}`, { cache: "no-store" });
-      const t = await r.text();
-      diag = { status: r.status, ok: r.ok, len: t.length, bodyStart: t.slice(0, 200) };
-    } catch (e: any) {
-      diag = { threw: String(e?.message ?? e) };
-    }
-    return (
-      <pre style={{ padding: 24, whiteSpace: "pre-wrap" }}>
-        {JSON.stringify({ slug: params.slug, diag }, null, 2)}
-      </pre>
-    );
+    notFound();
   }
 
   const { page, sections, moduleDefaults } = data;
