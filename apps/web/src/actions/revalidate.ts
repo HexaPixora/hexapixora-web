@@ -4,8 +4,9 @@ import { revalidateTag } from "next/cache";
 
 export async function revalidateCMS() {
   try {
-    revalidateTag('layouts', 'default');
-    revalidateTag('pages', 'default');
+    // 'max' forces an immediate purge so on-demand saves reflect right away.
+    revalidateTag('layouts', 'max');
+    revalidateTag('pages', 'max');
     console.log("Revalidated layouts and pages tags via CMS save");
     return { success: true };
   } catch (err) {

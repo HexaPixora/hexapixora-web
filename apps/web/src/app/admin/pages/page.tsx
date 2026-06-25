@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
+import { revalidateCMS } from "@/actions/revalidate";
 import { siteUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { StatusBadge } from "@/components/admin/status-badge";
@@ -90,6 +91,8 @@ export default function PagesListPage() {
     try {
       await apiClient.patch(`/pages/${page.id}/homepage`);
       setPages((list) => list.map((p) => ({ ...p, isHomepage: p.id === page.id })));
+      // Purge the cached "/" (and page routes) so the new homepage shows immediately.
+      await revalidateCMS();
       toast.success(`"${page.title}" is now the homepage`);
     } catch (err: any) {
       toast.error("Failed to set homepage: " + (err.response?.data?.message || err.message));
@@ -107,6 +110,7 @@ export default function PagesListPage() {
     try {
       await apiClient.delete(`/pages/${id}`);
       setPages(pages.filter(p => p.id !== id));
+      await revalidateCMS();
       toast.success("Page deleted");
     } catch (err: any) {
       toast.error("Failed to delete page: " + (err.response?.data?.message || err.message));
