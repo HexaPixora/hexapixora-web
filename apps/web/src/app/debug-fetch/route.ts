@@ -1,28 +1,34 @@
 import { apiUrl } from "@/lib/api-url";
+import { cmsFetch, isPreview } from "@/lib/cms-fetch";
 
-// TEMPORARY diagnostic — shows what the Vercel server runtime actually sees when
-// it fetches the CMS API. Remove after debugging the /about-us 404.
+// TEMPORARY diagnostic — replicates getPageData's exact path to find the /about-us 404.
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const out: Record<string, unknown> = {
-    env: {
-      API_URL: process.env.API_URL ?? null,
-      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? null,
-      PREVIEW_TOKEN_set: Boolean(process.env.PREVIEW_TOKEN),
-    },
-  };
-
-  for (const p of ["/pages/homepage", "/pages/about-us", "/pages"]) {
-    const url = apiUrl(p);
-    try {
-      const res = await fetch(url, { cache: "no-store" });
-      const text = await res.text();
-      out[p] = { url, status: res.status, ok: res.ok, bodyStart: text.slice(0, 160) };
-    } catch (e) {
-      out[p] = { url, error: String((e as Error)?.message ?? e) };
-    }
+async function getPageDataReplica(slug: string) {
+  try {
+    const [pageRes, defaultsRes] = await Promise.all([
+      cmsFetch(`/pages/${slug}`, { cache: "no-store" }),
+      cmsFetch("/layouts/module-defaults", { cache: "no-store" }),
+    ]);
+    if (!pageRes.ok) return { result: "null", reason: `pageRes not ok: ${pageRes.status}` };
+    const pageJson = await pageRes.json();
+    const pageData = pageJson.data;
+    if (!pageData) return { result: "null", reason: "pageJson.data is falsy", pageJson };
+    return { result: "DATA", title: pageData.title, slug: pageData.slug, defaultsOk: defaultsRes.ok };
+  } catch (e) {
+    return { result: "null", reason: "threw", error: String((e as Error)?.message ?? e) };
   }
+}
 
-  return Response.json(out);
+export async function GET() {
+  const preview = await isPreview();
+  const rawAbout = await fetch(apiUrl("/pages/about-us"), { cache: "no-store" })
+    .then((r) => ({ status: r.status, ok: r.ok }))
+    .catch((e) => ({ error: String(e?.message ?? e) }));
+  return Response.json({
+    isPreview: preview,
+    rawFetch_about_us: rawAbout,
+    getPageDataReplica_about_us: await getPageDataReplica("about-us"),
+    getPageDataReplica_homepage: await getPageDataReplica("homepage"),
+  });
 }
