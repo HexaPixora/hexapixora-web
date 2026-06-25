@@ -5,7 +5,7 @@ import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, LayoutTemplate } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, LayoutTemplate, Home } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ type Page = {
   slug: string;
   status?: ContentStatus;
   publishAt?: string | null;
+  isHomepage?: boolean;
   createdAt: string;
 };
 
@@ -76,6 +77,22 @@ export default function PagesListPage() {
       toast.error("Failed to create page: " + (err.response?.data?.message || err.message));
     } finally {
       setCreating(false);
+    }
+  };
+
+  const setAsHomepage = async (page: Page) => {
+    const ok = await confirm({
+      title: "Set as homepage?",
+      description: `"${page.title}" will be shown at your site root (/). The current homepage, if any, will be replaced.`,
+      confirmText: "Set as homepage",
+    });
+    if (!ok) return;
+    try {
+      await apiClient.patch(`/pages/${page.id}/homepage`);
+      setPages((list) => list.map((p) => ({ ...p, isHomepage: p.id === page.id })));
+      toast.success(`"${page.title}" is now the homepage`);
+    } catch (err: any) {
+      toast.error("Failed to set homepage: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -142,6 +159,11 @@ export default function PagesListPage() {
                     <div className="flex items-center gap-3 font-medium text-foreground">
                       <LayoutTemplate size={16} className="text-primary/70" />
                       {page.title}
+                      {page.isHomepage && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                          <Home size={10} /> Home
+                        </span>
+                      )}
                     </div>
                   </TD>
                   <TD className="font-mono text-muted-foreground">/{page.slug}</TD>
@@ -149,7 +171,18 @@ export default function PagesListPage() {
                   <TD className="text-muted-foreground">{new Date(page.createdAt).toLocaleDateString()}</TD>
                   <TD align="right">
                     <RowActions>
-                      <a href={siteUrl(page.slug)} target="_blank" rel="noreferrer" className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="View Page">
+                      {canManage && (
+                        page.isHomepage ? (
+                          <span className="rounded-md p-2 text-primary" title="Current homepage">
+                            <Home size={16} className="fill-current" />
+                          </span>
+                        ) : (
+                          <button onClick={() => setAsHomepage(page)} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="Set as homepage">
+                            <Home size={16} />
+                          </button>
+                        )
+                      )}
+                      <a href={page.isHomepage ? siteUrl() : siteUrl(page.slug)} target="_blank" rel="noreferrer" className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="View Page">
                         <Eye size={16} />
                       </a>
                       <Link href={`/admin/pages/${page.id}`} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="Edit Page">

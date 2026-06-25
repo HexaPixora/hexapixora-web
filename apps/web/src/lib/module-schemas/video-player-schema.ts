@@ -8,9 +8,9 @@ export const videoPlayerSchema = z.object({
   loop: z.boolean().default(true),
   controls: z.boolean().default(true),
   videos: z.array(z.object({
-      videoUrl: z.string(),
-      posterUrl: z.string(),
-      title: z.string()
+      videoUrl: z.string().default(""),
+      posterUrl: z.string().default(""),
+      title: z.string().default("")
     })).default([]),
 });
 

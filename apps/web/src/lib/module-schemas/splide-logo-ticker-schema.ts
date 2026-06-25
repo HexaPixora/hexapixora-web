@@ -6,8 +6,8 @@ export const splideLogoTickerSchema = z.object({
   speed: z.string().default("1"),
   perPage: z.string().default("5"),
   logos: z.array(z.object({
-      image: z.string(),
-      name: z.string()
+      image: z.string().default(""),
+      name: z.string().default("")
     })).default([]),
 });
 

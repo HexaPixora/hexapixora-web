@@ -24,5 +24,14 @@ export async function GET(request: NextRequest) {
   const dm = await draftMode();
   dm.enable();
 
-  return NextResponse.redirect(new URL(safePath, request.url));
+  // Build the redirect from the Host the browser actually used — NOT
+  // request.url. Under `next dev -H 0.0.0.0` request.url reports the bind
+  // address (http://0.0.0.0:3000/…), and browsers refuse to load 0.0.0.0.
+  // Behind a proxy (Vercel/tunnel) honor x-forwarded-proto so prod works too.
+  const host = request.headers.get("host") ?? new URL(request.url).host;
+  const proto =
+    request.headers.get("x-forwarded-proto") ??
+    (/^(localhost|127\.|0\.0\.0\.0|\[?::1\]?)/.test(host) ? "http" : "https");
+
+  return NextResponse.redirect(`${proto}://${host}${safePath}`);
 }

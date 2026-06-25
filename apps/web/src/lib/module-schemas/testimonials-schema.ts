@@ -6,10 +6,10 @@ export const testimonialsSchema = z.object({
   subheading: z.string().default("Don't just take our word for it"),
   backgroundColor: z.string().default("#f8fafc"),
   items: z.array(z.object({
-      name: z.string(),
-      company: z.string(),
-      content: z.string(),
-      avatar: z.string()
+      name: z.string().default(""),
+      company: z.string().default(""),
+      content: z.string().default(""),
+      avatar: z.string().default("")
     })).default([{"name":"Jane Doe","company":"Tech Inc","content":"Incredible work and fast delivery!","avatar":""}]),
 });
 

@@ -12,6 +12,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ServicesModule } from './services/services.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { BlogsModule } from './blogs/blogs.module';
+import { CategoriesModule } from './categories/categories.module';
 import { TeamModule } from './team/team.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { FaqModule } from './faq/faq.module';
@@ -30,7 +31,7 @@ import { PreviewModule } from './preview/preview.module';
     // Sensitive routes (e.g. login) tighten this further with @Throttle.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     ScheduleModule.forRoot(),
-    AuthModule, UsersModule, RolesModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, TeamModule, TestimonialsModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, ChatModule, PreviewModule],
+    AuthModule, UsersModule, RolesModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, CategoriesModule, TeamModule, TestimonialsModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, ChatModule, PreviewModule],
   controllers: [AppController],
   providers: [
     AppService,

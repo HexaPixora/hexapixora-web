@@ -7,6 +7,7 @@
 export const SECTIONS = [
   'pages',
   'blogs',
+  'categories',
   'media',
   'layouts',
   'leads',

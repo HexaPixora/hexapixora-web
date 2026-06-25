@@ -5,10 +5,16 @@ export const portfolioSchema = z.object({
   heading: z.string().default("Featured Work"),
   subheading: z.string().default("Some of our recent projects"),
   items: z.array(z.object({
-      title: z.string(),
-      category: z.string(),
-      image: z.string()
-    })).default([{"title":"E-commerce Platform","category":"Web Development","image":""},{"title":"Finance Dashboard","category":"UI/UX Design","image":""}]),
+      title: z.string().default(""),
+      // Selected from the shared category pool (stored as names).
+      categories: z.array(z.string()).default([]),
+      // Legacy single free-text value — still rendered if present.
+      category: z.string().optional(),
+      image: z.string().default("")
+    })).default([
+      { title: "E-commerce Platform", categories: ["Web Development"], image: "" },
+      { title: "Finance Dashboard", categories: ["UI/UX Design"], image: "" },
+    ]),
 });
 
 export type PortfolioProps = z.input<typeof portfolioSchema>;
@@ -40,9 +46,9 @@ export const PortfolioSectionDef = createModuleDefinition(
                 type: "text"
             },
             {
-                name: "category",
-                label: "Category",
-                type: "text"
+                name: "categories",
+                label: "Categories",
+                type: "categories"
             },
             {
                 name: "image",

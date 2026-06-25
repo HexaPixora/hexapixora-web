@@ -5,8 +5,8 @@ export const gallerySchema = z.object({
   heading: z.string().default("Our Gallery"),
   columns: z.string().default("3"),
   images: z.array(z.object({
-      url: z.string(),
-      caption: z.string()
+      url: z.string().default(""),
+      caption: z.string().default("")
     })).default([]),
 });
 

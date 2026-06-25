@@ -20,7 +20,7 @@ import { bookingSchema, BookingModuleDef } from "./module-schemas/booking-schema
 import { pricingSchema, PricingModuleDef } from "./module-schemas/pricing-schema";
 import { leadMagnetSchema, LeadMagnetModuleDef } from "./module-schemas/lead-magnet-schema";
 
-export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list';
+export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
 export type ModuleField = {
   name: string;

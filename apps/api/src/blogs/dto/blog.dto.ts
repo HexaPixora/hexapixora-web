@@ -23,7 +23,7 @@ export class CreateBlogDto extends SeoFields {
   @IsString() content: string;
 
   @IsOptional() @IsString() excerpt?: string;
-  @IsOptional() @IsString() category?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) categoryIds?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) tags?: string[];
   @IsOptional() @IsString() thumbnail?: string;
   @IsOptional() @IsString() publishDate?: string;
@@ -37,7 +37,7 @@ export class UpdateBlogDto extends SeoFields {
   @IsOptional() @IsString() @MaxLength(300) slug?: string;
   @IsOptional() @IsString() content?: string;
   @IsOptional() @IsString() excerpt?: string;
-  @IsOptional() @IsString() category?: string;
+  @IsOptional() @IsArray() @IsString({ each: true }) categoryIds?: string[];
   @IsOptional() @IsArray() @IsString({ each: true }) tags?: string[];
   @IsOptional() @IsString() thumbnail?: string;
   @IsOptional() @IsString() publishDate?: string;

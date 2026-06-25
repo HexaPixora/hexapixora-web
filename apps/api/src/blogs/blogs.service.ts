@@ -9,9 +9,24 @@ export class BlogsService {
 
   constructor(private prisma: PrismaService) {}
 
+  // Fields returned to list/related views (includes related categories).
+  private readonly listSelect = {
+    id: true, title: true, slug: true, excerpt: true,
+    tags: true, thumbnail: true, isPublished: true, status: true,
+    publishDate: true, publishAt: true, createdAt: true, updatedAt: true,
+    categories: { select: { id: true, name: true, slug: true, color: true } },
+  };
+
   async create(data: any) {
-    this.applyReadTime(data);
-    return this.prisma.blog.create({ data: this.normalizeStatus(data) });
+    const { categoryIds, ...rest } = data;
+    this.applyReadTime(rest);
+    return this.prisma.blog.create({
+      data: {
+        ...this.normalizeStatus(rest),
+        ...(categoryIds ? { categories: { connect: categoryIds.map((id: string) => ({ id })) } } : {}),
+      },
+      include: { categories: true },
+    });
   }
 
   async findAll(params: { page?: number; limit?: number; category?: string; published?: boolean } = {}) {
@@ -19,20 +34,14 @@ export class BlogsService {
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    if (category) where.category = category;
+    // `category` is a category slug, matched through the relation.
+    if (category) where.categories = { some: { slug: category } };
     if (published !== undefined) where.isPublished = published;
 
     const [data, total] = await Promise.all([
       this.prisma.blog.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true, title: true, slug: true, excerpt: true, category: true,
-          tags: true, thumbnail: true, isPublished: true, status: true,
-          publishDate: true, publishAt: true, createdAt: true, updatedAt: true,
-        },
+        where, skip, take: limit, orderBy: { createdAt: 'desc' },
+        select: this.listSelect,
       }),
       this.prisma.blog.count({ where }),
     ]);
@@ -45,28 +54,63 @@ export class BlogsService {
       where: { isPublished: true },
       take: limit,
       orderBy: { publishDate: 'desc' },
-      select: { id: true, title: true, slug: true, excerpt: true, thumbnail: true, publishDate: true, category: true },
+      select: this.listSelect,
     });
   }
 
-  async findCategories() {
-    const blogs = await this.prisma.blog.findMany({
-      select: { category: true },
-      distinct: ['category'],
-      where: { category: { not: null } },
+  // Posts sharing ≥1 category with `slug`, newest first; topped up with recent
+  // posts when there aren't enough category matches.
+  async findRelated(slug: string, limit = 3) {
+    const current = await this.prisma.blog.findUnique({
+      where: { slug },
+      select: { id: true, categories: { select: { id: true } } },
     });
-    return blogs.map(b => b.category).filter(Boolean);
+    if (!current) return [];
+
+    const catIds = current.categories.map((c) => c.id);
+    let related: any[] = [];
+    if (catIds.length) {
+      related = await this.prisma.blog.findMany({
+        where: {
+          isPublished: true,
+          id: { not: current.id },
+          categories: { some: { id: { in: catIds } } },
+        },
+        take: limit,
+        orderBy: { publishDate: 'desc' },
+        select: this.listSelect,
+      });
+    }
+    if (related.length < limit) {
+      const excludeIds = [current.id, ...related.map((r) => r.id)];
+      const filler = await this.prisma.blog.findMany({
+        where: { isPublished: true, id: { notIn: excludeIds } },
+        take: limit - related.length,
+        orderBy: { publishDate: 'desc' },
+        select: this.listSelect,
+      });
+      related = [...related, ...filler];
+    }
+    return related;
+  }
+
+  // Managed taxonomy (replaces the old distinct-free-text query).
+  async findCategories() {
+    return this.prisma.category.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, slug: true },
+    });
   }
 
   async findOne(id: string) {
-    const blog = await this.prisma.blog.findUnique({ where: { id } });
+    const blog = await this.prisma.blog.findUnique({ where: { id }, include: { categories: true } });
     if (!blog) throw new NotFoundException('Blog post not found');
     return blog;
   }
 
   // Public render path — hide unpublished posts unless this is a preview request.
   async findBySlug(slug: string, preview = false) {
-    const blog = await this.prisma.blog.findUnique({ where: { slug } });
+    const blog = await this.prisma.blog.findUnique({ where: { slug }, include: { categories: true } });
     if (!blog || (!preview && !blog.isPublished)) {
       throw new NotFoundException('Blog post not found');
     }
@@ -75,8 +119,16 @@ export class BlogsService {
 
   async update(id: string, data: any) {
     await this.findOne(id);
-    this.applyReadTime(data);
-    return this.prisma.blog.update({ where: { id }, data: this.normalizeStatus(data) });
+    const { categoryIds, ...rest } = data;
+    this.applyReadTime(rest);
+    return this.prisma.blog.update({
+      where: { id },
+      data: {
+        ...this.normalizeStatus(rest),
+        ...(categoryIds !== undefined ? { categories: { set: categoryIds.map((id: string) => ({ id })) } } : {}),
+      },
+      include: { categories: true },
+    });
   }
 
   async remove(id: string) {

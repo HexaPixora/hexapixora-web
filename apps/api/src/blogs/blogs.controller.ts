@@ -43,6 +43,12 @@ export class BlogsController {
     return this.blogsService.findBySlug(slug, hasPreviewAccess(previewToken));
   }
 
+  // Posts related to :slug by shared category (falls back to recent).
+  @Get('slug/:slug/related')
+  findRelated(@Param('slug') slug: string, @Query('limit') limit?: string) {
+    return this.blogsService.findRelated(slug, limit ? parseInt(limit) : 3);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.blogsService.findOne(id);

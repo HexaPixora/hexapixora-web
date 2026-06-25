@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2, Monitor, RefreshCw, ExternalLink } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2, ExternalLink } from "lucide-react";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
@@ -59,9 +59,6 @@ export default function CustomPageBuilderPage() {
   const [editingConfig, setEditingConfig] = useState<Record<string, any>>({});
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
-  // Live preview (iframe of the draft render)
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const [previewBusy, setPreviewBusy] = useState(false);
 
   const activeSection = sections.find(s => s.id === activeConfigId);
@@ -197,23 +194,6 @@ export default function CustomPageBuilderPage() {
     if (url) window.open(url, "_blank", "noopener");
   };
 
-  const openLivePreview = async () => {
-    setPreviewBusy(true);
-    const url = await resolvePreviewUrl();
-    setPreviewBusy(false);
-    if (url) {
-      setPreviewSrc(url);
-      setPreviewOpen(true);
-    }
-  };
-
-  const refreshPreview = async () => {
-    setPreviewBusy(true);
-    const url = await resolvePreviewUrl();
-    setPreviewBusy(false);
-    if (url) setPreviewSrc(url);
-  };
-
   const removeSection = async (sid: string) => {
     const ok = await confirm({
       title: "Remove module?",
@@ -270,11 +250,8 @@ export default function CustomPageBuilderPage() {
               <Plus size={16} className="mr-2" /> Add Module
             </Button>
           )}
-          <Button variant="outline" onClick={openLivePreview} disabled={previewBusy} className="bg-background shadow-sm hover:border-primary">
-            <Monitor size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Live preview"}
-          </Button>
           <Button variant="outline" onClick={openPreviewTab} disabled={previewBusy} className="bg-background shadow-sm hover:border-primary">
-            <ExternalLink size={16} className="mr-2" /> Preview tab
+            <ExternalLink size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Preview"}
           </Button>
           {canManage && (
             <Button onClick={() => save()} disabled={saving} className="shadow-md">
@@ -481,33 +458,6 @@ export default function CustomPageBuilderPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Live Preview (draft render in an iframe) */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] p-0 flex flex-col gap-0 overflow-hidden">
-          <DialogHeader className="flex flex-row items-center justify-between gap-3 border-b px-4 py-2.5 space-y-0">
-            <DialogTitle className="text-sm font-medium flex items-center gap-2">
-              <Monitor size={15} /> Live preview
-              <span className="text-xs font-normal text-muted-foreground">reflects your last save</span>
-            </DialogTitle>
-            <div className="flex items-center gap-2 pr-6">
-              <Button size="sm" variant="outline" onClick={refreshPreview} disabled={previewBusy}>
-                <RefreshCw size={14} className={`mr-1.5 ${previewBusy ? "animate-spin" : ""}`} /> Save & refresh
-              </Button>
-              {previewSrc && (
-                <a href={previewSrc} target="_blank" rel="noreferrer" className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-foreground">
-                  <ExternalLink size={14} className="mr-1" /> Open in tab
-                </a>
-              )}
-            </div>
-          </DialogHeader>
-          <div className="flex-1 bg-muted/30">
-            {previewSrc && (
-              <iframe key={previewSrc} src={previewSrc} className="w-full h-full border-0" title="Page preview" />
-            )}
           </div>
         </DialogContent>
       </Dialog>

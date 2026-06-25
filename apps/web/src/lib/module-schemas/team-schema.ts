@@ -5,10 +5,10 @@ export const teamSchema = z.object({
   heading: z.string().default("Meet the Team"),
   subheading: z.string().default("The people behind the magic"),
   items: z.array(z.object({
-      name: z.string(),
-      role: z.string(),
-      image: z.string(),
-      linkedin: z.string()
+      name: z.string().default(""),
+      role: z.string().default(""),
+      image: z.string().default(""),
+      linkedin: z.string().default("")
     })).default([{"name":"John Smith","role":"CEO","image":"","linkedin":"#"}]),
 });
 

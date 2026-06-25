@@ -5,9 +5,9 @@ export const splideGallerySyncSchema = z.object({
   heading: z.string().default("Bespoke Visual Gallery"),
   height: z.string().default("450px"),
   items: z.array(z.object({
-      image: z.string(),
-      title: z.string(),
-      description: z.string()
+      image: z.string().default(""),
+      title: z.string().default(""),
+      description: z.string().default("")
     })).default([]),
 });
 
