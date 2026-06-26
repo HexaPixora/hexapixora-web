@@ -19,6 +19,10 @@ import { splideGallerySyncSchema, SplideGallerySyncModuleDef } from "./module-sc
 import { bookingSchema, BookingModuleDef } from "./module-schemas/booking-schema";
 import { pricingSchema, PricingModuleDef } from "./module-schemas/pricing-schema";
 import { leadMagnetSchema, LeadMagnetModuleDef } from "./module-schemas/lead-magnet-schema";
+import { HorizontalScrollModuleDef } from "./module-schemas/horizontal-scroll-schema";
+import { ParallaxBannerModuleDef } from "./module-schemas/parallax-banner-schema";
+import { ScrollytellingModuleDef } from "./module-schemas/scrollytelling-schema";
+import { TimelineModuleDef } from "./module-schemas/timeline-schema";
 
 export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
@@ -61,5 +65,9 @@ export const MODULES: Record<string, ModuleDefinition> = {
   ContactFormModule: ContactFormModuleDef,
   BookingModule: BookingModuleDef,
   PricingModule: PricingModuleDef,
-  LeadMagnetModule: LeadMagnetModuleDef
+  LeadMagnetModule: LeadMagnetModuleDef,
+  HorizontalScrollModule: HorizontalScrollModuleDef,
+  ParallaxBannerModule: ParallaxBannerModuleDef,
+  ScrollytellingModule: ScrollytellingModuleDef,
+  TimelineModule: TimelineModuleDef
 };
