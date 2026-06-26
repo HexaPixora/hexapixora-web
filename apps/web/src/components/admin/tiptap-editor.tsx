@@ -6,10 +6,12 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Button } from "@/components/ui/button";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
 import {
   Bold, Italic, Strikethrough, Code, List, ListOrdered,
-  Quote, Heading1, Heading2, Heading3, Link2, Image as ImageIcon, Undo, Redo, Minus
+  Quote, Heading1, Heading2, Heading3, Link2, Image as ImageIcon, Undo, Redo, Minus,
+  Palette, Eraser
 } from "lucide-react";
 
 interface TipTapEditorProps {
@@ -22,10 +24,14 @@ export default function TipTapEditor({ value, onChange, placeholder = "Start wri
   const editor = useEditor({
     extensions: [
       StarterKit,
+      TextStyle,
+      Color,
       Image.configure({ allowBase64: true }),
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder }),
     ],
+    // Avoids an SSR hydration mismatch warning with Tiptap in Next.
+    immediatelyRender: false,
     content: value,
     onUpdate({ editor }) {
       onChange(editor.getHTML());
@@ -80,6 +86,23 @@ export default function TipTapEditor({ value, onChange, placeholder = "Start wri
         {toolbarBtn(editor.isActive("link"), setLink, <Link2 size={16} />, "Add Link")}
         {toolbarBtn(false, addImage, <ImageIcon size={16} />, "Add Image")}
         {toolbarBtn(false, () => editor.chain().focus().setHorizontalRule().run(), <Minus size={16} />, "Divider")}
+        <div className="w-px h-6 bg-border mx-1 self-center" />
+        {/* Text color: palette opens a native picker; eraser clears it */}
+        <label
+          title="Text Color"
+          className="relative p-1.5 rounded hover:bg-accent transition-colors cursor-pointer inline-flex items-center"
+          style={{ color: editor.getAttributes("textStyle").color || undefined }}
+        >
+          <Palette size={16} className={editor.getAttributes("textStyle").color ? "" : "text-muted-foreground"} />
+          <input
+            type="color"
+            value={editor.getAttributes("textStyle").color || "#000000"}
+            onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            aria-label="Pick text color"
+          />
+        </label>
+        {toolbarBtn(false, () => editor.chain().focus().unsetColor().run(), <Eraser size={16} />, "Clear Color")}
         <div className="w-px h-6 bg-border mx-1 self-center" />
         {toolbarBtn(false, () => editor.chain().focus().undo().run(), <Undo size={16} />, "Undo")}
         {toolbarBtn(false, () => editor.chain().focus().redo().run(), <Redo size={16} />, "Redo")}
