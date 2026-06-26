@@ -66,14 +66,14 @@ export default async function HomePage() {
   // the site isn't blank. Set one from Admin → Pages ("Set as homepage").
   if (!page) {
     return (
-      <SiteLayout>
+      <SiteLayout headerOverlay>
         <HeroModule config={(moduleDefaults as any)["HeroSection"] || {}} />
       </SiteLayout>
     );
   }
 
   return (
-    <SiteLayout showHeader={page.showHeader} showFooter={page.showFooter}>
+    <SiteLayout showHeader={page.showHeader} showFooter={page.showFooter} headerOverlay>
       <div className="flex flex-col min-h-screen">
         {sections.length === 0 && (
           <div className="container py-24 text-center">

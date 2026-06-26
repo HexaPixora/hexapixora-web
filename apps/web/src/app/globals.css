@@ -13,7 +13,7 @@
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
-  --color-ring: var(--color-primary-white);
+  --color-ring: var(--color-primary-blue);
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-primary-blue: #1b2587;
@@ -130,7 +130,7 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
-  --color-ring: var(--color-primary-white);
+  --color-ring: var(--color-primary-blue);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);

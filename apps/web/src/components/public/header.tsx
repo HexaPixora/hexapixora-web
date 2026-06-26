@@ -76,7 +76,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
       <div className={`container flex h-16 items-center ${layoutStyle === "split" ? "justify-between" : "justify-between"}`}>
         
         {/* Logo + Site Name */}
-        <Link href="/" className={`flex items-center gap-2 flex-shrink-0 ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full p-2 transition-all border border-primary-blue`}>
+        <Link href="/" className={`flex items-center gap-2 flex-shrink-0 ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full p-2 transition-all border-2 border-primary-white hover:border-primary-blue transition-colors`}>
           {finalLogoUrl && (
             <img src={finalLogoUrl} alt={siteName} className="h-8 w-auto object-contain" />
           )}
@@ -84,7 +84,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
         </Link>
         
         {/* Desktop Menu */}
-        <nav className={`hidden md:flex items-center gap-6 ${layoutStyle === "split" ? "absolute left-1/2 -translate-x-1/2" : ""} ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full py-2 px-4 transition-all border border-primary-blue`}>
+        <nav className={`hidden md:flex items-center gap-6 ${layoutStyle === "split" ? "absolute left-1/2 -translate-x-1/2" : ""} ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full py-2 px-4 transition-all border-2 border-primary-white hover:border-primary-blue transition-colors`}>
           {menuItems.map((item) => (
             <div key={item.id} className="relative group">
               {item.children && item.children.length > 0 ? (
@@ -118,7 +118,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
                           href={child.url}
                           target={child.target}
                           style={{ transitionDelay: `${ci * 45}ms` }}
-                          className={`${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} border border-primary-blue rounded-2xl shadow-xl px-3 py-2.5 text-sm hover:bg-muted hover:text-primary opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-300 ease-out`}
+                          className={`${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} border-2 border-primary-white hover:border-primary-blue hover:bg-primary-blue hover:text-primary-white rounded-2xl shadow-xl px-3 py-2.5 text-sm opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-300 ease-out`}
                         >
                           {child.label}
                         </Link>
@@ -140,7 +140,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
         </nav>
         
         {/* Search, CTA & Mobile Toggle */}
-        <div className={`flex items-center gap-2 md:gap-4 ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full p-2 transition-all`}>
+        <div className={`flex items-center gap-2 md:gap-4 ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full p-2 transition-all border-2 border-primary-white hover:border-primary-blue transition-colors`}>
           <SearchBar />
           {ctaText && (
             <Button asChild variant={ctaStyle as any} className="hidden md:inline-flex">

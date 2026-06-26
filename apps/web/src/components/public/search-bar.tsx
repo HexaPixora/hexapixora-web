@@ -95,7 +95,7 @@ export default function SearchBar() {
           Mobile width is capped so it can't overflow the viewport. */}
       <div
         aria-hidden={!open}
-        className={`absolute right-0 top-full mt-2 w-[min(78vw,360px)] origin-top-right rounded-xl border bg-background shadow-xl z-50 transition-all duration-200 ease-out ${
+        className={`absolute right-0 top-full mt-2 w-[min(78vw,360px)] origin-top-right rounded-xl border bg-background shadow-xl z-50 focus-within:ring-2 focus-within:ring-primary-blue transition-all duration-200 ease-out ${
           open
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
             : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
