@@ -230,8 +230,8 @@ export default function CustomPageBuilderPage() {
   if (!pageData) return null;
 
   return (
-    <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-12">
-      <div className="sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-background/90 backdrop-blur-md py-4 border-b -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div className="flex flex-col gap-6 mx-auto pb-12">
+      <div className="sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-background/90 backdrop-blur-md py-4 border-b rounded-md mx-4 md:px-4 sm:mx-0 px-0">
         <div className="flex items-center gap-3">
           <button onClick={goBack} className="p-2 hover:bg-muted rounded-md text-muted-foreground transition-colors border bg-card hover:text-foreground shadow-sm">
             <ArrowLeft size={18} />
