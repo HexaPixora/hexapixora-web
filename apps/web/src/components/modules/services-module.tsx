@@ -13,11 +13,8 @@ function iconByName(name?: string) {
 }
 
 export default function ServicesModule({ config }: { config?: ServicesProps }) {
-  const { heading, subheading, buttonText, buttonColor, iconColor, items } =
-    servicesSchema.parse(config || {});
+  const { heading, subheading, buttonText, items } = servicesSchema.parse(config || {});
   const services = items || [];
-  const btn = buttonColor?.trim();
-  const ic = iconColor?.trim();
 
   return (
     <section className="py-24 bg-muted/30 border-y">
@@ -30,6 +27,8 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service: any, idx: number) => {
             const Icon = iconByName(service.icon);
+            const ic = service.iconColor?.trim();
+            const btn = service.buttonColor?.trim();
             return (
               <div
                 key={idx}
