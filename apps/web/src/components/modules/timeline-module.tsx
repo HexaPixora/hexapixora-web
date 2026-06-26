@@ -15,7 +15,8 @@ export default function TimelineModule({ config }: { config?: TimelineProps }) {
   const stepEls = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    if (!root.current || items.length === 0) return;
+    const rootEl = root.current;
+    if (!rootEl || items.length === 0) return;
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       if (fill.current && track.current) {
@@ -30,12 +31,20 @@ export default function TimelineModule({ config }: { config?: TimelineProps }) {
           }
         );
       }
-      stepEls.current.forEach((el) => {
-        if (!el) return;
-        gsap.from(el, { opacity: 0, y: 28, duration: 0.6, scrollTrigger: { trigger: el, start: "top 85%" } });
+      const steps = stepEls.current.filter(Boolean) as HTMLElement[];
+      // set initial state + animate to visible on enter (reliable across refreshes)
+      gsap.set(steps, { opacity: 0, y: 28 });
+      steps.forEach((el) => {
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 85%",
+          once: true,
+          onEnter: () => gsap.to(el, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", overwrite: true }),
+        });
       });
-    }, root);
-    return () => ctx.revert();
+    }, rootEl);
+    const t = setTimeout(() => ScrollTrigger.refresh(), 400);
+    return () => { clearTimeout(t); ctx.revert(); };
   }, [items.length]);
 
   if (items.length === 0) {
