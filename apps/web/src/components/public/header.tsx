@@ -107,15 +107,18 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
                     </span>
                   )}
 
-                  {/* Dropdown */}
-                  <div className="absolute top-full left-0 hidden group-hover:block pt-2">
-                    <div className="bg-background border rounded-md shadow-lg p-2 min-w-[200px] flex flex-col gap-1">
-                      {item.children.map(child => (
+                  {/* Dropdown — its own floating "part" (matches the header pills),
+                      always rendered so it can animate. Opens with a fade/slide and
+                      the items cascade down (staggered transition-delay). */}
+                  <div className="absolute top-full left-0 pt-3 opacity-0 -translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out">
+                    <div className={`${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} border rounded-2xl shadow-xl p-2 min-w-[220px] flex flex-col gap-1`}>
+                      {item.children.map((child, ci) => (
                         <Link
                           key={child.id}
                           href={child.url}
                           target={child.target}
-                          className="px-3 py-2 text-sm hover:bg-muted rounded-md transition-colors"
+                          style={{ transitionDelay: `${ci * 45}ms` }}
+                          className="px-3 py-2.5 text-sm rounded-xl text-foreground/90 hover:bg-muted hover:text-primary opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-300 ease-out"
                         >
                           {child.label}
                         </Link>
