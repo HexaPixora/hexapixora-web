@@ -16,8 +16,9 @@ export default function SearchBar() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Debounced search as you type.
+  // Debounced search as you type (only while the panel is open).
   useEffect(() => {
+    if (!open) return;
     const term = q.trim();
     if (term.length < 2) {
       setResults([]);
@@ -37,10 +38,13 @@ export default function SearchBar() {
       }
     }, 250);
     return () => clearTimeout(t);
-  }, [q]);
+  }, [q, open]);
 
+  // Focus the input once the open transition starts.
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    if (!open) return;
+    const t = setTimeout(() => inputRef.current?.focus(), 60);
+    return () => clearTimeout(t);
   }, [open]);
 
   // Close on click-away / Escape.
@@ -73,25 +77,36 @@ export default function SearchBar() {
 
   const blogs = results.filter((r) => r.type === "blog");
   const pages = results.filter((r) => r.type === "page");
-  const showPanel = open && q.trim().length >= 2;
+  const hasQuery = q.trim().length >= 2;
 
   return (
     <div ref={wrapRef} className="relative">
-      {!open ? (
-        <button
-          onClick={() => setOpen(true)}
-          aria-label="Search"
-          className="p-2 rounded-md text-muted-foreground hover:text-primary transition-colors"
-        >
-          <Search size={18} />
-        </button>
-      ) : (
+      {/* Trigger — fixed in place so the header never reflows/overflows */}
+      <button
+        onClick={() => (open ? close() : setOpen(true))}
+        aria-label={open ? "Close search" : "Search"}
+        aria-expanded={open}
+        className="grid place-items-center h-9 w-9 rounded-full text-muted-foreground hover:text-primary hover:bg-muted/60 transition-colors"
+      >
+        {open ? <X size={18} /> : <Search size={18} />}
+      </button>
+
+      {/* Panel — absolutely positioned (no layout impact) + animated open.
+          Mobile width is capped so it can't overflow the viewport. */}
+      <div
+        aria-hidden={!open}
+        className={`absolute right-0 top-full mt-2 w-[min(78vw,360px)] origin-top-right rounded-xl border bg-background shadow-xl z-50 transition-all duration-200 ease-out ${
+          open
+            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
+        }`}
+      >
         <form
           onSubmit={(e) => {
             e.preventDefault();
             seeAll();
           }}
-          className="flex items-center gap-2 rounded-full border bg-background pl-3 pr-2 h-10 w-[min(72vw,320px)] shadow-sm"
+          className="flex items-center gap-2 px-3 h-12 border-b"
         >
           <Search size={16} className="text-muted-foreground shrink-0" />
           <input
@@ -99,21 +114,13 @@ export default function SearchBar() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search blogs and pages…"
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
-          {loading ? (
-            <Loader2 size={16} className="animate-spin text-muted-foreground shrink-0" />
-          ) : (
-            <button type="button" onClick={close} aria-label="Close search" className="text-muted-foreground hover:text-foreground shrink-0">
-              <X size={16} />
-            </button>
-          )}
+          {loading && <Loader2 size={16} className="animate-spin text-muted-foreground shrink-0" />}
         </form>
-      )}
 
-      {showPanel && (
-        <div className="absolute right-0 mt-2 w-[min(90vw,380px)] rounded-xl border bg-background shadow-xl overflow-hidden z-50">
-          <div className="max-h-[60vh] overflow-y-auto py-2">
+        {hasQuery && (
+          <div className="max-h-[min(60vh,420px)] overflow-y-auto py-2">
             {results.length === 0 && !loading && (
               <p className="px-4 py-6 text-center text-sm text-muted-foreground">
                 No results for “{q.trim()}”.
@@ -132,8 +139,8 @@ export default function SearchBar() {
               </button>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
