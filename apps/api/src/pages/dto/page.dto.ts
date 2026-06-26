@@ -19,6 +19,7 @@ class PageFields {
   @IsOptional() @IsDateString() publishAt?: string;
   @IsOptional() @IsString() @MaxLength(255) metaTitle?: string;
   @IsOptional() @IsString() @MaxLength(500) metaDescription?: string;
+  @IsOptional() @IsString() @MaxLength(1000) ogImage?: string;
 }
 
 export class CreatePageDto extends PageFields {
