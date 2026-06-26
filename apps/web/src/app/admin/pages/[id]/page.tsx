@@ -192,15 +192,17 @@ export default function CustomPageBuilderPage() {
 
   const openPreviewTab = async () => {
     // Open the tab synchronously inside the click so the browser's popup blocker
-    // allows it. Opening it AFTER the save/token awaits below counts as a
-    // non-user-initiated popup and gets silently blocked ("Opening…" forever).
+    // allows it (opening it after the save/token awaits below gets blocked).
     const win = window.open("", "_blank");
+    if (!win) {
+      toast.error("Please allow pop-ups for this site to open the preview.");
+      return;
+    }
     setPreviewBusy(true);
     const url = await resolvePreviewUrl();
     setPreviewBusy(false);
-    if (url && win) win.location.href = url;
-    else if (url) window.location.href = url; // popup blocked outright → current tab
-    else win?.close();
+    if (url) win.location.href = url;
+    else win.close();
   };
 
   const removeSection = async (sid: string) => {
