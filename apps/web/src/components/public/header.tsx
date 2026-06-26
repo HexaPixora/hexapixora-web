@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SearchBar from "@/components/public/search-bar";
 import { headerSchema, DEFAULT_HEADER_CONFIG } from "@/lib/module-schemas/header-schema";
 
 interface MenuItem {
@@ -135,8 +136,9 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
           ))}
         </nav>
         
-        {/* CTA & Mobile Toggle */}
-        <div className="flex items-center gap-4">
+        {/* Search, CTA & Mobile Toggle */}
+        <div className="flex items-center gap-2 md:gap-4">
+          <SearchBar />
           {ctaText && (
             <Button asChild variant={ctaStyle as any} className="hidden md:inline-flex">
               <Link href={ctaUrl || "/"}>{ctaText}</Link>
