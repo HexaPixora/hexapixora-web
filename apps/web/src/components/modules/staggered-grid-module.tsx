@@ -12,19 +12,40 @@ export default function StaggeredGridModule({ config }: { config?: StaggeredGrid
   const root = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (!root.current || cards.length === 0) return;
+    const el = root.current;
+    if (!el || cards.length === 0) return;
     gsap.registerPlugin(ScrollTrigger);
+
     const ctx = gsap.context(() => {
-      gsap.from(".sg-card", {
-        y: 40,
-        opacity: 0,
-        duration: 0.7,
-        ease: "power3.out",
-        stagger: 0.12,
-        scrollTrigger: { trigger: root.current, start: "top 75%" },
+      const items = gsap.utils.toArray<HTMLElement>(".sg-card");
+      if (!items.length) return;
+      // Explicit start state + animate TO visible on enter (more reliable than
+      // gsap.from, which can leave cards stuck hidden across ScrollTrigger refreshes).
+      gsap.set(items, { y: 40, opacity: 0 });
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 82%",
+        once: true,
+        onEnter: () =>
+          gsap.to(items, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out", stagger: 0.12, overwrite: true }),
       });
-    }, root);
-    return () => ctx.revert();
+    }, el);
+
+    // Recalculate once images load / the page settles so the trigger fires correctly.
+    const refresh = () => ScrollTrigger.refresh();
+    const imgs = Array.from(el.querySelectorAll("img"));
+    let pending = imgs.filter((i) => !i.complete).length;
+    if (pending === 0) refresh();
+    else
+      imgs.forEach((img) => {
+        if (img.complete) return;
+        const done = () => { if (--pending <= 0) refresh(); };
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    const t = setTimeout(refresh, 400);
+
+    return () => { clearTimeout(t); ctx.revert(); };
   }, [cards.length]);
 
   if (cards.length === 0) {
