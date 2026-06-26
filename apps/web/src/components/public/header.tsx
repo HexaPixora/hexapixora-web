@@ -72,11 +72,11 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
   }, [isMobileMenuOpen, closeMenu]);
 
   return (
-    <header className={`w-full border-b z-50 transition-all ${isSticky ? "sticky top-0" : ""} ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"}`}>
+    <header className={`w-full z-50 ${isSticky ? "sticky top-2" : ""} `}>
       <div className={`container flex h-16 items-center ${layoutStyle === "split" ? "justify-between" : "justify-between"}`}>
         
         {/* Logo + Site Name */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+        <Link href="/" className={`flex items-center gap-2 flex-shrink-0 ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full p-2 transition-all `}>
           {finalLogoUrl && (
             <img src={finalLogoUrl} alt={siteName} className="h-8 w-auto object-contain" />
           )}
@@ -84,7 +84,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
         </Link>
         
         {/* Desktop Menu */}
-        <nav className={`hidden md:flex items-center gap-6 ${layoutStyle === "split" ? "absolute left-1/2 -translate-x-1/2" : ""}`}>
+        <nav className={`hidden md:flex items-center gap-6 ${layoutStyle === "split" ? "absolute left-1/2 -translate-x-1/2" : ""} ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full py-2 px-4 transition-all `}>
           {menuItems.map((item) => (
             <div key={item.id} className="relative group">
               {item.children && item.children.length > 0 ? (
@@ -137,7 +137,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
         </nav>
         
         {/* Search, CTA & Mobile Toggle */}
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className={`flex items-center gap-2 md:gap-4 ${glassmorphism ? "bg-background/80 backdrop-blur-md" : "bg-background"} rounded-full p-2 transition-all`}>
           <SearchBar />
           {ctaText && (
             <Button asChild variant={ctaStyle as any} className="hidden md:inline-flex">
