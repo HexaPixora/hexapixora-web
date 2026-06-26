@@ -7,6 +7,7 @@ export const servicesSchema = z.object({
   // Global styling for all cards. Empty = use the theme color; set a hex to override.
   iconColor: z.string().default(""),
   buttonColor: z.string().default(""),
+  buttonTextColor: z.string().default(""),
   items: z.array(z.object({
       title: z.string().default(""),
       description: z.string().default(""),
@@ -32,6 +33,7 @@ export const ServicesSectionDef = createModuleDefinition(
     { name: "subheading", label: "Subheading", type: "textarea" },
     { name: "iconColor", label: "Icon Color (all cards)", type: "color", description: "Leave blank to use the theme color." },
     { name: "buttonColor", label: "Button Color (all cards)", type: "color", description: "Leave blank to use the theme color." },
+    { name: "buttonTextColor", label: "Button Text Color (all cards)", type: "color", description: "Leave blank for automatic (white on a colored button)." },
     {
       name: "items",
       label: "Services",

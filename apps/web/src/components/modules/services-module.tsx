@@ -13,11 +13,13 @@ function iconByName(name?: string) {
 }
 
 export default function ServicesModule({ config }: { config?: ServicesProps }) {
-  const { heading, subheading, iconColor, buttonColor, items } = servicesSchema.parse(config || {});
+  const { heading, subheading, iconColor, buttonColor, buttonTextColor, items } =
+    servicesSchema.parse(config || {});
   const services = items || [];
   // Global card colors (blank = theme).
   const ic = iconColor?.trim();
   const btn = buttonColor?.trim();
+  const btnText = buttonTextColor?.trim();
 
   return (
     <section className="py-24 bg-muted/30 border-y">
@@ -53,9 +55,14 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                   <Link
                     href={service.link}
                     className={`mt-auto self-start inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 group-hover:gap-3 ${
-                      btn ? "text-white hover:opacity-90" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                      btn
+                        ? `hover:opacity-90 ${btnText ? "" : "text-white"}`
+                        : `bg-primary hover:bg-primary/90 ${btnText ? "" : "text-primary-foreground"}`
                     }`}
-                    style={btn ? { backgroundColor: btn } : undefined}
+                    style={{
+                      ...(btn ? { backgroundColor: btn } : {}),
+                      ...(btnText ? { color: btnText } : {}),
+                    }}
                   >
                     {service.buttonText}
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
