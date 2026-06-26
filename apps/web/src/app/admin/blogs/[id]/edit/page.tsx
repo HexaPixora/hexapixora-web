@@ -177,10 +177,16 @@ export default function EditBlogPage() {
   };
 
   const openPreviewTab = async () => {
+    // Open the tab synchronously inside the click so the browser's popup blocker
+    // allows it. Opening it AFTER the save/token awaits below counts as a
+    // non-user-initiated popup and gets silently blocked ("Opening…" forever).
+    const win = window.open("", "_blank");
     setPreviewBusy(true);
     const url = await resolvePreviewUrl();
     setPreviewBusy(false);
-    if (url) window.open(url, "_blank", "noopener");
+    if (url && win) win.location.href = url;
+    else if (url) window.location.href = url; // popup blocked outright → current tab
+    else win?.close();
   };
 
   if (loading) {
