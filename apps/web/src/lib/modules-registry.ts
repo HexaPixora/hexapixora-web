@@ -23,6 +23,10 @@ import { HorizontalScrollModuleDef } from "./module-schemas/horizontal-scroll-sc
 import { ParallaxBannerModuleDef } from "./module-schemas/parallax-banner-schema";
 import { ScrollytellingModuleDef } from "./module-schemas/scrollytelling-schema";
 import { TimelineModuleDef } from "./module-schemas/timeline-schema";
+import { AnimatedTextHeroModuleDef } from "./module-schemas/animated-text-hero-schema";
+import { MarqueeModuleDef } from "./module-schemas/marquee-schema";
+import { CounterStatsModuleDef } from "./module-schemas/counter-stats-schema";
+import { StaggeredGridModuleDef } from "./module-schemas/staggered-grid-schema";
 
 export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
@@ -69,5 +73,9 @@ export const MODULES: Record<string, ModuleDefinition> = {
   HorizontalScrollModule: HorizontalScrollModuleDef,
   ParallaxBannerModule: ParallaxBannerModuleDef,
   ScrollytellingModule: ScrollytellingModuleDef,
-  TimelineModule: TimelineModuleDef
+  TimelineModule: TimelineModuleDef,
+  AnimatedTextHeroModule: AnimatedTextHeroModuleDef,
+  MarqueeModule: MarqueeModuleDef,
+  CounterStatsModule: CounterStatsModuleDef,
+  StaggeredGridModule: StaggeredGridModuleDef
 };
