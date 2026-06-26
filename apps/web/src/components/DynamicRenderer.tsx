@@ -34,6 +34,10 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   BookingModule: dynamic(() => import("@/components/modules/booking-module")),
   PricingModule: dynamic(() => import("@/components/modules/pricing-module")),
   LeadMagnetModule: dynamic(() => import("@/components/modules/lead-magnet-module")),
+  HorizontalScrollModule: dynamic(() => import("@/components/modules/horizontal-scroll-module")),
+  ParallaxBannerModule: dynamic(() => import("@/components/modules/parallax-banner-module")),
+  ScrollytellingModule: dynamic(() => import("@/components/modules/scrollytelling-module")),
+  TimelineModule: dynamic(() => import("@/components/modules/timeline-module")),
 };
 
 interface DynamicRendererProps {
