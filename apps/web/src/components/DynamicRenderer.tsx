@@ -38,6 +38,10 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   ParallaxBannerModule: dynamic(() => import("@/components/modules/parallax-banner-module")),
   ScrollytellingModule: dynamic(() => import("@/components/modules/scrollytelling-module")),
   TimelineModule: dynamic(() => import("@/components/modules/timeline-module")),
+  AnimatedTextHeroModule: dynamic(() => import("@/components/modules/animated-text-hero-module")),
+  MarqueeModule: dynamic(() => import("@/components/modules/marquee-module")),
+  CounterStatsModule: dynamic(() => import("@/components/modules/counter-stats-module")),
+  StaggeredGridModule: dynamic(() => import("@/components/modules/staggered-grid-module")),
 };
 
 interface DynamicRendererProps {
