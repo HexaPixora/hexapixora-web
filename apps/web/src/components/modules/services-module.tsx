@@ -1,14 +1,23 @@
 import React from "react";
+import Link from "next/link";
+import { icons, ArrowRight, Wrench } from "lucide-react";
 import { servicesSchema, ServicesProps } from "@/lib/module-schemas/services-schema";
 
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-
-
+// Resolve a lucide icon by name. Accepts names copied straight from lucide.dev
+// (kebab-case, e.g. "pen-tool") as well as PascalCase ("PenTool"); falls back
+// to Wrench if the name doesn't match.
+function iconByName(name?: string) {
+  if (!name) return Wrench;
+  const pascal = name.trim().replace(/(^|[-_\s])(\w)/g, (_m, _sep, c) => c.toUpperCase());
+  return (icons as Record<string, typeof Wrench>)[pascal] || Wrench;
+}
 
 export default function ServicesModule({ config }: { config?: ServicesProps }) {
-  const { heading, subheading, items } = servicesSchema.parse(config || {});
+  const { heading, subheading, buttonText, buttonColor, iconColor, items } =
+    servicesSchema.parse(config || {});
   const services = items || [];
+  const btn = buttonColor?.trim();
+  const ic = iconColor?.trim();
 
   return (
     <section className="py-24 bg-muted/30 border-y">
@@ -18,23 +27,44 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
           {subheading && <p className="text-lg text-muted-foreground">{subheading}</p>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service: any, idx: number) => (
-            <div key={idx} className="group relative bg-background border rounded-2xl p-8 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-6">
-                {/* Fallback icon if none provided */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l8.29-8.29c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service: any, idx: number) => {
+            const Icon = iconByName(service.icon);
+            return (
+              <div
+                key={idx}
+                className="group relative flex flex-col bg-background border rounded-2xl p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:border-primary/40"
+              >
+                <div
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${
+                    ic ? "" : "bg-primary/10 text-primary"
+                  }`}
+                  style={ic ? { backgroundColor: `${ic}1a`, color: ic } : undefined}
+                >
+                  <Icon className="w-7 h-7" strokeWidth={2} />
+                </div>
+
+                <h3 className="text-xl font-bold mb-3">{service.title}</h3>
+                <p className="text-muted-foreground mb-6 line-clamp-3 flex-grow">
+                  {service.description || "No description provided."}
+                </p>
+
+                {service.link && buttonText && (
+                  <Link
+                    href={service.link}
+                    className={`mt-auto self-start inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 group-hover:gap-3 ${
+                      btn ? "text-white hover:opacity-90" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    }`}
+                    style={btn ? { backgroundColor: btn } : undefined}
+                  >
+                    {buttonText}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                )}
               </div>
-              <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-              <p className="text-muted-foreground mb-6 line-clamp-3">
-                {service.description || 'No description provided.'}
-              </p>
-              <Link href="#" className="inline-flex items-center text-sm font-semibold text-primary group-hover:underline">
-                Read More <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </div>
-          ))}
-          
+            );
+          })}
+
           {services.length === 0 && (
             <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed rounded-xl">
               No services found. Add some in the CMS.
