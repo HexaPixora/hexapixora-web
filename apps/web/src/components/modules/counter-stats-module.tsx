@@ -41,7 +41,8 @@ export default function CounterStatsModule({ config }: { config?: CounterStatsPr
         },
       });
     }, root);
-    return () => ctx.revert();
+    const t = setTimeout(() => ScrollTrigger.refresh(), 400);
+    return () => { clearTimeout(t); ctx.revert(); };
   }, [items.length]);
 
   if (items.length === 0) return null;
