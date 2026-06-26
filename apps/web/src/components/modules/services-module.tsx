@@ -13,8 +13,11 @@ function iconByName(name?: string) {
 }
 
 export default function ServicesModule({ config }: { config?: ServicesProps }) {
-  const { heading, subheading, buttonText, items } = servicesSchema.parse(config || {});
+  const { heading, subheading, iconColor, buttonColor, items } = servicesSchema.parse(config || {});
   const services = items || [];
+  // Global card colors (blank = theme).
+  const ic = iconColor?.trim();
+  const btn = buttonColor?.trim();
 
   return (
     <section className="py-24 bg-muted/30 border-y">
@@ -27,8 +30,6 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service: any, idx: number) => {
             const Icon = iconByName(service.icon);
-            const ic = service.iconColor?.trim();
-            const btn = service.buttonColor?.trim();
             return (
               <div
                 key={idx}
@@ -48,7 +49,7 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                   {service.description || "No description provided."}
                 </p>
 
-                {service.link && buttonText && (
+                {service.link && service.buttonText && (
                   <Link
                     href={service.link}
                     className={`mt-auto self-start inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 group-hover:gap-3 ${
@@ -56,7 +57,7 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                     }`}
                     style={btn ? { backgroundColor: btn } : undefined}
                   >
-                    {buttonText}
+                    {service.buttonText}
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 )}
