@@ -35,12 +35,16 @@ interface SiteLayoutProps {
   children: React.ReactNode;
   showHeader?: boolean;
   showFooter?: boolean;
+  /** Pull the content up so the first section sits BEHIND the transparent
+   *  header (no empty band above the hero). Used by module-built pages. */
+  headerOverlay?: boolean;
 }
 
 export default async function SiteLayout({
   children,
   showHeader = true,
-  showFooter = true
+  showFooter = true,
+  headerOverlay = false
 }: SiteLayoutProps) {
   const data = (showHeader || showFooter) ? await getLayoutData() : { settings: null, headerConfig: null, footerConfig: null, navigations: [] };
   
@@ -56,7 +60,7 @@ export default async function SiteLayout({
           navigations={data.navigations} 
         />
       )}
-      <main className="flex-1 flex flex-col">{children}</main>
+      <main className={`flex-1 flex flex-col ${headerOverlay && showHeader ? "-mt-16" : ""}`}>{children}</main>
       {showFooter && (
         <PublicFooter 
           settings={data.settings} 
