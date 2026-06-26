@@ -87,16 +87,32 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
           {menuItems.map((item) => (
             <div key={item.id} className="relative group">
               {item.children && item.children.length > 0 ? (
-                <div className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors cursor-pointer py-2">
-                  {item.label} <ChevronDown size={14} className="group-hover:rotate-180 transition-transform" />
-                  
+                <>
+                  {/* The parent itself is clickable when it has a real link; the
+                      dropdown still opens on hover. A "#"/empty url stays a
+                      non-navigating trigger. The dropdown is a sibling (not
+                      nested) so we never put an <a> inside an <a>. */}
+                  {item.url && item.url !== "#" ? (
+                    <Link
+                      href={item.url}
+                      target={item.target}
+                      className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors py-2"
+                    >
+                      {item.label} <ChevronDown size={14} className="group-hover:rotate-180 transition-transform" />
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors cursor-pointer py-2">
+                      {item.label} <ChevronDown size={14} className="group-hover:rotate-180 transition-transform" />
+                    </span>
+                  )}
+
                   {/* Dropdown */}
                   <div className="absolute top-full left-0 hidden group-hover:block pt-2">
                     <div className="bg-background border rounded-md shadow-lg p-2 min-w-[200px] flex flex-col gap-1">
                       {item.children.map(child => (
-                        <Link 
-                          key={child.id} 
-                          href={child.url} 
+                        <Link
+                          key={child.id}
+                          href={child.url}
                           target={child.target}
                           className="px-3 py-2 text-sm hover:bg-muted rounded-md transition-colors"
                         >
@@ -105,7 +121,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
                       ))}
                     </div>
                   </div>
-                </div>
+                </>
               ) : (
                 <Link 
                   href={item.url} 
@@ -188,17 +204,38 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
             {menuItems.map((item) =>
               item.children && item.children.length > 0 ? (
                 <div key={item.id} className="flex flex-col">
-                  <button
-                    onClick={() => toggleGroup(item.id)}
-                    aria-expanded={!!openGroups[item.id]}
-                    className="flex items-center justify-between w-full px-3 py-3 rounded-lg text-base font-semibold text-foreground hover:bg-muted/60 transition-colors"
-                  >
-                    {item.label}
-                    <ChevronDown
-                      size={18}
-                      className={`text-muted-foreground transition-transform duration-300 ${openGroups[item.id] ? "rotate-180" : ""}`}
-                    />
-                  </button>
+                  {/* Label navigates (when it has a real link); the chevron is a
+                      separate button that just expands/collapses the sub-items. */}
+                  <div className="flex items-center justify-between w-full rounded-lg text-base font-semibold text-foreground hover:bg-muted/60 transition-colors">
+                    {item.url && item.url !== "#" ? (
+                      <Link
+                        href={item.url}
+                        target={item.target}
+                        onClick={closeMenu}
+                        className="flex-1 px-3 py-3 text-left"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => toggleGroup(item.id)}
+                        className="flex-1 px-3 py-3 text-left"
+                      >
+                        {item.label}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => toggleGroup(item.id)}
+                      aria-expanded={!!openGroups[item.id]}
+                      aria-label={`Toggle ${item.label} submenu`}
+                      className="px-3 py-3 self-stretch flex items-center"
+                    >
+                      <ChevronDown
+                        size={18}
+                        className={`text-muted-foreground transition-transform duration-300 ${openGroups[item.id] ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  </div>
                   <div
                     className={`grid transition-all duration-300 ease-out ${openGroups[item.id] ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
                   >
