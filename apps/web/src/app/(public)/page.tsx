@@ -3,6 +3,7 @@ import DynamicRenderer from "@/components/DynamicRenderer";
 import PreviewBanner from "@/components/public/preview-banner";
 import HeroModule from "@/components/modules/hero-module"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@/lib/cms-fetch";
+import { absoluteMediaUrl } from "@/lib/site-url";
 
 // Render live on every request so admin edits (and scheduled publishes) appear
 // immediately. On-demand tag revalidation proved unreliable on Vercel's edge for
@@ -38,9 +39,23 @@ async function getHomepage() {
 export async function generateMetadata() {
   const { page } = await getHomepage();
   if (!page) return {};
+  const title = page.metaTitle || page.title;
+  const description = page.metaDescription || undefined;
+  const ogImage = page.ogImage ? absoluteMediaUrl(page.ogImage) : undefined;
   return {
-    title: page.metaTitle || page.title,
-    description: page.metaDescription,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
   };
 }
 

@@ -4,6 +4,7 @@ import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
 import PreviewBanner from "@/components/public/preview-banner";
 import { cmsFetch, readJson } from "@/lib/cms-fetch";
+import { absoluteMediaUrl } from "@/lib/site-url";
 
 // Render live on every request so admin edits (and scheduled publishes) appear
 // immediately, instead of relying on Vercel edge-cache invalidation that proved
@@ -40,9 +41,27 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   const data = await getPageData(params.slug);
   if (!data || !data.page) return {};
 
+  const page = data.page;
+  const title = page.metaTitle || page.title;
+  const description = page.metaDescription || undefined;
+  // OG/Twitter images must be absolute; absoluteMediaUrl passes Supabase URLs
+  // through and prefixes any legacy app-relative ones.
+  const ogImage = page.ogImage ? absoluteMediaUrl(page.ogImage) : undefined;
+
   return {
-    title: data.page.metaTitle || data.page.title,
-    description: data.page.metaDescription,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
   };
 }
 

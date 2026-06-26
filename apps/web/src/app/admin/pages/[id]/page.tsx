@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2, ExternalLink } from "lucide-react";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
+import MediaField from "@/components/admin/media-field";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import { toast } from "sonner";
@@ -37,6 +38,7 @@ type PageData = {
   publishAt: string | null;
   metaTitle: string;
   metaDescription: string;
+  ogImage: string;
 };
 
 export default function CustomPageBuilderPage() {
@@ -87,6 +89,7 @@ export default function CustomPageBuilderPage() {
         publishAt: pData.publishAt || null,
         metaTitle: pData.metaTitle || "",
         metaDescription: pData.metaDescription || "",
+        ogImage: pData.ogImage || "",
       };
       setPageData(loadedPage);
 
@@ -322,12 +325,23 @@ export default function CustomPageBuilderPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium">Meta Description</label>
-                <Textarea 
-                  value={pageData.metaDescription || ''} 
-                  onChange={e => setPageData({ ...pageData, metaDescription: e.target.value })} 
+                <Textarea
+                  value={pageData.metaDescription || ''}
+                  onChange={e => setPageData({ ...pageData, metaDescription: e.target.value })}
                   rows={3}
                   className="text-sm"
                 />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium">Featured / Social Image</label>
+                <MediaField
+                  type="image"
+                  value={pageData.ogImage || ''}
+                  onChange={(url) => setPageData({ ...pageData, ogImage: url })}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Shown as the preview thumbnail when this page is shared (Open Graph / Twitter).
+                </p>
               </div>
             </div>
           </div>
