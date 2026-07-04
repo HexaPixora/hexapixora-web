@@ -117,6 +117,7 @@ export default function FooterBuilderPage() {
           </Field>
           <Field label="Background Color Style">
             <select value={config.backgroundColor} onChange={(e) => update("backgroundColor", e.target.value as any)} className={SELECT_CLASS}>
+              <option value="glass">Glass (frosted, matches header)</option>
               <option value="default">Default</option>
               <option value="muted">Muted (light/dark gray)</option>
               <option value="dark">Dark theme fixed</option>
