@@ -130,7 +130,18 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
   }, [isMobileMenuOpen, closeMenu]);
 
   return (
-    <header className={`w-full md:px-0 px-2 z-50 ${isSticky ? "sticky top-4" : ""} transition-all`}>
+    <>
+      {/* Frosted top canopy — a full-width glass strip fixed at the very top,
+          spanning the status-bar/notch area AND the header zone, sitting BEHIND
+          the floating pill (z below the header). Content scrolls behind it and
+          blurs, so the status bar + header stay legible over moving content.
+          Fades out at its lower edge (mask) so there's no hard line. Mobile only —
+          desktop keeps the clean floating pill. */}
+      <div
+        aria-hidden
+        className="md:hidden pointer-events-none fixed inset-x-0 top-0 z-40 h-[calc(env(safe-area-inset-top)+5rem)] backdrop-blur-lg [mask-image:linear-gradient(to_bottom,black,black,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,black,black,transparent)]"
+      />
+      <header className={`w-full md:px-0 px-2 z-50 ${isSticky ? "sticky top-[calc(env(safe-area-inset-top)+1rem)]" : ""} transition-all`}>
       <div className={`container relative flex h-16 items-center justify-between rounded-full border ${glassmorphism ? "" : "bg-background"}`}>
         {/* Glass blur lives on its own layer (not the pill) so the dropdown &
             search results — which are DOM descendants — aren't nested inside a
@@ -386,5 +397,6 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
         document.body
       )}
     </header>
+    </>
   );
 }
