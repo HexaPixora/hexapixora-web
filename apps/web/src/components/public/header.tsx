@@ -139,7 +139,7 @@ export default function PublicHeader({ settings, config, navigations }: HeaderPr
           desktop keeps the clean floating pill. */}
       <div
         aria-hidden
-        className="md:hidden pointer-events-none fixed inset-x-0 top-0 z-40 h-[calc(env(safe-area-inset-top)+5rem)] backdrop-blur-lg [mask-image:linear-gradient(to_bottom,black,black,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,black,black,transparent)]"
+        className="md:hidden pointer-events-none fixed inset-x-0 top-0 z-40 h-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-lg [mask-image:linear-gradient(to_bottom,black,black,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,black,black,transparent)]"
       />
       <header className={`w-full md:px-0 px-2 z-50 ${isSticky ? "sticky top-[calc(env(safe-area-inset-top)+1rem)]" : ""} transition-all`}>
       <div className={`container relative flex h-16 items-center justify-between rounded-full border ${glassmorphism ? "" : "bg-background"}`}>
