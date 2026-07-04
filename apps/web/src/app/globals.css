@@ -229,6 +229,18 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Stop iOS Safari from auto-zooming the page when a form field is focused: it
+   zooms whenever the focused control's font-size is below 16px. Force 16px on
+   small screens (desktop browsers don't auto-zoom, so utility text sizes still
+   apply there). */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* Chat widget — message entrance (bubbles/chips fade + rise into place). */
 @keyframes chatPopIn {
   from {
