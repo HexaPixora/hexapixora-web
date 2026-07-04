@@ -6,9 +6,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { timelineSchema, TimelineProps } from "@/lib/module-schemas/timeline-schema";
 
 export default function TimelineModule({ config }: { config?: TimelineProps }) {
-  const { heading, subheading, lineColor, steps } = timelineSchema.parse(config || {});
+  const { heading, subheading, lineColor, backgroundImage, overlay, steps } = timelineSchema.parse(config || {});
   const items = (steps || []).filter((s: any) => s.title || s.text || s.date);
   const lc = lineColor?.trim();
+  const bg = backgroundImage?.trim();
+  const overlayClass: Record<string, string> = {
+    light: "bg-background/30",
+    medium: "bg-background/60",
+    dark: "bg-background/80",
+  };
   const root = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const fill = useRef<HTMLDivElement>(null);
@@ -58,8 +64,16 @@ export default function TimelineModule({ config }: { config?: TimelineProps }) {
   }
 
   return (
-    <section ref={root} className="py-20 md:py-28 bg-background">
-      <div className="container max-w-3xl">
+    <section
+      ref={root}
+      className="relative py-20 md:py-28 bg-background"
+      style={bg ? { backgroundImage: `url(${bg})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+    >
+      {bg && overlay !== "none" && (
+        <div className={`absolute inset-0 z-0 ${overlayClass[overlay] ?? "bg-background/60"}`} />
+      )}
+
+      <div className="container max-w-3xl relative z-10">
         {(heading || subheading) && (
           <header className="text-center mb-16">
             {heading && <h2 className="text-3xl md:text-5xl font-bold tracking-tight">{heading}</h2>}

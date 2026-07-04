@@ -34,8 +34,8 @@ export default function ParallaxBannerModule({ config }: { config?: ParallaxBann
   }, [strength, image]);
 
   return (
-    <section ref={root} className="relative h-[60vh] md:h-[80vh] overflow-hidden flex items-center justify-center">
-      <div ref={bg} className="absolute inset-x-0 -top-[20%] h-[140%] will-change-transform">
+    <section ref={root} className="relative h-[100vh] overflow-hidden flex items-center justify-center">
+      <div ref={bg} className="absolute inset-x-0 h-[100%] will-change-transform">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={image} alt="" className="w-full h-full object-cover" />

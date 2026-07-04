@@ -90,14 +90,6 @@ export default function HeaderBuilderPage() {
       </SectionCard>
 
       <SectionCard title="Layout & Styling" bodyClassName="space-y-5">
-        <Field label="Layout Style">
-          <select value={config.layoutStyle} onChange={(e) => update("layoutStyle", e.target.value as any)} className={SELECT_CLASS}>
-            <option value="logo-left">Logo Left, Menu Right</option>
-            <option value="logo-center">Logo Center</option>
-            <option value="split">Split (Logo Left, CTA Right, Menu Center)</option>
-          </select>
-        </Field>
-
         <div className="flex flex-wrap gap-4">
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={config.isSticky} onChange={(e) => update("isSticky", e.target.checked)} className="rounded border-input" />

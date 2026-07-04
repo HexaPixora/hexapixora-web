@@ -20,7 +20,7 @@ export const footerSchema = z.object({
     { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin", color: "" }
   ]),
 
-  backgroundColor: z.enum(["default", "muted", "dark"]).default("muted").describe("Background Color Style"),
+  backgroundColor: z.enum(["default", "muted", "dark", "glass"]).default("glass").describe("Background Color Style"),
   showNewsletter: z.boolean().default(true).describe("Show Newsletter Subscription Box"),
 });
 
@@ -30,7 +30,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   tagline: "Building modern digital experiences.",
   col1Title: "Quick Links",
   col2Title: "Legal",
-  backgroundColor: "muted",
+  backgroundColor: "glass",
   showNewsletter: true,
   socials: [
     { platform: "X (Twitter)", url: "https://twitter.com", icon: "x", color: "" },
