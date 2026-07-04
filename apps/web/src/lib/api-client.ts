@@ -9,9 +9,12 @@ import axios from 'axios';
 // dev CORS allows LAN origins. Override with NEXT_PUBLIC_API_URL in production.
 function resolveApiBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (typeof window !== 'undefined') {
-    return `${window.location.protocol}//${window.location.hostname}:3001/api`;
-  }
+  // In the browser, use the SAME-ORIGIN /api proxy (Next rewrites it to the API
+  // server-side). This works over localhost, from a phone on the LAN, and in
+  // production — without the browser ever needing to reach the API's port
+  // directly (which a firewall or hotspot client-isolation can block, and which
+  // was causing the widget to get no config on mobile).
+  if (typeof window !== 'undefined') return '/api';
   return 'http://localhost:3001/api';
 }
 

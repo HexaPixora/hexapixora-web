@@ -99,7 +99,10 @@
   }
 
   html {
-    @apply font-sans;
+    /* Background on html (not just body) so iOS Safari's status-bar tint and the
+       top rubber-band overscroll stay the dark theme color — no seam/flash where
+       the browser bar meets the page. Matches themeColor (#0a0a0a). */
+    @apply bg-background font-sans;
     color-scheme: dark;
   }
 }
@@ -224,4 +227,16 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Chat widget — message entrance (bubbles/chips fade + rise into place). */
+@keyframes chatPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
