@@ -11,7 +11,12 @@ const inter = Inter({ subsets: ["latin"] });
 // browser chrome render dark on every device.
 export const viewport: Viewport = {
   colorScheme: "dark",
-  themeColor: "#070b14",
+  // Matches the site's dark --background (oklch(0.145 0 0)) so the mobile
+  // status-bar area blends seamlessly with the page.
+  themeColor: "#0a0a0a",
+  // Paint under the notch / home indicator so we control those pixels with the
+  // page background + glass, instead of a browser-drawn bar.
+  viewportFit: "cover",
 };
 
 // Pull branding (favicon, site name) from site settings. Tagged 'layouts' so it
@@ -37,6 +42,14 @@ export async function generateMetadata(): Promise<Metadata> {
     description: settings?.tagline || "A premium marketing and development agency.",
     // Custom favicon from branding, falling back to the bundled default.
     icons: { icon: settings?.faviconUrl || "/favicon.ico" },
+    // Installed (home-screen) mode: launch standalone/edge-to-edge with the
+    // status bar translucent so page content flows underneath it — the safe-area
+    // insets in the header/footer keep everything clear of the notch.
+    appleWebApp: {
+      capable: true,
+      title: siteName,
+      statusBarStyle: "black-translucent",
+    },
   };
 }
 
