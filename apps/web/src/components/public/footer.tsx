@@ -55,7 +55,11 @@ export default function PublicFooter({ settings, config, headerConfig, navigatio
 
   return (
     <footer className={`pt-8 `}>
-      <div className="container pt-16 pb-[calc(4rem+env(safe-area-inset-bottom))] relative isolate overflow-hidden backdrop-blur-lg text-foreground">
+      <div className="container pt-16 pb-[calc(4rem+env(safe-area-inset-bottom))] relative isolate overflow-hidden text-foreground">
+        {/* Glass blur on its own layer (not the container) so descendant content
+            — logo, text — isn't inside a backdrop-filter element, which renders
+            children blurry on mobile WebKit. */}
+        <div aria-hidden className="absolute inset-0 -z-10 backdrop-blur-lg" />
         {/* Soft brand-blue aurora for depth. */}
         <div aria-hidden className="pointer-events-none absolute top-42 right-42 -z-10 h-42 w-42 rounded-full bg-primary-blue/100 blur-3xl " />
 
