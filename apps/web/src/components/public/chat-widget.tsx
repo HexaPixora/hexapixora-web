@@ -5,9 +5,8 @@ import type { Socket } from "socket.io-client";
 import { apiClient } from "@/lib/api-client";
 import { createChatSocket } from "@/lib/chat-socket";
 import { cn } from "@/lib/utils";
-import {
-  MessageCircle, MessageSquare, Bot, X, Send, Headset, Sparkles, User, Mail, Loader2,
-} from "lucide-react";
+import { X, Send, Headset, User, Mail, Loader2 } from "lucide-react";
+import chatSupportIcon from "@/components/icons/chatsupport-icon.svg";
 
 type Role = "USER" | "AI" | "AGENT" | "SYSTEM";
 interface ChatMessage {
@@ -24,9 +23,8 @@ interface PublicConfig {
   enabled: boolean;
   botName: string;
   welcomeMessage: string;
-  accentColor: string;
   position?: "bottom-right" | "bottom-left";
-  launcherIcon?: string;
+  // Optional custom image to replace the default chatbot icon.
   launcherIconUrl?: string | null;
   headerSubtitle?: string;
   showAgentHandoff?: boolean;
@@ -34,14 +32,6 @@ interface PublicConfig {
   teamSubtitle?: string;
   quickReplies?: Chip[];
 }
-
-const LAUNCHER_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
-  "message-circle": MessageCircle,
-  "message-square": MessageSquare,
-  bot: Bot,
-  sparkles: Sparkles,
-  headset: Headset,
-};
 
 const CONV_KEY = "hp_chat_conversation_id";
 const TOKEN_KEY = "hp_chat_visitor_token";
@@ -234,46 +224,49 @@ export default function ChatWidget() {
   }, []);
 
   if (!config || !config.enabled) return null;
-  const accent = config.accentColor || "#4f46e5";
   const leftSide = config.position === "bottom-left";
-  const LauncherIcon = LAUNCHER_ICONS[config.launcherIcon || "message-circle"] || MessageCircle;
-  const customIcon = config.launcherIconUrl || null;
+  // Default icon is the brand chatbot glyph; a custom image can replace it.
+  const iconSrc = config.launcherIconUrl || chatSupportIcon.src;
   // While a human is handling the chat, present the support team instead of the bot.
   const hasAgent = status === "AGENT";
 
   return (
-    <div
-      className={cn(
-        "fixed bottom-5 z-[60] flex flex-col",
-        leftSide ? "left-5 items-start" : "right-5 items-end",
-      )}
-    >
-      {open && (
-        <div className="mb-3 flex h-[32rem] max-h-[75vh] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-muted/40 bg-background shadow-2xl">
+    <div className={cn("fixed bottom-5 z-[60]", leftSide ? "left-5" : "right-5")}>
+      {/* Panel — always mounted & absolutely positioned so it animates open/close
+          smoothly without reserving layout space (which would shove the launcher up). */}
+      <div
+        aria-hidden={!open}
+        className={cn(
+          "absolute bottom-[4.5rem] flex h-[32rem] max-h-[75vh] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/[0.07] shadow-2xl ring-1 ring-inset ring-white/10 backdrop-blur-2xl transition-all duration-300 ease-out",
+          leftSide ? "left-0 origin-bottom-left" : "right-0 origin-bottom-right",
+          open
+            ? "translate-y-0 scale-100 opacity-100"
+            : "pointer-events-none translate-y-4 scale-95 opacity-0",
+        )}
+      >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 text-white" style={{ background: accent }}>
+          <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.05] px-4 py-3 text-foreground">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-white/20">
+              <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10">
                 {hasAgent ? (
                   <Headset size={16} />
-                ) : customIcon ? (
-                  <img src={customIcon} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <LauncherIcon size={16} />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={iconSrc} alt="" className="h-5 w-5 object-contain" />
                 )}
               </span>
               <div className="leading-tight">
                 <p className="text-sm font-semibold">
                   {hasAgent ? config.teamName || "Support Team" : config.botName}
                 </p>
-                <p className="text-[11px] text-white/80">
+                <p className="text-[11px] text-muted-foreground">
                   {hasAgent
                     ? config.teamSubtitle || "A team member is here to help"
                     : config.headerSubtitle || "Typically replies instantly"}
                 </p>
               </div>
             </div>
-            <button onClick={toggle} aria-label="Close chat" className="rounded-md p-1 hover:bg-white/20">
+            <button onClick={toggle} aria-label="Close chat" className="rounded-md p-1 text-foreground transition-colors hover:bg-white/10">
               <X size={18} />
             </button>
           </div>
@@ -289,8 +282,9 @@ export default function ChatWidget() {
           {view === "form" && (
             <div className="flex flex-1 flex-col justify-center px-5 py-6">
               <div className="mb-5 text-center">
-                <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: `${accent}1a`, color: accent }}>
-                  <MessageCircle size={22} />
+                <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={iconSrc} alt="" className="h-7 w-7 object-contain" />
                 </span>
                 <h3 className="text-base font-semibold">Let&apos;s get started</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -306,7 +300,7 @@ export default function ChatWidget() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your name"
                     autoComplete="name"
-                    className="w-full rounded-lg border border-muted/50 bg-background py-2.5 pl-9 pr-3 text-sm outline-none focus:border-primary"
+                    className="w-full rounded-lg border border-white/15 bg-white/5 py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-white/30"
                   />
                 </div>
                 <div className="relative">
@@ -317,7 +311,7 @@ export default function ChatWidget() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     autoComplete="email"
-                    className="w-full rounded-lg border border-muted/50 bg-background py-2.5 pl-9 pr-3 text-sm outline-none focus:border-primary"
+                    className="w-full rounded-lg border border-white/15 bg-white/5 py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-white/30"
                   />
                 </div>
 
@@ -326,8 +320,7 @@ export default function ChatWidget() {
                 <button
                   type="submit"
                   disabled={starting}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-60"
-                  style={{ background: accent }}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/15 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-white/25 disabled:opacity-60"
                 >
                   {starting ? <Loader2 className="animate-spin" size={16} /> : <Send size={15} />}
                   Start chat
@@ -342,20 +335,21 @@ export default function ChatWidget() {
           {/* Chat */}
           {view === "chat" && (
             <>
-              <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-muted/10 px-3 py-4">
+              <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-3 py-4">
                 {messages.map((m) =>
                   m.role === "SYSTEM" ? (
-                    <p key={m.id} className="mx-auto max-w-[90%] text-center text-[11px] text-muted-foreground">
+                    <p key={m.id} className="mx-auto max-w-[90%] animate-[chatPopIn_0.28s_ease-out] text-center text-[11px] text-muted-foreground">
                       {m.content}
                     </p>
                   ) : (
-                    <div key={m.id} className={cn("flex", m.role === "USER" ? "justify-end" : "justify-start")}>
+                    <div key={m.id} className={cn("flex animate-[chatPopIn_0.28s_ease-out]", m.role === "USER" ? "justify-end" : "justify-start")}>
                       <div
                         className={cn(
-                          "max-w-[80%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm",
-                          m.role === "USER" ? "rounded-br-sm text-white" : "rounded-bl-sm border border-muted/40 bg-background text-foreground",
+                          "max-w-[80%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm text-foreground",
+                          m.role === "USER"
+                            ? "rounded-br-sm bg-white/15"
+                            : "rounded-bl-sm border border-white/10 bg-white/[0.06]",
                         )}
-                        style={m.role === "USER" ? { background: accent } : undefined}
                       >
                         {m.role === "AGENT" && (
                           <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wide opacity-70">Team</span>
@@ -366,8 +360,8 @@ export default function ChatWidget() {
                   ),
                 )}
                 {botTyping && (
-                  <div className="flex justify-start">
-                    <div className="flex gap-1 rounded-2xl rounded-bl-sm border border-muted/40 bg-background px-3 py-2.5">
+                  <div className="flex animate-[chatPopIn_0.28s_ease-out] justify-start">
+                    <div className="flex gap-1 rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.06] px-3 py-2.5">
                       <Dot /> <Dot delay="150ms" /> <Dot delay="300ms" />
                     </div>
                   </div>
@@ -391,11 +385,11 @@ export default function ChatWidget() {
                     }
                   };
                   return (
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    <div className="flex animate-[chatPopIn_0.28s_ease-out] flex-wrap gap-1.5 pt-0.5">
                       {chipTrail.length > 0 && (
                         <button
                           onClick={() => setChipTrail((t) => t.slice(0, -1))}
-                          className="rounded-full border border-muted/50 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/40"
+                          className="rounded-full border border-white/15 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/10"
                         >
                           ← Back
                         </button>
@@ -405,8 +399,7 @@ export default function ChatWidget() {
                           key={i}
                           onClick={() => onChip(c)}
                           disabled={sending}
-                          className="rounded-full border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/40 disabled:opacity-50"
-                          style={{ borderColor: `${accent}55`, color: accent }}
+                          className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-white/10 disabled:opacity-50"
                         >
                           {c.label}
                           {c.children && c.children.length ? " ›" : ""}
@@ -420,13 +413,13 @@ export default function ChatWidget() {
               {config.showAgentHandoff !== false && !requestedAgent && status === "BOT" && (
                 <button
                   onClick={requestAgent}
-                  className="flex items-center justify-center gap-1.5 border-t border-muted/30 py-2 text-xs text-muted-foreground hover:text-foreground"
+                  className="flex items-center justify-center gap-1.5 border-t border-white/10 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Headset size={13} /> Talk to a human
                 </button>
               )}
 
-              <div className="flex items-center gap-2 border-t border-muted/30 p-2.5">
+              <div className="flex items-center gap-2 border-t border-white/10 p-2.5">
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -437,14 +430,13 @@ export default function ChatWidget() {
                     }
                   }}
                   placeholder="Type your message…"
-                  className="flex-1 rounded-full border border-muted/50 bg-background px-4 py-2 text-sm outline-none focus:border-primary"
+                  className="flex-1 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm outline-none transition-colors focus:border-white/30"
                 />
                 <button
                   onClick={() => void send()}
                   disabled={sending || !input.trim()}
                   aria-label="Send"
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-white disabled:opacity-50"
-                  style={{ background: accent }}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/15 text-foreground transition-colors hover:bg-white/25 disabled:opacity-50"
                 >
                   <Send size={16} />
                 </button>
@@ -452,19 +444,18 @@ export default function ChatWidget() {
             </>
           )}
         </div>
-      )}
 
-      {/* Launcher button */}
+      {/* Launcher button — glass, showing the chatbot icon (or a custom image). */}
       <button
         onClick={toggle}
         aria-label={open ? "Close chat" : "Open chat"}
-        className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-white shadow-xl transition-transform hover:scale-105"
-        style={{ background: accent }}
+        className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-white/20 p-2.5 text-foreground shadow-xl shadow-black/40 ring-1 ring-inset ring-white/15 backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-110 hover:bg-white/30 hover:ring-white/30 active:scale-95"
       >
-        {open ? <X size={24} /> : customIcon ? (
-          <img src={customIcon} alt="" className="h-full w-full object-cover" />
+        {open ? (
+          <X size={24} className="transition-transform duration-300" />
         ) : (
-          <LauncherIcon size={24} />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={iconSrc} alt="" className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110" />
         )}
       </button>
     </div>

@@ -8,17 +8,10 @@ import MediaField from "@/components/admin/media-field";
 import QuickReplyEditor, { cleanQuickReplies, type QuickReply } from "@/components/admin/quick-reply-editor";
 import { useIsAdmin } from "@/stores/use-auth-store";
 import {
-  Loader2, Save, Bot, MessageCircle, MessageSquare, Sparkles, Send, X, Headset,
+  Loader2, Save, Bot, MessageCircle, Send, X, Headset,
   Palette, ShieldCheck, Zap, Power, MessageSquarePlus, Plus, Trash2, BookText,
 } from "lucide-react";
-
-const PREVIEW_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
-  "message-circle": MessageCircle,
-  "message-square": MessageSquare,
-  bot: Bot,
-  sparkles: Sparkles,
-  headset: Headset,
-};
+import chatSupportIcon from "@/components/icons/chatsupport-icon.svg";
 
 interface CannedReply {
   title: string;
@@ -45,14 +38,6 @@ interface Config {
   retentionDays: number;
   cannedReplies: CannedReply[];
 }
-
-const ICON_OPTIONS = [
-  { value: "message-circle", label: "Chat bubble" },
-  { value: "message-square", label: "Message square" },
-  { value: "bot", label: "Robot" },
-  { value: "sparkles", label: "Sparkles" },
-  { value: "headset", label: "Headset" },
-];
 
 const LABEL = "text-sm font-medium";
 const INPUT =
@@ -180,40 +165,18 @@ export default function ChatbotSettingsForm() {
           <Field label="Welcome message" hint="The first thing visitors see when they open the chat.">
             <textarea className={INPUT} rows={2} value={config.welcomeMessage} onChange={(e) => set("welcomeMessage", e.target.value)} />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Position">
-              <select className={INPUT} value={config.position} onChange={(e) => set("position", e.target.value)}>
-                <option value="bottom-right">Bottom right</option>
-                <option value="bottom-left">Bottom left</option>
-              </select>
-            </Field>
-            <Field label="Launcher icon">
-              <select className={INPUT} value={config.launcherIcon} onChange={(e) => set("launcherIcon", e.target.value)}>
-                {ICON_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </Field>
-          </div>
-          <Field label="Custom launcher image" hint="Optional. Upload or pick an image to use instead of the icon above (square works best).">
+          <Field label="Position">
+            <select className={INPUT} value={config.position} onChange={(e) => set("position", e.target.value)}>
+              <option value="bottom-right">Bottom right</option>
+              <option value="bottom-left">Bottom left</option>
+            </select>
+          </Field>
+          <Field label="Launcher icon" hint="Optional. Upload or pick an image to replace the default chatbot icon (square works best). Leave blank to use the default.">
             <MediaField
               type="image"
               value={config.launcherIconUrl || ""}
               onChange={(url) => set("launcherIconUrl", url || null)}
             />
-          </Field>
-          <Field label="Accent color">
-            <div className="flex items-center gap-2">
-              <label className="relative h-9 w-9 cursor-pointer overflow-hidden rounded-lg border" style={{ background: config.accentColor }}>
-                <input type="color" value={config.accentColor} onChange={(e) => set("accentColor", e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" />
-              </label>
-              <input className={cn(INPUT, "max-w-[9rem] font-mono")} value={config.accentColor} onChange={(e) => set("accentColor", e.target.value)} />
-              <div className="flex items-center gap-1.5">
-                {["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#ec4899"].map((c) => (
-                  <button key={c} type="button" onClick={() => set("accentColor", c)} className="h-6 w-6 rounded-full border transition-transform hover:scale-110" style={{ background: c }} aria-label={`Use ${c}`} />
-                ))}
-              </div>
-            </div>
           </Field>
         </Card>
 
@@ -378,31 +341,26 @@ export default function ChatbotSettingsForm() {
 /* ------------------------------- preview ---------------------------------- */
 
 function WidgetPreview({ config }: { config: Config }) {
-  const accent = config.accentColor || "#4f46e5";
-  const Icon = PREVIEW_ICONS[config.launcherIcon] || MessageCircle;
+  const iconSrc = config.launcherIconUrl || chatSupportIcon.src;
   const leftSide = config.position === "bottom-left";
   return (
     <div className="mx-auto w-full max-w-[18rem]">
-      <div className="overflow-hidden rounded-2xl border border-muted/40 bg-background shadow-lg">
-        <div className="flex items-center justify-between px-3 py-2.5 text-white" style={{ background: accent }}>
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.07] shadow-lg backdrop-blur-xl">
+        <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-3 py-2.5 text-foreground">
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-white/20">
-              {config.launcherIconUrl ? (
-                <img src={config.launcherIconUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <Icon size={13} />
-              )}
+            <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/10">
+              <img src={iconSrc} alt="" className="h-4 w-4 object-contain" />
             </span>
             <div className="leading-tight">
               <p className="text-xs font-semibold">{config.botName || "Support AI"}</p>
-              <p className="text-[10px] text-white/80">{config.headerSubtitle || "Typically replies instantly"}</p>
+              <p className="text-[10px] text-muted-foreground">{config.headerSubtitle || "Typically replies instantly"}</p>
             </div>
           </div>
           <X size={14} className="opacity-80" />
         </div>
-        <div className="space-y-2 bg-muted/10 px-3 py-3" style={{ minHeight: "9rem" }}>
+        <div className="space-y-2 px-3 py-3" style={{ minHeight: "9rem" }}>
           <div className="flex justify-start">
-            <div className="max-w-[85%] rounded-2xl rounded-bl-sm border border-muted/40 bg-background px-3 py-2 text-xs">
+            <div className="max-w-[85%] rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.06] px-3 py-2 text-xs">
               {config.welcomeMessage || "Hi! How can I help?"}
             </div>
           </div>
@@ -415,8 +373,7 @@ function WidgetPreview({ config }: { config: Config }) {
                 .map((q, i) => (
                   <span
                     key={i}
-                    className="rounded-full border px-2.5 py-1 text-[10px] font-medium"
-                    style={{ borderColor: `${accent}55`, color: accent }}
+                    className="rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-medium text-foreground"
                   >
                     {q.label}
                     {q.children && q.children.length > 0 ? " ›" : ""}
@@ -425,22 +382,18 @@ function WidgetPreview({ config }: { config: Config }) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2 border-t border-muted/30 p-2">
-          <div className="flex-1 rounded-full border border-muted/50 px-3 py-1.5 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 border-t border-white/10 p-2">
+          <div className="flex-1 rounded-full border border-white/15 px-3 py-1.5 text-[11px] text-muted-foreground">
             Type your message…
           </div>
-          <span className="flex h-7 w-7 items-center justify-center rounded-full text-white" style={{ background: accent }}>
+          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/15 text-foreground">
             <Send size={12} />
           </span>
         </div>
       </div>
       <div className={cn("mt-3 flex", leftSide ? "justify-start" : "justify-end")}>
-        <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full text-white shadow-lg" style={{ background: accent }}>
-          {config.launcherIconUrl ? (
-            <img src={config.launcherIconUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <Icon size={20} />
-          )}
+        <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/10 shadow-lg backdrop-blur-lg">
+          <img src={iconSrc} alt="" className="h-6 w-6 object-contain" />
         </span>
       </div>
     </div>

@@ -50,6 +50,11 @@ export async function generateMetadata(): Promise<Metadata> {
       title: siteName,
       statusBarStyle: "black-translucent",
     },
+    // Next only emits the modern `mobile-web-app-capable`; older iOS needs the
+    // legacy prefixed tag for `black-translucent` (content-under-status-bar) to apply.
+    other: {
+      "apple-mobile-web-app-capable": "yes",
+    },
   };
 }
 
