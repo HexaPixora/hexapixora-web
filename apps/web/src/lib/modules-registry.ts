@@ -5,7 +5,6 @@ import { ctasectionSchema, CTASectionDef } from "./module-schemas/ctasection-sch
 import { servicesSchema, ServicesSectionDef } from "./module-schemas/services-schema";
 import { portfolioSchema, PortfolioSectionDef } from "./module-schemas/portfolio-schema";
 import { blogSchema, BlogSectionDef } from "./module-schemas/blog-schema";
-import { testimonialsSchema, TestimonialsSectionDef } from "./module-schemas/testimonials-schema";
 import { teamSchema, TeamSectionDef } from "./module-schemas/team-schema";
 import { faqsectionSchema, FAQSectionDef } from "./module-schemas/faqsection-schema";
 import { statsSchema, StatsSectionDef } from "./module-schemas/stats-schema";
@@ -14,7 +13,6 @@ import { gallerySchema, GalleryModuleDef } from "./module-schemas/gallery-schema
 import { videoPlayerSchema, VideoPlayerModuleDef } from "./module-schemas/video-player-schema";
 import { splideSliderSchema, SplideSliderModuleDef } from "./module-schemas/splide-slider-schema";
 import { splideLogoTickerSchema, SplideLogoTickerModuleDef } from "./module-schemas/splide-logo-ticker-schema";
-import { splideTestimonialsSchema, SplideTestimonialsModuleDef } from "./module-schemas/splide-testimonials-schema";
 import { splideGallerySyncSchema, SplideGallerySyncModuleDef } from "./module-schemas/splide-gallery-sync-schema";
 import { bookingSchema, BookingModuleDef } from "./module-schemas/booking-schema";
 import { pricingSchema, PricingModuleDef } from "./module-schemas/pricing-schema";
@@ -27,6 +25,7 @@ import { AnimatedTextHeroModuleDef } from "./module-schemas/animated-text-hero-s
 import { MarqueeModuleDef } from "./module-schemas/marquee-schema";
 import { CounterStatsModuleDef } from "./module-schemas/counter-stats-schema";
 import { StaggeredGridModuleDef } from "./module-schemas/staggered-grid-schema";
+import { PortfolioHeroModuleDef } from "./module-schemas/portfolio-hero-schema";
 
 export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
@@ -55,7 +54,6 @@ export const MODULES: Record<string, ModuleDefinition> = {
   ServicesSection: ServicesSectionDef,
   PortfolioSection: PortfolioSectionDef,
   BlogSection: BlogSectionDef,
-  TestimonialsSection: TestimonialsSectionDef,
   TeamSection: TeamSectionDef,
   FAQSection: FAQSectionDef,
   StatsSection: StatsSectionDef,
@@ -64,7 +62,6 @@ export const MODULES: Record<string, ModuleDefinition> = {
   VideoPlayerModule: VideoPlayerModuleDef,
   SplideSliderModule: SplideSliderModuleDef,
   SplideLogoTickerModule: SplideLogoTickerModuleDef,
-  SplideTestimonialsModule: SplideTestimonialsModuleDef,
   SplideGallerySyncModule: SplideGallerySyncModuleDef,
   ContactFormModule: ContactFormModuleDef,
   BookingModule: BookingModuleDef,
@@ -77,5 +74,6 @@ export const MODULES: Record<string, ModuleDefinition> = {
   AnimatedTextHeroModule: AnimatedTextHeroModuleDef,
   MarqueeModule: MarqueeModuleDef,
   CounterStatsModule: CounterStatsModuleDef,
-  StaggeredGridModule: StaggeredGridModuleDef
+  StaggeredGridModule: StaggeredGridModuleDef,
+  PortfolioHeroModule: PortfolioHeroModuleDef
 };

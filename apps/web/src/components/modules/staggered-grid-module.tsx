@@ -5,6 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { staggeredGridSchema, StaggeredGridProps } from "@/lib/module-schemas/staggered-grid-schema";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 
 export default function StaggeredGridModule({ config }: { config?: StaggeredGridProps }) {
   const { heading, subheading, items } = staggeredGridSchema.parse(config || {});
@@ -71,11 +72,13 @@ export default function StaggeredGridModule({ config }: { config?: StaggeredGrid
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card: any, i: number) => {
             const inner = (
-              <div className="sg-card group h-full flex flex-col bg-background border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="sg-card group h-full flex flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/[0.04] ring-1 ring-inset ring-white/10 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:ring-white/25">
                 {card.image && (
-                  <div className="aspect-[16/10] overflow-hidden">
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    {/* Sharp image + liquid-glass light layers over it. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={card.image} alt={card.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={card.image} alt={card.title} className="absolute inset-0 h-auto w-full p-4 object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+                    <LiquidGlass tintClass="to-primary-blue/55" />
                   </div>
                 )}
                 <div className="p-6 flex-1 flex flex-col">

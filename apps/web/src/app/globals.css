@@ -252,3 +252,16 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* Liquid-glass cards — a slow diagonal specular reflection that drifts across
+   the glass, then pauses. Elegant and barely noticeable (GPU: transform+opacity
+   only). Respects reduced-motion below. */
+@keyframes glassSheen {
+  0% { transform: translateX(-40%) skewX(-14deg); opacity: 0; }
+  10% { opacity: 0.85; }
+  42% { transform: translateX(440%) skewX(-14deg); opacity: 0.85; }
+  50%, 100% { transform: translateX(440%) skewX(-14deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-sheen { animation: none !important; }
+}

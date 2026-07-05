@@ -9,7 +9,6 @@ export const videoPlayerSchema = z.object({
   controls: z.boolean().default(true),
   videos: z.array(z.object({
       videoUrl: z.string().default(""),
-      posterUrl: z.string().default(""),
       title: z.string().default("")
     })).default([]),
 });
@@ -18,8 +17,8 @@ export type VideoPlayerProps = z.input<typeof videoPlayerSchema>;
 
 export const VideoPlayerModuleDef = createModuleDefinition(
   'VideoPlayerModule',
-  "Native Video Player",
-  "High performance native HTML5 video player.",
+  "Embedded Video",
+  "Glass-framed embedded video player (YouTube & Vimeo).",
   videoPlayerSchema,
   [
     {
@@ -64,13 +63,8 @@ export const VideoPlayerModuleDef = createModuleDefinition(
         itemFields: [
             {
                 name: "videoUrl",
-                label: "Video File or YouTube URL",
-                type: "video"
-            },
-            {
-                name: "posterUrl",
-                label: "Poster Image (Optional, for native video)",
-                type: "image"
+                label: "YouTube or Vimeo URL",
+                type: "text"
             },
             {
                 name: "title",

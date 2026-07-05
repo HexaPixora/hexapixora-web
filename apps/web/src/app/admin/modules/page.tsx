@@ -15,14 +15,13 @@ import HeroModule from "@/components/modules/hero-module";
 import CTAModule from "@/components/modules/cta-module";
 import ServicesModule from "@/components/modules/services-module";
 import PortfolioModule from "@/components/modules/portfolio-module";
-import TestimonialsModule from "@/components/modules/testimonials-module";
+import PortfolioHeroModule from "@/components/modules/portfolio-hero-module";
 import TeamModule from "@/components/modules/team-module";
 import FAQModule from "@/components/modules/faq-module";
 import StatsModule from "@/components/modules/stats-module";
 import AboutModule from "@/components/modules/about-module";
 import SplideSliderModule from "@/components/modules/splide-slider-module";
 import SplideLogoTickerModule from "@/components/modules/splide-logo-ticker-module";
-import SplideTestimonialsModule from "@/components/modules/splide-testimonials-module";
 import SplideGallerySyncModule from "@/components/modules/splide-gallery-sync-module";
 import ContactFormModule from "@/components/modules/contact-form-module";
 // Map for previews
@@ -31,14 +30,13 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "CTASection": CTAModule,
   "ServicesSection": ServicesModule,
   "PortfolioSection": PortfolioModule,
-  "TestimonialsSection": TestimonialsModule,
+  "PortfolioHeroModule": PortfolioHeroModule,
   "TeamSection": TeamModule,
   "FAQSection": FAQModule,
   "StatsSection": StatsModule,
   "AboutSection": AboutModule,
   "SplideSliderModule": SplideSliderModule,
   "SplideLogoTickerModule": SplideLogoTickerModule,
-  "SplideTestimonialsModule": SplideTestimonialsModule,
   "SplideGallerySyncModule": SplideGallerySyncModule,
   "ContactFormModule": ContactFormModule,
 };

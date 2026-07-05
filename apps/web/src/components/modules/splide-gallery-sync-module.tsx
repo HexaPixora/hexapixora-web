@@ -5,6 +5,8 @@ import { splideGallerySyncSchema, SplideGallerySyncProps } from "@/lib/module-sc
 
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
+import gsap from "gsap";
+import { ArrowRight } from "lucide-react";
 
 
 
@@ -17,23 +19,29 @@ export default function SplideGallerySyncModule({ config }: { config?: SplideGal
     items = []
   } = splideGallerySyncSchema.parse(config || {});
 
+  // Bigger main-slide height for a more immersive gallery. A custom CMS value
+  // (anything other than the old 450px default) still takes precedence.
+  const mainHeight = height && height !== "450px" ? height : "600px";
+
   const mainRef = useRef<HTMLDivElement>(null);
   const thumbsRef = useRef<HTMLDivElement>(null);
+  const cursorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!mainRef.current || !thumbsRef.current || items.length === 0) return;
+    const mainEl = mainRef.current;
+    if (!mainEl || !thumbsRef.current || items.length === 0) return;
 
-    // Initialize Primary Slider
-    const mainSplide = new Splide(mainRef.current, {
+    // Primary slider — arrows off; the follow-cursor (below) and thumbnails drive it.
+    const mainSplide = new Splide(mainEl, {
       type: "fade",
       rewind: true,
-      height: height,
+      height: mainHeight,
       pagination: false,
-      arrows: true,
+      arrows: false,
       cover: true,
       breakpoints: {
         768: {
-          height: "300px",
+          height: "400px",
         }
       }
     });
@@ -61,11 +69,50 @@ export default function SplideGallerySyncModule({ config }: { config?: SplideGal
     mainSplide.mount();
     thumbsSplide.mount();
 
+    // Custom follow-cursor: a pointer that trails the mouse across the slider and
+    // flips to face left/right depending on the hovered half; clicking that half
+    // navigates. Only for fine pointers (desktop) — touch devices use thumbnails.
+    let teardownCursor = () => {};
+    const cursor = cursorRef.current;
+    if (cursor && window.matchMedia("(pointer: fine)").matches) {
+      gsap.set(cursor, { xPercent: -50, yPercent: -50, scale: 0, opacity: 0 });
+      const xTo = gsap.quickTo(cursor, "x", { duration: 0.35, ease: "power3" });
+      const yTo = gsap.quickTo(cursor, "y", { duration: 0.35, ease: "power3" });
+      let dir = 1; // 1 = next (arrow points right), -1 = prev (rotated 180°)
+      const onMove = (e: MouseEvent) => {
+        const r = mainEl.getBoundingClientRect();
+        xTo(e.clientX - r.left);
+        yTo(e.clientY - r.top);
+        const nd = e.clientX - r.left > r.width / 2 ? 1 : -1;
+        if (nd !== dir) {
+          dir = nd;
+          gsap.to(cursor, { rotate: dir === 1 ? 0 : 180, duration: 0.25, ease: "power2.out" });
+        }
+      };
+      const onEnter = () => gsap.to(cursor, { scale: 1, opacity: 1, duration: 0.3, ease: "power3.out" });
+      const onLeave = () => gsap.to(cursor, { scale: 0, opacity: 0, duration: 0.3, ease: "power3.out" });
+      const onClick = (e: MouseEvent) => {
+        const r = mainEl.getBoundingClientRect();
+        mainSplide.go(e.clientX - r.left > r.width / 2 ? ">" : "<");
+      };
+      mainEl.addEventListener("mousemove", onMove);
+      mainEl.addEventListener("mouseenter", onEnter);
+      mainEl.addEventListener("mouseleave", onLeave);
+      mainEl.addEventListener("click", onClick);
+      teardownCursor = () => {
+        mainEl.removeEventListener("mousemove", onMove);
+        mainEl.removeEventListener("mouseenter", onEnter);
+        mainEl.removeEventListener("mouseleave", onLeave);
+        mainEl.removeEventListener("click", onClick);
+      };
+    }
+
     return () => {
+      teardownCursor();
       mainSplide.destroy();
       thumbsSplide.destroy();
     };
-  }, [height, items]);
+  }, [mainHeight, items]);
 
   if (items.length === 0) {
     return (
@@ -80,7 +127,7 @@ export default function SplideGallerySyncModule({ config }: { config?: SplideGal
 
   return (
     <section className="py-20 bg-background overflow-hidden">
-      <div className="container max-w-5xl mx-auto px-4 space-y-8">
+      <div className="container px-4">
         {heading && (
           <div className="mb-8 text-center">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">{heading}</h2>
@@ -91,7 +138,7 @@ export default function SplideGallerySyncModule({ config }: { config?: SplideGal
         <div className="flex flex-col gap-4">
           
           {/* Main Primary Slider */}
-          <div ref={mainRef} className="splide rounded-3xl overflow-hidden shadow-xl border bg-black/5">
+          <div ref={mainRef} className="splide relative overflow-hidden md:cursor-none">
             <div className="splide__track">
               <ul className="splide__list">
                 {items.map((item, index) => (
@@ -120,6 +167,16 @@ export default function SplideGallerySyncModule({ config }: { config?: SplideGal
                 ))}
               </ul>
             </div>
+
+            {/* Follow-cursor pointer (desktop) — trails the mouse, flips to the
+                hovered half, and that half navigates on click. GSAP-driven. */}
+            <div
+              ref={cursorRef}
+              aria-hidden
+              className="pointer-events-none absolute left-0 top-0 z-30 hidden size-16 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur-md md:flex"
+            >
+              <ArrowRight className="size-6" />
+            </div>
           </div>
 
           {/* Thumbnail Swiper Navigation */}
@@ -129,7 +186,7 @@ export default function SplideGallerySyncModule({ config }: { config?: SplideGal
                 {items.map((item, index) => (
                   <li 
                     key={index} 
-                    className="splide__slide aspect-[4/3] rounded-xl overflow-hidden border-2 border-transparent cursor-pointer hover:opacity-90 transition-all opacity-50 splide__slide--nav"
+                    className="splide__slide aspect-[16/9] overflow-hidden border-2 border-transparent cursor-pointer hover:opacity-90 transition-all opacity-50 splide__slide--nav"
                   >
                     {item.image ? (
                       <img 
