@@ -36,6 +36,26 @@ export class CreateUserDto {
   permissions?: string[];
 }
 
+// Invite flow: admin supplies everything EXCEPT a password (the invitee sets it).
+export class InviteUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  name?: string;
+
+  @IsOptional()
+  @IsIn(ROLES)
+  role?: Role;
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(SECTIONS as readonly string[], { each: true })
+  permissions?: string[];
+}
+
 export class UpdateUserDto {
   @IsOptional()
   @IsString()

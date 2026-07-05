@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import type { Response, Request } from 'express';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
 
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -28,13 +29,14 @@ export class AuthController {
     
     const tokens = await this.authService.login(user);
 
-    // Set HTTP-only cookies
+    // HTTP-only SESSION cookies (no maxAge): the session lasts as long as the
+    // browser is open and clears when it closes — never on a timer. The access
+    // JWT still expires (15m) but is auto-refreshed while the tab stays open.
     res.cookie('access_token', tokens.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 15 * 60 * 1000, // 15m
     });
 
     res.cookie('refresh_token', tokens.refreshToken, {
@@ -42,10 +44,27 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/api/auth/refresh',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
     });
 
     return { message: 'Logged in successfully', user };
+  }
+
+  // Request a password-reset link. Always returns the same message so it can't
+  // be used to probe which emails have accounts. Tightly rate-limited.
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: ForgotPasswordDto) {
+    await this.authService.requestPasswordReset(body.email);
+    return {
+      message: 'If an account exists for that email, a reset link is on its way.',
+    };
+  }
+
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Post('reset-password')
+  async resetPassword(@Body() body: ResetPasswordDto) {
+    await this.authService.resetPassword(body.token, body.password);
+    return { message: 'Password updated. You can now log in.' };
   }
 
   @UseGuards(JwtRefreshGuard)
@@ -60,7 +79,6 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 15 * 60 * 1000, // 15m
     });
 
     res.cookie('refresh_token', tokens.refreshToken, {
@@ -68,7 +86,6 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/api/auth/refresh',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
     });
 
     return { message: 'Token refreshed successfully' };

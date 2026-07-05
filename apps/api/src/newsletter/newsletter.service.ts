@@ -1,20 +1,34 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '@repo/database';
 
 @Injectable()
 export class NewsletterService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsService,
+  ) {}
 
   async subscribe(email: string) {
     const existing = await this.prisma.newsletterSubscriber.findUnique({ where: { email } });
     if (existing && existing.status === 'ACTIVE') {
       throw new ConflictException('Email already subscribed');
     }
-    return this.prisma.newsletterSubscriber.upsert({
+    const subscriber = await this.prisma.newsletterSubscriber.upsert({
       where: { email },
       update: { status: 'ACTIVE' },
       create: { email },
     });
+
+    void this.notifications.create({
+      type: NotificationType.NEWSLETTER,
+      title: 'New newsletter subscriber',
+      body: email,
+      link: '/admin/newsletter',
+    });
+
+    return subscriber;
   }
 
   async findAll(params: { page?: number; limit?: number } = {}) {

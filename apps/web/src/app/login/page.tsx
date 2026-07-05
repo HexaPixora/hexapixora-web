@@ -54,6 +54,9 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium">Password</label>
+                <a href="/forgot-password" className="text-xs text-primary hover:underline">
+                  Forgot password?
+                </a>
               </div>
               <Input type="password" placeholder="••••••••" {...register("password")} required />
             </div>

@@ -77,6 +77,98 @@ export class MailService {
     }
   }
 
+  // Shared layout for a transactional "click this button" email. `intro` may
+  // contain pre-escaped inline HTML; `url` is a trusted internal magic link.
+  private actionEmail(opts: {
+    heading: string;
+    intro: string;
+    buttonLabel: string;
+    url: string;
+    footnote?: string;
+  }): string {
+    const { heading, intro, buttonLabel, url, footnote } = opts;
+    return `
+      <div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:560px;margin:0 auto;line-height:1.6;color:#111;">
+        <h2 style="margin:0 0 12px;">${this.escape(heading)}</h2>
+        <p style="color:#333;margin:0 0 8px;">${intro}</p>
+        <p style="margin:24px 0;">
+          <a href="${url}" style="display:inline-block;background:#1074e0;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;">${this.escape(buttonLabel)}</a>
+        </p>
+        <p style="color:#888;font-size:13px;margin:0 0 4px;">Or paste this link into your browser:</p>
+        <p style="margin:0 0 16px;"><a href="${url}" style="color:#1074e0;word-break:break-all;font-size:13px;">${url}</a></p>
+        ${footnote ? `<p style="color:#999;font-size:12px;">${this.escape(footnote)}</p>` : ''}
+      </div>`;
+  }
+
+  /** Invite a new team member to set their password and join. */
+  async sendInvite(params: {
+    to: string;
+    name?: string | null;
+    url: string;
+    siteName: string;
+    inviterName?: string | null;
+  }): Promise<boolean> {
+    const { to, name, url, siteName, inviterName } = params;
+    const who = inviterName ? this.escape(inviterName) : `The ${this.escape(siteName)} team`;
+    const greeting = name ? ` ${this.escape(name)},` : '';
+    return this.send({
+      to,
+      subject: `Your invitation to ${siteName}`,
+      html: this.actionEmail({
+        heading: `You've been invited to ${siteName}`,
+        intro: `Hi${greeting} ${who} has invited you to join the ${this.escape(siteName)} admin. Click below to accept and set your password.`,
+        buttonLabel: 'Accept invite',
+        url,
+        footnote: 'This invite link expires in 7 days. If you weren’t expecting this, you can ignore this email.',
+      }),
+    });
+  }
+
+  /** Password-reset magic link. */
+  async sendPasswordReset(params: {
+    to: string;
+    name?: string | null;
+    url: string;
+    siteName: string;
+  }): Promise<boolean> {
+    const { to, name, url, siteName } = params;
+    const first = this.escape((name || '').split(' ')[0] || 'there');
+    return this.send({
+      to,
+      subject: `Reset your ${siteName} password`,
+      html: this.actionEmail({
+        heading: 'Reset your password',
+        intro: `Hi ${first}, we received a request to reset your ${this.escape(siteName)} password. Click below to choose a new one.`,
+        buttonLabel: 'Reset password',
+        url,
+        footnote:
+          'This link expires in 1 hour. If you didn’t request this, you can safely ignore this email — your password won’t change.',
+      }),
+    });
+  }
+
+  /** Verify a requested email-address change (sent to the NEW address). */
+  async sendEmailChangeVerification(params: {
+    to: string;
+    name?: string | null;
+    url: string;
+    siteName: string;
+  }): Promise<boolean> {
+    const { to, name, url, siteName } = params;
+    const first = this.escape((name || '').split(' ')[0] || 'there');
+    return this.send({
+      to,
+      subject: `Confirm your new email for ${siteName}`,
+      html: this.actionEmail({
+        heading: 'Confirm your new email',
+        intro: `Hi ${first}, confirm that you want to use this address for your ${this.escape(siteName)} account by clicking below.`,
+        buttonLabel: 'Confirm email',
+        url,
+        footnote: 'This link expires in 1 hour. If you didn’t request this change, you can ignore this email.',
+      }),
+    });
+  }
+
   /** Internal alert to the team that a new lead arrived. */
   async sendLeadNotification(params: {
     lead: LeadEmailData;

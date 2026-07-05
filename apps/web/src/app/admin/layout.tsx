@@ -14,6 +14,7 @@ import { ConfirmProvider } from "@/components/admin/confirm-dialog";
 import { siteUrl } from "@/lib/site-url";
 import { useIsAdmin } from "@/stores/use-auth-store";
 import { useChatUnread } from "@/lib/use-chat-unread";
+import { NotificationBell } from "@/components/admin/notification-bell";
 
 // Each item may declare a `permission` (section key) — shown only to admins or
 // team members granted that section — or `adminOnly` for admin-exclusive pages.
@@ -173,15 +174,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* User footer */}
       <div className="border-t p-3">
-        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/40 transition-colors">
-          <div className="h-8 w-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-semibold flex-shrink-0">
-            {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.name || "Admin"}</p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-          </div>
-          <button onClick={logout} className="text-muted-foreground hover:text-destructive transition-colors" title="Logout">
+        <div className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted/40">
+          <a href="/admin/profile" className="flex min-w-0 flex-1 items-center gap-3" title="Manage your profile">
+            <div className="h-8 w-8 flex-shrink-0 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-semibold">
+              {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{user?.name || "Admin"}</p>
+              <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+            </div>
+          </a>
+          <button onClick={logout} className="text-muted-foreground transition-colors hover:text-destructive" title="Logout">
             <LogOut size={15} />
           </button>
         </div>
@@ -229,6 +232,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               )}
             </nav>
           </div>
+          <NotificationBell enabled={!loading} />
           <a
             href={siteUrl()}
             target="_blank"

@@ -5,11 +5,15 @@ import { ChatService } from './chat.service';
 import { ChatAiService } from './chat-ai.service';
 import { ChatGateway } from './chat.gateway';
 import { env } from '../config/env';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   // JwtModule is used by the gateway to authenticate agent socket connections
   // from the access_token cookie.
-  imports: [JwtModule.register({ secret: env.jwtAccessSecret })],
+  imports: [
+    JwtModule.register({ secret: env.jwtAccessSecret }),
+    NotificationsModule,
+  ],
   controllers: [ChatController],
   providers: [ChatService, ChatAiService, ChatGateway],
 })
