@@ -16,13 +16,11 @@ import MediaField from "@/components/admin/media-field";
 import { CategorySelect } from "@/components/admin/category-select";
 import { StatusControl, ContentStatus } from "@/components/admin/status-control";
 import { StatusBadge } from "@/components/admin/status-badge";
-import { getDraftPreviewUrl } from "@/lib/preview-link";
 import { toast } from "sonner";
 import {
   ArrowLeft, Save, Globe, Eye, FileText,
   Image as ImageIcon, Settings, Calendar,
   Search, ChevronDown, X, Sparkles, CheckCircle2,
-  ExternalLink
 } from "lucide-react";
 
 const schema = z.object({
@@ -70,8 +68,6 @@ export default function EditBlogPage() {
     resolver: zodResolver(schema),
     defaultValues: { tags: [], categoryIds: [], status: "DRAFT" },
   });
-
-  const [previewBusy, setPreviewBusy] = useState(false);
 
   const title = watch("title");
   const thumbnail = watch("thumbnail");
@@ -159,37 +155,6 @@ export default function EditBlogPage() {
     }
   };
 
-  // Save the current form (without leaving) so the preview reflects latest edits.
-  const resolvePreviewUrl = async (): Promise<string | null> => {
-    try {
-      await persist(getValues());
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Save failed — fix errors before previewing");
-      return null;
-    }
-    try {
-      const url = await getDraftPreviewUrl(`/blog/${getValues("slug")}`);
-      return `${url}&_=${Date.now()}`;
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || err.message || "Preview unavailable");
-      return null;
-    }
-  };
-
-  const openPreviewTab = async () => {
-    // Open the tab synchronously inside the click so the browser's popup blocker
-    // allows it (opening it after the save/token awaits below gets blocked).
-    const win = window.open("", "_blank");
-    if (!win) {
-      toast.error("Please allow pop-ups for this site to open the preview.");
-      return;
-    }
-    setPreviewBusy(true);
-    const url = await resolvePreviewUrl();
-    setPreviewBusy(false);
-    if (url) win.location.href = url;
-    else win.close();
-  };
 
   if (loading) {
     return (
@@ -231,9 +196,6 @@ export default function EditBlogPage() {
         <div className="flex items-center gap-3">
           <Button variant="ghost" type="button" onClick={() => router.push("/admin/blogs")} className="rounded-xl font-medium">
             Cancel
-          </Button>
-          <Button variant="outline" type="button" onClick={openPreviewTab} disabled={previewBusy || isSubmitting} className="rounded-xl font-semibold">
-            <ExternalLink size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Preview"}
           </Button>
           <Button
             type="submit"

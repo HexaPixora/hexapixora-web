@@ -7,7 +7,6 @@ import {
   Put,
   Param,
   Delete,
-  Headers,
   UseGuards,
 } from '@nestjs/common';
 import { PagesService } from './pages.service';
@@ -15,7 +14,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { CreatePageDto, UpdatePageDto } from './dto/page.dto';
-import { hasPreviewAccess } from '../common/preview.util';
 
 @Controller('pages')
 export class PagesController {
@@ -42,28 +40,21 @@ export class PagesController {
   // Public — the page designated as the site home (rendered at "/"). Declared
   // before ":idOrSlug" so "homepage" isn't swallowed as a slug.
   @Get('homepage')
-  async findHomepage(@Headers('x-preview-token') previewToken?: string) {
-    const page = await this.pagesService.findHomepage(hasPreviewAccess(previewToken));
+  async findHomepage() {
+    const page = await this.pagesService.findHomepage();
     return { data: page };
   }
 
-  // Public — the live site renders pages by slug. Only published pages are
-  // returned unless the request carries a valid preview token (Draft Mode).
+  // Public — the live site renders pages by slug. Only published pages are returned.
   @Get()
-  async findAll(@Headers('x-preview-token') previewToken?: string) {
-    const pages = await this.pagesService.findAll(hasPreviewAccess(previewToken));
+  async findAll() {
+    const pages = await this.pagesService.findAll();
     return { data: pages };
   }
 
   @Get(':idOrSlug')
-  async findOne(
-    @Param('idOrSlug') idOrSlug: string,
-    @Headers('x-preview-token') previewToken?: string,
-  ) {
-    const page = await this.pagesService.findOne(
-      idOrSlug,
-      hasPreviewAccess(previewToken),
-    );
+  async findOne(@Param('idOrSlug') idOrSlug: string) {
+    const page = await this.pagesService.findOne(idOrSlug);
     return { data: page };
   }
 

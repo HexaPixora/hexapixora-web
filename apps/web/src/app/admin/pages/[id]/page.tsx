@@ -8,14 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2, ExternalLink } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2 } from "lucide-react";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import MediaField from "@/components/admin/media-field";
 import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { getDraftPreviewUrl } from "@/lib/preview-link";
 import { StatusControl, ContentStatus } from "@/components/admin/status-control";
 import { useUnsavedChanges } from "@/lib/use-unsaved-changes";
 import { useHasPermission } from "@/stores/use-auth-store";
@@ -60,8 +59,6 @@ export default function CustomPageBuilderPage() {
   const [activeConfigId, setActiveConfigId] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<Record<string, any>>({});
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
-
-  const [previewBusy, setPreviewBusy] = useState(false);
 
   const activeSection = sections.find(s => s.id === activeConfigId);
   const activeModuleDef = activeSection ? MODULES[activeSection.type] : null;
@@ -175,36 +172,6 @@ export default function CustomPageBuilderPage() {
     }
   };
 
-  // Build a Draft Mode preview URL, saving first so the render reflects the
-  // latest edits (the iframe/tab shows server-rendered draft content).
-  const resolvePreviewUrl = async (): Promise<string | null> => {
-    if (!pageData) return null;
-    if (isDirty && !(await save({ silent: true }))) return null;
-    try {
-      const url = await getDraftPreviewUrl(`/${pageData.slug}`);
-      // Cache-bust so re-opening forces a fresh navigation.
-      return `${url}&_=${Date.now()}`;
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || err.message || "Preview unavailable");
-      return null;
-    }
-  };
-
-  const openPreviewTab = async () => {
-    // Open the tab synchronously inside the click so the browser's popup blocker
-    // allows it (opening it after the save/token awaits below gets blocked).
-    const win = window.open("", "_blank");
-    if (!win) {
-      toast.error("Please allow pop-ups for this site to open the preview.");
-      return;
-    }
-    setPreviewBusy(true);
-    const url = await resolvePreviewUrl();
-    setPreviewBusy(false);
-    if (url) win.location.href = url;
-    else win.close();
-  };
-
   const removeSection = async (sid: string) => {
     const ok = await confirm({
       title: "Remove module?",
@@ -261,9 +228,6 @@ export default function CustomPageBuilderPage() {
               <Plus size={16} className="mr-2" /> Add Module
             </Button>
           )}
-          <Button variant="outline" onClick={openPreviewTab} disabled={previewBusy} className="bg-background shadow-sm hover:border-primary">
-            <ExternalLink size={16} className="mr-2" /> {previewBusy ? "Opening..." : "Preview"}
-          </Button>
           {canManage && (
             <Button onClick={() => save()} disabled={saving} className="shadow-md">
               {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Page"}
