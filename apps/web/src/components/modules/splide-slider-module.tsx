@@ -69,7 +69,7 @@ export default function SplideSliderModule({ config }: { config?: SplideSliderPr
 
   return (
     <section className="py-20 bg-background overflow-hidden">
-      <div className="container max-w-7xl mx-auto px-4">
+      <div className="container px-4">
         {(heading || subheading) && (
           <div className="mb-12 text-center max-w-3xl mx-auto space-y-3">
             {heading && <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">{heading}</h2>}

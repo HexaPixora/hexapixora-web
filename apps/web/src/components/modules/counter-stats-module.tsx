@@ -15,11 +15,13 @@ export default function CounterStatsModule({ config }: { config?: CounterStatsPr
     if (!root.current || items.length === 0) return;
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
+      gsap.set(".stat-card", { opacity: 0, y: 28 });
       ScrollTrigger.create({
         trigger: root.current,
         start: "top 80%",
         once: true,
         onEnter: () => {
+          gsap.to(".stat-card", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", stagger: 0.1, overwrite: true });
           items.forEach((s: any, i: number) => {
             const el = valueEls.current[i];
             if (!el) return;
@@ -48,7 +50,10 @@ export default function CounterStatsModule({ config }: { config?: CounterStatsPr
   if (items.length === 0) return null;
 
   return (
-    <section ref={root} className="py-20 md:py-28 bg-background">
+    <section ref={root} className="relative isolate overflow-hidden py-20 md:py-28">
+      {/* Soft brand-blue aurora for depth. */}
+      <div aria-hidden className="pointer-events-none absolute left-[20%] top-[20%] -z-10 h-[32vh] w-[50vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.10)] blur-[90px]" />
+
       <div className="container">
         {(heading || subheading) && (
           <div className="text-center max-w-2xl mx-auto mb-14">
@@ -57,13 +62,16 @@ export default function CounterStatsModule({ config }: { config?: CounterStatsPr
           </div>
         )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {items.map((s: any, i: number) => (
-            <div key={i} className="text-center">
-              <div className="text-4xl md:text-6xl font-bold tracking-tight text-primary">
+            <div
+              key={i}
+              className="stat-card group relative rounded-2xl border border-white/12 bg-white/[0.04] p-6 text-center shadow-lg ring-1 ring-inset ring-white/10 transition-all duration-300 hover:-translate-y-1 hover:ring-white/25 md:p-8"
+            >
+              <div className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-4xl font-bold leading-[1.4] tracking-tight text-transparent md:text-6xl">
                 <span ref={(el) => { valueEls.current[i] = el; }}>0{s.suffix || ""}</span>
               </div>
-              {s.label && <p className="mt-2 text-sm md:text-base text-muted-foreground">{s.label}</p>}
+              {s.label && <p className="mt-2 text-sm text-muted-foreground md:text-base">{s.label}</p>}
             </div>
           ))}
         </div>

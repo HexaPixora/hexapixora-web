@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scrollytellingSchema, ScrollytellingProps } from "@/lib/module-schemas/scrollytelling-schema";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 
 export default function ScrollytellingModule({ config }: { config?: ScrollytellingProps }) {
   const { heading, steps } = scrollytellingSchema.parse(config || {});
@@ -50,7 +51,7 @@ export default function ScrollytellingModule({ config }: { config?: Scrollytelli
       <div className="container grid md:grid-cols-2 gap-10">
         {/* Sticky media (desktop) */}
         <div className="hidden md:block">
-          <div className="sticky top-24 relative h-[70vh] rounded-2xl overflow-hidden border bg-muted/30">
+          <div className="sticky top-24 relative aspect-[1/1] rounded-2xl overflow-hidden shadow-[0_24px_60px_-18px_rgba(0,0,0,0.6)]">
             {items.map((s: any, i: number) =>
               s.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -58,11 +59,12 @@ export default function ScrollytellingModule({ config }: { config?: Scrollytelli
                   key={i}
                   src={s.image}
                   alt=""
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-0"}`}
+                  className={`absolute inset-0 aspect-[1/1] p-4 object-cover transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-0"}`}
                 />
               ) : null
             )}
-            <div className="absolute bottom-4 left-4 text-6xl font-bold text-white/80 drop-shadow">
+            <LiquidGlass tintClass="to-primary-blue/60" />
+            <div className="absolute bottom-4 left-4 text-6xl font-bold text-white drop-shadow-lg">
               {String(active + 1).padStart(2, "0")}
             </div>
           </div>
@@ -77,10 +79,12 @@ export default function ScrollytellingModule({ config }: { config?: Scrollytelli
               className="min-h-[70vh] flex flex-col justify-center py-10"
             >
               {s.image && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={s.image} alt="" className="md:hidden w-full rounded-xl mb-6 border" />
+                <div className="md:hidden relative mb-6 overflow-hidden rounded-xl border border-white/15 shadow-lg">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={s.image} alt="" className="w-full" />
+                  <LiquidGlass tintClass="to-primary-blue/60" />
+                </div>
               )}
-              <span className="text-sm font-semibold text-primary mb-2">{String(i + 1).padStart(2, "0")}</span>
               <h3 className="text-2xl md:text-4xl font-bold mb-4">{s.title}</h3>
               <p className="text-muted-foreground text-lg leading-relaxed">{s.text}</p>
             </div>

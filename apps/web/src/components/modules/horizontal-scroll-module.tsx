@@ -5,6 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { horizontalScrollSchema, HorizontalScrollProps } from "@/lib/module-schemas/horizontal-scroll-schema";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 
 export default function HorizontalScrollModule({ config }: { config?: HorizontalScrollProps }) {
   const { heading, subheading, aspectRatio, items } = horizontalScrollSchema.parse(config || {});
@@ -78,27 +79,38 @@ export default function HorizontalScrollModule({ config }: { config?: Horizontal
   }
 
   return (
-    <section ref={root} className="relative h-screen overflow-hidden bg-muted/30">
-      <div className="absolute top-0 inset-x-0 z-10 py-16 px-6 text-center pointer-events-none">
-        <h2 className="text-3xl md:text-5xl font-bold tracking-tight">{heading}</h2>
-        {subheading && <p className="mt-2 text-muted-foreground">{subheading}</p>}
+    <section ref={root} className="relative isolate h-screen overflow-hidden ">
+      {/* Soft brand-blue aurora for depth behind the glass cards. */}
+      <div aria-hidden className="pointer-events-none absolute top-0 -z-10 h-[55vh] w-[55vh] -translate-x-1/2 rounded-full bg-primary-blue/15 blur-3xl" />
+
+      <div className="pointer-events-none absolute inset-x-0 px-6  text-center md:pt-16">
+        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-5xl">{heading}</h2>
+        {subheading && <p className="mt-2 text-sm text-muted-foreground md:text-base">{subheading}</p>}
       </div>
 
-      <div ref={track} className="flex items-center gap-6 h-full px-[6vw] will-change-transform">
+      <div ref={track} className="flex h-full items-center gap-4 px-6 will-change-transform md:gap-6 md:px-[6vw]">
         {cards.map((card: any, i: number) => {
           const inner = (
-            <div className={`relative h-[46vh] sm:h-[52vh] md:h-[58vh] ${ratio} rounded-md overflow-hidden`}>
+            <div className={`group relative h-[40vh] md:h-[50vh] ${ratio} overflow-hidden rounded-3xl border border-white/20 shadow-[0_24px_60px_-18px_rgba(0,0,0,0.6)]`}>
+              {/* Sharp image — NO blur over the photo. */}
               {card.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={card.image} alt={card.title} className="absolute p-8 inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" />
+                <img src={card.image} alt={card.title} className="absolute inset-0 h-full p-4 object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]" />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-muted" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/40 to-white/[0.06]" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-primary-blue/70 via-primary-blue/10 to-transparent" />
-              <div className="absolute bottom-0 p-6 text-white">
-                {card.subtitle && <p className="text-xs uppercase tracking-widest opacity-80 mb-1">{card.subtitle}</p>}
-                <h3 className="text-2xl font-bold">{card.title}</h3>
-              </div>
+
+              {/* Liquid-glass light layers (shared component; no blur over the photo). */}
+              <LiquidGlass tintClass="to-primary-blue/60" />
+
+              {/* Caption on the tinted base — a sibling of the light layers, so it
+                  stays crisp on mobile. */}
+              {(card.title || card.subtitle) && (
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  {card.subtitle && <p className="mb-1 text-[10px] font-medium uppercase tracking-widest text-white/80 md:text-[11px]">{card.subtitle}</p>}
+                  {card.title && <h3 className="text-lg font-bold text-white drop-shadow md:text-2xl">{card.title}</h3>}
+                </div>
+              )}
             </div>
           );
           return card.link ? (
