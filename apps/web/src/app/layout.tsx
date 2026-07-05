@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { apiUrl } from "@/lib/api-url";
-import { SITE_URL } from "@/lib/site-url";
+import { SITE_URL, absoluteMediaUrl } from "@/lib/site-url";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,16 +32,40 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   const siteName = settings?.siteName || "HexaPixora";
+  const defaultTitle = settings?.tagline
+    ? `${siteName} | ${settings.tagline}`
+    : `${siteName} | Modern Digital Agency`;
+  const description = settings?.tagline || "A premium marketing and development agency.";
+  // Site-wide default share image (falls back to the logo) so pages/blogs that
+  // don't set their own ogImage still preview with SOMETHING. Absolutized so
+  // link crawlers on every platform can fetch it.
+  const defaultOgImage = settings?.logoUrl ? absoluteMediaUrl(settings.logoUrl) : undefined;
 
   return {
     // Resolves relative OG/canonical URLs to absolute ones across all pages.
     metadataBase: new URL(SITE_URL),
-    title: settings?.tagline
-      ? `${siteName} | ${settings.tagline}`
-      : `${siteName} | Modern Digital Agency`,
-    description: settings?.tagline || "A premium marketing and development agency.",
+    title: defaultTitle,
+    description,
     // Custom favicon from branding, falling back to the bundled default.
     icons: { icon: settings?.faviconUrl || "/favicon.ico" },
+    // Default Open Graph / Twitter so shared links always carry site identity +
+    // an image. Individual pages/blogs override these when they set their own.
+    openGraph: {
+      type: "website",
+      siteName,
+      url: SITE_URL,
+      title: defaultTitle,
+      description,
+      ...(defaultOgImage
+        ? { images: [{ url: defaultOgImage, width: 1200, height: 630, alt: siteName }] }
+        : {}),
+    },
+    twitter: {
+      card: defaultOgImage ? "summary_large_image" : "summary",
+      title: defaultTitle,
+      description,
+      ...(defaultOgImage ? { images: [defaultOgImage] } : {}),
+    },
     // Installed (home-screen) mode: launch standalone/edge-to-edge with the
     // status bar translucent so page content flows underneath it — the safe-area
     // insets in the header/footer keep everything clear of the notch.

@@ -1,9 +1,8 @@
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
-import PreviewBanner from "@/components/public/preview-banner";
 import HeroModule from "@/components/modules/hero-module"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@/lib/cms-fetch";
-import { absoluteMediaUrl } from "@/lib/site-url";
+import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 
 // Render live on every request so admin edits (and scheduled publishes) appear
 // immediately. On-demand tag revalidation proved unreliable on Vercel's edge for
@@ -42,19 +41,25 @@ export async function generateMetadata() {
   const title = page.metaTitle || page.title;
   const description = page.metaDescription || undefined;
   const ogImage = page.ogImage ? absoluteMediaUrl(page.ogImage) : undefined;
+  // With its own image, emit a full OG/Twitter block (overrides the layout
+  // default). Without one, omit OG so the site-wide default image is inherited.
+  if (!ogImage) return { title, description, alternates: { canonical: "/" } };
   return {
     title,
     description,
+    alternates: { canonical: "/" },
     openGraph: {
+      type: "website",
       title,
       description,
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      url: SITE_URL,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     twitter: {
-      card: ogImage ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: ogImage ? [ogImage] : undefined,
+      images: [ogImage],
     },
   };
 }
@@ -84,7 +89,6 @@ export default async function HomePage() {
 
         <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} />
       </div>
-      <PreviewBanner path="/" />
     </SiteLayout>
   );
 }

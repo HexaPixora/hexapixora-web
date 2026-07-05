@@ -2,9 +2,8 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
-import PreviewBanner from "@/components/public/preview-banner";
 import { cmsFetch, readJson } from "@/lib/cms-fetch";
-import { absoluteMediaUrl } from "@/lib/site-url";
+import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 
 // Render live on every request so admin edits (and scheduled publishes) appear
 // immediately, instead of relying on Vercel edge-cache invalidation that proved
@@ -47,20 +46,28 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   // OG/Twitter images must be absolute; absoluteMediaUrl passes Supabase URLs
   // through and prefixes any legacy app-relative ones.
   const ogImage = page.ogImage ? absoluteMediaUrl(page.ogImage) : undefined;
+  const canonical = `/${params.slug}`;
+
+  // With its own image, emit a full OG/Twitter block (overrides the layout
+  // default). Without one, omit OG so the site-wide default image is inherited.
+  if (!ogImage) return { title, description, alternates: { canonical } };
 
   return {
     title,
     description,
+    alternates: { canonical },
     openGraph: {
+      type: "website",
       title,
       description,
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      url: siteUrl(canonical),
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     twitter: {
-      card: ogImage ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: ogImage ? [ogImage] : undefined,
+      images: [ogImage],
     },
   };
 }
@@ -87,7 +94,6 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
         
         <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} />
       </div>
-      <PreviewBanner path={`/${page.slug}`} />
     </SiteLayout>
   );
 }

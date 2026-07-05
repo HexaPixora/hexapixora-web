@@ -8,7 +8,6 @@ import { apiUrl } from "@/lib/api-url";
 import { cmsFetch } from "@/lib/cms-fetch";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
-import PreviewBanner from "@/components/public/preview-banner";
 
 async function getBlogPost(slug: string) {
   try {
@@ -41,16 +40,36 @@ export async function generateMetadata(props: BlogPostPageProps): Promise<Metada
   const post = await getBlogPost(params.slug);
   if (!post) return { title: "Article Not Found | HexaPixora" };
   
-  return {
+  const canonical = `/blog/${post.slug}`;
+  const ogDesc = post.metaDescription || post.excerpt || undefined;
+  // Blog images must be absolutized too (this was emitting a raw relative URL).
+  const rawImage = post.ogImage || post.thumbnail;
+  const ogImage = rawImage ? absoluteMediaUrl(rawImage) : undefined;
+
+  const base = {
     title: `${post.metaTitle || post.title} | HexaPixora Blog`,
     description: post.metaDescription || post.excerpt || `Read our latest article: ${post.title}`,
     keywords: post.metaKeywords || undefined,
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: { canonical },
+  };
+
+  // Own image → full article OG/Twitter block; otherwise inherit layout default.
+  if (!ogImage) return base;
+  return {
+    ...base,
     openGraph: {
+      type: "article",
       title: post.title,
-      description: post.metaDescription || post.excerpt || undefined,
-      images: post.ogImage || post.thumbnail ? [{ url: post.ogImage || post.thumbnail }] : undefined,
-    }
+      description: ogDesc,
+      url: siteUrl(canonical),
+      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: ogDesc,
+      images: [ogImage],
+    },
   };
 }
 
@@ -92,7 +111,6 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
     <SiteLayout showHeader={true} showFooter={true}>
       <JsonLd data={articleLd} />
       <JsonLd data={breadcrumbLd} />
-      <PreviewBanner path={`/blog/${post.slug}`} />
       <article className="flex-1 bg-background relative overflow-hidden pb-24">
         {/* Top Gradient background */}
         <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-primary/5 via-primary/0 to-transparent pointer-events-none" />
