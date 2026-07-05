@@ -108,10 +108,10 @@ export class BlogsService {
     return blog;
   }
 
-  // Public render path — hide unpublished posts unless this is a preview request.
-  async findBySlug(slug: string, preview = false) {
+  // Public render path — only published posts.
+  async findBySlug(slug: string) {
     const blog = await this.prisma.blog.findUnique({ where: { slug }, include: { categories: true } });
-    if (!blog || (!preview && !blog.isPublished)) {
+    if (!blog || !blog.isPublished) {
       throw new NotFoundException('Blog post not found');
     }
     return blog;

@@ -9,11 +9,10 @@ export class PagesService {
 
   constructor(private prisma: PrismaService) {}
 
-  // Public listing — only published pages, unless a valid preview request asks
-  // for everything (Draft Mode).
-  async findAll(preview = false) {
+  // Public listing — only published pages.
+  async findAll() {
     return this.prisma.page.findMany({
-      where: preview ? undefined : { status: ContentStatus.PUBLISHED },
+      where: { status: ContentStatus.PUBLISHED },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -23,11 +22,11 @@ export class PagesService {
     return this.prisma.page.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
-  async findOne(idOrSlug: string, preview = false) {
+  async findOne(idOrSlug: string) {
     const page = await this.prisma.page.findFirst({
       where: {
         OR: [{ id: idOrSlug }, { slug: idOrSlug }],
-        ...(preview ? {} : { status: ContentStatus.PUBLISHED }),
+        status: ContentStatus.PUBLISHED,
       },
     });
 
@@ -46,13 +45,13 @@ export class PagesService {
     return page;
   }
 
-  // The page designated as the site home (rendered at "/"). Respects publish
-  // status unless this is a preview request. Returns null when none is set.
-  async findHomepage(preview = false) {
+  // The page designated as the site home (rendered at "/"). Only when published.
+  // Returns null when none is set.
+  async findHomepage() {
     return this.prisma.page.findFirst({
       where: {
         isHomepage: true,
-        ...(preview ? {} : { status: ContentStatus.PUBLISHED }),
+        status: ContentStatus.PUBLISHED,
       },
     });
   }
