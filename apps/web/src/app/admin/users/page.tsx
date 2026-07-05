@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, ShieldCheck, User as UserIcon, Mail, Clock } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { useAuthStore, useIsAdmin } from "@/stores/use-auth-store";
 import { SECTIONS } from "@/lib/permissions";
@@ -23,6 +23,7 @@ type AdminUser = {
   email: string;
   name?: string | null;
   role: "SUPER_ADMIN" | "ADMIN" | "TEAM_MEMBER";
+  status?: "ACTIVE" | "INVITED";
   permissions: string[];
   createdAt: string;
 };
@@ -113,11 +114,11 @@ export default function UsersAdminPage() {
   };
 
   const save = async () => {
-    if (!editingId && (!form.email || !form.password)) {
-      toast.error("Email and password are required");
+    if (!editingId && !form.email) {
+      toast.error("Email is required");
       return;
     }
-    if (!editingId && form.password.length < 8) {
+    if (editingId && form.password && form.password.length < 8) {
       toast.error("Password must be at least 8 characters");
       return;
     }
@@ -132,14 +133,15 @@ export default function UsersAdminPage() {
         await apiClient.patch(`/users/${editingId}`, payload);
         toast.success("Member updated");
       } else {
-        await apiClient.post("/users", {
+        // Invite-only onboarding: no password here — the invitee sets their own
+        // via the emailed link.
+        await apiClient.post("/users/invite", {
           email: form.email,
           name: form.name || undefined,
-          password: form.password,
           role: form.role,
           permissions,
         });
-        toast.success("Member created");
+        toast.success("Invitation sent");
       }
       setDialogOpen(false);
       fetchUsers();
@@ -147,6 +149,15 @@ export default function UsersAdminPage() {
       toast.error(err.response?.data?.message || "Save failed");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const resendInvite = async (u: AdminUser) => {
+    try {
+      await apiClient.post(`/users/${u.id}/resend-invite`);
+      toast.success("Invite resent");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Couldn't resend invite");
     }
   };
 
@@ -169,9 +180,9 @@ export default function UsersAdminPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Team Members" description="Create members and control which sections they can access.">
+      <PageHeader title="Team Members" description="Invite members and control which sections they can access.">
         <Button onClick={openCreate}>
-          <Plus size={16} className="mr-2" /> Add Member
+          <Plus size={16} className="mr-2" /> Invite Member
         </Button>
       </PageHeader>
 
@@ -201,7 +212,14 @@ export default function UsersAdminPage() {
                         {(u.name?.[0] || u.email[0] || "?").toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-medium text-foreground">{u.name || "—"}</p>
+                        <p className="flex items-center gap-2 font-medium text-foreground">
+                          {u.name || "—"}
+                          {u.status === "INVITED" && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                              <Clock size={10} /> Pending
+                            </span>
+                          )}
+                        </p>
                         <p className="text-xs text-muted-foreground">{u.email}</p>
                       </div>
                     </div>
@@ -229,6 +247,11 @@ export default function UsersAdminPage() {
                   </TD>
                   <TD align="right">
                     <RowActions>
+                      {u.status === "INVITED" && (
+                        <button onClick={() => resendInvite(u)} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="Resend invite">
+                          <Mail size={15} />
+                        </button>
+                      )}
                       {u.role !== "SUPER_ADMIN" && (
                         <button onClick={() => openEdit(u)} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary" title="Edit">
                           <Pencil size={15} />
@@ -251,7 +274,7 @@ export default function UsersAdminPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Member" : "Add Team Member"}</DialogTitle>
+            <DialogTitle>{editingId ? "Edit Member" : "Invite Team Member"}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
@@ -271,17 +294,20 @@ export default function UsersAdminPage() {
                 placeholder="Full name"
               />
             </Field>
-            <Field
-              label={editingId ? "New Password" : "Password"}
-              hint={editingId ? "Leave blank to keep the current password." : undefined}
-            >
-              <Input
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="Min. 8 characters"
-              />
-            </Field>
+            {editingId ? (
+              <Field label="New Password" hint="Leave blank to keep the current password.">
+                <Input
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  placeholder="Min. 8 characters"
+                />
+              </Field>
+            ) : (
+              <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                We&apos;ll email an invitation link — the member sets their own password when they accept.
+              </p>
+            )}
             <Field label="Role">
               <select
                 value={form.role}
@@ -331,7 +357,7 @@ export default function UsersAdminPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={save} disabled={saving}>
-              {saving ? "Saving..." : editingId ? "Save Changes" : "Create Member"}
+              {saving ? "Saving..." : editingId ? "Save Changes" : "Send Invite"}
             </Button>
           </DialogFooter>
         </DialogContent>

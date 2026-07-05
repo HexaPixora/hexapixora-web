@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { randomUUID } from 'crypto';
-import { ChatRole, ConversationStatus, Role } from '@repo/database';
+import { ChatRole, ConversationStatus, NotificationType, Role } from '@repo/database';
 
 export interface ChatUser {
   id: string;
@@ -15,6 +15,7 @@ export interface ChatUser {
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatAiService, AiMessage } from './chat-ai.service';
 import { ChatGateway } from './chat.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
 import {
   ConversationActionDto,
   StartConversationDto,
@@ -41,6 +42,7 @@ export class ChatService {
     private prisma: PrismaService,
     private ai: ChatAiService,
     private gateway: ChatGateway,
+    private notifications: NotificationsService,
   ) {}
 
   // ---- config ---------------------------------------------------------------
@@ -247,6 +249,18 @@ export class ChatService {
     );
     this.emitStatusToVisitor(id, ConversationStatus.WAITING_AGENT);
     this.gateway.emitToAgents('conversation:updated', await this.summaryById(id));
+
+    // In-app bell: a live visitor is waiting for the team.
+    const convoInfo = await this.prisma.conversation
+      .findUnique({ where: { id }, select: { visitorName: true } })
+      .catch(() => null);
+    void this.notifications.create({
+      type: NotificationType.CHAT_HANDOFF,
+      title: `Live chat: ${convoInfo?.visitorName || 'A visitor'} requested an agent`,
+      body: 'A visitor is waiting to chat with the team.',
+      link: '/admin/chat',
+    });
+
     return { messages: [this.serializeMessage(sys)] };
   }
 

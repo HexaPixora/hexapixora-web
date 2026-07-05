@@ -14,9 +14,12 @@ generator client {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String
+  // Null until an INVITED user accepts their invite and sets a password.
+  password  String?
   name      String?
   role      Role     @default(TEAM_MEMBER)
+  // Account lifecycle: INVITED users can't log in until they accept + set a password.
+  status    UserStatus @default(ACTIVE)
   // Section keys this user may access (e.g. ["blogs","media"]). Ignored for
   // ADMIN/SUPER_ADMIN, who have full access. Drives TEAM_MEMBER capabilities.
   permissions String[] @default([])
@@ -28,12 +31,39 @@ model User {
   assignedConversations Conversation[]
   chatMessages          ChatMessage[]
   chatNotes             ConversationNote[]
+  verificationTokens VerificationToken[]
 }
 
 enum Role {
   SUPER_ADMIN
   ADMIN
   TEAM_MEMBER
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+}
+
+// Single-use magic-link tokens for invites, password resets and email changes.
+model VerificationToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  type      TokenType
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Target address for EMAIL_CHANGE (the pending new email).
+  newEmail  String?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+enum TokenType {
+  INVITE
+  PASSWORD_RESET
+  EMAIL_CHANGE
 }
 
 model Session {
@@ -436,4 +466,30 @@ model ConversationNote {
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])
+}
+
+// ==========================================
+// Admin Notifications (in-app bell feed)
+// ==========================================
+
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  title     String
+  body      String?
+  // Admin deep-link to the related record, e.g. "/admin/leads" or "/admin/chat/123".
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([read])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  LEAD
+  CHAT_HANDOFF
+  CHAT_MESSAGE
+  NEWSLETTER
+  SYSTEM
 }

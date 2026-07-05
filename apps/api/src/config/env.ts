@@ -38,18 +38,19 @@ function list(name: string, devDefault: string[]): string[] {
 export const env = {
   isProd,
   port: parseInt(process.env.PORT ?? '3001', 10),
+  // Public origin of the web/admin app — used to build magic-link URLs (invite,
+  // password reset, email verification) in outgoing emails. Set APP_URL in prod.
+  appUrl: (
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    'http://localhost:3000'
+  ).replace(/\/+$/, ''),
   jwtAccessSecret: required('JWT_ACCESS_SECRET', 'dev_only_access_secret'),
   jwtRefreshSecret: required('JWT_REFRESH_SECRET', 'dev_only_refresh_secret'),
   corsOrigins: list('CORS_ORIGINS', [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
   ]),
-
-  // Shared server-to-server secret that lets the web app's Draft Mode fetch
-  // unpublished/scheduled content for preview. Sent as the `x-preview-token`
-  // header on server-side RSC fetches only — it never reaches the browser. Must
-  // match the web app's PREVIEW_TOKEN. When unset, preview bypass is disabled.
-  previewToken: process.env.PREVIEW_TOKEN ?? '',
 
   // Transactional email (Resend). All optional — when the API key is absent the
   // MailService no-ops with a warning, so lead capture still works without it.

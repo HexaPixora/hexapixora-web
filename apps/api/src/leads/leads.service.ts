@@ -2,6 +2,8 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { env } from '../config/env';
 import { MailService } from '../mail/mail.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '@repo/database';
 
 @Injectable()
 export class LeadsService {
@@ -10,6 +12,7 @@ export class LeadsService {
   constructor(
     private prisma: PrismaService,
     private mail: MailService,
+    private notifications: NotificationsService,
   ) {}
 
   async create(data: any) {
@@ -22,6 +25,14 @@ export class LeadsService {
     }
 
     const created = await this.prisma.lead.create({ data: lead });
+
+    // In-app bell notification (fire-and-forget; never blocks lead capture).
+    void this.notifications.create({
+      type: NotificationType.LEAD,
+      title: `New ${created.type || 'contact'} lead: ${created.name}`,
+      body: created.message || created.email,
+      link: '/admin/leads',
+    });
 
     // Notify the team and acknowledge the prospect. Email must never block or
     // fail lead capture, so this runs after the record is safely persisted and
