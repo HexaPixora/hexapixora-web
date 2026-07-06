@@ -28,14 +28,14 @@ export default async function BlogModule({ config }: { config?: BlogProps }) {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{heading}</h2>
             {subheading && <p className="text-lg text-muted-foreground">{subheading}</p>}
           </div>
-          <Link href="/blog" className="inline-flex items-center font-medium hover:text-primary transition-colors">
-            Read All Articles <ArrowRight className="ml-1 w-4 h-4" />
+          <Link href="/insights" className="inline-flex items-center font-medium hover:text-primary transition-colors">
+            Read All Insights <ArrowRight className="ml-1 w-4 h-4" />
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post: any) => (
-            <Link key={post.id} href={`/blog/${post.slug}`} className="group flex flex-col h-full bg-background border rounded-2xl overflow-hidden hover:shadow-lg transition-all">
+            <Link key={post.id} href={`/insights/${post.categories?.[0]?.slug || "uncategorized"}/${post.slug}`} className="group flex flex-col h-full bg-background border rounded-2xl overflow-hidden hover:shadow-lg transition-all">
               <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                 {post.thumbnail ? (
                   <img 

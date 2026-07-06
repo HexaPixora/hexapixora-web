@@ -108,7 +108,7 @@ export default function SearchBar({
           ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search blogs and pages…"
+          placeholder="Search insights and pages…"
           tabIndex={open ? 0 : -1}
           className={`min-w-0 flex-1 border-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground transition-opacity duration-200 ${
             open ? "opacity-100 delay-100" : "opacity-0"
@@ -142,7 +142,7 @@ export default function SearchBar({
             </p>
           )}
 
-          {blogs.length > 0 && <Group title="Blog" iconSrc={pageIcon.src} items={blogs} onNavigate={close} />}
+          {blogs.length > 0 && <Group title="Insights" iconSrc={pageIcon.src} items={blogs} onNavigate={close} />}
           {pages.length > 0 && <Group title="Pages" iconSrc={globalIcon.src} items={pages} onNavigate={close} />}
 
           {results.length > 0 && (

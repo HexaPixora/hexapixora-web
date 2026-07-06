@@ -29,7 +29,13 @@ export class SearchService {
           isPublished: true,
           OR: [{ title: like }, { excerpt: like }, { content: like }],
         },
-        select: { title: true, slug: true, excerpt: true, content: true },
+        select: {
+          title: true,
+          slug: true,
+          excerpt: true,
+          content: true,
+          categories: { select: { slug: true }, take: 1 },
+        },
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
@@ -50,7 +56,7 @@ export class SearchService {
         type: 'blog' as const,
         title: b.title,
         snippet: makeSnippet(b.excerpt || b.content, q),
-        url: `/blog/${b.slug}`,
+        url: `/insights/${b.categories[0]?.slug || 'uncategorized'}/${b.slug}`,
       })),
       ...pages.map((p) => ({
         type: 'page' as const,

@@ -25,7 +25,7 @@ const navGroups = [
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
       { href: "/admin/pages", label: "Pages", icon: FileText, permission: "pages" },
-      { href: "/admin/blogs", label: "Blog", icon: BookOpen, permission: "blogs" },
+      { href: "/admin/blogs", label: "Insights", icon: BookOpen, permission: "blogs" },
       { href: "/admin/categories", label: "Categories", icon: Tag, permission: "categories" },
       { href: "/admin/media", label: "Media Library", icon: ImageIcon, permission: "media" },
     ],
