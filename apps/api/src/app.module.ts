@@ -14,7 +14,6 @@ import { PortfolioModule } from './portfolio/portfolio.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { CategoriesModule } from './categories/categories.module';
 import { TeamModule } from './team/team.module';
-import { TestimonialsModule } from './testimonials/testimonials.module';
 import { FaqModule } from './faq/faq.module';
 import { MediaModule } from './media/media.module';
 import { LeadsModule } from './leads/leads.module';
@@ -33,7 +32,7 @@ import { TokensModule } from './tokens/tokens.module';
     // Sensitive routes (e.g. login) tighten this further with @Throttle.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     ScheduleModule.forRoot(),
-    AuthModule, UsersModule, RolesModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, CategoriesModule, TeamModule, TestimonialsModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, ChatModule, SearchModule, NotificationsModule, TokensModule],
+    AuthModule, UsersModule, RolesModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, CategoriesModule, TeamModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, ChatModule, SearchModule, NotificationsModule, TokensModule],
   controllers: [AppController],
   providers: [
     AppService,
