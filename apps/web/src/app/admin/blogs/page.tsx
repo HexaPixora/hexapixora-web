@@ -90,7 +90,7 @@ export default function AdminBlogsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Blog Management" description={`${total} posts total`}>
+      <PageHeader title="Insights" description={`${total} posts total`}>
         {canManage && (
           <Button onClick={() => (window.location.href = "/admin/blogs/create")}>
             <Plus size={16} className="mr-2" /> New Post

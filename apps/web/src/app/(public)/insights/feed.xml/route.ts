@@ -26,7 +26,7 @@ async function getSiteName(): Promise<string> {
   return "HexaPixora";
 }
 
-async function getBlogs(): Promise<any[]> {
+async function getInsights(): Promise<any[]> {
   try {
     const res = await fetch(apiUrl("/blogs?published=true&limit=50"), {
       next: { revalidate },
@@ -40,12 +40,12 @@ async function getBlogs(): Promise<any[]> {
 }
 
 export async function GET() {
-  const [siteName, posts] = await Promise.all([getSiteName(), getBlogs()]);
+  const [siteName, posts] = await Promise.all([getSiteName(), getInsights()]);
 
   const items = posts
     .filter((p) => p?.slug)
     .map((p) => {
-      const link = siteUrl(`/blog/${p.slug}`);
+      const link = siteUrl(`/insights/${p.categories?.[0]?.slug || "uncategorized"}/${p.slug}`);
       const date = p.publishDate || p.updatedAt || p.createdAt;
       const pubDate = date ? new Date(date).toUTCString() : undefined;
       return [
@@ -70,11 +70,11 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml(siteName)} Blog</title>
-    <link>${escapeXml(siteUrl("/blog"))}</link>
+    <title>${escapeXml(siteName)} Insights</title>
+    <link>${escapeXml(siteUrl("/insights"))}</link>
     <description>Latest insights on design, development, and digital marketing from ${escapeXml(siteName)}.</description>
     <language>en</language>
-    <atom:link href="${escapeXml(siteUrl("/blog/feed.xml"))}" rel="self" type="application/rss+xml" />
+    <atom:link href="${escapeXml(siteUrl("/insights/feed.xml"))}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>`;

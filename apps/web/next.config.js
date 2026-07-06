@@ -31,6 +31,18 @@ const nextConfig = {
       },
     ];
   },
+  // The blog moved to /insights. Categories are flat (/insights/:cat) and posts
+  // nest under their category (/insights/:cat/:slug). Permanently redirect old
+  // URLs; a bare /insights/:slug (old flat post) is resolved to its canonical
+  // nested URL by the /insights/[category] route itself.
+  async redirects() {
+    return [
+      { source: '/blog', destination: '/insights', permanent: true },
+      { source: '/blog/feed.xml', destination: '/insights/feed.xml', permanent: true },
+      { source: '/category/:slug', destination: '/insights/:slug', permanent: true },
+      { source: '/blog/:slug', destination: '/insights/:slug', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
