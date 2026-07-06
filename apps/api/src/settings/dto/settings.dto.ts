@@ -28,6 +28,13 @@ export class UpdateSettingsDto {
   @IsOptional() @IsString() googleMapsUrl?: string;
   @IsOptional() @IsString() logoUrl?: string;
   @IsOptional() @IsString() faviconUrl?: string;
+
+  // SEO / social-share defaults.
+  @IsOptional() @IsString() @MaxLength(300) seoTitle?: string;
+  @IsOptional() @IsString() @MaxLength(500) seoDescription?: string;
+  @IsOptional() @IsString() @MaxLength(500) seoKeywords?: string;
+  @IsOptional() @IsString() @MaxLength(1000) ogImage?: string;
+
   @IsOptional() @IsString() googleAnalyticsId?: string;
   @IsOptional() @IsString() gtmId?: string;
   @IsOptional() @IsString() metaPixelId?: string;
