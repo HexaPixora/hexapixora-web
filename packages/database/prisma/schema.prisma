@@ -277,7 +277,13 @@ model SiteSetting {
   googleMapsUrl    String?
   logoUrl          String?
   faviconUrl       String?
-  
+
+  // SEO / social-share defaults (site-wide fallbacks; per-page values override).
+  seoTitle         String?
+  seoDescription   String?
+  seoKeywords      String?
+  ogImage          String?
+
   // Analytics
   googleAnalyticsId String?
   gtmId            String?

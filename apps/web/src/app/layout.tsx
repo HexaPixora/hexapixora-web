@@ -32,20 +32,26 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   const siteName = settings?.siteName || "HexaPixora";
-  const defaultTitle = settings?.tagline
-    ? `${siteName} | ${settings.tagline}`
-    : `${siteName} | Modern Digital Agency`;
-  const description = settings?.tagline || "A premium marketing and development agency.";
-  // Site-wide default share image (falls back to the logo) so pages/blogs that
-  // don't set their own ogImage still preview with SOMETHING. Absolutized so
-  // link crawlers on every platform can fetch it.
-  const defaultOgImage = settings?.logoUrl ? absoluteMediaUrl(settings.logoUrl) : undefined;
+  // Global SEO defaults from Settings → SEO, falling back to branding/tagline.
+  const defaultTitle =
+    settings?.seoTitle ||
+    (settings?.tagline
+      ? `${siteName} | ${settings.tagline}`
+      : `${siteName} | Modern Digital Agency`);
+  const description =
+    settings?.seoDescription || settings?.tagline || "A premium marketing and development agency.";
+  const keywords = settings?.seoKeywords || undefined;
+  // Site-wide default share image: the configured SEO OG image, else the logo,
+  // so pages/blogs without their own still preview. Absolutized for crawlers.
+  const rawOgImage = settings?.ogImage || settings?.logoUrl;
+  const defaultOgImage = rawOgImage ? absoluteMediaUrl(rawOgImage) : undefined;
 
   return {
     // Resolves relative OG/canonical URLs to absolute ones across all pages.
     metadataBase: new URL(SITE_URL),
     title: defaultTitle,
     description,
+    keywords,
     // Custom favicon from branding, falling back to the bundled default.
     icons: { icon: settings?.faviconUrl || "/favicon.ico" },
     // Default Open Graph / Twitter so shared links always carry site identity +
