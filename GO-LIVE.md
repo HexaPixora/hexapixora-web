@@ -7,21 +7,21 @@ sections **in order**. Anything marked ⚠️ will break the site if skipped.
 
 ## 0. How the system is wired
 
-| Piece | Runs on | What it is |
-|---|---|---|
-| **Web / Admin** (Next.js) | **Vercel** | The public site + `/admin` dashboard. Deploys on push to `main`. |
-| **API** (NestJS) | **Railway** | Backend: auth, CMS, leads, chat, newsletter, notifications. |
-| **Database** | **Supabase** (Postgres) | All data. |
-| **Media storage** | **Supabase Storage** | Uploaded images (durable across redeploys). |
-| **Transactional email** | **Resend** | Invites, password reset, verify, lead alerts, newsletter. |
-| **Domain / DNS** | **Cloudflare** (recommended) | Your domain + DNS + free email forwarding. |
+| Piece                     | Runs on                      | What it is                                                       |
+| ------------------------- | ---------------------------- | ---------------------------------------------------------------- |
+| **Web / Admin** (Next.js) | **Vercel**                   | The public site + `/admin` dashboard. Deploys on push to `main`. |
+| **API** (NestJS)          | **Railway**                  | Backend: auth, CMS, leads, chat, newsletter, notifications.      |
+| **Database**              | **Supabase** (Postgres)      | All data.                                                        |
+| **Media storage**         | **Supabase Storage**         | Uploaded images (durable across redeploys).                      |
+| **Transactional email**   | **Resend**                   | Invites, password reset, verify, lead alerts, newsletter.        |
+| **Domain / DNS**          | **Cloudflare** (recommended) | Your domain + DNS + free email forwarding.                       |
 
 The web app talks to the API through a same-origin `/api` proxy (a Next.js
 rewrite), so the browser never calls Railway directly.
 
 **On every Railway deploy** the start command automatically runs
 `prisma db push` (applies schema changes) **and** `db:seed` (creates the first
-admin *if* `SEED_ADMIN_PASSWORD` is set). So you rarely run migrations by hand.
+admin _if_ `SEED_ADMIN_PASSWORD` is set). So you rarely run migrations by hand.
 
 ---
 
@@ -63,26 +63,26 @@ You do **not** normally run `prisma db push` yourself — Railway does it on dep
 
 Railway → your **API service → Variables**. Set:
 
-| Variable | Value | Notes |
-|---|---|---|
-| `DATABASE_URL` | Supabase URI (step 2) | ⚠️ Required. |
-| `JWT_ACCESS_SECRET` | long random string | `openssl rand -base64 48` |
-| `JWT_REFRESH_SECRET` | **different** long random string | `openssl rand -base64 48` |
-| `CORS_ORIGINS` | `https://hexapixora.com` | Comma-separate if multiple. |
-| `APP_URL` | `https://hexapixora.com` | ⚠️ Base for magic-link emails. |
-| `SUPABASE_URL` | `https://<ref>.supabase.co` | From Supabase API settings. |
-| `SUPABASE_SERVICE_ROLE_KEY` | service_role key (step 2) | Media uploads. |
-| `SUPABASE_STORAGE_BUCKET` | `media` | Must match the bucket. |
-| `SEED_ADMIN_EMAIL` | your admin login email | e.g. your Gmail. |
-| `SEED_ADMIN_PASSWORD` | a strong password (≥8) | Only used to create the first admin. |
-| `SEED_ADMIN_NAME` | `Administrator` | Optional. |
-| `RESEND_API_KEY` | `re_…` (step 5) | Email. Optional but needed for invites/reset. |
-| `MAIL_FROM` | `HexaPixora <noreply@hexapixora.com>` | Must be a **verified** Resend sender (step 5). |
-| `LEADS_NOTIFY_TO` | email to receive lead alerts | Optional (falls back to settings). |
-| `AI_API_KEY` | Groq/OpenAI-compatible key | Chatbot AI. Optional. |
-| `VAPID_PUBLIC_KEY` | see step 6 | Web Push. Optional. |
-| `VAPID_PRIVATE_KEY` | see step 6 | Web Push. Optional. |
-| `VAPID_SUBJECT` | `mailto:you@hexapixora.com` | Web Push. |
+| Variable                    | Value                                 | Notes                                          |
+| --------------------------- | ------------------------------------- | ---------------------------------------------- |
+| `DATABASE_URL`              | Supabase URI (step 2)                 | ⚠️ Required.                                   |
+| `JWT_ACCESS_SECRET`         | long random string                    | `openssl rand -base64 48`                      |
+| `JWT_REFRESH_SECRET`        | **different** long random string      | `openssl rand -base64 48`                      |
+| `CORS_ORIGINS`              | `https://hexapixora.com`              | Comma-separate if multiple.                    |
+| `APP_URL`                   | `https://hexapixora.com`              | ⚠️ Base for magic-link emails.                 |
+| `SUPABASE_URL`              | `https://<ref>.supabase.co`           | From Supabase API settings.                    |
+| `SUPABASE_SERVICE_ROLE_KEY` | service_role key (step 2)             | Media uploads.                                 |
+| `SUPABASE_STORAGE_BUCKET`   | `media`                               | Must match the bucket.                         |
+| `SEED_ADMIN_EMAIL`          | your admin login email                | e.g. your Gmail.                               |
+| `SEED_ADMIN_PASSWORD`       | a strong password (≥8)                | Only used to create the first admin.           |
+| `SEED_ADMIN_NAME`           | `Administrator`                       | Optional.                                      |
+| --`RESEND_API_KEY`          | `re_…` (step 5)                       | Email. Optional but needed for invites/reset.  |
+| `MAIL_FROM`                 | `HexaPixora <noreply@send.hexapixora.com>` | Must be a **verified** Resend sender (step 5). |
+| `LEADS_NOTIFY_TO`           | email to receive lead alerts          | Optional (falls back to settings).             |
+| `AI_API_KEY`                | Groq/OpenAI-compatible key            | Chatbot AI. Optional.                          |
+| --`VAPID_PUBLIC_KEY`        | see step 6                            | Web Push. Optional.                            |
+| --`VAPID_PRIVATE_KEY`       | see step 6                            | Web Push. Optional.                            |
+| `VAPID_SUBJECT`             | `mailto:you@hexapixora.com`           | Web Push.                                      |
 
 > Railway sets `PORT` itself — don't add it.
 
@@ -97,10 +97,10 @@ Cloudflare DNS. Otherwise use the default `*.up.railway.app` URL.
 Vercel → your project → **Settings → Environment Variables** (scope: **Production**,
 and Preview if you want):
 
-| Variable | Value | Notes |
-|---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | `https://hexapixora.com` | ⚠️ OG images + canonical URLs. |
-| `API_URL` | `https://api.hexapixora.com/api` *(or your `*.up.railway.app/api`)* | ⚠️ The `/api` proxy target — points the web app at the Railway API. |
+| Variable               | Value                                                                | Notes                                                               |
+| ---------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | `https://hexapixora.com`                                             | ⚠️ OG images + canonical URLs.                                      |
+| `API_URL`              | `https://api.hexapixora.com/api` _(or your `_.up.railway.app/api`)\* | ⚠️ The `/api` proxy target — points the web app at the Railway API. |
 
 > `NEXT_PUBLIC_*` variables are baked at **build time** — after changing them you
 > must **redeploy** for them to take effect.
@@ -113,17 +113,22 @@ and Preview if you want):
 
 ## 5. Resend (email)
 
-Because the built-in `onboarding@resend.dev` sender only delivers to *your own
-Resend account email*, you must verify your domain to email anyone.
+Because the built-in `onboarding@resend.dev` sender only delivers to _your own
+Resend account email_, you must verify your domain to email anyone.
+
+**Best practice: verify a sending SUBDOMAIN, not the root domain.** It isolates
+your email reputation from the main domain and avoids SPF conflicts if you later
+add real mailboxes (Google Workspace / Zoho) on the root.
 
 1. Sign up / log in at [resend.com](https://resend.com). (GitHub sign-in is fine —
    your account email = your GitHub email.)
-2. **Domains → Add Domain** → `hexapixora.com`.
-3. Resend shows **SPF, DKIM, DMARC** DNS records → add them in **Cloudflare DNS**
-   → click **Verify** (takes minutes).
+2. **Domains → Add Domain** → enter the subdomain **`send.hexapixora.com`**.
+3. Resend shows DNS records (an **MX** + **SPF/DKIM/DMARC** TXT, sometimes a DKIM
+   **CNAME**). Add them **exactly** in **Cloudflare → DNS**. MX/TXT are always
+   DNS-only; set any DKIM **CNAME** to **DNS only (grey cloud)**. Click **Verify**.
 4. **API Keys → Create** → copy the `re_…` key → set `RESEND_API_KEY` in Railway.
-5. Set `MAIL_FROM` in Railway to a verified address, e.g.
-   `HexaPixora <noreply@hexapixora.com>`.
+5. Set `MAIL_FROM` in Railway to an address on the subdomain, e.g.
+   `HexaPixora <noreply@send.hexapixora.com>`.
 
 To also **receive** email at your domain: Cloudflare → **Email → Email Routing** →
 forward `hello@hexapixora.com` → your Gmail (free). Or use Zoho Mail / Google
@@ -212,14 +217,14 @@ them as traffic grows:
 
 ## 11. Troubleshooting
 
-| Symptom | Likely cause / fix |
-|---|---|
-| Admin login 500s after deploy | Schema not applied — check Railway deploy logs for the `prisma db push` step. |
-| OG image is blank / localhost | `NEXT_PUBLIC_SITE_URL` not set on Vercel (redeploy after setting), or Supabase bucket not public. Re-scrape on the platform. |
-| Emails never arrive | `RESEND_API_KEY` missing, or `MAIL_FROM` domain not verified in Resend, or (test sender) recipient ≠ your Resend account email. |
-| Push never fires | VAPID keys not set in Railway; on iPhone the site must be **installed as a PWA** (Add to Home Screen). |
-| Images upload but vanish on redeploy | Supabase Storage not configured — the API fell back to ephemeral disk. Set `SUPABASE_*` vars. |
-| `/api/...` calls fail on the live site | `API_URL` on Vercel is wrong — must be the Railway API origin + `/api`. |
+| Symptom                                | Likely cause / fix                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Admin login 500s after deploy          | Schema not applied — check Railway deploy logs for the `prisma db push` step.                                                   |
+| OG image is blank / localhost          | `NEXT_PUBLIC_SITE_URL` not set on Vercel (redeploy after setting), or Supabase bucket not public. Re-scrape on the platform.    |
+| Emails never arrive                    | `RESEND_API_KEY` missing, or `MAIL_FROM` domain not verified in Resend, or (test sender) recipient ≠ your Resend account email. |
+| Push never fires                       | VAPID keys not set in Railway; on iPhone the site must be **installed as a PWA** (Add to Home Screen).                          |
+| Images upload but vanish on redeploy   | Supabase Storage not configured — the API fell back to ephemeral disk. Set `SUPABASE_*` vars.                                   |
+| `/api/...` calls fail on the live site | `API_URL` on Vercel is wrong — must be the Railway API origin + `/api`.                                                         |
 
 ---
 
