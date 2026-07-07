@@ -13,50 +13,109 @@ export type AdminNotification = {
   createdAt: string;
 };
 
+const POLL_MS = 20_000;
+
 /**
- * Admin notification feed. Polls the unread count on an interval (there's no
- * socket for these), and loads the list on demand when the bell is opened.
- * Pass enabled=false while the session is still loading to avoid 401s.
+ * Mark-read that SURVIVES navigation. A linked notification navigates the page
+ * on click, which aborts a normal fetch/axios request — so the server never
+ * recorded the read and it looked "stuck". `keepalive` lets the browser finish
+ * the request even as the page unloads. Same-origin `/api` proxy sends cookies.
  */
+function markReadBeacon(path: string) {
+  try {
+    void fetch(`/api${path}`, { method: "POST", credentials: "include", keepalive: true });
+  } catch {
+    // best-effort
+  }
+}
+
 export function useNotifications(enabled: boolean) {
   const [items, setItems] = useState<AdminNotification[]>([]);
   const [unread, setUnread] = useState(0);
+  const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
+
+  const seen = useRef<Set<string>>(new Set());
+  const primed = useRef(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const refreshCount = useCallback(() => {
-    apiClient
-      .get("/notifications/unread-count")
-      .then((r) => setUnread(r.data?.count ?? 0))
-      .catch(() => {});
+  useEffect(() => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      setPermission("unsupported");
+      return;
+    }
+    setPermission(Notification.permission);
   }, []);
 
-  const refreshList = useCallback(() => {
-    apiClient
-      .get("/notifications", { params: { limit: 20 } })
-      .then((r) => setItems(Array.isArray(r.data) ? r.data : []))
-      .catch(() => {});
+  const requestPermission = useCallback(async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    const p = await Notification.requestPermission();
+    setPermission(p);
   }, []);
+
+  const fireBrowserNotification = useCallback((n: AdminNotification) => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+    try {
+      const notif = new Notification(n.title, {
+        body: n.body || undefined,
+        tag: n.id, // dedupes if the same one is fired twice
+        icon: "/favicon.ico",
+      });
+      notif.onclick = () => {
+        window.focus();
+        if (n.link) window.location.href = n.link;
+        notif.close();
+      };
+    } catch {
+      // some browsers throw if constructed without an active document
+    }
+  }, []);
+
+  const poll = useCallback(async () => {
+    try {
+      const res = await apiClient.get("/notifications", { params: { limit: 30 } });
+      const list: AdminNotification[] = Array.isArray(res.data) ? res.data : [];
+      setItems(list);
+      setUnread(list.filter((n) => !n.read).length);
+
+      if (!primed.current) {
+        // First load — remember the existing backlog WITHOUT alerting for it.
+        list.forEach((n) => seen.current.add(n.id));
+        primed.current = true;
+      } else {
+        // Alert (desktop) for genuinely new, unread arrivals.
+        for (const n of list) {
+          if (!seen.current.has(n.id)) {
+            seen.current.add(n.id);
+            if (!n.read) fireBrowserNotification(n);
+          }
+        }
+      }
+    } catch {
+      // ignore transient failures
+    }
+  }, [fireBrowserNotification]);
 
   useEffect(() => {
     if (!enabled) return;
-    refreshCount();
-    timer.current = setInterval(refreshCount, 30_000);
+    poll();
+    timer.current = setInterval(poll, POLL_MS);
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, [enabled, refreshCount]);
+  }, [enabled, poll]);
 
   const markAllRead = useCallback(async () => {
-    setItems((list) => list.map((n) => ({ ...n, read: true })));
+    setItems((l) => l.map((n) => ({ ...n, read: true })));
     setUnread(0);
-    await apiClient.post("/notifications/read-all").catch(() => {});
+    markReadBeacon("/notifications/read-all");
   }, []);
 
   const markRead = useCallback(async (id: string) => {
-    setItems((list) => list.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    setItems((l) => l.map((n) => (n.id === id ? { ...n, read: true } : n)));
     setUnread((c) => Math.max(0, c - 1));
-    await apiClient.post(`/notifications/${id}/read`).catch(() => {});
+    markReadBeacon(`/notifications/${id}/read`);
   }, []);
 
-  return { items, unread, refreshList, refreshCount, markAllRead, markRead };
+  return { items, unread, refreshList: poll, markAllRead, markRead, permission, requestPermission };
 }
