@@ -4,9 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { footerSchema, DEFAULT_FOOTER_CONFIG } from "@/lib/module-schemas/footer-schema";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { SocialIcon } from "@/components/icons/social-icons";
+import { NewsletterForm } from "@/components/public/newsletter-form";
 
 interface MenuItem {
   id: string;
@@ -112,10 +111,7 @@ export default function PublicFooter({ settings, config, headerConfig, navigatio
             <div className={`${cardClass} sm:col-span-2 flex flex-col justify-center`}>
               <h4 className="font-semibold text-lg mb-1">Stay in the loop</h4>
               <p className="text-sm opacity-70 mb-4">Occasional insights on design & engineering. No spam, ever.</p>
-              <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-                <Input type="email" placeholder="you@email.com" className="flex-1 bg-foreground/5 border-foreground/15" />
-                <Button type="submit">Subscribe</Button>
-              </form>
+              <NewsletterForm />
             </div>
           )}
 

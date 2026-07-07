@@ -20,6 +20,7 @@ import {
   StatusPill,
 } from "@/components/admin/ui";
 import { cn } from "@/lib/utils";
+import { NewsletterTabs } from "@/components/admin/newsletter-tabs";
 
 type Subscriber = { id: string; email: string; status: string; createdAt: string };
 
@@ -85,6 +86,8 @@ export default function AdminNewsletterPage() {
           <Download size={15} className="mr-2" /> Export CSV
         </Button>
       </PageHeader>
+
+      <NewsletterTabs />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[

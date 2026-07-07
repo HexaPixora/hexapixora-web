@@ -486,3 +486,28 @@ enum NotificationType {
   NEWSLETTER
   SYSTEM
 }
+
+// ==========================================
+// Newsletter campaigns (send-from-admin)
+// ==========================================
+
+model Campaign {
+  id             String         @id @default(uuid())
+  subject        String
+  content        String         // HTML body composed in the admin
+  status         CampaignStatus @default(DRAFT)
+  recipientCount Int            @default(0)
+  sentCount      Int            @default(0)
+  sentAt         DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([createdAt])
+}
+
+enum CampaignStatus {
+  DRAFT
+  SENDING
+  SENT
+  FAILED
+}
