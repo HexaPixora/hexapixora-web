@@ -82,7 +82,7 @@ Railway → your **API service → Variables**. Set:
 | `AI_API_KEY`                | Groq/OpenAI-compatible key            | Chatbot AI. Optional.                          |
 | --`VAPID_PUBLIC_KEY`        | see step 6                            | Web Push. Optional.                            |
 | --`VAPID_PRIVATE_KEY`       | see step 6                            | Web Push. Optional.                            |
-| `VAPID_SUBJECT`             | `mailto:you@hexapixora.com`           | Web Push.                                      |
+| `VAPID_SUBJECT`             | `mailto:contact@hexapixora.com`       | Web Push. Operator contact for push services (must be reachable — forward it via Cloudflare Email Routing). |
 
 > Railway sets `PORT` itself — don't add it.
 
@@ -145,7 +145,7 @@ npx web-push generate-vapid-keys
 ```
 
 Set in **Railway**: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
-`VAPID_SUBJECT=mailto:you@hexapixora.com`. The web app fetches the public key from
+`VAPID_SUBJECT=mailto:contact@hexapixora.com`. The web app fetches the public key from
 the API automatically — no Vercel env needed. (No keys = push simply disabled;
 the in-app bell still works.)
 
