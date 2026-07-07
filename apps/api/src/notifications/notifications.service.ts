@@ -1,12 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@repo/database';
+import { PushService } from './push.service';
 
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private push: PushService,
+  ) {}
 
   /** Record an admin notification. Never throws — callers fire-and-forget. */
   async create(input: {
@@ -16,7 +20,7 @@ export class NotificationsService {
     link?: string | null;
   }) {
     try {
-      return await this.prisma.notification.create({
+      const notification = await this.prisma.notification.create({
         data: {
           type: input.type,
           title: input.title,
@@ -24,6 +28,14 @@ export class NotificationsService {
           link: input.link ?? null,
         },
       });
+      // Fan out to any subscribed admin devices (Web Push). Fire-and-forget.
+      void this.push.sendToAll({
+        title: input.title,
+        body: input.body,
+        url: input.link,
+        tag: notification.id,
+      });
+      return notification;
     } catch (err) {
       this.logger.error(`Failed to record notification: ${(err as Error).message}`);
       return null;
