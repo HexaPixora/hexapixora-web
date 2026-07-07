@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Bell, Check } from "lucide-react";
+import { Bell, BellRing, Check } from "lucide-react";
 import { useNotifications } from "@/lib/use-notifications";
 
 const TYPE_EMOJI: Record<string, string> = {
@@ -24,7 +24,8 @@ function timeAgo(iso: string): string {
 }
 
 export function NotificationBell({ enabled }: { enabled: boolean }) {
-  const { items, unread, refreshList, markAllRead, markRead } = useNotifications(enabled);
+  const { items, unread, refreshList, markAllRead, markRead, permission, requestPermission } =
+    useNotifications(enabled);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -71,6 +72,15 @@ export function NotificationBell({ enabled }: { enabled: boolean }) {
               </button>
             )}
           </div>
+
+          {permission === "default" && (
+            <button
+              onClick={requestPermission}
+              className="flex w-full items-center gap-2 border-b bg-primary/5 px-4 py-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+            >
+              <BellRing size={14} /> Enable desktop notifications
+            </button>
+          )}
 
           <div className="max-h-96 overflow-y-auto">
             {items.length === 0 ? (
