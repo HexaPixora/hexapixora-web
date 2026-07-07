@@ -32,6 +32,7 @@ model User {
   chatMessages          ChatMessage[]
   chatNotes             ConversationNote[]
   verificationTokens VerificationToken[]
+  pushSubscriptions  PushSubscription[]
 }
 
 enum Role {
@@ -510,4 +511,17 @@ enum CampaignStatus {
   SENDING
   SENT
   FAILED
+}
+
+// Browser Web Push subscription (one per admin device/browser).
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

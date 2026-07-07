@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Bell, BellRing, Check } from "lucide-react";
+import { Bell, BellRing, BellOff, Check } from "lucide-react";
 import { useNotifications } from "@/lib/use-notifications";
+import { getPushState, enablePush, disablePush, type PushState } from "@/lib/push";
 
 const TYPE_EMOJI: Record<string, string> = {
   LEAD: "🎯",
@@ -23,9 +24,71 @@ function timeAgo(iso: string): string {
   return d < 7 ? `${d}d ago` : new Date(iso).toLocaleDateString();
 }
 
+function PushControl() {
+  const [state, setState] = useState<PushState | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    getPushState().then(setState);
+  }, []);
+
+  if (state === null || state === "unsupported") return null;
+
+  const enable = async () => {
+    setBusy(true);
+    try {
+      const res = await enablePush();
+      setState(res.state);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const disable = async () => {
+    setBusy(true);
+    try {
+      await disablePush();
+      setState("unsubscribed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (state === "denied") {
+    return (
+      <p className="flex items-center gap-2 border-b bg-muted/40 px-4 py-2.5 text-xs text-muted-foreground">
+        <BellOff size={14} /> Desktop notifications are blocked in your browser settings.
+      </p>
+    );
+  }
+
+  if (state === "subscribed") {
+    return (
+      <div className="flex items-center justify-between border-b bg-emerald-500/5 px-4 py-2.5 text-xs">
+        <span className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-400">
+          <BellRing size={14} /> Desktop notifications on
+        </span>
+        <button onClick={disable} disabled={busy} className="text-muted-foreground hover:text-foreground">
+          Turn off
+        </button>
+      </div>
+    );
+  }
+
+  // unsubscribed
+  return (
+    <button
+      onClick={enable}
+      disabled={busy}
+      className="flex w-full items-center gap-2 border-b bg-primary/5 px-4 py-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
+    >
+      <BellRing size={14} /> {busy ? "Enabling…" : "Enable desktop notifications"}
+    </button>
+  );
+}
+
 export function NotificationBell({ enabled }: { enabled: boolean }) {
-  const { items, unread, refreshList, markAllRead, markRead, permission, requestPermission } =
-    useNotifications(enabled);
+  const { items, unread, refreshList, markAllRead, markRead } = useNotifications(enabled);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -64,29 +127,17 @@ export function NotificationBell({ enabled }: { enabled: boolean }) {
           <div className="flex items-center justify-between border-b px-4 py-3">
             <p className="text-sm font-semibold">Notifications</p>
             {items.some((n) => !n.read) && (
-              <button
-                onClick={markAllRead}
-                className="flex items-center gap-1 text-xs text-primary hover:underline"
-              >
+              <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-primary hover:underline">
                 <Check size={12} /> Mark all read
               </button>
             )}
           </div>
 
-          {permission === "default" && (
-            <button
-              onClick={requestPermission}
-              className="flex w-full items-center gap-2 border-b bg-primary/5 px-4 py-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
-            >
-              <BellRing size={14} /> Enable desktop notifications
-            </button>
-          )}
+          <PushControl />
 
           <div className="max-h-96 overflow-y-auto">
             {items.length === 0 ? (
-              <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-                You&apos;re all caught up.
-              </p>
+              <p className="px-4 py-10 text-center text-sm text-muted-foreground">You&apos;re all caught up.</p>
             ) : (
               items.map((n) => {
                 const body = (

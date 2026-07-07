@@ -65,6 +65,14 @@ export const env = {
     notifyTo: process.env.LEADS_NOTIFY_TO ?? '',
   },
 
+  // Web Push (VAPID). Generate with `npx web-push generate-vapid-keys`. When the
+  // keys are absent, PushService no-ops (the in-app bell still works).
+  push: {
+    publicKey: process.env.VAPID_PUBLIC_KEY ?? '',
+    privateKey: process.env.VAPID_PRIVATE_KEY ?? '',
+    subject: process.env.VAPID_SUBJECT ?? 'mailto:admin@hexapixora.com',
+  },
+
   // Support-chat AI. Any OpenAI-compatible endpoint works — default targets
   // Groq's free tier: create a key at https://console.groq.com/keys and set
   // AI_API_KEY. Alternatives, just by overriding AI_BASE_URL/AI_MODEL: Google
