@@ -27,6 +27,7 @@ function timeAgo(iso: string): string {
 function PushControl() {
   const [state, setState] = useState<PushState | null>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     getPushState().then(setState);
@@ -36,9 +37,11 @@ function PushControl() {
 
   const enable = async () => {
     setBusy(true);
+    setError("");
     try {
       const res = await enablePush();
       setState(res.state);
+      if (!res.ok && res.reason) setError(res.reason);
     } finally {
       setBusy(false);
     }
@@ -77,13 +80,16 @@ function PushControl() {
 
   // unsubscribed
   return (
-    <button
-      onClick={enable}
-      disabled={busy}
-      className="flex w-full items-center gap-2 border-b bg-primary/5 px-4 py-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
-    >
-      <BellRing size={14} /> {busy ? "Enabling…" : "Enable desktop notifications"}
-    </button>
+    <div className="border-b">
+      <button
+        onClick={enable}
+        disabled={busy}
+        className="flex w-full items-center gap-2 bg-primary/5 px-4 py-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
+      >
+        <BellRing size={14} /> {busy ? "Enabling…" : "Enable desktop notifications"}
+      </button>
+      {error && <p className="bg-destructive/5 px-4 py-1.5 text-[11px] text-destructive">{error}</p>}
+    </div>
   );
 }
 

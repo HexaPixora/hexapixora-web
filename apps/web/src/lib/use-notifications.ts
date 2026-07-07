@@ -54,6 +54,32 @@ export function useNotifications(enabled: boolean) {
     };
   }, [enabled, poll]);
 
+  // Refresh instantly when the tab regains focus, so the count is fresh on return.
+  useEffect(() => {
+    if (!enabled) return;
+    const onFocus = () => {
+      if (!document.hidden) poll();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [enabled, poll]);
+
+  // Reflect the unread count in the browser tab title, e.g. "(3) HexaPixora …".
+  // Strips any existing "(n) " prefix first so it never stacks, and cleans up
+  // when leaving the admin (component unmounts).
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const strip = (t: string) => t.replace(/^\(\d+\)\s*/, "");
+    document.title = unread > 0 ? `(${unread}) ${strip(document.title)}` : strip(document.title);
+    return () => {
+      document.title = strip(document.title);
+    };
+  }, [unread]);
+
   const markAllRead = useCallback(async () => {
     setItems((l) => l.map((n) => ({ ...n, read: true })));
     setUnread(0);
