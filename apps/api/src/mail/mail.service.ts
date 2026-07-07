@@ -169,6 +169,55 @@ export class MailService {
     });
   }
 
+  /** Wrap admin-composed campaign HTML in an email shell + unsubscribe footer. */
+  renderCampaignHtml(content: string, unsubscribeUrl: string, siteName: string): string {
+    return `
+      <div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;color:#111;line-height:1.6;">
+        <div>${content}</div>
+        <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px;" />
+        <p style="color:#999;font-size:12px;text-align:center;margin:0;">
+          You're receiving this because you subscribed to ${this.escape(siteName)}.<br/>
+          <a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a>
+        </p>
+      </div>`;
+  }
+
+  /**
+   * Send many emails via Resend's batch endpoint (≤100 per request). Returns the
+   * number accepted. Used for newsletter campaigns; never throws.
+   */
+  async sendBatch(items: Array<{ to: string; subject: string; html: string }>): Promise<number> {
+    if (!this.isConfigured()) {
+      this.logger.warn(`RESEND_API_KEY not set — skipping batch of ${items.length} email(s).`);
+      return 0;
+    }
+    let sent = 0;
+    for (let i = 0; i < items.length; i += 100) {
+      const chunk = items.slice(i, i + 100);
+      try {
+        const res = await fetch('https://api.resend.com/emails/batch', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${env.mail.resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(
+            chunk.map((e) => ({ from: env.mail.from, to: [e.to], subject: e.subject, html: e.html })),
+          ),
+        });
+        if (res.ok) {
+          sent += chunk.length;
+        } else {
+          const detail = await res.text().catch(() => '');
+          this.logger.error(`Resend batch failed (${res.status}): ${detail.slice(0, 300)}`);
+        }
+      } catch (err) {
+        this.logger.error(`Batch send error: ${(err as Error).message}`);
+      }
+    }
+    return sent;
+  }
+
   /** Internal alert to the team that a new lead arrived. */
   async sendLeadNotification(params: {
     lead: LeadEmailData;
