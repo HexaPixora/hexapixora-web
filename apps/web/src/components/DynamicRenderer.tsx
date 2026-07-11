@@ -19,6 +19,7 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   ServicesSection: dynamic(() => import("@/components/modules/services-module")),
   PortfolioSection: dynamic(() => import("@/components/modules/portfolio-module")),
   PortfolioHeroModule: dynamic(() => import("@/components/modules/portfolio-hero-module")),
+  WhyChooseModule: dynamic(() => import("@/components/modules/why-choose-module")),
   BlogSection: dynamic(() => import("@/components/modules/blog-module")),
   TeamSection: dynamic(() => import("@/components/modules/team-module")),
   FAQSection: dynamic(() => import("@/components/modules/faq-module")),

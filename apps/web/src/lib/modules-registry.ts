@@ -26,6 +26,7 @@ import { MarqueeModuleDef } from "./module-schemas/marquee-schema";
 import { CounterStatsModuleDef } from "./module-schemas/counter-stats-schema";
 import { StaggeredGridModuleDef } from "./module-schemas/staggered-grid-schema";
 import { PortfolioHeroModuleDef } from "./module-schemas/portfolio-hero-schema";
+import { WhyChooseModuleDef } from "./module-schemas/why-choose-schema";
 
 export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
@@ -75,5 +76,6 @@ export const MODULES: Record<string, ModuleDefinition> = {
   MarqueeModule: MarqueeModuleDef,
   CounterStatsModule: CounterStatsModuleDef,
   StaggeredGridModule: StaggeredGridModuleDef,
-  PortfolioHeroModule: PortfolioHeroModuleDef
+  PortfolioHeroModule: PortfolioHeroModuleDef,
+  WhyChooseModule: WhyChooseModuleDef
 };
