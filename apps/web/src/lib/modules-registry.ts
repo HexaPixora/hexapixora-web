@@ -29,6 +29,10 @@ import { PortfolioHeroModuleDef } from "./module-schemas/portfolio-hero-schema";
 import { WhyChooseModuleDef } from "./module-schemas/why-choose-schema";
 import { OurStoryModuleDef } from "./module-schemas/our-story-schema";
 import { OurProcessModuleDef } from "./module-schemas/our-process-schema";
+import { WorkHeroModuleDef } from "./module-schemas/work-hero-schema";
+import { StoryHeroModuleDef } from "./module-schemas/story-hero-schema";
+import { TechStackModuleDef } from "./module-schemas/tech-stack-schema";
+import { SkillsShowcaseModuleDef } from "./module-schemas/skills-showcase-schema";
 
 export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
@@ -81,18 +85,22 @@ export const MODULES: Record<string, ModuleDefinition> = {
   PortfolioHeroModule: PortfolioHeroModuleDef,
   WhyChooseModule: WhyChooseModuleDef,
   OurStoryModule: OurStoryModuleDef,
-  OurProcessModule: OurProcessModuleDef
+  OurProcessModule: OurProcessModuleDef,
+  WorkHeroModule: WorkHeroModuleDef,
+  StoryHeroModule: StoryHeroModuleDef,
+  TechStackModule: TechStackModuleDef,
+  SkillsShowcaseModule: SkillsShowcaseModuleDef
 };
 
 // Builder categories — group modules by purpose so they're easy to find and
 // pick. Order here is the display order. Any registered module NOT listed below
 // automatically falls into a trailing "Other" group (see groupedModules).
 export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
-  { label: "Hero & Banners", modules: ["HeroSection", "AnimatedTextHeroModule", "PortfolioHeroModule", "ParallaxBannerModule"] },
-  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "TimelineModule", "ScrollytellingModule"] },
+  { label: "Hero & Banners", modules: ["HeroSection", "WorkHeroModule", "StoryHeroModule", "AnimatedTextHeroModule", "PortfolioHeroModule", "ParallaxBannerModule"] },
+  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "TechStackModule", "TimelineModule", "ScrollytellingModule"] },
   { label: "Services & Pricing", modules: ["ServicesSection", "PricingModule"] },
   { label: "Portfolio & Galleries", modules: ["PortfolioSection", "GalleryModule", "SplideGallerySyncModule", "SplideSliderModule", "StaggeredGridModule", "HorizontalScrollModule"] },
-  { label: "Social Proof", modules: ["TeamSection", "SplideLogoTickerModule", "MarqueeModule", "StatsSection", "CounterStatsModule"] },
+  { label: "Social Proof", modules: ["TeamSection", "SkillsShowcaseModule", "SplideLogoTickerModule", "MarqueeModule", "StatsSection", "CounterStatsModule"] },
   { label: "Blog & Media", modules: ["BlogSection", "VideoPlayerModule"] },
   { label: "Lead Generation", modules: ["CTASection", "ContactFormModule", "BookingModule", "LeadMagnetModule", "FAQSection"] },
 ];
