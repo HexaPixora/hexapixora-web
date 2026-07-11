@@ -16,6 +16,11 @@ export class CreateLeadDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(100)
+  country?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(5000)
   message?: string;
 

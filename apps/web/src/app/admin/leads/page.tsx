@@ -5,7 +5,7 @@ import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Phone, Trash2, Search, Inbox, Eye } from "lucide-react";
+import { Mail, Phone, Trash2, Search, Inbox, Eye, Globe } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -30,6 +30,7 @@ type Lead = {
   name: string;
   email: string;
   phone?: string;
+  country?: string;
   message?: string;
   status: string;
   createdAt: string;
@@ -224,6 +225,11 @@ export default function AdminLeadsPage() {
                   <a href={`tel:${activeLead.phone}`} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
                     <Phone size={14} /> {activeLead.phone}
                   </a>
+                )}
+                {activeLead.country && (
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                    <Globe size={14} /> {activeLead.country}
+                  </span>
                 )}
               </div>
 
