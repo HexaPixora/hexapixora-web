@@ -38,12 +38,14 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                 className="group relative flex flex-col bg-background border rounded-2xl p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:border-primary/40"
               >
                 <div
-                  className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${
-                    ic ? "" : "bg-primary/10 text-primary"
+                  className={`relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/12 ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:scale-110 ${
+                    ic
+                      ? ""
+                      : "bg-gradient-to-b from-[#2a9dff]/25 to-[#1074e0]/10 text-[#7cc4ff] shadow-[0_8px_24px_-8px_rgba(16,147,253,0.5)] group-hover:shadow-[0_14px_32px_-8px_rgba(16,147,253,0.85)]"
                   }`}
-                  style={ic ? { backgroundColor: `${ic}1a`, color: ic } : undefined}
+                  style={ic ? { backgroundColor: `${ic}1f`, color: ic, boxShadow: `0 8px 24px -8px ${ic}66` } : undefined}
                 >
-                  <Icon className="w-7 h-7" strokeWidth={2} />
+                  <Icon className="h-7 w-7" strokeWidth={2} />
                 </div>
 
                 <h3 className="text-xl font-bold mb-3">{service.title}</h3>
@@ -56,8 +58,8 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                     href={service.link}
                     className={`mt-auto self-start inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 group-hover:gap-3 ${
                       btn
-                        ? `hover:opacity-90 ${btnText ? "" : "text-white"}`
-                        : `bg-primary hover:bg-primary/90 ${btnText ? "" : "text-primary-foreground"}`
+                        ? `hover:-translate-y-0.5 hover:opacity-90 ${btnText ? "" : "text-white"}`
+                        : "bg-gradient-to-b from-[#2a9dff] to-[#1074e0] text-white shadow-[0_10px_26px_-10px_rgba(16,147,253,0.8)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-10px_rgba(16,147,253,0.95)]"
                     }`}
                     style={{
                       ...(btn ? { backgroundColor: btn } : {}),
@@ -65,7 +67,7 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                     }}
                   >
                     {service.buttonText}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 )}
               </div>
