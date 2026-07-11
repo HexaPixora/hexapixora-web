@@ -13,7 +13,7 @@ export default function StoryHeroModule({ config }: { config?: StoryHeroProps })
       <div aria-hidden className="pointer-events-none absolute -right-24 bottom-20 -z-10 h-[40vh] w-[40vh] rounded-full bg-[rgba(80,60,220,0.12)] blur-[130px]" />
 
       <div className="container">
-        <div className={hasImage ? "grid items-center gap-12 lg:grid-cols-2 lg:gap-16" : "mx-auto max-w-3xl text-center"}>
+        <div className={hasImage ? "grid items-center gap-12 lg:grid-cols-2 lg:gap-16" : "mx-auto max-w-5xl text-center"}>
           {/* Text */}
           <div className={hasImage ? "flex flex-col items-start" : "flex flex-col items-center"}>
             <div className={`mb-6 flex flex-wrap items-center gap-3 ${hasImage ? "" : "justify-center"}`}>
@@ -35,7 +35,7 @@ export default function StoryHeroModule({ config }: { config?: StoryHeroProps })
               </h1>
             )}
             {intro && (
-              <p className={`mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground ${hasImage ? "" : "mx-auto"}`}>
+              <p className={`mt-6 max-w-5xl text-lg leading-relaxed text-muted-foreground ${hasImage ? "" : "mx-auto"}`}>
                 {intro}
               </p>
             )}
