@@ -22,7 +22,7 @@ we sweat the details so your product is fast, reliable, and ready to grow.
 
 ## Get in touch
 
-🌐 **[Visit our website →](https://hexapixora-web.vercel.app)**
+🌐 **[Visit our website →](https://hexapixora.com)**
 
 Have a project in mind? Reach out through the contact form on our site and
 let's build something great together.
