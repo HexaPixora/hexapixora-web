@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2 } from "lucide-react";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import MediaField from "@/components/admin/media-field";
-import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
+import { MODULES, ModuleDefinition, groupedModules } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
@@ -426,21 +426,33 @@ export default function CustomPageBuilderPage() {
             <DialogTitle>Add Module</DialogTitle>
             <p className="text-sm text-muted-foreground">Select a module to append to your page.</p>
           </DialogHeader>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
-            {Object.values(MODULES).map(mod => (
-              <div key={mod.type} className="group border rounded-xl p-5 flex flex-col gap-3 hover:border-primary hover:shadow-md hover:bg-primary/5 transition-all cursor-pointer relative overflow-hidden" onClick={() => addModule(mod.type)}>
-                <div className="absolute right-0 top-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
-                <div className="flex items-center gap-3 relative z-10">
-                  <div className="p-2 bg-background border rounded-lg text-primary shadow-sm group-hover:scale-110 transition-transform">
-                    <LayoutDashboard size={18} />
-                  </div>
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{mod.label}</h3>
-                </div>
-                <p className="text-xs text-muted-foreground relative z-10 leading-relaxed">{mod.description}</p>
-                <div className="mt-auto pt-2 flex justify-end relative z-10">
-                  <span className="text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                    <Plus size={14} /> Add Module
+          <div className="flex flex-col gap-6 py-4">
+            {groupedModules().map(group => (
+              <div key={group.label}>
+                <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {group.label}
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium normal-case tracking-normal">
+                    {group.modules.length}
                   </span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {group.modules.map(mod => (
+                    <div key={mod.type} className="group border rounded-xl p-5 flex flex-col gap-3 hover:border-primary hover:shadow-md hover:bg-primary/5 transition-all cursor-pointer relative overflow-hidden" onClick={() => addModule(mod.type)}>
+                      <div className="absolute right-0 top-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                      <div className="flex items-center gap-3 relative z-10">
+                        <div className="p-2 bg-background border rounded-lg text-primary shadow-sm group-hover:scale-110 transition-transform">
+                          <LayoutDashboard size={18} />
+                        </div>
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{mod.label}</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground relative z-10 leading-relaxed">{mod.description}</p>
+                      <div className="mt-auto pt-2 flex justify-end relative z-10">
+                        <span className="text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                          <Plus size={14} /> Add Module
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}

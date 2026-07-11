@@ -83,3 +83,43 @@ export const MODULES: Record<string, ModuleDefinition> = {
   OurStoryModule: OurStoryModuleDef,
   OurProcessModule: OurProcessModuleDef
 };
+
+// Builder categories — group modules by purpose so they're easy to find and
+// pick. Order here is the display order. Any registered module NOT listed below
+// automatically falls into a trailing "Other" group (see groupedModules).
+export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
+  { label: "Hero & Banners", modules: ["HeroSection", "AnimatedTextHeroModule", "PortfolioHeroModule", "ParallaxBannerModule"] },
+  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "TimelineModule", "ScrollytellingModule"] },
+  { label: "Services & Pricing", modules: ["ServicesSection", "PricingModule"] },
+  { label: "Portfolio & Galleries", modules: ["PortfolioSection", "GalleryModule", "SplideGallerySyncModule", "SplideSliderModule", "StaggeredGridModule", "HorizontalScrollModule"] },
+  { label: "Social Proof", modules: ["TeamSection", "SplideLogoTickerModule", "MarqueeModule", "StatsSection", "CounterStatsModule"] },
+  { label: "Blog & Media", modules: ["BlogSection", "VideoPlayerModule"] },
+  { label: "Lead Generation", modules: ["CTASection", "ContactFormModule", "BookingModule", "LeadMagnetModule", "FAQSection"] },
+];
+
+export type ModuleGroup = { label: string; modules: ModuleDefinition[] };
+
+/**
+ * Registered modules grouped by category (in MODULE_CATEGORIES order). Only
+ * non-empty categories are returned, and any module missing from the category
+ * lists is appended under "Other" so nothing is ever hidden.
+ */
+export function groupedModules(): ModuleGroup[] {
+  const assigned = new Set<string>();
+  const groups: ModuleGroup[] = MODULE_CATEGORIES.map((cat) => ({
+    label: cat.label,
+    modules: cat.modules
+      .filter((type) => MODULES[type])
+      .map((type) => {
+        assigned.add(type);
+        return MODULES[type]!;
+      }),
+  })).filter((g) => g.modules.length > 0);
+
+  const other = Object.entries(MODULES)
+    .filter(([type]) => !assigned.has(type))
+    .map(([, def]) => def);
+  if (other.length) groups.push({ label: "Other", modules: other });
+
+  return groups;
+}
