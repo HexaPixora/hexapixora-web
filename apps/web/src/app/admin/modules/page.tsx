@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import { Settings2, Eye, Component } from "lucide-react";
-import { MODULES, ModuleDefinition } from "@/lib/modules-registry";
+import { MODULES, ModuleDefinition, groupedModules } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import HeroModule from "@/components/modules/hero-module";
 import CTAModule from "@/components/modules/cta-module";
@@ -102,27 +102,39 @@ export default function ModulesLibraryPage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Modules Library" description="Manage global default content for all builder components." />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Object.values(MODULES).map((mod) => (
-          <div key={mod.type} className="border rounded-xl p-5 bg-card flex flex-col h-full shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                <Component size={20} />
-              </div>
-              <h3 className="font-semibold">{mod.label}</h3>
-            </div>
-            
-            <p className="text-sm text-muted-foreground mb-6 flex-1">
-              {mod.description}
-            </p>
-            
-            <div className="flex gap-2 mt-auto pt-4 border-t">
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => setPreviewId(mod.type)}>
-                <Eye size={15} className="mr-2" /> Preview
-              </Button>
-              <Button variant="default" size="sm" className="flex-1" onClick={() => openSettings(mod)}>
-                <Settings2 size={15} className="mr-2" /> Defaults
-              </Button>
+      <div className="flex flex-col gap-10">
+        {groupedModules().map((group) => (
+          <div key={group.label}>
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              {group.label}
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium normal-case tracking-normal text-muted-foreground">
+                {group.modules.length}
+              </span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {group.modules.map((mod) => (
+                <div key={mod.type} className="border rounded-xl p-5 bg-card flex flex-col h-full shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                      <Component size={20} />
+                    </div>
+                    <h3 className="font-semibold">{mod.label}</h3>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground mb-6 flex-1">
+                    {mod.description}
+                  </p>
+
+                  <div className="flex gap-2 mt-auto pt-4 border-t">
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => setPreviewId(mod.type)}>
+                      <Eye size={15} className="mr-2" /> Preview
+                    </Button>
+                    <Button variant="default" size="sm" className="flex-1" onClick={() => openSettings(mod)}>
+                      <Settings2 size={15} className="mr-2" /> Defaults
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}
