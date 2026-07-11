@@ -59,7 +59,7 @@ export default function ScrollytellingModule({ config }: { config?: Scrollytelli
                   key={i}
                   src={s.image}
                   alt=""
-                  className={`absolute inset-0 aspect-[1/1] p-4 object-cover transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-0"}`}
+                  className={`absolute inset-0 aspect-[1/1] object-cover transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-0"}`}
                 />
               ) : null
             )}
