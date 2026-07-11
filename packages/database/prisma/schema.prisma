@@ -232,6 +232,7 @@ model Lead {
   name             String
   email            String
   phone            String?
+  country          String?
   message          String?
   type             String   @default("contact") // contact, consultation, quote, chat
   status           LeadStatus @default(NEW)
