@@ -42,6 +42,10 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Accordion (FAQ) smooth expand/collapse. */
+  --animate-accordion-down: accordion-down 0.28s ease-out;
+  --animate-accordion-up: accordion-up 0.28s ease-out;
 }
 
 @layer base {
@@ -264,4 +268,15 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .glass-sheen { animation: none !important; }
+}
+
+/* Accordion (FAQ) open/close — animates the content height using Radix's
+   measured --radix-accordion-content-height. */
+@keyframes accordion-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
 }
