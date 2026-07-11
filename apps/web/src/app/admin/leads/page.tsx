@@ -5,8 +5,9 @@ import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Phone, Trash2, Search, Inbox } from "lucide-react";
+import { Mail, Phone, Trash2, Search, Inbox, Eye } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   PageHeader,
   TableCard,
@@ -43,6 +44,7 @@ export default function AdminLeadsPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [activeLead, setActiveLead] = useState<Lead | null>(null);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -154,7 +156,17 @@ export default function AdminLeadsPage() {
                     </div>
                   </TD>
                   <TD>
-                    <p className="max-w-xs truncate text-xs text-muted-foreground">{lead.message || "—"}</p>
+                    {lead.message ? (
+                      <button
+                        onClick={() => setActiveLead(lead)}
+                        title="Click to read the full message"
+                        className="block max-w-xs truncate text-left text-xs text-muted-foreground hover:text-foreground hover:underline"
+                      >
+                        {lead.message}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </TD>
                   <TD>
                     <select
@@ -171,6 +183,9 @@ export default function AdminLeadsPage() {
                   <TD className="text-xs text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</TD>
                   <TD align="right">
                     <RowActions>
+                      <Button variant="ghost" size="icon" title="View details" onClick={() => setActiveLead(lead)}>
+                        <Eye size={15} />
+                      </Button>
                       <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => deleteLead(lead)}>
                         <Trash2 size={15} />
                       </Button>
@@ -192,6 +207,43 @@ export default function AdminLeadsPage() {
           </div>
         </div>
       )}
+
+      {/* Lead detail — read the full message + contact + reply */}
+      <Dialog open={!!activeLead} onOpenChange={(o) => !o && setActiveLead(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{activeLead?.name || "Lead"}</DialogTitle>
+          </DialogHeader>
+          {activeLead && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-4 text-sm">
+                <a href={`mailto:${activeLead.email}`} className="flex items-center gap-1.5 text-primary hover:underline">
+                  <Mail size={14} /> {activeLead.email}
+                </a>
+                {activeLead.phone && (
+                  <a href={`tel:${activeLead.phone}`} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+                    <Phone size={14} /> {activeLead.phone}
+                  </a>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Message</p>
+                <div className="max-h-72 overflow-y-auto whitespace-pre-wrap rounded-lg border bg-muted/30 p-4 text-sm leading-relaxed">
+                  {activeLead.message || "No message provided."}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t pt-4 text-xs text-muted-foreground">
+                <span>Received {new Date(activeLead.createdAt).toLocaleString()}</span>
+                <a href={`mailto:${activeLead.email}`}>
+                  <Button size="sm"><Mail size={14} className="mr-1.5" /> Reply</Button>
+                </a>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
