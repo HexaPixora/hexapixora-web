@@ -73,7 +73,7 @@ export default function SplideLogoTickerModule({ config }: { config?: SplideLogo
 
   return (
     <section className="py-12 bg-muted/20 border-y overflow-hidden">
-      <div className="container max-w-7xl mx-auto px-4">
+      <div className="">
         {heading && (
           <h4 className="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-8">
             {heading}
