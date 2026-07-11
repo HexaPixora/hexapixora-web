@@ -95,7 +95,7 @@ export default function HorizontalScrollModule({ config }: { config?: Horizontal
               {/* Sharp image — NO blur over the photo. */}
               {card.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={card.image} alt={card.title} className="absolute inset-0 h-full p-4 object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]" />
+                <img src={card.image} alt={card.title} className="absolute inset-0 h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]" />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/40 to-white/[0.06]" />
               )}
