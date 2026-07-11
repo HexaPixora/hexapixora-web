@@ -35,7 +35,7 @@ export default function StoryHeroModule({ config }: { config?: StoryHeroProps })
               </h1>
             )}
             {intro && (
-              <p className={`mt-6 max-w-5xl text-lg leading-relaxed text-muted-foreground ${hasImage ? "" : "mx-auto"}`}>
+              <p className={`mt-6 max-w-4xl text-lg leading-relaxed text-muted-foreground ${hasImage ? "" : "mx-auto"}`}>
                 {intro}
               </p>
             )}
