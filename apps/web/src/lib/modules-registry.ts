@@ -27,6 +27,8 @@ import { CounterStatsModuleDef } from "./module-schemas/counter-stats-schema";
 import { StaggeredGridModuleDef } from "./module-schemas/staggered-grid-schema";
 import { PortfolioHeroModuleDef } from "./module-schemas/portfolio-hero-schema";
 import { WhyChooseModuleDef } from "./module-schemas/why-choose-schema";
+import { OurStoryModuleDef } from "./module-schemas/our-story-schema";
+import { OurProcessModuleDef } from "./module-schemas/our-process-schema";
 
 export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
@@ -77,5 +79,7 @@ export const MODULES: Record<string, ModuleDefinition> = {
   CounterStatsModule: CounterStatsModuleDef,
   StaggeredGridModule: StaggeredGridModuleDef,
   PortfolioHeroModule: PortfolioHeroModuleDef,
-  WhyChooseModule: WhyChooseModuleDef
+  WhyChooseModule: WhyChooseModuleDef,
+  OurStoryModule: OurStoryModuleDef,
+  OurProcessModule: OurProcessModuleDef
 };

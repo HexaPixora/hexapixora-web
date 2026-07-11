@@ -43,7 +43,7 @@ export default function PublicFooter({ settings, config, headerConfig, navigatio
   const finalLogoUrl = logoUrl || headerConfig?.logoUrl || settings?.logoUrl;
   const siteName = settings?.siteName || "HexaPixora";
   const currentYear = new Date().getFullYear();
-  const ctaUrl = headerConfig?.ctaUrl || "/contact";
+  const ctaUrl = headerConfig?.ctaUrl || "/contact-us";
 
   // Glass "bubble" link hover, matching the header nav.
   const linkClass =
