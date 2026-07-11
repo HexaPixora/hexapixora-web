@@ -8,6 +8,7 @@ export const bookingSchema = z.object({
   backgroundColor: z.string().default("#0f172a"),
   // "all" uses every meeting type from Settings; otherwise filter to this label.
   meetingFilter: z.string().default("all"),
+  anchorId: z.string().default("book-a-call"),
 });
 
 export type BookingProps = z.input<typeof bookingSchema>;
@@ -29,5 +30,6 @@ export const BookingModuleDef = createModuleDefinition(
       description: "Use 'all' to show every meeting type from Settings, or a specific label to show just that one.",
       defaultValue: "all",
     },
+    { name: "anchorId", label: "Anchor ID", type: "text", description: "For in-page links, e.g. link a button to #book-a-call." },
   ],
 );

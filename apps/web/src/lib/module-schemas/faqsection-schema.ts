@@ -8,6 +8,7 @@ export const faqsectionSchema = z.object({
       question: z.string().default(""),
       answer: z.string().default("")
     })).default([{"question":"What is your turnaround time?","answer":"Typically 2-4 weeks depending on the project scope."},{"question":"Do you provide ongoing support?","answer":"Yes, we offer maintenance plans for all our clients."}]),
+  anchorId: z.string().default("faq"),
 });
 
 export type FAQProps = z.input<typeof faqsectionSchema>;
@@ -44,6 +45,7 @@ export const FAQSectionDef = createModuleDefinition(
                 type: "textarea"
             }
         ]
-    }
+    },
+    { name: "anchorId", label: "Anchor ID", type: "text", description: "For in-page links, e.g. link a button to #faq." }
 ]
 );
