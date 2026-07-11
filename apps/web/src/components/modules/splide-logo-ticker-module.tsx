@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { splideLogoTickerSchema, SplideLogoTickerProps } from "@/lib/module-schemas/splide-logo-ticker-schema";
 
 import Splide from "@splidejs/splide";
+import { AutoScroll } from "@splidejs/splide-extension-auto-scroll";
 import "@splidejs/splide/css";
 
 
@@ -23,21 +24,19 @@ export default function SplideLogoTickerModule({ config }: { config?: SplideLogo
   useEffect(() => {
     if (!splideRef.current || logos.length === 0) return;
 
-    // Calculate transition speed based on multiplier
-    const speedVal = 6000 / (parseFloat(speed) || 1);
-
     const splide = new Splide(splideRef.current, {
       type: "loop",
-      drag: false, // disable dragging for continuous tickers
-      focus: "center",
+      drag: false, // continuous ticker — no manual dragging
       arrows: false,
       pagination: false,
       gap: "4rem",
       perPage: parseInt(perPage) || 5,
-      autoplay: true,
-      interval: 0, // continuous
-      speed: speedVal,
-      easing: "linear",
+      // Genuine smooth, infinite continuous scroll (no per-slide "stepping").
+      autoScroll: {
+        speed: parseFloat(speed) || 1,
+        pauseOnHover: false,
+        pauseOnFocus: false,
+      },
       breakpoints: {
         1024: {
           perPage: Math.max(3, (parseInt(perPage) || 5) - 1),
@@ -54,7 +53,7 @@ export default function SplideLogoTickerModule({ config }: { config?: SplideLogo
       }
     });
 
-    splide.mount();
+    splide.mount({ AutoScroll });
 
     return () => {
       splide.destroy();
@@ -90,7 +89,7 @@ export default function SplideLogoTickerModule({ config }: { config?: SplideLogo
                     <img
                       src={logo.image}
                       alt={logo.name || `Partner Logo ${index + 1}`}
-                      className="h-10 w-auto object-contain opacity-40 hover:opacity-85 transition-opacity max-w-[130px] filter grayscale dark:invert"
+                      className="h-10 w-auto max-w-[130px] object-contain"
                     />
                   ) : (
                     <span className="text-sm font-semibold text-muted-foreground/60">{logo.name || `Partner ${index + 1}`}</span>
