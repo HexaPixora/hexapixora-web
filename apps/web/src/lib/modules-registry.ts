@@ -105,6 +105,29 @@ export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
   { label: "Lead Generation", modules: ["CTASection", "ContactFormModule", "BookingModule", "LeadMagnetModule", "FAQSection"] },
 ];
 
+// Default anchor IDs for common single-instance sections, so buttons/nav can
+// link to #contact, #faq, etc. out of the box. A section's own config.anchorId
+// always wins. Heroes are intentionally omitted (they don't need anchors).
+export const DEFAULT_ANCHOR_IDS: Record<string, string> = {
+  ContactFormModule: "contact",
+  FAQSection: "faq",
+  BookingModule: "book-a-call",
+  OurStoryModule: "our-story",
+  OurProcessModule: "our-process",
+  WhyChooseModule: "why-choose",
+  SplideLogoTickerModule: "logos",
+  AboutSection: "about",
+  ServicesSection: "services",
+  PricingModule: "pricing",
+  TeamSection: "team",
+};
+
+/** Resolve a section's anchor id: its own config.anchorId wins, else a default. */
+export function resolveAnchorId(type: string, config: any): string {
+  const own = typeof config?.anchorId === "string" ? config.anchorId.trim() : "";
+  return own || DEFAULT_ANCHOR_IDS[type] || "";
+}
+
 export type ModuleGroup = { label: string; modules: ModuleDefinition[] };
 
 /**

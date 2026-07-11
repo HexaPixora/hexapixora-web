@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, X, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2 } from "lucide-react";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import MediaField from "@/components/admin/media-field";
-import { MODULES, ModuleDefinition, groupedModules } from "@/lib/modules-registry";
+import { MODULES, ModuleDefinition, groupedModules, DEFAULT_ANCHOR_IDS } from "@/lib/modules-registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
@@ -408,10 +408,24 @@ export default function CustomPageBuilderPage() {
             <DialogTitle>Edit {activeSection?.label}</DialogTitle>
           </DialogHeader>
           
-          <div className="py-4">
+          <div className="py-4 space-y-5">
             <ModuleConfigForm def={activeModuleDef} value={editingConfig} onChange={setEditingConfig} />
+
+            {/* Universal per-section anchor id — lets buttons link to this section. */}
+            <div className="space-y-1.5 border-t pt-4">
+              <label className="text-sm font-medium">Anchor ID <span className="text-xs font-normal text-muted-foreground">(optional)</span></label>
+              <input
+                value={editingConfig.anchorId ?? ""}
+                onChange={(e) => setEditingConfig({ ...editingConfig, anchorId: e.target.value.trim() })}
+                placeholder={(activeSection && DEFAULT_ANCHOR_IDS[activeSection.type]) || "e.g. contact"}
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground">
+                Link a button to <code className="rounded bg-muted px-1">#{editingConfig.anchorId || (activeSection && DEFAULT_ANCHOR_IDS[activeSection.type]) || "your-id"}</code> to scroll here.
+              </p>
+            </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setActiveConfigId(null)}>Cancel</Button>
             <Button onClick={saveSettings}>Apply Changes</Button>

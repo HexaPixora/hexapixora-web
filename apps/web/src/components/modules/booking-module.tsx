@@ -12,7 +12,6 @@ export default function BookingModule({ config }: { config?: BookingProps }) {
     buttonText,
     backgroundColor,
     meetingFilter,
-    anchorId,
   } = bookingSchema.parse(config || {});
 
   const [links, setLinks] = useState<BookingLink[]>([]);
@@ -43,7 +42,7 @@ export default function BookingModule({ config }: { config?: BookingProps }) {
   const mutedColor = dark ? "rgba(255,255,255,0.72)" : "rgba(15,23,42,0.65)";
 
   return (
-    <section id={anchorId || undefined} className="scroll-mt-24 py-24" style={{ backgroundColor }}>
+    <section className="py-24" style={{ backgroundColor }}>
       <div className="container flex flex-col items-center gap-6 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-5xl" style={{ color: textColor }}>
           {heading}

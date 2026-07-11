@@ -1,5 +1,6 @@
 import React from "react";
 import dynamic from "next/dynamic";
+import { resolveAnchorId } from "@/lib/modules-registry";
 
 function DefaultSection({ type, label, config }: { type: string, label?: string, config?: any }) {
   return (
@@ -60,6 +61,9 @@ export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRen
     return null;
   }
 
+  // Track anchor ids already used on this page so we never emit a duplicate id.
+  const usedAnchors = new Set<string>();
+
   return (
     <>
       {sections.filter((s) => s.isVisible).map((section) => {
@@ -91,13 +95,22 @@ export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRen
 
         const Component = SECTION_MAP[typeToRender] || DefaultSection;
 
-        return (
-          <Component
-            key={section.id}
-            type={typeToRender}
-            label={section.label}
-            config={mergedConfig}
-          />
+        // Anchor id for in-page links (#contact, #faq, …). First section to
+        // claim an id wins; duplicates are dropped to keep the HTML valid.
+        const candidate = resolveAnchorId(typeToRender, mergedConfig);
+        const anchor = candidate && !usedAnchors.has(candidate) ? candidate : "";
+        if (anchor) usedAnchors.add(anchor);
+
+        const rendered = (
+          <Component type={typeToRender} label={section.label} config={mergedConfig} />
+        );
+
+        return anchor ? (
+          <div key={section.id} id={anchor} className="scroll-mt-24">
+            {rendered}
+          </div>
+        ) : (
+          <React.Fragment key={section.id}>{rendered}</React.Fragment>
         );
       })}
     </>
