@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { icons, ArrowRight, Wrench } from "lucide-react";
+import { icons, Wrench } from "lucide-react";
 import { servicesSchema, ServicesProps } from "@/lib/module-schemas/services-schema";
 
 // Resolve a lucide icon by name. Accepts names copied straight from lucide.dev
@@ -56,7 +56,7 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                 {service.link && service.buttonText && (
                   <Link
                     href={service.link}
-                    className={`mt-auto self-start inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 group-hover:gap-3 ${
+                    className={`mt-auto self-start inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                       btn
                         ? `hover:-translate-y-0.5 hover:opacity-90 ${btnText ? "" : "text-white"}`
                         : "bg-gradient-to-b from-[#2a9dff] to-[#1074e0] text-white shadow-[0_10px_26px_-10px_rgba(16,147,253,0.8)] hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-10px_rgba(16,147,253,0.95)]"
@@ -67,7 +67,6 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                     }}
                   >
                     {service.buttonText}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 )}
               </div>
