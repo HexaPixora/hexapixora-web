@@ -39,11 +39,9 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
               >
                 <div
                   className={`relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/12 ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:scale-110 ${
-                    ic
-                      ? ""
-                      : "bg-gradient-to-b from-[#2a9dff]/25 to-[#1074e0]/10 text-[#7cc4ff] shadow-[0_8px_24px_-8px_rgba(16,147,253,0.5)] group-hover:shadow-[0_14px_32px_-8px_rgba(16,147,253,0.85)]"
+                    ic ? "" : "bg-gradient-to-b from-[#2a9dff]/25 to-[#1074e0]/10 text-[#7cc4ff]"
                   }`}
-                  style={ic ? { backgroundColor: `${ic}1f`, color: ic, boxShadow: `0 8px 24px -8px ${ic}66` } : undefined}
+                  style={ic ? { backgroundColor: `${ic}1f`, color: ic } : undefined}
                 >
                   <Icon className="h-7 w-7" strokeWidth={2} />
                 </div>
