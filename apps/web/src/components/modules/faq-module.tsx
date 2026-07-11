@@ -6,11 +6,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 
 export default function FAQModule({ config }: { config?: FAQProps }) {
-  const { heading, subheading, items } = faqsectionSchema.parse(config || {});
+  const { heading, subheading, items, anchorId } = faqsectionSchema.parse(config || {});
   const faqs = items || [];
 
   return (
-    <section className="py-24 bg-muted/20 border-t">
+    <section id={anchorId || undefined} className="scroll-mt-24 py-24 bg-muted/20 border-t">
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{heading}</h2>
