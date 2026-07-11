@@ -9,8 +9,8 @@ export default function StoryHeroModule({ config }: { config?: StoryHeroProps })
 
   return (
     <section className="relative isolate overflow-hidden py-20 md:py-28">
-      <div aria-hidden className="pointer-events-none absolute -left-32 top-0 -z-10 h-[46vh] w-[46vh] rounded-full bg-[rgba(16,147,253,0.14)] blur-[130px]" />
-      <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 -z-10 h-[40vh] w-[40vh] rounded-full bg-[rgba(80,60,220,0.12)] blur-[130px]" />
+      <div aria-hidden className="pointer-events-none absolute -left-20 top-25 -z-10 h-[46vh] w-[46vh] rounded-full bg-[rgba(16,147,253,0.14)] blur-[130px]" />
+      <div aria-hidden className="pointer-events-none absolute -right-24 bottom-20 -z-10 h-[40vh] w-[40vh] rounded-full bg-[rgba(80,60,220,0.12)] blur-[130px]" />
 
       <div className="container">
         <div className={hasImage ? "grid items-center gap-12 lg:grid-cols-2 lg:gap-16" : "mx-auto max-w-3xl text-center"}>
