@@ -17,6 +17,8 @@ import ServicesModule from "@/components/modules/services-module";
 import PortfolioModule from "@/components/modules/portfolio-module";
 import PortfolioHeroModule from "@/components/modules/portfolio-hero-module";
 import WhyChooseModule from "@/components/modules/why-choose-module";
+import OurStoryModule from "@/components/modules/our-story-module";
+import OurProcessModule from "@/components/modules/our-process-module";
 import TeamModule from "@/components/modules/team-module";
 import FAQModule from "@/components/modules/faq-module";
 import StatsModule from "@/components/modules/stats-module";
@@ -33,6 +35,8 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "PortfolioSection": PortfolioModule,
   "PortfolioHeroModule": PortfolioHeroModule,
   "WhyChooseModule": WhyChooseModule,
+  "OurStoryModule": OurStoryModule,
+  "OurProcessModule": OurProcessModule,
   "TeamSection": TeamModule,
   "FAQSection": FAQModule,
   "StatsSection": StatsModule,
