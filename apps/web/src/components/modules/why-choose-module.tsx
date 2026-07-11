@@ -35,7 +35,7 @@ export default function WhyChooseModule({ config }: { config?: WhyChooseProps })
       {/* Ambient brand-blue aurora. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[40vh] w-[70vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.10)] blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-25 -z-10 h-[40vh] w-[70vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.10)] blur-[120px]"
       />
 
       <div className="container">

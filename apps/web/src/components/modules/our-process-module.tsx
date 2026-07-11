@@ -13,7 +13,7 @@ export default function OurProcessModule({ config }: { config?: OurProcessProps 
 
   return (
     <section className="relative isolate overflow-hidden py-20 md:py-28">
-      <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[36vh] w-[70vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.1)] blur-[120px]" />
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-25 -z-10 h-[36vh] w-[70vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.1)] blur-[120px]" />
 
       <div className="container">
         {/* Header */}
