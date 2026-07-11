@@ -19,6 +19,10 @@ import PortfolioHeroModule from "@/components/modules/portfolio-hero-module";
 import WhyChooseModule from "@/components/modules/why-choose-module";
 import OurStoryModule from "@/components/modules/our-story-module";
 import OurProcessModule from "@/components/modules/our-process-module";
+import WorkHeroModule from "@/components/modules/work-hero-module";
+import StoryHeroModule from "@/components/modules/story-hero-module";
+import TechStackModule from "@/components/modules/tech-stack-module";
+import SkillsShowcaseModule from "@/components/modules/skills-showcase-module";
 import TeamModule from "@/components/modules/team-module";
 import FAQModule from "@/components/modules/faq-module";
 import StatsModule from "@/components/modules/stats-module";
@@ -37,6 +41,10 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "WhyChooseModule": WhyChooseModule,
   "OurStoryModule": OurStoryModule,
   "OurProcessModule": OurProcessModule,
+  "WorkHeroModule": WorkHeroModule,
+  "StoryHeroModule": StoryHeroModule,
+  "TechStackModule": TechStackModule,
+  "SkillsShowcaseModule": SkillsShowcaseModule,
   "TeamSection": TeamModule,
   "FAQSection": FAQModule,
   "StatsSection": StatsModule,
