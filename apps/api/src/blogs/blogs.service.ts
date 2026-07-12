@@ -10,8 +10,10 @@ export class BlogsService {
   constructor(private prisma: PrismaService) {}
 
   // Fields returned to list/related views (includes related categories).
+  // content is included so cards/featured can derive a snippet when a post has
+  // no explicit excerpt; readTime powers the "x min read" label.
   private readonly listSelect = {
-    id: true, title: true, slug: true, excerpt: true,
+    id: true, title: true, slug: true, excerpt: true, content: true, readTime: true,
     tags: true, thumbnail: true, isPublished: true, status: true,
     publishDate: true, publishAt: true, createdAt: true, updatedAt: true,
     categories: { select: { id: true, name: true, slug: true, color: true } },
