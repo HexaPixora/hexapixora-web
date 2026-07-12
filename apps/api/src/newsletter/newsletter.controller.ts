@@ -14,7 +14,7 @@ export class NewsletterController {
   // Public subscription
   @Post('subscribe')
   subscribe(@Body() body: SubscribeDto) {
-    return this.newsletterService.subscribe(body.email);
+    return this.newsletterService.subscribe(body.email, body.name);
   }
 
   // Public unsubscribe (via the signed token embedded in every campaign email).

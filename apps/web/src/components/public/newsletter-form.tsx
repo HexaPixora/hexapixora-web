@@ -8,6 +8,7 @@ import { trackEvent } from "@/lib/analytics";
 import { CheckCircle2 } from "lucide-react";
 
 export function NewsletterForm() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<null | "new" | "already">(null);
@@ -19,7 +20,10 @@ export function NewsletterForm() {
     setError("");
     setLoading(true);
     try {
-      await apiClient.post("/newsletter/subscribe", { email: email.trim() });
+      await apiClient.post("/newsletter/subscribe", {
+        email: email.trim(),
+        ...(name.trim() ? { name: name.trim() } : {}),
+      });
       trackEvent("newsletter_signup");
       setDone("new");
     } catch (err: any) {
@@ -41,6 +45,14 @@ export function NewsletterForm() {
 
   return (
     <form className="flex flex-col gap-2" onSubmit={submit}>
+      <Input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="First name (optional)"
+        autoComplete="given-name"
+        className="bg-foreground/5 border-foreground/15"
+      />
       <div className="flex gap-2">
         <Input
           type="email"
@@ -48,6 +60,7 @@ export function NewsletterForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@email.com"
+          autoComplete="email"
           className="flex-1 bg-foreground/5 border-foreground/15"
         />
         <Button type="submit" disabled={loading}>
