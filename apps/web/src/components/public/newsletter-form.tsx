@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api-client";
+import { trackEvent } from "@/lib/analytics";
 import { CheckCircle2 } from "lucide-react";
 
 export function NewsletterForm() {
@@ -19,6 +20,7 @@ export function NewsletterForm() {
     setLoading(true);
     try {
       await apiClient.post("/newsletter/subscribe", { email: email.trim() });
+      trackEvent("newsletter_signup");
       setDone("new");
     } catch (err: any) {
       if (err?.response?.status === 409) setDone("already");
