@@ -50,7 +50,7 @@ export function InsightCard({ post, className = "" }: { post: any; className?: s
   return (
     <Link
       href={insightPostUrl(post)}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_20px_50px_-30px_rgba(16,147,253,0.5)] ring-1 ring-inset ring-white/10 transition-all duration-500 hover:-translate-y-1 hover:border-white/20 hover:ring-white/20 ${className}`}
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] transition-colors duration-300 hover:border-white/20 ${className}`}
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         {post.thumbnail ? (

@@ -29,7 +29,7 @@ type Blog = {
   id: string;
   title: string;
   slug: string;
-  category?: string;
+  categories?: { id: string; name: string; slug?: string; color?: string }[];
   thumbnail?: string;
   status?: string;
   isPublished?: boolean;
@@ -160,7 +160,15 @@ export default function AdminBlogsPage() {
                     </div>
                   </TD>
                   <TD>
-                    {blog.category ? <Badge variant="secondary">{blog.category}</Badge> : <span className="text-muted-foreground">—</span>}
+                    {blog.categories && blog.categories.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {blog.categories.map((c) => (
+                          <Badge key={c.id} variant="secondary">{c.name}</Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </TD>
                   <TD>
                     <StatusBadge
@@ -176,7 +184,7 @@ export default function AdminBlogsPage() {
                   <TD align="right">
                     <RowActions>
                       <a
-                        href={siteUrl(`blog/${blog.slug}`)}
+                        href={siteUrl(`insights/${blog.categories?.[0]?.slug || "uncategorized"}/${blog.slug}`)}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
