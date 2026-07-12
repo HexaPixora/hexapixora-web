@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, Send, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import { contactFormSchema, ContactFormProps } from "@/lib/module-schemas/contact-form-schema";
 import { COUNTRIES } from "@/lib/countries";
+import { trackEvent } from "@/lib/analytics";
 
 const schema = z.object({
   name: z.string().min(2, "Please enter your full name"),
@@ -51,6 +52,7 @@ export default function ContactForm(props: ContactFormProps) {
     }
     try {
       await apiClient.post("/leads", { ...lead, type: "contact" });
+      trackEvent("generate_lead", { form: "contact" });
       setSuccess(true);
       reset();
     } catch (err: any) {
