@@ -23,15 +23,16 @@ export class NewsletterService {
     private mail: MailService,
   ) {}
 
-  async subscribe(email: string) {
+  async subscribe(email: string, name?: string) {
     const existing = await this.prisma.newsletterSubscriber.findUnique({ where: { email } });
     if (existing && existing.status === 'ACTIVE') {
       throw new ConflictException('Email already subscribed');
     }
+    const trimmedName = name?.trim() || undefined;
     const subscriber = await this.prisma.newsletterSubscriber.upsert({
       where: { email },
-      update: { status: 'ACTIVE' },
-      create: { email },
+      update: { status: 'ACTIVE', ...(trimmedName ? { name: trimmedName } : {}) },
+      create: { email, ...(trimmedName ? { name: trimmedName } : {}) },
     });
 
     void this.notifications.create({
@@ -40,6 +41,18 @@ export class NewsletterService {
       body: email,
       link: '/admin/newsletter',
     });
+
+    // Branded welcome email (fire-and-forget; no-op if Resend isn't configured).
+    void this.branding().then(({ siteName, logoUrl }) =>
+      this.mail.sendNewsletterWelcome({
+        to: email,
+        name: subscriber.name,
+        siteName,
+        logoUrl,
+        unsubscribeUrl: this.unsubscribeUrl(email),
+        exploreUrl: env.appUrl,
+      }),
+    );
 
     return subscriber;
   }
@@ -91,11 +104,22 @@ export class NewsletterService {
     return { message: "You've been unsubscribed." };
   }
 
-  private async siteName(): Promise<string> {
+  // Branding used across newsletter emails: site name + an absolute logo URL
+  // (email clients can't resolve app-relative paths).
+  private async branding(): Promise<{ siteName: string; logoUrl: string | null }> {
     const s = await this.prisma.siteSetting
       .findUnique({ where: { id: 'global' } })
       .catch(() => null);
-    return s?.siteName || 'HexaPixora';
+    return {
+      siteName: s?.siteName || 'HexaPixora',
+      logoUrl: this.absoluteUrl(s?.logoUrl),
+    };
+  }
+
+  private absoluteUrl(path?: string | null): string | null {
+    if (!path) return null;
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${env.appUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
   }
 
   // --- Campaigns (compose + send from the admin) ---
@@ -111,8 +135,14 @@ export class NewsletterService {
   }
 
   async sendTest(input: { subject: string; content: string; to: string }) {
-    const siteName = await this.siteName();
-    const html = this.mail.renderCampaignHtml(input.content, this.unsubscribeUrl(input.to), siteName);
+    const { siteName, logoUrl } = await this.branding();
+    const html = this.mail.renderCampaignHtml({
+      content: input.content,
+      unsubscribeUrl: this.unsubscribeUrl(input.to),
+      siteName,
+      logoUrl,
+      recipient: { email: input.to },
+    });
     const ok = await this.mail.sendBatch([{ to: input.to, subject: `[TEST] ${input.subject}`, html }]);
     if (!ok) {
       throw new BadRequestException('Could not send the test email. Is RESEND_API_KEY configured?');
@@ -128,32 +158,38 @@ export class NewsletterService {
     }
     const subs = await this.prisma.newsletterSubscriber.findMany({
       where: { status: 'ACTIVE' },
-      select: { email: true },
+      select: { email: true, name: true },
     });
     if (subs.length === 0) {
       throw new BadRequestException('There are no active subscribers to send to.');
     }
-    const siteName = await this.siteName();
+    const branding = await this.branding();
     await this.prisma.campaign.update({
       where: { id },
       data: { status: 'SENDING', recipientCount: subs.length },
     });
     // Fire-and-forget so the request returns immediately; the campaign flips to
     // SENT/FAILED once the batch completes.
-    void this.dispatchCampaign(campaign, subs.map((s) => s.email), siteName);
+    void this.dispatchCampaign(campaign, subs, branding);
     return { message: `Sending to ${subs.length} subscriber(s)…`, recipientCount: subs.length };
   }
 
   private async dispatchCampaign(
     campaign: { id: string; subject: string; content: string },
-    emails: string[],
-    siteName: string,
+    recipients: { email: string; name: string | null }[],
+    branding: { siteName: string; logoUrl: string | null },
   ) {
     try {
-      const items = emails.map((to) => ({
-        to,
+      const items = recipients.map((r) => ({
+        to: r.email,
         subject: campaign.subject,
-        html: this.mail.renderCampaignHtml(campaign.content, this.unsubscribeUrl(to), siteName),
+        html: this.mail.renderCampaignHtml({
+          content: campaign.content,
+          unsubscribeUrl: this.unsubscribeUrl(r.email),
+          siteName: branding.siteName,
+          logoUrl: branding.logoUrl,
+          recipient: r,
+        }),
       }));
       const sent = await this.mail.sendBatch(items);
       await this.prisma.campaign.update({

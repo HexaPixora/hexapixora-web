@@ -39,6 +39,78 @@ export class MailService {
       .replace(/>/g, '&gt;');
   }
 
+  /**
+   * Minimal Liquid-subset substitution so admins can personalise copy with
+   * `{{ first_name }}`, `{{ name }}`, `{{ email }}` — with an optional
+   * `| default: "there"` fallback. Values are HTML-escaped; unknown tokens
+   * resolve to their default (or empty). Not a full Liquid engine.
+   */
+  private applyTokens(content: string, data: Record<string, string>): string {
+    return content.replace(
+      /\{\{\s*([\w.]+)\s*(?:\|\s*default:\s*["']([^"']*)["']\s*)?\}\}/g,
+      (_m, key: string, def?: string) => {
+        const val = data[key];
+        if (val !== undefined && val !== null && String(val).trim() !== '') {
+          return this.escape(String(val));
+        }
+        return def !== undefined ? this.escape(def) : '';
+      },
+    );
+  }
+
+  /** Absolute logo URL, or a text wordmark fallback, for the email header. */
+  private headerBrand(siteName: string, logoUrl?: string | null): string {
+    if (logoUrl && /^https?:\/\//i.test(logoUrl)) {
+      return `<img src="${logoUrl}" alt="${this.escape(siteName)}" height="34" style="display:block;height:34px;width:auto;max-width:180px;border:0;outline:none;" />`;
+    }
+    return `<span style="font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#ffffff;">${this.escape(siteName)}</span>`;
+  }
+
+  /**
+   * Brand-matched (dark, glass) email shell used for the newsletter welcome and
+   * campaigns. Table-based + inline styles for email-client compatibility.
+   */
+  private brandedShell(opts: {
+    siteName: string;
+    logoUrl?: string | null;
+    preheader?: string;
+    bodyHtml: string;
+    footerHtml?: string;
+  }): string {
+    const { siteName, logoUrl, preheader, bodyHtml, footerHtml } = opts;
+    const year = new Date().getFullYear();
+    const font =
+      "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+    return `
+<div style="margin:0;padding:0;background:#0a0a0a;">
+  ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#0a0a0a;">${this.escape(preheader)}</div>` : ''}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;">
+    <tr><td align="center" style="padding:28px 12px;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#101012;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+        <tr><td align="center" style="padding:28px 32px 6px;background:#0c0c0e;border-bottom:1px solid rgba(255,255,255,0.06);">
+          ${this.headerBrand(siteName, logoUrl)}
+        </td></tr>
+        <tr><td style="padding:28px 32px 8px;font-family:${font};color:#d4d7dd;font-size:16px;line-height:1.65;">
+          ${bodyHtml}
+        </td></tr>
+        <tr><td style="padding:20px 32px 30px;font-family:${font};">
+          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:0 0 16px;" />
+          <p style="margin:0;color:#6b7280;font-size:12px;line-height:1.7;text-align:center;">
+            ${footerHtml || `You're receiving this because you subscribed to ${this.escape(siteName)}.`}
+          </p>
+        </td></tr>
+      </table>
+      <p style="margin:16px 0 0;color:#4b5563;font-family:${font};font-size:11px;">© ${year} ${this.escape(siteName)}</p>
+    </td></tr>
+  </table>
+</div>`;
+  }
+
+  /** Brand-blue pill button for dark email bodies. */
+  private darkButton(label: string, url: string): string {
+    return `<a href="${url}" style="display:inline-block;background:#1074e0;color:#ffffff;text-decoration:none;padding:12px 26px;border-radius:10px;font-weight:600;font-size:15px;">${this.escape(label)}</a>`;
+  }
+
   private async send({ to, subject, html, replyTo }: SendArgs): Promise<boolean> {
     if (!this.isConfigured()) {
       this.logger.warn(
@@ -169,17 +241,81 @@ export class MailService {
     });
   }
 
-  /** Wrap admin-composed campaign HTML in an email shell + unsubscribe footer. */
-  renderCampaignHtml(content: string, unsubscribeUrl: string, siteName: string): string {
-    return `
-      <div style="font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;color:#111;line-height:1.6;">
-        <div>${content}</div>
-        <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px;" />
-        <p style="color:#999;font-size:12px;text-align:center;margin:0;">
-          You're receiving this because you subscribed to ${this.escape(siteName)}.<br/>
-          <a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a>
-        </p>
-      </div>`;
+  /**
+   * Wrap admin-composed campaign HTML in the brand shell, personalising any
+   * `{{ first_name }}` / `{{ name }}` / `{{ email }}` tokens for the recipient.
+   */
+  renderCampaignHtml(opts: {
+    content: string;
+    unsubscribeUrl: string;
+    siteName: string;
+    logoUrl?: string | null;
+    recipient?: { name?: string | null; email: string };
+  }): string {
+    const { content, unsubscribeUrl, siteName, logoUrl, recipient } = opts;
+    const name = (recipient?.name || '').trim();
+    const body = this.applyTokens(content, {
+      first_name: name.split(' ')[0] || '',
+      name,
+      email: recipient?.email || '',
+    });
+    const footerHtml = `You're receiving this because you subscribed to ${this.escape(siteName)}.<br/>
+      <a href="${unsubscribeUrl}" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a>`;
+    return this.brandedShell({ siteName, logoUrl, bodyHtml: `<div>${body}</div>`, footerHtml });
+  }
+
+  /** Personalised, brand-matched welcome sent the moment someone subscribes. */
+  async sendNewsletterWelcome(params: {
+    to: string;
+    name?: string | null;
+    siteName: string;
+    logoUrl?: string | null;
+    unsubscribeUrl: string;
+    exploreUrl: string;
+  }): Promise<boolean> {
+    const { to, name, siteName, logoUrl, unsubscribeUrl, exploreUrl } = params;
+    const first = this.escape((name || '').split(' ')[0] || 'there');
+    const bullets = [
+      'Thought-provoking insights on design, development, AI and digital innovation',
+      'Behind-the-scenes looks at our projects and creative process',
+      'Practical tips, resources and tools we genuinely use',
+      'Early access to new launches, experiments and announcements',
+    ];
+    const bodyHtml = `
+      <h1 style="margin:0 0 16px;font-size:24px;line-height:1.3;font-weight:800;color:#ffffff;letter-spacing:-0.02em;">
+        Welcome to ${this.escape(siteName)}, ${first} 👋
+      </h1>
+      <p style="margin:0 0 16px;">
+        You didn't just subscribe to another newsletter — you joined a community of designers,
+        developers, founders and innovators who believe exceptional digital experiences are built with intention.
+      </p>
+      <p style="margin:0 0 10px;color:#ffffff;font-weight:600;">Here's what to expect:</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
+        ${bullets
+          .map(
+            (b) => `<tr><td style="padding:4px 10px 4px 0;color:#1093fd;vertical-align:top;">●</td>
+              <td style="padding:4px 0;color:#d4d7dd;">${this.escape(b)}</td></tr>`,
+          )
+          .join('')}
+      </table>
+      <p style="margin:0 0 20px;">
+        No spam. No noise. Just carefully crafted content that informs, inspires and helps you build better digital experiences.
+      </p>
+      <p style="margin:0 0 26px;">${this.darkButton('Explore our work', exploreUrl)}</p>
+      <p style="margin:0;color:#9ca3af;">Talk soon,<br/>The ${this.escape(siteName)} Team</p>`;
+    const footerHtml = `You subscribed to ${this.escape(siteName)} with this email address.<br/>
+      <a href="${unsubscribeUrl}" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a>`;
+    return this.send({
+      to,
+      subject: `Welcome to ${siteName} 👋`,
+      html: this.brandedShell({
+        siteName,
+        logoUrl,
+        preheader: 'Thanks for subscribing — here’s what to expect.',
+        bodyHtml,
+        footerHtml,
+      }),
+    });
   }
 
   /**
