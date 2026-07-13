@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { instagramReelsSchema, InstagramReelsProps } from "@/lib/module-schemas/instagram-reels-schema";
 
@@ -24,37 +26,70 @@ function IgIcon({ size = 16, className }: { size?: number; className?: string })
   );
 }
 
-/** Turn a reel/post URL (or bare shortcode) into its /embed iframe URL. */
-function toEmbedUrl(raw: string): string | null {
+/** Pull an Instagram permalink out of a URL, shortcode, or pasted embed code. */
+function toPermalink(raw: string): string | null {
   const s = (raw || "").trim();
   if (!s) return null;
   const m = s.match(/instagram\.com\/(reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i);
   if (m) {
     const type = m[1]!.toLowerCase() === "reels" ? "reel" : m[1]!.toLowerCase();
-    return `https://www.instagram.com/${type}/${m[2]!}/embed`;
+    return `https://www.instagram.com/${type}/${m[2]!}/`;
   }
-  // Bare shortcode → assume a reel.
-  if (/^[A-Za-z0-9_-]+$/.test(s)) return `https://www.instagram.com/reel/${s}/embed`;
+  if (/^[A-Za-z0-9_-]+$/.test(s)) return `https://www.instagram.com/reel/${s}/`;
   return null;
 }
 
-// Column count adapts to how many reels there are (max 4 in a row); with fewer,
-// the grid narrows and centers so it never looks stranded.
-const GRID_BY_COUNT: Record<number, string> = {
-  1: "max-w-[340px] grid-cols-1",
-  2: "max-w-2xl grid-cols-2",
-  3: "max-w-4xl grid-cols-2 md:grid-cols-3",
-  4: "max-w-6xl grid-cols-2 md:grid-cols-4",
-};
+/**
+ * Build the official Instagram embed blockquote for a reel. `embed.js` (loaded
+ * once below) turns each blockquote into a correctly-sized iframe showing the
+ * full reel — so nothing gets cropped.
+ */
+function blockquoteFor(raw: string): string | null {
+  const s = (raw || "").trim();
+  // Already a full embed code pasted from Instagram → use it, minus its inline
+  // <script> (we load embed.js ourselves; an inert script tag would do nothing).
+  if (/<blockquote[\s>]/i.test(s)) {
+    return s.replace(/<script[\s\S]*?<\/script>/gi, "");
+  }
+  const permalink = toPermalink(s);
+  if (!permalink) return null;
+  return `<blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="background:#000; border:0; margin:0; padding:0; width:100%; min-width:0;"></blockquote>`;
+}
 
 export default function InstagramReelsModule({ config }: { config?: InstagramReelsProps }) {
   const { eyebrow, heading, subheading, reels, ctaLabel, ctaUrl } = instagramReelsSchema.parse(config || {});
 
-  const embeds = (reels || [])
-    .map((r) => toEmbedUrl(r.url))
-    .filter((u): u is string => Boolean(u));
+  const items = (reels || [])
+    .map((r) => blockquoteFor(r.url))
+    .filter((h): h is string => Boolean(h));
 
-  const gridClass = GRID_BY_COUNT[Math.min(embeds.length, 4)] || GRID_BY_COUNT[4];
+  // Load Instagram's embed script once, then (re)process the blockquotes.
+  const key = items.join("|");
+  useEffect(() => {
+    if (items.length === 0) return;
+    const w = window as unknown as { instgrm?: { Embeds?: { process: () => void } } };
+    const process = () => w.instgrm?.Embeds?.process();
+    if (w.instgrm) {
+      process();
+      return;
+    }
+    const existing = document.getElementById("instagram-embed-js");
+    if (existing) {
+      const t = setInterval(() => {
+        if (w.instgrm) {
+          clearInterval(t);
+          process();
+        }
+      }, 300);
+      return () => clearInterval(t);
+    }
+    const script = document.createElement("script");
+    script.id = "instagram-embed-js";
+    script.async = true;
+    script.src = "https://www.instagram.com/embed.js";
+    script.onload = process;
+    document.body.appendChild(script);
+  }, [key, items.length]);
 
   return (
     <section className="relative isolate overflow-hidden py-20 md:py-28">
@@ -75,30 +110,23 @@ export default function InstagramReelsModule({ config }: { config?: InstagramRee
           {subheading && <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{subheading}</p>}
         </div>
 
-        {embeds.length > 0 ? (
-          <div className={`mx-auto mt-14 grid gap-4 sm:gap-5 ${gridClass}`}>
-            {embeds.map((src, i) => (
+        {items.length > 0 ? (
+          // Fixed-width cards that wrap and center — up to 4 per row on wide
+          // screens (container is capped), fewer rows auto-center.
+          <div className="mx-auto mt-14 flex max-w-[1400px] flex-wrap justify-center gap-5">
+            {items.map((html, i) => (
               <div
                 key={i}
-                className="relative aspect-[9/16] overflow-hidden rounded-2xl border border-white/10 bg-black ring-1 ring-inset ring-white/10"
-              >
-                <iframe
-                  src={src}
-                  title={`Instagram reel ${i + 1}`}
-                  loading="lazy"
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  allowFullScreen
-                  scrolling="no"
-                  className="absolute inset-0 h-full w-full border-0"
-                />
-              </div>
+                className="w-full max-w-full overflow-hidden rounded-2xl border border-white/10 bg-black ring-1 ring-inset ring-white/10 sm:w-[326px]"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
             ))}
           </div>
         ) : (
           <div className="mx-auto mt-12 max-w-md rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-10 text-center">
             <IgIcon size={30} className="mx-auto mb-3 text-muted-foreground opacity-50" />
             <p className="text-sm font-semibold text-foreground">No reels yet</p>
-            <p className="mt-1 text-xs text-muted-foreground">Add reel links in the module settings to display them here.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Add reel links (or embed codes) in the module settings.</p>
           </div>
         )}
 
@@ -111,7 +139,7 @@ export default function InstagramReelsModule({ config }: { config?: InstagramRee
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:border-[#7cc4ff]/40 hover:text-[#7cc4ff]"
             >
               <IgIcon size={16} /> {ctaLabel}
-              <ArrowUpRight size={15} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+              <ArrowUpRight size={15} />
             </a>
           </div>
         )}

@@ -31,9 +31,9 @@ export const InstagramReelsModuleDef = createModuleDefinition(
       name: "reels",
       label: "Reels",
       type: "list",
-      description: "Paste the reel link (e.g. https://www.instagram.com/reel/ABC123/). Up to 4 sit in one row; more wrap to the next.",
+      description: "Paste the reel link (https://www.instagram.com/reel/ABC123/) OR the full embed code from Instagram's Share → Embed. The reel must be public. Up to 4 per row; fewer auto-center.",
       itemFields: [
-        { name: "url", label: "Reel URL", type: "text", placeholder: "https://www.instagram.com/reel/ABC123/" },
+        { name: "url", label: "Reel URL or embed code", type: "textarea", placeholder: "https://www.instagram.com/reel/ABC123/" },
       ],
     },
     { name: "ctaLabel", label: "CTA label", type: "text", description: "Optional button under the reels." },
