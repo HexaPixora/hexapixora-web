@@ -28,6 +28,8 @@ import { StaggeredGridModuleDef } from "./module-schemas/staggered-grid-schema";
 import { PortfolioHeroModuleDef } from "./module-schemas/portfolio-hero-schema";
 import { WhyChooseModuleDef } from "./module-schemas/why-choose-schema";
 import { OurStoryModuleDef } from "./module-schemas/our-story-schema";
+import { LeaderModuleDef } from "./module-schemas/leader-schema";
+import { InstagramReelsModuleDef } from "./module-schemas/instagram-reels-schema";
 import { OurProcessModuleDef } from "./module-schemas/our-process-schema";
 import { WorkHeroModuleDef } from "./module-schemas/work-hero-schema";
 import { StoryHeroModuleDef } from "./module-schemas/story-hero-schema";
@@ -89,7 +91,9 @@ export const MODULES: Record<string, ModuleDefinition> = {
   WorkHeroModule: WorkHeroModuleDef,
   StoryHeroModule: StoryHeroModuleDef,
   TechStackModule: TechStackModuleDef,
-  SkillsShowcaseModule: SkillsShowcaseModuleDef
+  SkillsShowcaseModule: SkillsShowcaseModuleDef,
+  LeaderModule: LeaderModuleDef,
+  InstagramReelsModule: InstagramReelsModuleDef
 };
 
 // Builder categories — group modules by purpose so they're easy to find and
@@ -97,11 +101,11 @@ export const MODULES: Record<string, ModuleDefinition> = {
 // automatically falls into a trailing "Other" group (see groupedModules).
 export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
   { label: "Hero & Banners", modules: ["HeroSection", "WorkHeroModule", "StoryHeroModule", "AnimatedTextHeroModule", "PortfolioHeroModule", "ParallaxBannerModule"] },
-  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "TechStackModule", "TimelineModule", "ScrollytellingModule"] },
+  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "LeaderModule", "TechStackModule", "TimelineModule", "ScrollytellingModule"] },
   { label: "Services & Pricing", modules: ["ServicesSection", "PricingModule"] },
   { label: "Portfolio & Galleries", modules: ["PortfolioSection", "GalleryModule", "SplideGallerySyncModule", "SplideSliderModule", "StaggeredGridModule", "HorizontalScrollModule"] },
   { label: "Social Proof", modules: ["TeamSection", "SkillsShowcaseModule", "SplideLogoTickerModule", "MarqueeModule", "StatsSection", "CounterStatsModule"] },
-  { label: "Blog & Media", modules: ["BlogSection", "VideoPlayerModule"] },
+  { label: "Blog & Media", modules: ["BlogSection", "VideoPlayerModule", "InstagramReelsModule"] },
   { label: "Lead Generation", modules: ["CTASection", "ContactFormModule", "BookingModule", "LeadMagnetModule", "FAQSection"] },
 ];
 
@@ -120,6 +124,8 @@ export const DEFAULT_ANCHOR_IDS: Record<string, string> = {
   ServicesSection: "services",
   PricingModule: "pricing",
   TeamSection: "team",
+  LeaderModule: "leadership",
+  InstagramReelsModule: "reels",
 };
 
 /** Resolve a section's anchor id: its own config.anchorId wins, else a default. */

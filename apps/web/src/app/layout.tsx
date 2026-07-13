@@ -1,10 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Fraunces, Sacramento } from "next/font/google";
 import "./globals.css";
 import { apiUrl } from "@/lib/api-url";
 import { SITE_URL, absoluteMediaUrl } from "@/lib/site-url";
 
 const inter = Inter({ subsets: ["latin"] });
+
+// Editorial display + handwritten signature faces, used only by the Leader/CEO
+// module. `preload: false` so they're not fetched on pages that don't use them —
+// they download only when an element references the CSS variable.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  preload: false,
+  display: "swap",
+});
+const sacramento = Sacramento({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-signature",
+  preload: false,
+  display: "swap",
+});
 
 // The app is dark-mode only — no light theme, no switching. Declaring the dark
 // color scheme here makes native UI (form controls, scrollbars) and the mobile
@@ -97,7 +116,7 @@ export default function RootLayout({
     // `dark` is hardcoded (not toggled at runtime) so the dark theme is applied
     // during SSR / first paint — no white flash on any device, JS or not.
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen bg-background font-sans antialiased`}>
+      <body className={`${inter.className} ${fraunces.variable} ${sacramento.variable} min-h-screen bg-background font-sans antialiased`}>
         {children}
       </body>
     </html>
