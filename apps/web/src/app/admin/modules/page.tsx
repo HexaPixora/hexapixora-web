@@ -24,6 +24,7 @@ import StoryHeroModule from "@/components/modules/story-hero-module";
 import TechStackModule from "@/components/modules/tech-stack-module";
 import SkillsShowcaseModule from "@/components/modules/skills-showcase-module";
 import LeaderModule from "@/components/modules/leader-module";
+import QuoteModule from "@/components/modules/quote-module";
 import InstagramReelsModule from "@/components/modules/instagram-reels-module";
 import TeamModule from "@/components/modules/team-module";
 import FAQModule from "@/components/modules/faq-module";
@@ -48,6 +49,7 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "TechStackModule": TechStackModule,
   "SkillsShowcaseModule": SkillsShowcaseModule,
   "LeaderModule": LeaderModule,
+  "QuoteModule": QuoteModule,
   "InstagramReelsModule": InstagramReelsModule,
   "TeamSection": TeamModule,
   "FAQSection": FAQModule,

@@ -21,7 +21,7 @@ export default function LeaderModule({ config }: { config?: LeaderProps }) {
       <span
         aria-hidden
         style={{ fontFamily: SERIF }}
-        className="pointer-events-none absolute -top-16 left-2 z-0 select-none text-[18rem] leading-none text-white/[0.035] md:left-10 md:text-[26rem]"
+        className="pointer-events-none absolute z-0 select-none text-[18rem] leading-none text-white/[0.035] md:left-10 md:text-[26rem]"
       >
         &ldquo;
       </span>
