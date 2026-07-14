@@ -29,12 +29,14 @@ export default function QuoteModule({ config }: { config?: QuoteProps }) {
                 boxShadow: `0 14px 40px -10px ${accent}88`,
               }}
             >
-              <span
-                style={{ fontFamily: SERIF }}
-                className="mt-4 select-none text-6xl leading-none text-white md:mt-5 md:text-7xl"
-              >
-                &ldquo;
-              </span>
+              {c.avatar && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={c.avatar}
+                      alt={c.name}
+                      className="h-11 w-11 rounded-full object-cover"
+                    />
+                  )}
             </div>
           </div>
 
@@ -68,14 +70,7 @@ export default function QuoteModule({ config }: { config?: QuoteProps }) {
               {/* Author */}
               {(c.name || c.title || c.avatar) && (
                 <div className="mt-6 flex items-center justify-center gap-3">
-                  {c.avatar && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={c.avatar}
-                      alt={c.name}
-                      className="h-11 w-11 rounded-full object-cover ring-2 ring-white/15"
-                    />
-                  )}
+                  
                   <div className="text-left">
                     {c.name && <div className="text-sm font-semibold text-white">{c.name}</div>}
                     {c.title && <div className="text-xs text-white/50">{c.title}</div>}
