@@ -175,7 +175,10 @@ model Blog {
   // When set with status=SCHEDULED, the publish cron makes the post live at this time.
   publishAt        DateTime?
   readTime         Int?     // Minutes to read, auto-calculated
-  
+  // Structured FAQ: array of { question, answer } — rendered as an accordion
+  // on the post page and emitted as FAQ structured data for search engines.
+  faq              Json?
+
   // SEO
   metaTitle        String?
   metaDescription  String?

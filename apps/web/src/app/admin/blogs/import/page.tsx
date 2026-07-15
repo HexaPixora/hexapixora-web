@@ -35,6 +35,7 @@ type PreviewPost = {
   warnings: string[];
   willOverwrite: boolean;
   selected: boolean;
+  faq?: { question: string; answer: string }[];
 };
 
 type CommitResult = {
