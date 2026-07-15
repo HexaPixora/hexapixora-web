@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import MediaField from "@/components/admin/media-field";
+import { CategorySelect } from "@/components/admin/category-select";
 import { PageHeader } from "@/components/admin/ui";
 import {
   UploadCloud, Loader2, ArrowLeft, CheckCircle2, AlertCircle, MinusCircle,
@@ -57,7 +57,7 @@ export default function BlogImportPage() {
   const [result, setResult] = useState<CommitResult | null>(null);
 
   // Bulk-apply controls
-  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkCategories, setBulkCategories] = useState<string[]>([]);
   const [bulkImage, setBulkImage] = useState("");
 
   const validPosts = posts?.filter((p) => p.ok) ?? [];
@@ -90,11 +90,12 @@ export default function BlogImportPage() {
     setPosts((prev) => prev?.map((p) => (p.ok && p.selected ? fn(p) : p)) ?? prev);
   };
   const applyCategory = () => {
-    const names = bulkCategory.split(",").map((s) => s.trim()).filter(Boolean);
-    if (!names.length) return;
-    applyToSelected((p) => ({ ...p, categories: names }));
-    toast.success(`Category applied to ${selectedPosts.length} post(s).`);
+    if (!bulkCategories.length) return;
+    applyToSelected((p) => ({ ...p, categories: bulkCategories }));
+    toast.success(`Categories applied to ${selectedPosts.length} post(s).`);
   };
+  const setPostCategories = (i: number, names: string[]) =>
+    setPosts((prev) => prev?.map((p, idx) => (idx === i ? { ...p, categories: names } : p)) ?? prev);
   const applyImage = (target: "thumbnail" | "ogImage" | "both") => {
     if (!bulkImage) return;
     applyToSelected((p) => ({
@@ -177,11 +178,11 @@ export default function BlogImportPage() {
           {/* Bulk toolbar */}
           <div className="grid gap-4 rounded-2xl border bg-card p-5 lg:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Apply category to selected</label>
-              <div className="flex gap-2">
-                <Input value={bulkCategory} onChange={(e) => setBulkCategory(e.target.value)} placeholder="e.g. Design, Development" />
-                <Button variant="outline" onClick={applyCategory} disabled={!bulkCategory.trim() || selectedPosts.length === 0}>Apply</Button>
-              </div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Apply categories to selected</label>
+              <CategorySelect by="name" value={bulkCategories} onChange={setBulkCategories} />
+              <Button variant="outline" size="sm" onClick={applyCategory} disabled={!bulkCategories.length || selectedPosts.length === 0}>
+                Apply to selected
+              </Button>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Apply image to selected</label>
@@ -243,10 +244,12 @@ export default function BlogImportPage() {
                         </div>
                       )}
                     </td>
-                    <td className="p-3 align-top">
-                      <div className="flex flex-wrap gap-1">
-                        {p.categories.length ? p.categories.map((c, ci) => <Badge key={ci} variant="secondary">{c}</Badge>) : <span className="text-xs text-muted-foreground">—</span>}
-                      </div>
+                    <td className="min-w-[240px] p-3 align-top">
+                      {p.ok ? (
+                        <CategorySelect by="name" value={p.categories} onChange={(names) => setPostCategories(i, names)} />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="p-3 align-top">
                       <div className="flex gap-1.5">
