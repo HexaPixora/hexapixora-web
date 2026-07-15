@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -11,7 +11,7 @@ import { Color } from "@tiptap/extension-color";
 import {
   Bold, Italic, Strikethrough, Code, List, ListOrdered,
   Quote, Heading1, Heading2, Heading3, Link2, Image as ImageIcon, Undo, Redo, Minus,
-  Palette, Eraser
+  Palette, Eraser, Code2
 } from "lucide-react";
 
 interface TipTapEditorProps {
@@ -21,6 +21,9 @@ interface TipTapEditorProps {
 }
 
 export default function TipTapEditor({ value, onChange, placeholder = "Start writing..." }: TipTapEditorProps) {
+  // When non-null, we're editing raw HTML in a textarea (lets you paste ready-
+  // made HTML — e.g. long legal pages — that the WYSIWYG can't accept directly).
+  const [source, setSource] = useState<string | null>(null);
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -52,6 +55,19 @@ export default function TipTapEditor({ value, onChange, placeholder = "Start wri
     const url = window.prompt("Enter image URL:");
     if (url) editor?.chain().focus().setImage({ src: url }).run();
   }, [editor]);
+
+  // Toggle between the WYSIWYG editor and a raw-HTML textarea. Applying the HTML
+  // parses it into the editor and pushes the change up via onChange.
+  const toggleSource = useCallback(() => {
+    if (!editor) return;
+    if (source === null) {
+      setSource(editor.getHTML());
+    } else {
+      editor.commands.setContent(source);
+      onChange(editor.getHTML());
+      setSource(null);
+    }
+  }, [editor, source, onChange]);
 
   if (!editor) return null;
 
@@ -106,9 +122,21 @@ export default function TipTapEditor({ value, onChange, placeholder = "Start wri
         <div className="w-px h-6 bg-border mx-1 self-center" />
         {toolbarBtn(false, () => editor.chain().focus().undo().run(), <Undo size={16} />, "Undo")}
         {toolbarBtn(false, () => editor.chain().focus().redo().run(), <Redo size={16} />, "Redo")}
+        <div className="w-px h-6 bg-border mx-1 self-center" />
+        {toolbarBtn(source !== null, toggleSource, <Code2 size={16} />, source !== null ? "Apply HTML & return to editor" : "Edit / paste HTML source")}
       </div>
-      {/* Editor Content */}
-      <EditorContent editor={editor} />
+      {/* Editor Content — or raw-HTML source textarea */}
+      {source !== null ? (
+        <textarea
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          spellCheck={false}
+          placeholder="Paste or edit raw HTML here, then click the </> button to apply."
+          className="w-full min-h-[400px] resize-y bg-background p-4 font-mono text-sm outline-none"
+        />
+      ) : (
+        <EditorContent editor={editor} />
+      )}
     </div>
   );
 }
