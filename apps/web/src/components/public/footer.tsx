@@ -162,6 +162,13 @@ export default function PublicFooter({ settings, config, headerConfig, navigatio
           <div className="flex items-center gap-2 text-sm opacity-60">
             <Link href="/privacy-policy" className="rounded-md px-2 py-1 hover:opacity-100 hover:bg-foreground/10 transition-colors">Privacy Policy</Link>
             <Link href="/terms-of-service" className="rounded-md px-2 py-1 hover:opacity-100 hover:bg-foreground/10 transition-colors">Terms of Service</Link>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("cookie:open"))}
+              className="rounded-md px-2 py-1 hover:opacity-100 hover:bg-foreground/10 transition-colors"
+            >
+              Cookie Preferences
+            </button>
           </div>
         </div>
       </div>
