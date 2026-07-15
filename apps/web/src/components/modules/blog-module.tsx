@@ -4,6 +4,7 @@ import { blogSchema, BlogProps } from "@/lib/module-schemas/blog-schema";
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
 import { apiUrl } from "@/lib/api-url";
+import { insightExcerpt } from "@/components/public/insight-card";
 
 async function getBlogs(limit: number) {
   try {
@@ -71,7 +72,7 @@ export default async function BlogModule({ config }: { config?: BlogProps }) {
                   {post.title}
                 </h3>
                 <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-1">
-                  {post.excerpt || post.content?.replace(/<[^<>]*>?/gm, '').substring(0, 120) + '...'}
+                  {insightExcerpt(post, 120)}
                 </p>
                 <div className="text-sm font-semibold text-primary flex items-center mt-auto">
                   Read Article <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
