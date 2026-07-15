@@ -18,9 +18,9 @@ import { StatusControl, ContentStatus } from "@/components/admin/status-control"
 import { StatusBadge } from "@/components/admin/status-badge";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Save, Globe, Eye, FileText,
+  ArrowLeft, Globe, FileText,
   Image as ImageIcon, Settings, Calendar,
-  Search, ChevronDown, X, Sparkles, CheckCircle2
+  Search, ChevronDown, X, Sparkles
 } from "lucide-react";
 
 const schema = z.object({

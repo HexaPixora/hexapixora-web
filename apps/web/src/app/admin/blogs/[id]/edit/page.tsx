@@ -18,9 +18,9 @@ import { StatusControl, ContentStatus } from "@/components/admin/status-control"
 import { StatusBadge } from "@/components/admin/status-badge";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Save, Globe, Eye, FileText,
+  ArrowLeft, Globe, FileText,
   Image as ImageIcon, Settings, Calendar,
-  Search, ChevronDown, X, Sparkles, CheckCircle2,
+  Search, ChevronDown, X, Sparkles,
 } from "lucide-react";
 
 const schema = z.object({
@@ -64,12 +64,11 @@ export default function EditBlogPage() {
   const [content, setContent] = useState("");
   const [seoExpanded, setSeoExpanded] = useState(false);
 
-  const { register, control, handleSubmit, setValue, watch, reset, getValues, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, control, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { tags: [], categoryIds: [], status: "DRAFT" },
   });
 
-  const title = watch("title");
   const thumbnail = watch("thumbnail");
   const statusWatch = watch("status");
   const publishAtWatch = watch("publishAt");
