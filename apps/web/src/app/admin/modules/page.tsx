@@ -26,6 +26,7 @@ import SkillsShowcaseModule from "@/components/modules/skills-showcase-module";
 import LeaderModule from "@/components/modules/leader-module";
 import QuoteModule from "@/components/modules/quote-module";
 import InstagramReelsModule from "@/components/modules/instagram-reels-module";
+import RichTextModule from "@/components/modules/rich-text-module";
 import TeamModule from "@/components/modules/team-module";
 import FAQModule from "@/components/modules/faq-module";
 import StatsModule from "@/components/modules/stats-module";
@@ -51,6 +52,7 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "LeaderModule": LeaderModule,
   "QuoteModule": QuoteModule,
   "InstagramReelsModule": InstagramReelsModule,
+  "RichTextModule": RichTextModule,
   "TeamSection": TeamModule,
   "FAQSection": FAQModule,
   "StatsSection": StatsModule,
