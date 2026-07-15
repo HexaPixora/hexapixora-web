@@ -2,7 +2,7 @@ import React from "react";
 import { apiUrl } from "@/lib/api-url";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
-import { TrackingScripts } from "@/components/seo/tracking-scripts";
+import { CookieConsent } from "@/components/public/cookie-consent";
 import ChatWidget from "@/components/public/chat-widget";
 
 async function getSettings(): Promise<any | null> {
@@ -65,7 +65,7 @@ export default async function PublicLayout({
     <div className="public-layout-wrapper">
       <JsonLd data={organization} />
       <JsonLd data={website} />
-      <TrackingScripts
+      <CookieConsent
         googleAnalyticsId={settings?.googleAnalyticsId}
         gtmId={settings?.gtmId}
         metaPixelId={settings?.metaPixelId}
