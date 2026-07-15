@@ -19,7 +19,7 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { toast } from "sonner";
 import {
   ArrowLeft, Globe, FileText,
-  Image as ImageIcon, Settings, Calendar,
+  Image as ImageIcon, Settings,
   Search, ChevronDown, X, Sparkles,
 } from "lucide-react";
 
@@ -306,18 +306,6 @@ export default function EditBlogPage() {
                   className="bg-background/50 focus:bg-background rounded-xl h-11 font-mono text-sm border-muted/50 focus:border-primary/50"
                 />
                 {errors.slug && <p className="text-xs text-destructive font-medium">{errors.slug.message}</p>}
-              </div>
-
-              {/* Publish Date */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-1.5">
-                  <Calendar size={13} className="text-muted-foreground" /> Publish Date
-                </label>
-                <Input 
-                  type="datetime-local" 
-                  {...register("publishDate")} 
-                  className="bg-background/50 focus:bg-background rounded-xl h-11 text-sm border-muted/50 focus:border-primary/50"
-                />
               </div>
 
               {/* Tags Selector */}
