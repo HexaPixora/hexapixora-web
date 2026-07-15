@@ -355,8 +355,9 @@ export class BlogsService {
   private extractHeadings(body: string) {
     const out: { level: number; text: string }[] = [];
     for (const line of body.split('\n')) {
-      const m = line.match(/^(#{1,6})\s+(.+?)\s*#*$/);
-      if (m) out.push({ level: m[1]!.length, text: m[2]!.trim() });
+      // Linear (no overlapping quantifiers): 1–6 hashes, one space/tab, rest.
+      const m = line.match(/^(#{1,6})[ \t](.*)$/);
+      if (m && m[2]!.trim()) out.push({ level: m[1]!.length, text: m[2]!.trim() });
     }
     return out;
   }
