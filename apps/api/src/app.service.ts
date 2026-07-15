@@ -10,7 +10,7 @@ export class AppService {
   }
 
   async health() {
-    let db: 'up' | 'down' = 'down';
+    let db: 'up' | 'down';
     try {
       await this.prisma.$queryRaw`SELECT 1`;
       db = 'up';
