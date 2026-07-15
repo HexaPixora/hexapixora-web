@@ -330,7 +330,7 @@ export class BlogsService {
       title,
       slug,
       excerpt,
-      content: mdParser.render(body),
+      content: this.renderPostContent(body),
       categories,
       tags: this.toStringArray(fm.tags),
       thumbnail,
@@ -352,6 +352,49 @@ export class BlogsService {
       if (m) out.push({ level: m[1]!.length, text: m[2]!.trim() });
     }
     return out;
+  }
+
+  // Render a post body to HTML: drop any trailing "Related Articles" section
+  // (the article page shows auto-generated related posts instead) and turn an
+  // FAQ section into a styled accordion rather than plain paragraphs.
+  private renderPostContent(body: string): string {
+    const main = body.replace(/\n#{1,6}\s+Related Articles[\s\S]*$/i, '').trim();
+
+    const faq = main.match(/\n#{1,6}\s+(?:Frequently Asked Questions|FAQs?)\s*\n/i);
+    if (!faq || faq.index === undefined) return mdParser.render(main);
+
+    const before = main.slice(0, faq.index).trim();
+    const faqBody = main.slice(faq.index + faq[0].length).trim();
+    return (
+      mdParser.render(before) +
+      '<h2>Frequently Asked Questions</h2>' +
+      this.renderFaqAccordion(faqBody)
+    );
+  }
+
+  // Each "**Question?**\nAnswer" pair becomes a <details> accordion item.
+  private renderFaqAccordion(faqBody: string): string {
+    const items = faqBody
+      .split(/\n{2,}/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((item) => {
+        const m = item.match(/^\*\*(.+?)\*\*\s*([\s\S]*)$/);
+        if (!m) return `<p>${mdParser.renderInline(item)}</p>`;
+        const question = this.escapeHtml(m[1]!.trim());
+        const answer = mdParser.render(m[2]!.trim());
+        return `<details class="faq-item"><summary>${question}</summary><div class="faq-answer">${answer}</div></details>`;
+      })
+      .join('');
+    return `<div class="article-faq">${items}</div>`;
+  }
+
+  private escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   // Expand uploaded files into { name, raw } markdown docs — .md/.markdown as-is,

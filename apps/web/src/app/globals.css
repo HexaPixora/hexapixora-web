@@ -303,3 +303,59 @@
   from { height: var(--radix-accordion-content-height); opacity: 1; }
   to { height: 0; opacity: 0; }
 }
+
+/* Blog article FAQ — a styled accordion built at import time (see the API's
+   blogs.service renderFaqAccordion). Overrides prose defaults inside articles. */
+.article-faq {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.article-faq details.faq-item {
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+}
+.article-faq details.faq-item[open] {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+.article-faq summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin: 0;
+  font-weight: 600;
+  color: #fff;
+  transition: color 0.2s;
+}
+.article-faq summary::-webkit-details-marker { display: none; }
+.article-faq summary:hover { color: #7cc4ff; }
+.article-faq summary::after {
+  content: "";
+  flex: none;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-right: 2px solid #7cc4ff;
+  border-bottom: 2px solid #7cc4ff;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.25s ease;
+}
+.article-faq details[open] summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+.article-faq .faq-answer {
+  padding: 0 1.25rem 1.1rem;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.65;
+}
+.article-faq .faq-answer > :first-child { margin-top: 0; }
+.article-faq .faq-answer > :last-child { margin-bottom: 0; }

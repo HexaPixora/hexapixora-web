@@ -9,9 +9,9 @@ import { InsightCard, CategoryChip, formatInsightDate, insightExcerpt, insightPo
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Insights | HexaPixora",
+  title: "Insights: Software, Web, AI & Cloud Guides | HexaPixora",
   description:
-    "Ideas, stories and deep-dives on design, development, marketing and technology from the HexaPixora team.",
+    "Practical guides on custom software, web development, SaaS, AI automation, cloud and design — written to help business leaders make confident technology decisions.",
   alternates: {
     canonical: "/insights",
     types: { "application/rss+xml": "/insights/feed.xml" },
@@ -167,19 +167,20 @@ async function InsightsFeed() {
 
 export default function InsightsPage() {
   return (
-    <SiteLayout showHeader showFooter>
+    <SiteLayout showHeader showFooter headerOverlay>
       <div className="relative isolate flex-1 overflow-hidden pb-24">
-        {/* Ambient aurora */}
-        <div aria-hidden className="pointer-events-none absolute -left-32 top-0 -z-10 h-[44vh] w-[44vh] rounded-full bg-[rgba(16,147,253,0.10)] blur-[140px]" />
-        <div aria-hidden className="pointer-events-none absolute -right-24 top-40 -z-10 h-[40vh] w-[40vh] rounded-full bg-[rgba(80,60,220,0.09)] blur-[140px]" />
+        {/* Top glow flows up behind the floating header so there's no seam. */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[560px] bg-[radial-gradient(70%_100%_at_50%_0%,rgba(16,147,253,0.13),transparent)]" />
+        <div aria-hidden className="pointer-events-none absolute -left-32 top-24 -z-10 h-[44vh] w-[44vh] rounded-full bg-[rgba(16,147,253,0.10)] blur-[140px]" />
+        <div aria-hidden className="pointer-events-none absolute -right-24 top-52 -z-10 h-[40vh] w-[40vh] rounded-full bg-[rgba(80,60,220,0.09)] blur-[140px]" />
 
-        {/* Hero (static — paints immediately) */}
-        <header className="container relative z-10 max-w-3xl pb-12 pt-16 text-center md:pt-24">
+        {/* Hero — extra top padding clears the overlaid floating header. */}
+        <header className="container relative z-10 max-w-3xl pb-12 pt-32 text-center md:pt-40">
           <h1 className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-4xl font-black leading-[1.1] tracking-tight text-transparent md:text-5xl">
-            The HexaPixora Journal
+            Insights &amp; Ideas
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Ideas, stories and deep-dives on design, engineering and building modern digital brands.
+            Practical guides on software, web, AI, cloud and design — written to help business leaders make confident technology decisions.
           </p>
         </header>
 
