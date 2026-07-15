@@ -4,14 +4,21 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { TrackingScripts } from "@/components/seo/tracking-scripts";
 
-const STORAGE_KEY = "hexapixora-cookie-consent";
+const COOKIE_NAME = "hexapixora_cookie_consent";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 180; // 6 months, then the banner re-prompts
 type Consent = "accepted" | "rejected";
+
+function readConsent(): Consent | null {
+  const m = document.cookie.match(/(?:^|;\s*)hexapixora_cookie_consent=([^;]+)/);
+  const val = m?.[1];
+  return val === "accepted" || val === "rejected" ? val : null;
+}
 
 /**
  * GDPR-style cookie consent. Analytics/marketing tags (GA4, GTM, Meta Pixel)
  * load ONLY after the visitor accepts — nothing fires beforehand. The choice is
- * remembered in localStorage; the footer's "Cookie Preferences" link re-opens
- * the banner via a `cookie:open` event.
+ * remembered in a first-party cookie (6-month expiry, so it re-prompts); the
+ * footer's "Cookie Preferences" link re-opens the banner via a `cookie:open` event.
  */
 export function CookieConsent({
   googleAnalyticsId,
@@ -26,19 +33,16 @@ export function CookieConsent({
   const [consent, setConsent] = useState<Consent | null | undefined>(undefined);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    setConsent(stored === "accepted" || stored === "rejected" ? (stored as Consent) : null);
+    setConsent(readConsent());
     const reopen = () => setConsent(null);
     window.addEventListener("cookie:open", reopen);
     return () => window.removeEventListener("cookie:open", reopen);
   }, []);
 
   const choose = (value: Consent) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, value);
-    } catch {
-      // Private mode / storage disabled — the choice just won't persist.
-    }
+    // The consent record is a first-party, strictly-necessary cookie (allowed
+    // without consent). The 6-month expiry re-prompts periodically, per guidance.
+    document.cookie = `${COOKIE_NAME}=${value}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
     setConsent(value);
   };
 
