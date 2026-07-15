@@ -1,4 +1,8 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards,
+  UseInterceptors, UploadedFiles,
+} from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { BlogsService } from './blogs.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -55,6 +59,22 @@ export class BlogsController {
   @Post()
   create(@Body() body: CreateBlogDto) {
     return this.blogsService.create(body);
+  }
+
+  // Bulk import from Markdown files (or a .zip bundle of them).
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('blogs')
+  @Post('import')
+  @UseInterceptors(FilesInterceptor('files', 200, { limits: { fileSize: 15 * 1024 * 1024 } }))
+  importFiles(
+    @UploadedFiles() files: Array<{ originalname?: string; buffer: Buffer }>,
+    @Body('overwrite') overwrite?: string,
+    @Body('publish') publish?: string,
+  ) {
+    return this.blogsService.importFiles(files || [], {
+      overwrite: overwrite === 'true' || overwrite === '1',
+      publish: publish === 'true' || publish === '1',
+    });
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
