@@ -30,6 +30,7 @@ export class CreateBlogDto extends SeoFields {
   @IsOptional() @IsBoolean() isPublished?: boolean;
   @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;
   @IsOptional() @IsDateString() publishAt?: string;
+  @IsOptional() @IsArray() faq?: { question: string; answer: string }[];
 }
 
 export class UpdateBlogDto extends SeoFields {
@@ -44,4 +45,5 @@ export class UpdateBlogDto extends SeoFields {
   @IsOptional() @IsBoolean() isPublished?: boolean;
   @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;
   @IsOptional() @IsDateString() publishAt?: string;
+  @IsOptional() @IsArray() faq?: { question: string; answer: string }[];
 }

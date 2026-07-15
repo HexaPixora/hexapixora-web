@@ -14,11 +14,12 @@ import TagInput from "@/components/admin/tag-input";
 import SeoTab from "@/components/admin/seo-tab";
 import MediaField from "@/components/admin/media-field";
 import { CategorySelect } from "@/components/admin/category-select";
+import { FaqEditor } from "@/components/admin/faq-editor";
 import { StatusControl, ContentStatus } from "@/components/admin/status-control";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Globe, FileText,
+  ArrowLeft, Globe, FileText, HelpCircle,
   Image as ImageIcon, Settings,
   Search, ChevronDown, X, Sparkles,
 } from "lucide-react";
@@ -38,6 +39,7 @@ const schema = z.object({
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
   ogImage: z.string().optional(),
+  faq: z.array(z.object({ question: z.string(), answer: z.string() })).default([]),
 });
 
 interface FormValues {
@@ -55,6 +57,7 @@ interface FormValues {
   metaDescription?: string;
   metaKeywords?: string;
   ogImage?: string;
+  faq?: { question: string; answer: string }[];
 }
 
 export default function EditBlogPage() {
@@ -107,6 +110,7 @@ export default function EditBlogPage() {
           metaDescription: blog.metaDescription || "",
           metaKeywords: blog.metaKeywords || "",
           ogImage: blog.ogImage || "",
+          faq: Array.isArray(blog.faq) ? blog.faq : [],
         });
         setContent(blog.content);
         setLoading(false);
@@ -256,6 +260,18 @@ export default function EditBlogPage() {
             <p className="text-xs font-medium text-muted-foreground/80">
               Typically displayed on article search indexes. Keep it concise.
             </p>
+          </div>
+
+          {/* FAQ Card */}
+          <div className="bg-card/50 backdrop-blur-sm border border-muted-foreground/10 rounded-2xl p-6 shadow-lg shadow-muted/10 space-y-4">
+            <h3 className="font-bold text-sm flex items-center gap-2 uppercase tracking-wider text-muted-foreground">
+              <HelpCircle size={16} className="text-primary" /> Frequently Asked Questions
+            </h3>
+            <Controller
+              name="faq"
+              control={control}
+              render={({ field }) => <FaqEditor value={field.value} onChange={field.onChange} />}
+            />
           </div>
         </div>
 

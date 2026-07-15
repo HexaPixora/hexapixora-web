@@ -115,7 +115,7 @@ export default function RootLayout({
   return (
     // `dark` is hardcoded (not toggled at runtime) so the dark theme is applied
     // during SSR / first paint — no white flash on any device, JS or not.
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.className} ${fraunces.variable} ${sacramento.variable} min-h-screen bg-background font-sans antialiased`}>
         {/* Marks JS as available before content paints, so scroll-reveal only
             hides sections when it can also reveal them (no-JS users see all). */}

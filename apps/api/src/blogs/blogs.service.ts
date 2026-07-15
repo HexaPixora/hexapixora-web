@@ -203,6 +203,7 @@ export class BlogsService {
           ...(p.metaTitle ? { metaTitle: String(p.metaTitle) } : {}),
           ...(p.metaDescription ? { metaDescription: String(p.metaDescription) } : {}),
           ...(p.metaKeywords ? { metaKeywords: String(p.metaKeywords) } : {}),
+          ...(Array.isArray(p.faq) && p.faq.length ? { faq: p.faq } : {}),
         };
 
         const existing = await this.prisma.blog.findUnique({ where: { slug }, select: { id: true } });
@@ -293,6 +294,7 @@ export class BlogsService {
       date: '',
       headings: [] as { level: number; text: string }[],
       warnings: [] as string[],
+      faq: [] as { question: string; answer: string }[],
     };
 
     let fm: Record<string, any>;
@@ -318,11 +320,14 @@ export class BlogsService {
     const rawDate = fm.date || fm.publishDate;
     const date = rawDate ? new Date(rawDate) : null;
 
+    const { content, faq } = this.extractContentAndFaq(body);
+
     const warnings: string[] = [];
     if (!excerpt) warnings.push('No excerpt');
     if (!categories.length) warnings.push('No categories');
     if (!thumbnail) warnings.push('No featured image');
     if (!ogImage) warnings.push('No OG image');
+    if (!faq.length) warnings.push('No FAQ');
 
     return {
       ...base,
@@ -330,7 +335,8 @@ export class BlogsService {
       title,
       slug,
       excerpt,
-      content: this.renderPostContent(body),
+      content,
+      faq,
       categories,
       tags: this.toStringArray(fm.tags),
       thumbnail,
@@ -354,47 +360,35 @@ export class BlogsService {
     return out;
   }
 
-  // Render a post body to HTML: drop any trailing "Related Articles" section
-  // (the article page shows auto-generated related posts instead) and turn an
-  // FAQ section into a styled accordion rather than plain paragraphs.
-  private renderPostContent(body: string): string {
+  // Split a post body into rendered HTML content + a structured FAQ. Drops any
+  // trailing "Related Articles" section (the page shows auto-related posts) and
+  // pulls the "Frequently Asked Questions" section out into { question, answer }
+  // pairs so it's stored as a real field, not baked into the content.
+  private extractContentAndFaq(body: string): {
+    content: string;
+    faq: { question: string; answer: string }[];
+  } {
     const main = body.replace(/\n#{1,6}\s+Related Articles[\s\S]*$/i, '').trim();
 
-    const faq = main.match(/\n#{1,6}\s+(?:Frequently Asked Questions|FAQs?)\s*\n/i);
-    if (!faq || faq.index === undefined) return mdParser.render(main);
+    const faqMatch = main.match(/\n#{1,6}\s+(?:Frequently Asked Questions|FAQs?)\s*\n/i);
+    if (!faqMatch || faqMatch.index === undefined) {
+      return { content: mdParser.render(main), faq: [] };
+    }
 
-    const before = main.slice(0, faq.index).trim();
-    const faqBody = main.slice(faq.index + faq[0].length).trim();
-    return (
-      mdParser.render(before) +
-      '<h2>Frequently Asked Questions</h2>' +
-      this.renderFaqAccordion(faqBody)
-    );
-  }
-
-  // Each "**Question?**\nAnswer" pair becomes a <details> accordion item.
-  private renderFaqAccordion(faqBody: string): string {
-    const items = faqBody
+    const before = main.slice(0, faqMatch.index).trim();
+    const faqBody = main.slice(faqMatch.index + faqMatch[0].length).trim();
+    const faq = faqBody
       .split(/\n{2,}/)
       .map((s) => s.trim())
       .filter(Boolean)
       .map((item) => {
         const m = item.match(/^\*\*(.+?)\*\*\s*([\s\S]*)$/);
-        if (!m) return `<p>${mdParser.renderInline(item)}</p>`;
-        const question = this.escapeHtml(m[1]!.trim());
-        const answer = mdParser.render(m[2]!.trim());
-        return `<details class="faq-item"><summary>${question}</summary><div class="faq-answer">${answer}</div></details>`;
+        if (!m) return null;
+        return { question: m[1]!.trim(), answer: m[2]!.replace(/\s+/g, ' ').trim() };
       })
-      .join('');
-    return `<div class="article-faq">${items}</div>`;
-  }
+      .filter((x): x is { question: string; answer: string } => !!x?.question && !!x?.answer);
 
-  private escapeHtml(s: string): string {
-    return s
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return { content: mdParser.render(before), faq };
   }
 
   // Expand uploaded files into { name, raw } markdown docs — .md/.markdown as-is,

@@ -113,11 +113,24 @@ export default async function InsightPage(props: InsightPageProps) {
       { "@type": "ListItem", position: primaryCat ? 4 : 3, name: post.title, item: canonical },
     ],
   };
+  const faq: { question: string; answer: string }[] = Array.isArray(post.faq) ? post.faq : [];
+  const faqLd = faq.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faq.map((f) => ({
+          "@type": "Question",
+          name: f.question,
+          acceptedAnswer: { "@type": "Answer", text: f.answer },
+        })),
+      }
+    : null;
 
   return (
     <SiteLayout showHeader showFooter>
       <JsonLd data={articleLd} />
       <JsonLd data={breadcrumbLd} />
+      {faqLd && <JsonLd data={faqLd} />}
       <article className="relative isolate flex-1 overflow-hidden pb-24">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_100%_at_50%_0%,rgba(16,147,253,0.14),transparent)]" />
 
@@ -171,6 +184,22 @@ export default async function InsightPage(props: InsightPageProps) {
             className="prose prose-lg mt-10 max-w-none break-words text-foreground/90 dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#7cc4ff] hover:prose-a:underline prose-img:rounded-2xl prose-img:border prose-img:border-white/10"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
+
+          {faq.length > 0 && (
+            <section className="mt-14">
+              <h2 className="mb-6 text-2xl font-bold tracking-tight">Frequently Asked Questions</h2>
+              <div className="article-faq">
+                {faq.map((f, i) => (
+                  <details key={i} className="faq-item">
+                    <summary>{f.question}</summary>
+                    <div className="faq-answer">
+                      <p className="whitespace-pre-line">{f.answer}</p>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
 
           {Array.isArray(post.tags) && post.tags.length > 0 && (
             <div className="mt-10 flex flex-wrap gap-2 border-t border-white/10 pt-6">
