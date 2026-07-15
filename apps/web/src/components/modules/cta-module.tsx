@@ -30,7 +30,10 @@ export default function CTAModule({ config }: { config?: CTAProps }) {
       <div className="container">
         <div
           className="relative isolate overflow-hidden rounded-[2rem] border border-white/12 px-6 py-16 text-center shadow-[0_40px_100px_-40px_rgba(16,147,253,0.5)] ring-1 ring-inset ring-white/10 md:px-16 md:py-20"
-          style={{ backgroundColor }}
+          // translateZ(0) forces this rounded container onto its own compositing
+          // layer so iOS Safari clips the blurred glow children to the rounded
+          // corners (without it, blur bleeds past the top-left/bottom-right).
+          style={{ backgroundColor, transform: "translateZ(0)", WebkitTransform: "translateZ(0)" }}
         >
           {/* Ambient brand glows */}
           <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[rgba(16,147,253,0.4)] blur-[100px]" />
