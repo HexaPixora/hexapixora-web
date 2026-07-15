@@ -2,6 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { icons, Wrench } from "lucide-react";
 import { servicesSchema, ServicesProps } from "@/lib/module-schemas/services-schema";
+import { Stagger, StaggerItem } from "@/components/public/motion";
+import { Reveal } from "@/components/public/reveal";
 
 // Resolve a lucide icon by name. Accepts names copied straight from lucide.dev
 // (kebab-case, e.g. "pen-tool") as well as PascalCase ("PenTool"); falls back
@@ -24,18 +26,21 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
   return (
     <section className="py-24 bg-muted/30 border-y">
       <div className="container">
-        <div className="flex flex-col items-center text-center max-w-[800px] mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{heading}</h2>
-          {subheading && <p className="text-lg text-muted-foreground">{subheading}</p>}
-        </div>
+        <Reveal>
+          <div className="flex flex-col items-center text-center max-w-[800px] mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{heading}</h2>
+            {subheading && <p className="text-lg text-muted-foreground">{subheading}</p>}
+          </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service: any, idx: number) => {
             const Icon = iconByName(service.icon);
             return (
-              <div
+              <StaggerItem
                 key={idx}
-                className="group relative flex flex-col bg-background border rounded-2xl p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:border-primary/40"
+                hoverLift
+                className="group relative flex h-full flex-col bg-background border rounded-2xl p-8 shadow-sm transition-[box-shadow,border-color] duration-300 hover:shadow-xl hover:border-primary/40"
               >
                 <div
                   className={`relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/12 ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:scale-110 ${
@@ -67,7 +72,7 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
                     {service.buttonText}
                   </Link>
                 )}
-              </div>
+              </StaggerItem>
             );
           })}
 
@@ -76,7 +81,7 @@ export default function ServicesModule({ config }: { config?: ServicesProps }) {
               No services found. Add some in the CMS.
             </div>
           )}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

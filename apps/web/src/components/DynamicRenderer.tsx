@@ -1,6 +1,33 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { resolveAnchorId } from "@/lib/modules-registry";
+import { Reveal } from "@/components/public/reveal";
+
+// Skip the global scroll-reveal for: heroes/banners (above the fold — fading
+// them delays LCP and looks off) and modules that run their own entrance or
+// continuous motion (GSAP counters, Splide tickers, marquee, and the grids that
+// stagger their own children below). Everything else gets the reveal.
+const NO_REVEAL = new Set([
+  // Heroes / banners
+  "HeroSection",
+  "WorkHeroModule",
+  "StoryHeroModule",
+  "AnimatedTextHeroModule",
+  "PortfolioHeroModule",
+  "ParallaxBannerModule",
+  // Self-animating / continuous-motion modules
+  "CounterStatsModule",
+  "ScrollytellingModule",
+  "HorizontalScrollModule",
+  "MarqueeModule",
+  "SplideLogoTickerModule",
+  "SplideSliderModule",
+  "SplideGallerySyncModule",
+  "StaggeredGridModule",
+  // Grids with their own Framer stagger (services/why-choose)
+  "ServicesSection",
+  "WhyChooseModule",
+]);
 
 function DefaultSection({ type, label, config }: { type: string, label?: string, config?: any }) {
   return (
@@ -69,7 +96,7 @@ export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRen
 
   return (
     <>
-      {sections.filter((s) => s.isVisible).map((section) => {
+      {sections.filter((s) => s.isVisible).map((section, index) => {
         // Merge config: Section specific config > Global Module Default > Empty
         const globalDefault = moduleDefaults[section.type] || {};
         let mergedConfig =
@@ -108,12 +135,16 @@ export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRen
           <Component type={typeToRender} label={section.label} config={mergedConfig} />
         );
 
+        // Fade + rise on scroll — except heroes and the first (above-fold) section.
+        const content =
+          index > 0 && !NO_REVEAL.has(typeToRender) ? <Reveal>{rendered}</Reveal> : rendered;
+
         return anchor ? (
           <div key={section.id} id={anchor} className="scroll-mt-24">
-            {rendered}
+            {content}
           </div>
         ) : (
-          <React.Fragment key={section.id}>{rendered}</React.Fragment>
+          <React.Fragment key={section.id}>{content}</React.Fragment>
         );
       })}
     </>
