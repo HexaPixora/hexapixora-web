@@ -167,8 +167,11 @@ export class BlogsService {
       data.status = data.isPublished ? ContentStatus.PUBLISHED : ContentStatus.DRAFT;
     }
 
-    // Stamp a display/sort date the first time a post goes live.
-    if (data.isPublished && !data.publishDate) data.publishDate = new Date();
+    // Auto-stamp the publish date to the current time whenever a post is
+    // (re)published — on create AND on every edit — so it always reflects the
+    // latest publish/edit time. (Scheduled posts stay untouched here; the cron
+    // stamps their date when it flips them live.)
+    if (data.isPublished) data.publishDate = new Date();
     return data;
   }
 
