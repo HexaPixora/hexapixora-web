@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { ContentStatus } from '@prisma/client';
 import matter from 'gray-matter';
 import MarkdownIt from 'markdown-it';
+import TurndownService from 'turndown';
 import AdmZip from 'adm-zip';
 import { PrismaService } from '../prisma/prisma.service';
 import { CategoriesService, slugify } from '../categories/categories.service';
@@ -10,6 +11,8 @@ import { CategoriesService, slugify } from '../categories/categories.service';
 // Markdown → HTML for imported posts. html:false escapes raw HTML in the source
 // so imported files can't inject markup into the rendered article.
 const mdParser = new MarkdownIt({ html: false, linkify: true, typographer: true });
+// HTML → Markdown for export.
+const htmlToMd = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced', bulletListMarker: '-' });
 
 @Injectable()
 export class BlogsService {
@@ -149,89 +152,77 @@ export class BlogsService {
     return this.prisma.blog.delete({ where: { id } });
   }
 
-  // --- Bulk import from Markdown files / .zip bundles (admin) ---------------
+  // --- Bulk import (preview + commit) and export ---------------------------
 
-  async importFiles(
-    files: Array<{ originalname?: string; buffer: Buffer }>,
-    opts: { overwrite?: boolean; publish?: boolean } = {},
-  ) {
+  // Parse uploaded files with NO DB writes, for the import preview: fields,
+  // heading outline, missing-field warnings, and whether each slug already
+  // exists (so the editor can review/bulk-edit before committing).
+  async previewImport(files: Array<{ originalname?: string; buffer: Buffer }>) {
     const docs = this.collectMarkdownDocs(files || []);
-    type Result = {
-      file: string;
-      status: 'imported' | 'updated' | 'skipped' | 'failed';
-      slug?: string;
-      message?: string;
-    };
+    const posts: any[] = [];
+    for (const doc of docs) {
+      const parsed = this.parseDoc(doc.name, doc.raw);
+      const willOverwrite = parsed.ok
+        ? Boolean(await this.prisma.blog.findUnique({ where: { slug: parsed.slug }, select: { id: true } }))
+        : false;
+      posts.push({ ...parsed, willOverwrite });
+    }
+    return { posts };
+  }
+
+  // Save the (possibly edited) posts returned from the preview.
+  async commitImport(posts: Array<Record<string, any>>, overwrite = false) {
+    type Result = { file: string; slug?: string; status: 'imported' | 'updated' | 'skipped' | 'failed'; message?: string };
     const results: Result[] = [];
 
-    for (const doc of docs) {
+    for (const p of posts || []) {
+      const file = String(p.file || p.title || 'post');
       try {
-        const parsed = matter(doc.raw);
-        const fm: Record<string, any> = parsed.data || {};
-        const body = (parsed.content || '').trim();
-        const title = String(fm.title || '').trim();
-
-        if (!title) {
-          results.push({ file: doc.name, status: 'failed', message: 'Missing "title" in front matter' });
-          continue;
-        }
-        if (!body) {
-          results.push({ file: doc.name, status: 'failed', message: 'The file has no body content' });
+        const title = String(p.title || '').trim();
+        const content = String(p.content || '').trim();
+        const slug = slugify(String(p.slug || title));
+        if (!title || !content || !slug) {
+          results.push({ file, status: 'failed', message: 'Missing title, content or slug' });
           continue;
         }
 
-        const slug = slugify(String(fm.slug || title));
-        if (!slug) {
-          results.push({ file: doc.name, status: 'failed', message: 'Could not derive a slug' });
-          continue;
-        }
-
-        const categoryNames = this.toStringArray(fm.categories);
-        const categoryIds = categoryNames.length ? await this.categories.ensureByNames(categoryNames) : [];
-
-        let status = this.resolveImportStatus(fm.status, opts.publish);
-        const publishAt = fm.publishAt ? new Date(fm.publishAt) : null;
-        if (status === ContentStatus.SCHEDULED && (!publishAt || isNaN(publishAt.getTime()))) {
-          status = ContentStatus.DRAFT; // scheduling needs a valid publishAt
-        }
+        const categoryIds = Array.isArray(p.categories) && p.categories.length
+          ? await this.categories.ensureByNames(p.categories.map(String))
+          : [];
 
         const data: Record<string, any> = {
           title,
           slug,
-          content: mdParser.render(body),
-          tags: this.toStringArray(fm.tags),
-          status,
+          content,
+          tags: this.toStringArray(p.tags),
+          status: this.resolveImportStatus(p.status),
           categoryIds,
-          ...(fm.excerpt ? { excerpt: String(fm.excerpt) } : {}),
-          ...(fm.thumbnail ? { thumbnail: String(fm.thumbnail) } : {}),
-          ...(fm.metaTitle ? { metaTitle: String(fm.metaTitle) } : {}),
-          ...(fm.metaDescription ? { metaDescription: String(fm.metaDescription) } : {}),
-          ...(fm.metaKeywords ? { metaKeywords: String(fm.metaKeywords) } : {}),
-          ...(fm.ogImage ? { ogImage: String(fm.ogImage) } : {}),
-          ...(status === ContentStatus.SCHEDULED && publishAt ? { publishAt: publishAt.toISOString() } : {}),
+          ...(p.excerpt ? { excerpt: String(p.excerpt) } : {}),
+          ...(p.thumbnail ? { thumbnail: String(p.thumbnail) } : {}),
+          ...(p.ogImage ? { ogImage: String(p.ogImage) } : {}),
+          ...(p.metaTitle ? { metaTitle: String(p.metaTitle) } : {}),
+          ...(p.metaDescription ? { metaDescription: String(p.metaDescription) } : {}),
+          ...(p.metaKeywords ? { metaKeywords: String(p.metaKeywords) } : {}),
         };
 
         const existing = await this.prisma.blog.findUnique({ where: { slug }, select: { id: true } });
-        if (existing && !opts.overwrite) {
-          results.push({ file: doc.name, status: 'skipped', slug, message: 'A post with this slug already exists' });
+        if (existing && !overwrite) {
+          results.push({ file, slug, status: 'skipped', message: 'A post with this slug already exists' });
           continue;
         }
 
-        const post = existing ? await this.update(existing.id, data) : await this.create(data);
+        const saved = existing ? await this.update(existing.id, data) : await this.create(data);
 
-        // Honor an explicit `date`/`publishDate` for migrating historical posts,
-        // overriding the auto-"now" stamp applied on publish.
-        const explicit = fm.date || fm.publishDate;
-        if (explicit) {
-          const d = new Date(explicit);
+        // Honor an explicit date (migrating historical posts) over the auto-now.
+        if (p.date) {
+          const d = new Date(p.date);
           if (!isNaN(d.getTime())) {
-            await this.prisma.blog.update({ where: { id: post.id }, data: { publishDate: d } });
+            await this.prisma.blog.update({ where: { id: saved.id }, data: { publishDate: d } });
           }
         }
-
-        results.push({ file: doc.name, status: existing ? 'updated' : 'imported', slug });
+        results.push({ file, slug, status: existing ? 'updated' : 'imported' });
       } catch (err) {
-        results.push({ file: doc.name, status: 'failed', message: (err as Error).message?.slice(0, 200) });
+        results.push({ file, status: 'failed', message: (err as Error).message?.slice(0, 200) });
       }
     }
 
@@ -245,9 +236,122 @@ export class BlogsService {
       results,
     };
     this.logger.log(
-      `Blog import: ${summary.imported} new, ${summary.updated} updated, ${summary.skipped} skipped, ${summary.failed} failed.`,
+      `Blog import committed: ${summary.imported} new, ${summary.updated} updated, ${summary.skipped} skipped, ${summary.failed} failed.`,
     );
     return summary;
+  }
+
+  // Export posts (all, or a given set of ids) as a .zip of Markdown files.
+  async exportPosts(ids?: string[]) {
+    const where = ids && ids.length ? { id: { in: ids } } : {};
+    const posts = await this.prisma.blog.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: { categories: { select: { name: true } } },
+    });
+
+    const zip = new AdmZip();
+    for (const post of posts) {
+      const front: Record<string, any> = { title: post.title, slug: post.slug, status: post.status };
+      if (post.excerpt) front.excerpt = post.excerpt;
+      const cats = post.categories.map((c) => c.name);
+      if (cats.length) front.categories = cats;
+      const tags = Array.isArray(post.tags) ? post.tags : [];
+      if (tags.length) front.tags = tags;
+      if (post.thumbnail) front.thumbnail = post.thumbnail;
+      if (post.ogImage) front.ogImage = post.ogImage;
+      if (post.metaTitle) front.metaTitle = post.metaTitle;
+      if (post.metaDescription) front.metaDescription = post.metaDescription;
+      if (post.metaKeywords) front.metaKeywords = post.metaKeywords;
+      if (post.publishDate) front.date = post.publishDate.toISOString().slice(0, 10);
+
+      const md = htmlToMd.turndown(post.content || '');
+      const fileContent = matter.stringify(`\n${md}\n`, front);
+      zip.addFile(`${post.slug || post.id}.md`, Buffer.from(fileContent, 'utf8'));
+    }
+    return { filename: `hexapixora-posts-${posts.length}.zip`, buffer: zip.toBuffer() };
+  }
+
+  // Parse one markdown doc into a structured preview record (no DB writes).
+  private parseDoc(file: string, raw: string) {
+    const base = {
+      file,
+      ok: false,
+      error: undefined as string | undefined,
+      title: '',
+      slug: '',
+      excerpt: '',
+      content: '',
+      categories: [] as string[],
+      tags: [] as string[],
+      thumbnail: '',
+      ogImage: '',
+      metaTitle: '',
+      metaDescription: '',
+      metaKeywords: '',
+      status: 'DRAFT' as string,
+      date: '',
+      headings: [] as { level: number; text: string }[],
+      warnings: [] as string[],
+    };
+
+    let fm: Record<string, any>;
+    let body: string;
+    try {
+      const parsed = matter(raw);
+      fm = parsed.data || {};
+      body = (parsed.content || '').trim();
+    } catch (err) {
+      return { ...base, error: `Invalid front matter: ${(err as Error).message?.slice(0, 120)}` };
+    }
+
+    const title = String(fm.title || '').trim();
+    if (!title) return { ...base, error: 'Missing "title" in front matter' };
+    if (!body) return { ...base, title, error: 'The file has no body content' };
+    const slug = slugify(String(fm.slug || title));
+    if (!slug) return { ...base, title, error: 'Could not derive a slug' };
+
+    const categories = this.toStringArray(fm.categories);
+    const excerpt = fm.excerpt ? String(fm.excerpt) : '';
+    const thumbnail = fm.thumbnail ? String(fm.thumbnail) : '';
+    const ogImage = fm.ogImage ? String(fm.ogImage) : '';
+    const rawDate = fm.date || fm.publishDate;
+    const date = rawDate ? new Date(rawDate) : null;
+
+    const warnings: string[] = [];
+    if (!excerpt) warnings.push('No excerpt');
+    if (!categories.length) warnings.push('No categories');
+    if (!thumbnail) warnings.push('No featured image');
+    if (!ogImage) warnings.push('No OG image');
+
+    return {
+      ...base,
+      ok: true,
+      title,
+      slug,
+      excerpt,
+      content: mdParser.render(body),
+      categories,
+      tags: this.toStringArray(fm.tags),
+      thumbnail,
+      ogImage,
+      metaTitle: fm.metaTitle ? String(fm.metaTitle) : '',
+      metaDescription: fm.metaDescription ? String(fm.metaDescription) : '',
+      metaKeywords: fm.metaKeywords ? String(fm.metaKeywords) : '',
+      status: this.resolveImportStatus(fm.status),
+      date: date && !isNaN(date.getTime()) ? date.toISOString() : '',
+      headings: this.extractHeadings(body),
+      warnings,
+    };
+  }
+
+  private extractHeadings(body: string) {
+    const out: { level: number; text: string }[] = [];
+    for (const line of body.split('\n')) {
+      const m = line.match(/^(#{1,6})\s+(.+?)\s*#*$/);
+      if (m) out.push({ level: m[1]!.length, text: m[2]!.trim() });
+    }
+    return out;
   }
 
   // Expand uploaded files into { name, raw } markdown docs — .md/.markdown as-is,
@@ -281,12 +385,10 @@ export class BlogsService {
     return String(value).split(',').map((v) => v.trim()).filter(Boolean);
   }
 
-  private resolveImportStatus(fmStatus: any, publish?: boolean): ContentStatus {
-    const s = String(fmStatus || '').toUpperCase();
-    if (s === 'PUBLISHED') return ContentStatus.PUBLISHED;
-    if (s === 'SCHEDULED') return ContentStatus.SCHEDULED;
-    if (s === 'DRAFT') return ContentStatus.DRAFT;
-    return publish ? ContentStatus.PUBLISHED : ContentStatus.DRAFT;
+  private resolveImportStatus(fmStatus: any): ContentStatus {
+    return String(fmStatus || '').toUpperCase() === 'PUBLISHED'
+      ? ContentStatus.PUBLISHED
+      : ContentStatus.DRAFT;
   }
 
   private applyReadTime(data: any) {

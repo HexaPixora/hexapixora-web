@@ -6,10 +6,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Plus, Eye, Search, BookOpen, Upload } from "lucide-react";
+import { Pencil, Trash2, Plus, Eye, Search, BookOpen, Upload, Download } from "lucide-react";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { BlogImportDialog } from "@/components/admin/blog-import-dialog";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { siteUrl } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
@@ -49,8 +48,27 @@ export default function AdminBlogsPage() {
   const [search, setSearch] = useState("");
   const [filterPublished, setFilterPublished] = useState<"all" | "published" | "draft">("all");
   const [loading, setLoading] = useState(true);
-  const [importOpen, setImportOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const limit = 15;
+
+  const exportPosts = async (ids?: string[]) => {
+    setExporting(true);
+    try {
+      const res = await apiClient.post("/blogs/export", { ids }, { responseType: "blob" });
+      const dispo = res.headers?.["content-disposition"] || "";
+      const name = /filename="?([^"]+)"?/.exec(dispo)?.[1] || "hexapixora-posts.zip";
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const fetchBlogs = async () => {
     setLoading(true);
@@ -94,8 +112,11 @@ export default function AdminBlogsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Insights" description={`${total} posts total`}>
         {canManage && (
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setImportOpen(true)}>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => exportPosts()} disabled={exporting}>
+              <Download size={16} className="mr-2" /> {exporting ? "Exporting…" : "Export all"}
+            </Button>
+            <Button variant="outline" onClick={() => (window.location.href = "/admin/blogs/import")}>
               <Upload size={16} className="mr-2" /> Import
             </Button>
             <Button onClick={() => (window.location.href = "/admin/blogs/create")}>
@@ -104,14 +125,6 @@ export default function AdminBlogsPage() {
           </div>
         )}
       </PageHeader>
-
-      {canManage && (
-        <BlogImportDialog
-          open={importOpen}
-          onClose={() => setImportOpen(false)}
-          onDone={fetchBlogs}
-        />
-      )}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1 sm:max-w-sm">
@@ -207,6 +220,9 @@ export default function AdminBlogsPage() {
                       >
                         <Eye size={15} />
                       </a>
+                      <Button variant="ghost" size="icon" title="Export this post" disabled={exporting} onClick={() => exportPosts([blog.id])}>
+                        <Download size={15} />
+                      </Button>
                       {canManage && (
                         <Button variant="ghost" size="icon" title="Edit" onClick={() => (window.location.href = `/admin/blogs/${blog.id}/edit`)}>
                           <Pencil size={15} />
