@@ -1,13 +1,24 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ContentStatus } from '@prisma/client';
+import matter from 'gray-matter';
+import MarkdownIt from 'markdown-it';
+import AdmZip from 'adm-zip';
 import { PrismaService } from '../prisma/prisma.service';
+import { CategoriesService, slugify } from '../categories/categories.service';
+
+// Markdown → HTML for imported posts. html:false escapes raw HTML in the source
+// so imported files can't inject markup into the rendered article.
+const mdParser = new MarkdownIt({ html: false, linkify: true, typographer: true });
 
 @Injectable()
 export class BlogsService {
   private readonly logger = new Logger(BlogsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private categories: CategoriesService,
+  ) {}
 
   // Fields returned to list/related views (includes related categories).
   // content is included so cards/featured can derive a snippet when a post has
@@ -136,6 +147,146 @@ export class BlogsService {
   async remove(id: string) {
     await this.findOne(id);
     return this.prisma.blog.delete({ where: { id } });
+  }
+
+  // --- Bulk import from Markdown files / .zip bundles (admin) ---------------
+
+  async importFiles(
+    files: Array<{ originalname?: string; buffer: Buffer }>,
+    opts: { overwrite?: boolean; publish?: boolean } = {},
+  ) {
+    const docs = this.collectMarkdownDocs(files || []);
+    type Result = {
+      file: string;
+      status: 'imported' | 'updated' | 'skipped' | 'failed';
+      slug?: string;
+      message?: string;
+    };
+    const results: Result[] = [];
+
+    for (const doc of docs) {
+      try {
+        const parsed = matter(doc.raw);
+        const fm: Record<string, any> = parsed.data || {};
+        const body = (parsed.content || '').trim();
+        const title = String(fm.title || '').trim();
+
+        if (!title) {
+          results.push({ file: doc.name, status: 'failed', message: 'Missing "title" in front matter' });
+          continue;
+        }
+        if (!body) {
+          results.push({ file: doc.name, status: 'failed', message: 'The file has no body content' });
+          continue;
+        }
+
+        const slug = slugify(String(fm.slug || title));
+        if (!slug) {
+          results.push({ file: doc.name, status: 'failed', message: 'Could not derive a slug' });
+          continue;
+        }
+
+        const categoryNames = this.toStringArray(fm.categories);
+        const categoryIds = categoryNames.length ? await this.categories.ensureByNames(categoryNames) : [];
+
+        let status = this.resolveImportStatus(fm.status, opts.publish);
+        const publishAt = fm.publishAt ? new Date(fm.publishAt) : null;
+        if (status === ContentStatus.SCHEDULED && (!publishAt || isNaN(publishAt.getTime()))) {
+          status = ContentStatus.DRAFT; // scheduling needs a valid publishAt
+        }
+
+        const data: Record<string, any> = {
+          title,
+          slug,
+          content: mdParser.render(body),
+          tags: this.toStringArray(fm.tags),
+          status,
+          categoryIds,
+          ...(fm.excerpt ? { excerpt: String(fm.excerpt) } : {}),
+          ...(fm.thumbnail ? { thumbnail: String(fm.thumbnail) } : {}),
+          ...(fm.metaTitle ? { metaTitle: String(fm.metaTitle) } : {}),
+          ...(fm.metaDescription ? { metaDescription: String(fm.metaDescription) } : {}),
+          ...(fm.metaKeywords ? { metaKeywords: String(fm.metaKeywords) } : {}),
+          ...(fm.ogImage ? { ogImage: String(fm.ogImage) } : {}),
+          ...(status === ContentStatus.SCHEDULED && publishAt ? { publishAt: publishAt.toISOString() } : {}),
+        };
+
+        const existing = await this.prisma.blog.findUnique({ where: { slug }, select: { id: true } });
+        if (existing && !opts.overwrite) {
+          results.push({ file: doc.name, status: 'skipped', slug, message: 'A post with this slug already exists' });
+          continue;
+        }
+
+        const post = existing ? await this.update(existing.id, data) : await this.create(data);
+
+        // Honor an explicit `date`/`publishDate` for migrating historical posts,
+        // overriding the auto-"now" stamp applied on publish.
+        const explicit = fm.date || fm.publishDate;
+        if (explicit) {
+          const d = new Date(explicit);
+          if (!isNaN(d.getTime())) {
+            await this.prisma.blog.update({ where: { id: post.id }, data: { publishDate: d } });
+          }
+        }
+
+        results.push({ file: doc.name, status: existing ? 'updated' : 'imported', slug });
+      } catch (err) {
+        results.push({ file: doc.name, status: 'failed', message: (err as Error).message?.slice(0, 200) });
+      }
+    }
+
+    const count = (s: Result['status']) => results.filter((r) => r.status === s).length;
+    const summary = {
+      total: results.length,
+      imported: count('imported'),
+      updated: count('updated'),
+      skipped: count('skipped'),
+      failed: count('failed'),
+      results,
+    };
+    this.logger.log(
+      `Blog import: ${summary.imported} new, ${summary.updated} updated, ${summary.skipped} skipped, ${summary.failed} failed.`,
+    );
+    return summary;
+  }
+
+  // Expand uploaded files into { name, raw } markdown docs — .md/.markdown as-is,
+  // plus any .md entries found inside a .zip bundle.
+  private collectMarkdownDocs(files: Array<{ originalname?: string; buffer: Buffer }>) {
+    const docs: Array<{ name: string; raw: string }> = [];
+    for (const f of files) {
+      const name = f.originalname || 'file';
+      if (/\.zip$/i.test(name)) {
+        try {
+          const zip = new AdmZip(f.buffer);
+          for (const entry of zip.getEntries()) {
+            if (entry.isDirectory) continue;
+            if (entry.entryName.startsWith('__MACOSX')) continue;
+            if (!/\.(md|markdown)$/i.test(entry.entryName)) continue;
+            docs.push({ name: entry.entryName, raw: entry.getData().toString('utf8') });
+          }
+        } catch {
+          docs.push({ name, raw: '' }); // unreadable zip → fails validation, reported
+        }
+      } else if (/\.(md|markdown)$/i.test(name)) {
+        docs.push({ name, raw: f.buffer.toString('utf8') });
+      }
+    }
+    return docs;
+  }
+
+  private toStringArray(value: any): string[] {
+    if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+    if (value === undefined || value === null || value === '') return [];
+    return String(value).split(',').map((v) => v.trim()).filter(Boolean);
+  }
+
+  private resolveImportStatus(fmStatus: any, publish?: boolean): ContentStatus {
+    const s = String(fmStatus || '').toUpperCase();
+    if (s === 'PUBLISHED') return ContentStatus.PUBLISHED;
+    if (s === 'SCHEDULED') return ContentStatus.SCHEDULED;
+    if (s === 'DRAFT') return ContentStatus.DRAFT;
+    return publish ? ContentStatus.PUBLISHED : ContentStatus.DRAFT;
   }
 
   private applyReadTime(data: any) {

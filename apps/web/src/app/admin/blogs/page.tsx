@@ -6,9 +6,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Plus, Eye, Search, BookOpen } from "lucide-react";
+import { Pencil, Trash2, Plus, Eye, Search, BookOpen, Upload } from "lucide-react";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { useConfirm } from "@/components/admin/confirm-dialog";
+import { BlogImportDialog } from "@/components/admin/blog-import-dialog";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { siteUrl } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ export default function AdminBlogsPage() {
   const [search, setSearch] = useState("");
   const [filterPublished, setFilterPublished] = useState<"all" | "published" | "draft">("all");
   const [loading, setLoading] = useState(true);
+  const [importOpen, setImportOpen] = useState(false);
   const limit = 15;
 
   const fetchBlogs = async () => {
@@ -92,11 +94,24 @@ export default function AdminBlogsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Insights" description={`${total} posts total`}>
         {canManage && (
-          <Button onClick={() => (window.location.href = "/admin/blogs/create")}>
-            <Plus size={16} className="mr-2" /> New Post
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-2" /> Import
+            </Button>
+            <Button onClick={() => (window.location.href = "/admin/blogs/create")}>
+              <Plus size={16} className="mr-2" /> New Post
+            </Button>
+          </div>
         )}
       </PageHeader>
+
+      {canManage && (
+        <BlogImportDialog
+          open={importOpen}
+          onClose={() => setImportOpen(false)}
+          onDone={fetchBlogs}
+        />
+      )}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1 sm:max-w-sm">
