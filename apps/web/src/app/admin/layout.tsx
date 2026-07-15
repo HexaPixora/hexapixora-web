@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { apiClient } from "@/lib/api-client";
 import { useAuthStore } from "@/stores/use-auth-store";
 import {
-  LayoutDashboard, Wrench, Image as ImageIcon, BookOpen, Briefcase, Settings,
-  Users, Star, HelpCircle, Mail, MessageSquare, MessageCircle, Bot, Menu, Layers, LogOut,
+  LayoutDashboard, Wrench, Image as ImageIcon, BookOpen, Settings,
+  Users, Mail, MessageSquare, MessageCircle, Bot, Menu, Layers, LogOut,
   ChevronRight, X, FileText, Tag
 } from "lucide-react";
 import { Toaster } from "sonner";
