@@ -100,10 +100,11 @@ export default function MediaField({
         </Button>
 
         {showPreview && value && type === "image" && /^(https?:\/\/|data:image\/|\/)/i.test(value) && (
-          <img
-            src={value}
-            alt="Preview"
-            className="h-10 w-10 object-cover rounded border shrink-0"
+          <span
+            role="img"
+            aria-label="Preview"
+            className="block h-10 w-10 shrink-0 rounded border bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url("${value.replace(/["\\<>]/g, "")}")` }}
           />
         )}
       </div>

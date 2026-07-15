@@ -10,10 +10,12 @@ import { UpdateLeadStatusDto } from './dto/update-lead-status.dto';
 export class LeadsController {
   constructor(private readonly leadsService: LeadsService) {}
 
-  // Public — contact form submissions
+  // Public — contact form submissions. Returns only a generated id (never the
+  // submitted values) so no user-provided data is reflected in the response.
   @Post()
-  create(@Body() body: CreateLeadDto) {
-    return this.leadsService.create(body);
+  async create(@Body() body: CreateLeadDto) {
+    const lead = await this.leadsService.create(body);
+    return { success: true, id: lead.id };
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
