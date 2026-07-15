@@ -14,7 +14,7 @@ Instead, report them privately using either of the following:
    **Security** tab and click **"Report a vulnerability"**, or go directly to
    <https://github.com/HexaPixora/hexapixora-web/security/advisories/new>.
    This creates a private advisory only the maintainers can see.
-2. **Email** — send the details to **security@hexapixora.com**.
+2. **Email** — send the details to **contact@hexapixora.com**.
 
 Please include as much of the following as you can:
 
