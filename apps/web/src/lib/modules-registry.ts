@@ -31,6 +31,7 @@ import { OurStoryModuleDef } from "./module-schemas/our-story-schema";
 import { LeaderModuleDef } from "./module-schemas/leader-schema";
 import { InstagramReelsModuleDef } from "./module-schemas/instagram-reels-schema";
 import { QuoteModuleDef } from "./module-schemas/quote-schema";
+import { RichTextModuleDef } from "./module-schemas/rich-text-schema";
 import { OurProcessModuleDef } from "./module-schemas/our-process-schema";
 import { WorkHeroModuleDef } from "./module-schemas/work-hero-schema";
 import { StoryHeroModuleDef } from "./module-schemas/story-hero-schema";
@@ -95,7 +96,8 @@ export const MODULES: Record<string, ModuleDefinition> = {
   SkillsShowcaseModule: SkillsShowcaseModuleDef,
   LeaderModule: LeaderModuleDef,
   QuoteModule: QuoteModuleDef,
-  InstagramReelsModule: InstagramReelsModuleDef
+  InstagramReelsModule: InstagramReelsModuleDef,
+  RichTextModule: RichTextModuleDef
 };
 
 // Builder categories — group modules by purpose so they're easy to find and
@@ -103,7 +105,7 @@ export const MODULES: Record<string, ModuleDefinition> = {
 // automatically falls into a trailing "Other" group (see groupedModules).
 export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
   { label: "Hero & Banners", modules: ["HeroSection", "WorkHeroModule", "StoryHeroModule", "AnimatedTextHeroModule", "PortfolioHeroModule", "ParallaxBannerModule"] },
-  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "LeaderModule", "QuoteModule", "TechStackModule", "TimelineModule", "ScrollytellingModule"] },
+  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "LeaderModule", "QuoteModule", "RichTextModule", "TechStackModule", "TimelineModule", "ScrollytellingModule"] },
   { label: "Services & Pricing", modules: ["ServicesSection", "PricingModule"] },
   { label: "Portfolio & Galleries", modules: ["PortfolioSection", "GalleryModule", "SplideGallerySyncModule", "SplideSliderModule", "StaggeredGridModule", "HorizontalScrollModule"] },
   { label: "Social Proof", modules: ["TeamSection", "SkillsShowcaseModule", "SplideLogoTickerModule", "MarqueeModule", "StatsSection", "CounterStatsModule"] },

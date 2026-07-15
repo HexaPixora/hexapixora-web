@@ -57,6 +57,7 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   LeaderModule: dynamic(() => import("@/components/modules/leader-module")),
   QuoteModule: dynamic(() => import("@/components/modules/quote-module")),
   InstagramReelsModule: dynamic(() => import("@/components/modules/instagram-reels-module")),
+  RichTextModule: dynamic(() => import("@/components/modules/rich-text-module")),
   BlogSection: dynamic(() => import("@/components/modules/blog-module")),
   TeamSection: dynamic(() => import("@/components/modules/team-module")),
   FAQSection: dynamic(() => import("@/components/modules/faq-module")),
