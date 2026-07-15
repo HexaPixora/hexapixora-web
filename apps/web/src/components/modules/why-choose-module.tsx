@@ -4,6 +4,8 @@ import {
   Target, TrendingUp, Code, Headphones, Palette, Gauge, Lightbulb, ThumbsUp,
 } from "lucide-react";
 import { whyChooseSchema, WhyChooseProps } from "@/lib/module-schemas/why-choose-schema";
+import { Stagger, StaggerItem } from "@/components/public/motion";
+import { Reveal } from "@/components/public/reveal";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   sparkles: Sparkles,
@@ -40,31 +42,34 @@ export default function WhyChooseModule({ config }: { config?: WhyChooseProps })
 
       <div className="container">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          {eyebrow && (
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-[#7cc4ff] ring-1 ring-inset ring-white/10">
-              <Sparkles size={13} /> {eyebrow}
-            </span>
-          )}
-          {heading && (
-            <h2 className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-3xl font-black leading-[1.15] tracking-tight text-transparent md:text-5xl">
-              {heading}
-            </h2>
-          )}
-          {subheading && (
-            <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{subheading}</p>
-          )}
-        </div>
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            {eyebrow && (
+              <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-[#7cc4ff] ring-1 ring-inset ring-white/10">
+                <Sparkles size={13} /> {eyebrow}
+              </span>
+            )}
+            {heading && (
+              <h2 className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-3xl font-black leading-[1.15] tracking-tight text-transparent md:text-5xl">
+                {heading}
+              </h2>
+            )}
+            {subheading && (
+              <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{subheading}</p>
+            )}
+          </div>
+        </Reveal>
 
         {/* Reasons grid */}
         {list.length > 0 && (
-          <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((item: any, i: number) => {
               const Icon = ICONS[item.icon] || Sparkles;
               return (
-                <div
+                <StaggerItem
                   key={i}
-                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 ring-1 ring-inset ring-white/10 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:ring-white/20 md:p-7"
+                  hoverLift
+                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 ring-1 ring-inset ring-white/10 transition-[box-shadow,border-color] duration-300 hover:border-white/20 hover:ring-white/20 md:p-7"
                 >
                   {/* Corner glow on hover (CSS only). */}
                   <div
@@ -80,10 +85,10 @@ export default function WhyChooseModule({ config }: { config?: WhyChooseProps })
                   {item.description && (
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
                   )}
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </Stagger>
         )}
       </div>
     </section>

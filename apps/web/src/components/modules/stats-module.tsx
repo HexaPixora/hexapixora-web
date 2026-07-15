@@ -1,5 +1,6 @@
 import React from "react";
 import { statsSchema, StatsProps } from "@/lib/module-schemas/stats-schema";
+import { CountUp } from "@/components/public/motion";
 
 
 export default function StatsModule({ config }: { config?: StatsProps }) {
@@ -32,7 +33,7 @@ export default function StatsModule({ config }: { config?: StatsProps }) {
           {stats.map((stat, i) => (
             <div key={i} className="flex flex-col items-center">
               <span className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-2">
-                {stat.value}
+                {stat.value ? <CountUp value={stat.value} /> : null}
               </span>
               <span className="text-sm md:text-base font-medium opacity-80 uppercase tracking-widest">
                 {stat.label}
