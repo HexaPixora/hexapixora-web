@@ -65,8 +65,10 @@ export default function ContactForm(props: ContactFormProps) {
       <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] shadow-[0_40px_100px_-40px_rgba(16,147,253,0.45)] ring-1 ring-inset ring-white/10 lg:grid-cols-12">
         {/* Left — info */}
         <div className="relative isolate overflow-hidden border-b border-white/10 bg-gradient-to-br from-[#1093fd]/12 via-[#1093fd]/5 to-transparent p-8 md:p-12 lg:col-span-5 lg:border-b-0 lg:border-r">
-          <div aria-hidden className="pointer-events-none absolute -left-20 -top-20 -z-10 h-60 w-60 rounded-full bg-[rgba(16,147,253,0.28)] blur-[90px]" />
-          <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-16 -z-10 h-60 w-60 rounded-full bg-[rgba(80,60,220,0.22)] blur-[100px]" />
+          {/* Radial-gradient glows (not filter:blur) so iOS Safari clips them to
+              the card's rounded corners — blurred children bleed past on iOS. */}
+          <div aria-hidden className="pointer-events-none absolute -left-28 -top-28 -z-10 h-80 w-80 rounded-full" style={{ background: "radial-gradient(closest-side, rgba(16,147,253,0.32), transparent)" }} />
+          <div aria-hidden className="pointer-events-none absolute -bottom-32 -right-24 -z-10 h-80 w-80 rounded-full" style={{ background: "radial-gradient(closest-side, rgba(80,60,220,0.26), transparent)" }} />
 
           <div className="flex h-full flex-col justify-between gap-10">
             <div className="space-y-7">

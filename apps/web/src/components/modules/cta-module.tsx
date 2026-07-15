@@ -30,14 +30,12 @@ export default function CTAModule({ config }: { config?: CTAProps }) {
       <div className="container">
         <div
           className="relative isolate overflow-hidden rounded-[2rem] border border-white/12 px-6 py-16 text-center shadow-[0_40px_100px_-40px_rgba(16,147,253,0.5)] ring-1 ring-inset ring-white/10 md:px-16 md:py-20"
-          // translateZ(0) forces this rounded container onto its own compositing
-          // layer so iOS Safari clips the blurred glow children to the rounded
-          // corners (without it, blur bleeds past the top-left/bottom-right).
-          style={{ backgroundColor, transform: "translateZ(0)", WebkitTransform: "translateZ(0)" }}
+          style={{ backgroundColor }}
         >
-          {/* Ambient brand glows */}
-          <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[rgba(16,147,253,0.4)] blur-[100px]" />
-          <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-[rgba(80,60,220,0.32)] blur-[110px]" />
+          {/* Ambient brand glows — radial gradients (not filter:blur) so iOS
+              Safari clips them to the rounded corners; blur children bleed. */}
+          <div aria-hidden className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full" style={{ background: "radial-gradient(closest-side, rgba(16,147,253,0.45), transparent)" }} />
+          <div aria-hidden className="pointer-events-none absolute -bottom-32 -right-28 h-96 w-96 rounded-full" style={{ background: "radial-gradient(closest-side, rgba(80,60,220,0.38), transparent)" }} />
           {/* Glass light — top sheen + diagonal specular */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent" />
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,transparent_40%,rgba(255,255,255,0.06)_50%,transparent_60%)]" />
