@@ -121,7 +121,7 @@ export default async function InsightPage(props: InsightPageProps) {
       <article className="relative isolate flex-1 overflow-hidden pb-24">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_100%_at_50%_0%,rgba(16,147,253,0.14),transparent)]" />
 
-        <div className="container relative z-10 max-w-3xl pt-8 md:pt-14">
+        <div className="container relative z-10 max-w-6xl pt-8 md:pt-14">
           <Link
             href="/insights"
             className="group mb-8 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-[#7cc4ff]"
