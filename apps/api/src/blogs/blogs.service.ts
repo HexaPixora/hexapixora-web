@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ContentStatus } from '@prisma/client';
 import matter from 'gray-matter';
+import yaml from 'js-yaml';
 import MarkdownIt from 'markdown-it';
 import TurndownService from 'turndown';
 import AdmZip from 'adm-zip';
@@ -300,9 +301,9 @@ export class BlogsService {
     let fm: Record<string, any>;
     let body: string;
     try {
-      const parsed = matter(raw);
-      fm = parsed.data || {};
-      body = (parsed.content || '').trim();
+      const parsed = this.parseFrontMatter(raw);
+      fm = parsed.data;
+      body = parsed.content.trim();
     } catch (err) {
       return { ...base, error: `Invalid front matter: ${(err as Error).message?.slice(0, 120)}` };
     }
@@ -358,6 +359,21 @@ export class BlogsService {
       if (m) out.push({ level: m[1]!.length, text: m[2]!.trim() });
     }
     return out;
+  }
+
+  // Safe front-matter parse: split the leading `---` block and parse it with
+  // js-yaml's JSON schema (no code-executing YAML tags), rather than running an
+  // untrusted uploaded file through gray-matter's parser.
+  private parseFrontMatter(raw: string): { data: Record<string, any>; content: string } {
+    const text = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
+    const m = text.match(/^---[^\S\r\n]*\r?\n([\s\S]*?)\r?\n---[^\S\r\n]*(?:\r?\n)?([\s\S]*)$/);
+    if (!m) return { data: {}, content: text };
+    const parsed = yaml.load(m[1]!, { schema: yaml.JSON_SCHEMA });
+    const data =
+      parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? (parsed as Record<string, any>)
+        : {};
+    return { data, content: m[2] ?? '' };
   }
 
   // Split a post body into rendered HTML content + a structured FAQ. Drops any
