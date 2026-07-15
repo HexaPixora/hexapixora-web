@@ -32,11 +32,15 @@ export class MailService {
     return env.mail.resendApiKey.length > 0;
   }
 
+  // Escapes for both element text and (double-quoted) attribute contexts, so
+  // interpolated values can't break out of an attribute or inject markup.
   private escape(value: string): string {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   /**
@@ -61,7 +65,7 @@ export class MailService {
   /** Absolute logo URL, or a text wordmark fallback, for the email header. */
   private headerBrand(siteName: string, logoUrl?: string | null): string {
     if (logoUrl && /^https?:\/\//i.test(logoUrl)) {
-      return `<img src="${logoUrl}" alt="${this.escape(siteName)}" height="34" style="display:block;height:34px;width:auto;max-width:180px;border:0;outline:none;" />`;
+      return `<img src="${this.escape(logoUrl)}" alt="${this.escape(siteName)}" height="34" style="display:block;height:34px;width:auto;max-width:180px;border:0;outline:none;" />`;
     }
     return `<span style="font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#ffffff;">${this.escape(siteName)}</span>`;
   }

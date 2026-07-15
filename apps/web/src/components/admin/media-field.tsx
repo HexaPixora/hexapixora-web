@@ -99,7 +99,7 @@ export default function MediaField({
           <span className="ml-2 hidden sm:inline">Select</span>
         </Button>
 
-        {showPreview && value && type === "image" && (
+        {showPreview && value && type === "image" && /^(https?:\/\/|data:image\/|\/)/i.test(value) && (
           <img
             src={value}
             alt="Preview"

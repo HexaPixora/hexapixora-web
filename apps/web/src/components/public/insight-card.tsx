@@ -16,7 +16,7 @@ export function formatInsightDate(d?: string | null): string {
 
 export function insightExcerpt(post: any, max = 150): string {
   if (post?.excerpt) return post.excerpt;
-  const text = String(post?.content || "").replace(/<[^>]*>?/gm, " ").replace(/\s+/g, " ").trim();
+  const text = String(post?.content || "").replace(/<[^<>]*>?/gm, " ").replace(/\s+/g, " ").trim();
   return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
 }
 

@@ -71,7 +71,7 @@ export default async function BlogModule({ config }: { config?: BlogProps }) {
                   {post.title}
                 </h3>
                 <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-1">
-                  {post.excerpt || post.content?.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...'}
+                  {post.excerpt || post.content?.replace(/<[^<>]*>?/gm, '').substring(0, 120) + '...'}
                 </p>
                 <div className="text-sm font-semibold text-primary flex items-center mt-auto">
                   Read Article <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />

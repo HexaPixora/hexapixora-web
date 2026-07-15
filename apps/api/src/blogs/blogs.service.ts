@@ -140,7 +140,7 @@ export class BlogsService {
 
   private applyReadTime(data: any) {
     if (data.content) {
-      const wordCount = data.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+      const wordCount = data.content.replace(/<[^<>]*>?/g, ' ').split(/\s+/).length;
       data.readTime = Math.ceil(wordCount / 200);
     }
   }
