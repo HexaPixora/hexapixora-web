@@ -104,8 +104,10 @@ export class ChatAiService {
    */
   extractContact(text: string): { email?: string; name?: string } {
     const result: { email?: string; name?: string } = {};
-    const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
-    if (emailMatch) result.email = emailMatch[0].replace(/[.,;:]+$/, '');
+    // Bounded quantifiers (RFC-ish max lengths) keep this linear on adversarial
+    // input — no polynomial backtracking.
+    const emailMatch = text.match(/[\w.+-]{1,64}@[\w-]{1,255}\.[\w.-]{1,255}/);
+    if (emailMatch) result.email = emailMatch[0].replace(/[.,;:]{1,8}$/, '');
 
     // "my name is X", "I'm X", "this is X" — capture 1-3 capitalized-ish words.
     const nameMatch = text.match(

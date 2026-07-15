@@ -39,34 +39,19 @@ function toPermalink(raw: string): string | null {
   return null;
 }
 
-/**
- * Build the official Instagram embed blockquote for a reel. `embed.js` (loaded
- * once below) turns each blockquote into a correctly-sized iframe showing the
- * full reel — so nothing gets cropped.
- */
-function blockquoteFor(raw: string): string | null {
-  const s = (raw || "").trim();
-  // Already a full embed code pasted from Instagram → use it, minus its inline
-  // <script> (we load embed.js ourselves; an inert script tag would do nothing).
-  if (/<blockquote[\s>]/i.test(s)) {
-    return s.replace(/<script[\s\S]*?<\/script>/gi, "");
-  }
-  const permalink = toPermalink(s);
-  if (!permalink) return null;
-  return `<blockquote class="instagram-media" data-instgrm-permalink="${permalink}" data-instgrm-version="14" style="background:#000; border:0; margin:0; padding:0; width:100%; min-width:0;"></blockquote>`;
-}
-
 export default function InstagramReelsModule({ config }: { config?: InstagramReelsProps }) {
   const { eyebrow, heading, subheading, reels, ctaLabel, ctaUrl } = instagramReelsSchema.parse(config || {});
 
-  const items = (reels || [])
-    .map((r) => blockquoteFor(r.url))
-    .filter((h): h is string => Boolean(h));
+  // We only ever keep the validated permalink and build the embed blockquote
+  // ourselves in JSX — never inject pasted HTML — so there's no XSS surface.
+  const permalinks = (reels || [])
+    .map((r) => toPermalink(r.url))
+    .filter((u): u is string => Boolean(u));
 
   // Load Instagram's embed script once, then (re)process the blockquotes.
-  const key = items.join("|");
+  const key = permalinks.join("|");
   useEffect(() => {
-    if (items.length === 0) return;
+    if (permalinks.length === 0) return;
     const w = window as unknown as { instgrm?: { Embeds?: { process: () => void } } };
     const process = () => w.instgrm?.Embeds?.process();
     if (w.instgrm) {
@@ -89,7 +74,7 @@ export default function InstagramReelsModule({ config }: { config?: InstagramRee
     script.src = "https://www.instagram.com/embed.js";
     script.onload = process;
     document.body.appendChild(script);
-  }, [key, items.length]);
+  }, [key, permalinks.length]);
 
   return (
     <section className="relative isolate overflow-hidden py-20 md:py-28">
@@ -110,16 +95,22 @@ export default function InstagramReelsModule({ config }: { config?: InstagramRee
           {subheading && <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{subheading}</p>}
         </div>
 
-        {items.length > 0 ? (
+        {permalinks.length > 0 ? (
           // Fixed-width cards that wrap and center — up to 4 per row on wide
           // screens (container is capped), fewer rows auto-center.
           <div className="mx-auto mt-14 flex max-w-[1400px] flex-wrap justify-center gap-5">
-            {items.map((html, i) => (
+            {permalinks.map((permalink, i) => (
               <div
                 key={i}
                 className="w-full max-w-full overflow-hidden rounded-2xl border border-white/10 bg-black ring-1 ring-inset ring-white/10 sm:w-[326px]"
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
+              >
+                <blockquote
+                  className="instagram-media"
+                  data-instgrm-permalink={permalink}
+                  data-instgrm-version="14"
+                  style={{ background: "#000", border: 0, margin: 0, padding: 0, width: "100%", minWidth: 0 }}
+                />
+              </div>
             ))}
           </div>
         ) : (
