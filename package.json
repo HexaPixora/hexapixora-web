@@ -13,6 +13,9 @@
     "turbo": "^2.9.16",
     "typescript": "5.9.2"
   },
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
   "engines": {
     "node": ">=18"
   },
