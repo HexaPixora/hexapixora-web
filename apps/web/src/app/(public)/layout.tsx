@@ -15,21 +15,65 @@ async function getSettings(): Promise<any | null> {
   return null;
 }
 
+// Social profile URLs live in the footer CMS config (managed at
+// /admin/layouts/footer), not in settings — so pull them from there to power
+// the Organization `sameAs`, which tells Google which profiles are officially
+// ours (strengthens the brand entity / knowledge panel).
+async function getFooterSocials(): Promise<string[]> {
+  let selfHost = "hexapixora.com";
+  try {
+    selfHost = new URL(siteUrl("/")).hostname.toLowerCase();
+  } catch {
+    /* keep default */
+  }
+  try {
+    const res = await fetch(apiUrl("/layouts/footer"), { cache: "no-store" });
+    if (!res.ok) return [];
+    const body = await res.json();
+    const socials = body?.data?.socials;
+    if (!Array.isArray(socials)) return [];
+    const out: string[] = [];
+    for (const s of socials) {
+      let url = typeof s?.url === "string" ? s.url.trim() : "";
+      if (!url || /^(mailto:|tel:)/i.test(url)) continue;
+      // Normalize scheme-less entries like "instagram.com/hexapixora".
+      if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+      let host = "";
+      try {
+        host = new URL(url).hostname.toLowerCase();
+      } catch {
+        continue;
+      }
+      // sameAs is for *external* profiles — drop the site's own domain.
+      if (host === selfHost || host.endsWith(`.${selfHost}`)) continue;
+      out.push(url);
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
 export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const settings = await getSettings();
+  const [settings, footerSocials] = await Promise.all([
+    getSettings(),
+    getFooterSocials(),
+  ]);
   const siteName = settings?.siteName || "HexaPixora";
 
   // Organization + WebSite structured data, emitted on every public page so
-  // search engines can build a knowledge-panel / sitelinks entry.
-  const sameAs = settings?.socialLinks
+  // search engines can build a knowledge-panel / sitelinks entry. `sameAs`
+  // comes from the footer's social links (deduped), plus any settings.socialLinks.
+  const settingsSocials = settings?.socialLinks
     ? Object.values(settings.socialLinks).filter(
         (v): v is string => typeof v === "string" && v.length > 0,
       )
     : [];
+  const sameAs = Array.from(new Set([...footerSocials, ...settingsSocials]));
 
   const organization: Record<string, any> = {
     "@context": "https://schema.org",
