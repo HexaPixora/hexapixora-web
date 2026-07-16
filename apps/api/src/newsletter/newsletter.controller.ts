@@ -12,6 +12,7 @@ export class NewsletterController {
   constructor(private readonly newsletterService: NewsletterService) {}
 
   // Public subscription
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('subscribe')
   subscribe(@Body() body: SubscribeDto) {
     return this.newsletterService.subscribe(body.email, body.name);
