@@ -9,6 +9,7 @@ import { cmsFetch } from "@/lib/cms-fetch";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
 import { InsightCard, CategoryChip } from "@/components/public/insight-card";
+import { FaqAccordion } from "@/components/public/faq-accordion";
 
 export const dynamic = "force-dynamic";
 
@@ -188,16 +189,7 @@ export default async function InsightPage(props: InsightPageProps) {
           {faq.length > 0 && (
             <section className="mt-14">
               <h2 className="mb-6 text-2xl font-bold tracking-tight">Frequently Asked Questions</h2>
-              <div className="article-faq">
-                {faq.map((f, i) => (
-                  <details key={i} className="faq-item">
-                    <summary>{f.question}</summary>
-                    <div className="faq-answer">
-                      <p className="whitespace-pre-line">{f.answer}</p>
-                    </div>
-                  </details>
-                ))}
-              </div>
+              <FaqAccordion items={faq} />
             </section>
           )}
 
