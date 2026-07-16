@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
  *
  * It does NOT verify the JWT signature (that requires the secret and happens on
  * the API via /auth/me). A forged/expired cookie still gets rejected there.
+ *
+ * (Old nested blog URLs /insights/<cat>/<slug> → flat /insights/<slug> are
+ * handled in next.config.js redirects, not here.)
  */
 export function middleware(request: NextRequest) {
   const hasSession = Boolean(request.cookies.get("access_token")?.value);

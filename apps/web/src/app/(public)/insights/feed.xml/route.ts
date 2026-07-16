@@ -45,7 +45,7 @@ export async function GET() {
   const items = posts
     .filter((p) => p?.slug)
     .map((p) => {
-      const link = siteUrl(`/insights/${p.categories?.[0]?.slug || "uncategorized"}/${p.slug}`);
+      const link = siteUrl(`/insights/${p.slug}`);
       const date = p.publishDate || p.updatedAt || p.createdAt;
       const pubDate = date ? new Date(date).toUTCString() : undefined;
       return [

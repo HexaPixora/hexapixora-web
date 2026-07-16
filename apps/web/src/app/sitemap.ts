@@ -45,7 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogEntries: MetadataRoute.Sitemap = blogs
     .filter((b) => b?.slug)
     .map((b) => ({
-      url: siteUrl(`/insights/${b.categories?.[0]?.slug || "uncategorized"}/${b.slug}`),
+      url: siteUrl(`/insights/${b.slug}`),
       lastModified: b.updatedAt
         ? new Date(b.updatedAt)
         : b.publishDate

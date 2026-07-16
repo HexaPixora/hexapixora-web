@@ -1,4 +1,4 @@
-import React from "react";
+import React, { cache } from "react";
 import SiteLayout from "@/components/public/site-layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,11 +9,16 @@ import { cmsFetch } from "@/lib/cms-fetch";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
 import { InsightCard, CategoryChip } from "@/components/public/insight-card";
+import { InsightCategoryView } from "@/components/public/insight-category-view";
 import { FaqAccordion } from "@/components/public/faq-accordion";
 
 export const dynamic = "force-dynamic";
 
-async function getInsight(slug: string) {
+// URLs are fully flat: /insights/<slug> is EITHER a post or a category. Resolve
+// the post first (posts take precedence on a slug clash), then fall back to a
+// category. Wrapped in cache() so generateMetadata and the page share one fetch
+// per request instead of hitting the API twice.
+const getInsight = cache(async (slug: string) => {
   try {
     const res = await cmsFetch(`/blogs/slug/${slug}`, { cache: "no-store" });
     if (!res.ok) return null;
@@ -21,7 +26,17 @@ async function getInsight(slug: string) {
   } catch {
     return null;
   }
-}
+});
+
+const getCategory = cache(async (slug: string) => {
+  try {
+    const res = await fetch(apiUrl(`/categories/${slug}`), { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+});
 
 async function getRelated(slug: string) {
   try {
@@ -33,60 +48,90 @@ async function getRelated(slug: string) {
   }
 }
 
-interface InsightPageProps {
-  params: Promise<{ category: string; slug: string }>;
+async function getCategoryPosts(slug: string) {
+  try {
+    const res = await fetch(
+      apiUrl(`/blogs?published=true&limit=100&category=${encodeURIComponent(slug)}`),
+      { cache: "no-store" },
+    );
+    const json = await res.json();
+    return json?.data || [];
+  } catch {
+    return [];
+  }
 }
 
-function primaryCategorySlug(post: any): string {
-  return post?.categories?.[0]?.slug || "uncategorized";
+interface InsightPageProps {
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata(props: InsightPageProps): Promise<Metadata> {
   const { slug } = await props.params;
+
   const post = await getInsight(slug);
-  if (!post) return { title: "Insight Not Found | HexaPixora" };
+  if (post) {
+    const canonical = `/insights/${post.slug}`;
+    const ogDesc = post.metaDescription || post.excerpt || undefined;
+    const rawImage = post.ogImage || post.thumbnail;
+    const ogImage = rawImage ? absoluteMediaUrl(rawImage) : undefined;
 
-  // Canonical is always the primary-category URL, regardless of which category
-  // segment was used to reach the page (prevents duplicate content).
-  const canonical = `/insights/${primaryCategorySlug(post)}/${post.slug}`;
-  const ogDesc = post.metaDescription || post.excerpt || undefined;
-  const rawImage = post.ogImage || post.thumbnail;
-  const ogImage = rawImage ? absoluteMediaUrl(rawImage) : undefined;
+    const base = {
+      title: `${post.metaTitle || post.title} | HexaPixora Insights`,
+      description: post.metaDescription || post.excerpt || `Read our latest insight: ${post.title}`,
+      keywords: post.metaKeywords || undefined,
+      alternates: { canonical },
+    };
+    if (!ogImage) return base;
+    return {
+      ...base,
+      openGraph: {
+        type: "article",
+        title: post.title,
+        description: ogDesc,
+        url: siteUrl(canonical),
+        images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: post.title,
+        description: ogDesc,
+        images: [ogImage],
+      },
+    };
+  }
 
-  const base = {
-    title: `${post.metaTitle || post.title} | HexaPixora Insights`,
-    description: post.metaDescription || post.excerpt || `Read our latest insight: ${post.title}`,
-    keywords: post.metaKeywords || undefined,
-    alternates: { canonical },
-  };
+  const category = await getCategory(slug);
+  if (category) {
+    return {
+      title: `${category.name} | HexaPixora Insights`,
+      description: category.description || `Insights in the ${category.name} category.`,
+      alternates: { canonical: `/insights/${category.slug}` },
+    };
+  }
 
-  if (!ogImage) return base;
-  return {
-    ...base,
-    openGraph: {
-      type: "article",
-      title: post.title,
-      description: ogDesc,
-      url: siteUrl(canonical),
-      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: post.title,
-      description: ogDesc,
-      images: [ogImage],
-    },
-  };
+  return { title: "Not Found | HexaPixora" };
 }
 
 export default async function InsightPage(props: InsightPageProps) {
   const { slug } = await props.params;
+
   const post = await getInsight(slug);
-  if (!post) notFound();
+
+  // Not a post — maybe the slug is a category.
+  if (!post) {
+    const category = await getCategory(slug);
+    if (!category) notFound();
+    const posts = await getCategoryPosts(slug);
+    return (
+      <SiteLayout showHeader showFooter>
+        <InsightCategoryView category={category} posts={posts} />
+      </SiteLayout>
+    );
+  }
 
   const related = await getRelated(slug);
   const primaryCat = post.categories?.[0];
-  const canonical = siteUrl(`/insights/${primaryCategorySlug(post)}/${post.slug}`);
+  const canonical = siteUrl(`/insights/${post.slug}`);
   const date = post.publishDate || post.createdAt;
   const image = post.ogImage || post.thumbnail;
 

@@ -212,7 +212,7 @@ export default function AdminBlogsPage() {
                   <TD align="right">
                     <RowActions>
                       <a
-                        href={siteUrl(`insights/${blog.categories?.[0]?.slug || "uncategorized"}/${blog.slug}`)}
+                        href={siteUrl(`insights/${blog.slug}`)}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
