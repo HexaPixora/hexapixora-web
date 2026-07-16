@@ -2,11 +2,10 @@ import React from "react";
 import Link from "next/link";
 import { ArrowUpRight, Calendar, Clock } from "lucide-react";
 
-/** Canonical URL for a post: /insights/<primary-category>/<slug>. Posts without
- *  a category fall back to an "uncategorized" segment so the URL stays 2-deep. */
+/** Canonical URL for a post: /insights/<slug>. URLs are fully flat — categories
+ *  live at /insights/<category-slug> too (resolved by the same [slug] route). */
 export function insightPostUrl(post: any): string {
-  const cat = post?.categories?.[0]?.slug || "uncategorized";
-  return `/insights/${cat}/${post.slug}`;
+  return `/insights/${post.slug}`;
 }
 
 export function formatInsightDate(d?: string | null): string {

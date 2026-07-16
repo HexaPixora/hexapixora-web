@@ -36,7 +36,7 @@ export default async function BlogModule({ config }: { config?: BlogProps }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post: any) => (
-            <Link key={post.id} href={`/insights/${post.categories?.[0]?.slug || "uncategorized"}/${post.slug}`} className="group flex flex-col h-full bg-background border rounded-2xl overflow-hidden hover:shadow-lg transition-all">
+            <Link key={post.id} href={`/insights/${post.slug}`} className="group flex flex-col h-full bg-background border rounded-2xl overflow-hidden hover:shadow-lg transition-all">
               <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                 {post.thumbnail ? (
                   <img 
