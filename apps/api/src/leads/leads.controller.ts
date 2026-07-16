@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { LeadsService } from './leads.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -12,6 +13,8 @@ export class LeadsController {
 
   // Public — contact form submissions. Returns only a generated id (never the
   // submitted values) so no user-provided data is reflected in the response.
+  // Tight per-IP limit on top of the honeypot to blunt automated spam.
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post()
   async create(@Body() body: CreateLeadDto) {
     const lead = await this.leadsService.create(body);
