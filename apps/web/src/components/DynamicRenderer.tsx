@@ -80,6 +80,7 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   MarqueeModule: dynamic(() => import("@/components/modules/marquee-module")),
   CounterStatsModule: dynamic(() => import("@/components/modules/counter-stats-module")),
   StaggeredGridModule: dynamic(() => import("@/components/modules/staggered-grid-module")),
+  CustomCodeModule: dynamic(() => import("@/components/modules/custom-code-module")),
 };
 
 interface DynamicRendererProps {

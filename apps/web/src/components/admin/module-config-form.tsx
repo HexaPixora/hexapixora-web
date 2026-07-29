@@ -23,6 +23,31 @@ function FieldControl({
   onChange: (val: any) => void;
 }) {
   switch (field.type) {
+    case "code":
+      return (
+        <Textarea
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+          rows={field.name === "html" || field.name === "css" || field.name === "js" ? 8 : 4}
+          spellCheck={false}
+          className="font-mono text-xs leading-relaxed bg-slate-950 text-slate-100 border-slate-800 focus-visible:ring-primary placeholder:text-slate-500 rounded-md p-3"
+          onKeyDown={(e) => {
+            if (e.key === "Tab") {
+              e.preventDefault();
+              const target = e.currentTarget;
+              const start = target.selectionStart;
+              const end = target.selectionEnd;
+              const val = target.value;
+              const nextVal = val.substring(0, start) + "  " + val.substring(end);
+              onChange(nextVal);
+              setTimeout(() => {
+                target.selectionStart = target.selectionEnd = start + 2;
+              }, 0);
+            }
+          }}
+        />
+      );
     case "textarea":
     case "richtext":
       return (

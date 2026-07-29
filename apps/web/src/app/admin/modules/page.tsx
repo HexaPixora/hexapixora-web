@@ -35,6 +35,8 @@ import SplideSliderModule from "@/components/modules/splide-slider-module";
 import SplideLogoTickerModule from "@/components/modules/splide-logo-ticker-module";
 import SplideGallerySyncModule from "@/components/modules/splide-gallery-sync-module";
 import ContactFormModule from "@/components/modules/contact-form-module";
+import CustomCodeModule from "@/components/modules/custom-code-module";
+
 // Map for previews
 const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "HeroSection": HeroModule,
@@ -61,6 +63,7 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "SplideLogoTickerModule": SplideLogoTickerModule,
   "SplideGallerySyncModule": SplideGallerySyncModule,
   "ContactFormModule": ContactFormModule,
+  "CustomCodeModule": CustomCodeModule,
 };
 
 export default function ModulesLibraryPage() {
