@@ -11,10 +11,10 @@ const PADDING_MAP: Record<string, string> = {
 };
 
 const WIDTH_MAP: Record<string, string> = {
+  full: "w-full",
   container: "container",
   "max-w-4xl": "container max-w-4xl",
   "max-w-6xl": "container max-w-6xl",
-  full: "w-full px-4 sm:px-6 lg:px-8",
 };
 
 export default function CustomCodeModule({ config }: { config?: CustomCodeProps }) {
@@ -65,7 +65,7 @@ export default function CustomCodeModule({ config }: { config?: CustomCodeProps 
   }, [js, renderMode, html]);
 
   const paddingClass = PADDING_MAP[paddingY] || PADDING_MAP.medium;
-  const widthClass = WIDTH_MAP[containerWidth] || WIDTH_MAP.container;
+  const widthClass = WIDTH_MAP[containerWidth] || WIDTH_MAP.full;
 
   if (renderMode === "iframe") {
     const iframeSrcDoc = `
