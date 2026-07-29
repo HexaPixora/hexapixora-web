@@ -7,7 +7,7 @@ export const customCodeSchema = z.object({
   css: z.string().default('.custom-box {\n  padding: 2rem;\n  border-radius: 12px;\n  background: rgba(255, 255, 255, 0.03);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  text-align: center;\n}\n.custom-box h3 {\n  font-size: 1.5rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n}\n.custom-box button {\n  margin-top: 1rem;\n  padding: 0.5rem 1.25rem;\n  border-radius: 8px;\n  background: #1093fd;\n  color: #fff;\n  font-weight: 600;\n  border: none;\n  cursor: pointer;\n  transition: opacity 0.2s;\n}\n.custom-box button:hover {\n  opacity: 0.9;\n}'),
   js: z.string().default('// container is the DOM wrapper element for this module instance\nconst btn = container.querySelector("#demo-btn");\nif (btn) {\n  btn.addEventListener("click", () => {\n    alert("Hello from Custom Code Module!");\n  });\n}'),
   renderMode: z.enum(["inline", "iframe"]).default("inline"),
-  containerWidth: z.enum(["container", "full", "max-w-4xl", "max-w-6xl"]).default("container"),
+  containerWidth: z.enum(["container", "full", "max-w-4xl", "max-w-6xl"]).default("full"),
   paddingY: z.enum(["none", "small", "medium", "large"]).default("medium"),
   anchorId: z.string().default(""),
 });
