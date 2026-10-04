@@ -14,7 +14,6 @@ import { VideoPlayerModuleDef } from "./module-schemas/video-player-schema";
 import { SplideSliderModuleDef } from "./module-schemas/splide-slider-schema";
 import { SplideLogoTickerModuleDef } from "./module-schemas/splide-logo-ticker-schema";
 import { SplideGallerySyncModuleDef } from "./module-schemas/splide-gallery-sync-schema";
-import { BookingModuleDef } from "./module-schemas/booking-schema";
 import { PricingModuleDef } from "./module-schemas/pricing-schema";
 import { LeadMagnetModuleDef } from "./module-schemas/lead-magnet-schema";
 import { HorizontalScrollModuleDef } from "./module-schemas/horizontal-scroll-schema";
@@ -76,7 +75,6 @@ export const MODULES: Record<string, ModuleDefinition> = {
   SplideLogoTickerModule: SplideLogoTickerModuleDef,
   SplideGallerySyncModule: SplideGallerySyncModuleDef,
   ContactFormModule: ContactFormModuleDef,
-  BookingModule: BookingModuleDef,
   PricingModule: PricingModuleDef,
   LeadMagnetModule: LeadMagnetModuleDef,
   HorizontalScrollModule: HorizontalScrollModuleDef,
@@ -112,7 +110,7 @@ export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
   { label: "Portfolio & Galleries", modules: ["PortfolioSection", "GalleryModule", "SplideGallerySyncModule", "SplideSliderModule", "StaggeredGridModule", "HorizontalScrollModule"] },
   { label: "Social Proof", modules: ["TeamSection", "SkillsShowcaseModule", "SplideLogoTickerModule", "MarqueeModule", "StatsSection", "CounterStatsModule"] },
   { label: "Blog & Media", modules: ["BlogSection", "VideoPlayerModule", "InstagramReelsModule"] },
-  { label: "Lead Generation", modules: ["CTASection", "ContactFormModule", "BookingModule", "LeadMagnetModule", "FAQSection"] },
+  { label: "Lead Generation", modules: ["CTASection", "ContactFormModule", "LeadMagnetModule", "FAQSection"] },
 ];
 
 // Default anchor IDs for common single-instance sections, so buttons/nav can
@@ -121,7 +119,6 @@ export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
 export const DEFAULT_ANCHOR_IDS: Record<string, string> = {
   ContactFormModule: "contact",
   FAQSection: "faq",
-  BookingModule: "book-a-call",
   OurStoryModule: "our-story",
   OurProcessModule: "our-process",
   WhyChooseModule: "why-choose",
