@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
  * (Old nested blog URLs /insights/<cat>/<slug> → flat /insights/<slug> are
  * handled in next.config.js redirects, not here.)
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const hasSession = Boolean(request.cookies.get("access_token")?.value);
 
   if (!hasSession) {

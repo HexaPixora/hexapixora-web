@@ -6,7 +6,7 @@ import { apiClient } from "@/lib/api-client";
 import { useAuthStore } from "@/stores/use-auth-store";
 import {
   LayoutDashboard, Wrench, Image as ImageIcon, BookOpen, Settings,
-  Users, Mail, MessageSquare, Menu, Layers, LogOut,
+  Mail, MessageSquare, Menu, Layers, LogOut,
   ChevronRight, X, FileText, Tag
 } from "lucide-react";
 import { Toaster } from "sonner";
@@ -49,7 +49,6 @@ const navGroups = [
     label: "System",
     items: [
       { href: "/admin/settings", label: "Settings", icon: Settings, permission: "settings" },
-      { href: "/admin/users", label: "Team Members", icon: Users, adminOnly: true },
     ],
   },
 ];

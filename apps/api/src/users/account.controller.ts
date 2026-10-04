@@ -7,12 +7,11 @@ import {
   UpdateProfileDto,
   ChangePasswordDto,
   ChangeEmailDto,
-  AcceptInviteDto,
   VerifyEmailDto,
 } from './dto/account.dto';
 
 // Self-service account actions. Authenticated routes act on the caller's OWN
-// account (any role); the invite/verify routes are PUBLIC magic-link handlers.
+// account; the verify route is a PUBLIC magic-link handler.
 @Controller('account')
 export class AccountController {
   constructor(private readonly users: UsersService) {}
@@ -38,12 +37,6 @@ export class AccountController {
   }
 
   // --- Public magic-link endpoints (user is not logged in) ---
-
-  @Throttle({ default: { ttl: 60_000, limit: 10 } })
-  @Post('accept-invite')
-  acceptInvite(@Body() body: AcceptInviteDto) {
-    return this.users.acceptInvite(body.token, body.password);
-  }
 
   @Throttle({ default: { ttl: 60_000, limit: 10 } })
   @Post('verify-email')
