@@ -61,7 +61,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-white/10 bg-popover p-5 text-sm text-popover-foreground shadow-2xl ring-1 ring-foreground/10 duration-200 outline-none sm:max-w-md overflow-hidden min-w-0 break-words data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex flex-col w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border border-white/10 bg-popover p-6 text-sm text-popover-foreground shadow-2xl ring-1 ring-foreground/10 duration-200 outline-none sm:max-w-lg max-h-[88vh] overflow-y-auto min-w-0 break-words data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
@@ -71,7 +71,7 @@ function DialogContent({
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               variant="ghost"
-              className="absolute top-2.5 right-2.5 h-7 w-7 rounded-lg p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="absolute top-3.5 right-3.5 h-8 w-8 rounded-lg p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
               size="icon-sm"
             >
               <XIcon className="h-4 w-4" />
@@ -88,7 +88,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-1.5 min-w-0", className)}
+      className={cn("flex flex-col gap-1.5 min-w-0 pr-8", className)}
       {...props}
     />
   )
@@ -106,7 +106,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-5 -mb-5 mt-2 flex flex-col-reverse gap-2 border-t border-border/40 bg-muted/40 p-4 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2.5 pt-4 border-t border-border/40 sm:flex-row sm:justify-end sm:gap-3 mt-1",
         className
       )}
       {...props}
