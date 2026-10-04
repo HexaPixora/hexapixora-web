@@ -3,7 +3,6 @@ import { apiUrl } from "@/lib/api-url";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
 import { CookieConsent } from "@/components/public/cookie-consent";
-import ChatWidget from "@/components/public/chat-widget";
 
 async function getSettings(): Promise<any | null> {
   try {
@@ -115,7 +114,6 @@ export default async function PublicLayout({
         metaPixelId={settings?.metaPixelId}
       />
       {children}
-      <ChatWidget />
     </div>
   );
 }

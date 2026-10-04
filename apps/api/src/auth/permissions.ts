@@ -13,7 +13,6 @@ export const SECTIONS = [
   'leads',
   'newsletter',
   'settings',
-  'chat',
 ] as const;
 
 export type Section = (typeof SECTIONS)[number];

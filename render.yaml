@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: hexapixora-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install --include=dev --no-save && npx prisma generate --schema=packages/database/prisma/schema.prisma && npm run build --workspace=api
+    startCommand: npx prisma db push --schema=packages/database/prisma/schema.prisma --skip-generate --accept-data-loss && npm run db:seed --workspace=@repo/database && node apps/api/dist/main.js
+    healthCheckPath: /api
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: SEED_ADMIN_NAME
+        value: Administrator
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: media
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: LEADS_NOTIFY_TO
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false

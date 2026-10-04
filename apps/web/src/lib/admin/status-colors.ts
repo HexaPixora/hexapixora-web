@@ -1,7 +1,7 @@
 /**
  * Single source of truth for status pill colors across the admin. Uses the same
  * tint convention as content StatusBadge (`/15` background + `text-…-600
- * dark:text-…-400`) so leads, chat, and content statuses look like one system
+ * dark:text-…-400`) so leads and content statuses look like one system
  * instead of the previous ad-hoc `/20 text-…-400` variations.
  *
  * Class strings are written as full literals (not built dynamically) so
@@ -19,12 +19,5 @@ export const LEAD_STATUS: Record<string, StatusStyle> = {
   NEW: { label: "New", ...BLUE },
   CONTACTED: { label: "Contacted", ...AMBER },
   QUALIFIED: { label: "Qualified", ...EMERALD },
-  CLOSED: { label: "Closed", ...NEUTRAL },
-};
-
-export const CHAT_STATUS: Record<string, StatusStyle> = {
-  BOT: { label: "AI", ...BLUE },
-  WAITING_AGENT: { label: "Needs agent", ...AMBER },
-  AGENT: { label: "With agent", ...EMERALD },
   CLOSED: { label: "Closed", ...NEUTRAL },
 };

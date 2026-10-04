@@ -72,20 +72,4 @@ export const env = {
     privateKey: process.env.VAPID_PRIVATE_KEY ?? '',
     subject: process.env.VAPID_SUBJECT ?? 'mailto:admin@hexapixora.com',
   },
-
-  // Support-chat AI. Any OpenAI-compatible endpoint works — default targets
-  // Groq's free tier: create a key at https://console.groq.com/keys and set
-  // AI_API_KEY. Alternatives, just by overriding AI_BASE_URL/AI_MODEL: Google
-  // Gemini (https://generativelanguage.googleapis.com/v1beta/openai) or a local
-  // Ollama (http://localhost:11434/v1) for zero-cost self-hosting. When no key
-  // is set the bot stays silent and conversations route to the team.
-  ai: {
-    baseUrl: (process.env.AI_BASE_URL ?? 'https://api.groq.com/openai/v1').replace(
-      /\/+$/,
-      '',
-    ),
-    apiKey: process.env.AI_API_KEY ?? '',
-    // Used only when the admin leaves ChatbotConfig.aiModel blank.
-    fallbackModel: process.env.AI_MODEL ?? 'llama-3.3-70b-versatile',
-  },
 };

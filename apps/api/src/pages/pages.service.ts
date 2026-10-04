@@ -105,8 +105,8 @@ export class PagesService {
     return data;
   }
 
-  // Promote scheduled pages whose time has arrived. Mirrors the chat-retention
-  // cron pattern (ScheduleModule is registered globally in AppModule).
+  // Promote scheduled pages whose time has arrived.
+  // ScheduleModule is registered globally in AppModule.
   @Cron(CronExpression.EVERY_MINUTE)
   async publishScheduled() {
     const due = await this.prisma.page.updateMany({

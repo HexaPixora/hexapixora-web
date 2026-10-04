@@ -482,8 +482,8 @@ export class BlogsService {
     return data;
   }
 
-  // Promote scheduled posts whose time has arrived. Mirrors the chat-retention
-  // cron (ScheduleModule is registered globally in AppModule).
+  // Promote scheduled posts whose time has arrived.
+  // ScheduleModule is registered globally in AppModule.
   @Cron(CronExpression.EVERY_MINUTE)
   async publishScheduled() {
     const now = new Date();
