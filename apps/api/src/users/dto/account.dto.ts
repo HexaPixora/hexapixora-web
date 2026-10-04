@@ -21,15 +21,6 @@ export class ChangeEmailDto {
   newEmail: string;
 }
 
-export class AcceptInviteDto {
-  @IsString()
-  token: string;
-
-  @IsString()
-  @MinLength(8)
-  @MaxLength(100)
-  password: string;
-}
 
 export class VerifyEmailDto {
   @IsString()
