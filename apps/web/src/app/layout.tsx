@@ -11,10 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 // they download only when an element references the CSS variable.
 const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
   variable: "--font-serif",
-  preload: false,
   display: "swap",
 });
 const sacramento = Sacramento({
