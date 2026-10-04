@@ -9,7 +9,6 @@ export const SECTIONS = [
   { key: "media", label: "Media Library", description: "Upload and manage media" },
   { key: "layouts", label: "Builders & Layouts", description: "Header, footer, navigation, modules" },
   { key: "leads", label: "Leads / CRM", description: "View and manage contact submissions" },
-  { key: "chat", label: "Conversations", description: "Reply to live chats assigned to them (Chatbot AI settings stay admin-only)" },
   { key: "newsletter", label: "Newsletter", description: "View and manage subscribers" },
   { key: "settings", label: "Settings", description: "Global site configuration" },
 ] as const;

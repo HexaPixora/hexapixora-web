@@ -249,17 +249,6 @@
   }
 }
 
-/* Chat widget — message entrance (bubbles/chips fade + rise into place). */
-@keyframes chatPopIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
 /* Liquid-glass cards — a slow diagonal specular reflection that drifts across
    the glass, then pauses. Elegant and barely noticeable (GPU: transform+opacity

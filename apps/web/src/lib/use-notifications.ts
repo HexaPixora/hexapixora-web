@@ -5,7 +5,7 @@ import { apiClient } from "@/lib/api-client";
 
 export type AdminNotification = {
   id: string;
-  type: "LEAD" | "CHAT_HANDOFF" | "CHAT_MESSAGE" | "NEWSLETTER" | "SYSTEM";
+  type: "LEAD" | "NEWSLETTER" | "SYSTEM";
   title: string;
   body?: string | null;
   link?: string | null;

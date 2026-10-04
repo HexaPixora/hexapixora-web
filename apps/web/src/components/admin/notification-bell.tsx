@@ -7,8 +7,6 @@ import { getPushState, enablePush, disablePush, type PushState } from "@/lib/pus
 
 const TYPE_EMOJI: Record<string, string> = {
   LEAD: "🎯",
-  CHAT_HANDOFF: "💬",
-  CHAT_MESSAGE: "💬",
   NEWSLETTER: "✉️",
   SYSTEM: "🔔",
 };

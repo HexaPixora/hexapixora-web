@@ -7,7 +7,7 @@ const PRIVATE_LAN =
 type CorsCallback = (err: Error | null, allow?: boolean) => void;
 
 /**
- * Shared CORS origin check for both the HTTP server and the socket.io gateway.
+ * Shared CORS origin check for the HTTP server.
  * Allows the configured origins always; in development it additionally accepts
  * any localhost/LAN origin so the site works when opened from a phone on the
  * same network (e.g. http://192.168.x.x:3000) without hardcoding the machine's
