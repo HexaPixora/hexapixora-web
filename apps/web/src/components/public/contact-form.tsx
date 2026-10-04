@@ -29,13 +29,18 @@ type FormValues = z.infer<typeof schema>;
 const fieldClass =
   "h-11 rounded-xl border-white/10 bg-white/[0.03] transition-all focus:border-[#7cc4ff] focus:ring-1 focus:ring-[#7cc4ff]/50";
 
-export default function ContactForm(props: ContactFormProps) {
+interface ContactFormExtendedProps extends ContactFormProps {
+  turnstileSiteKey?: string;
+}
+
+export default function ContactForm(props: ContactFormExtendedProps) {
   const { title, subtitle, emailAddress, phoneNumber } = contactFormSchema.parse(props || {});
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileSiteKey =
+    props.turnstileSiteKey ||
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
     process.env.NEXT_PUBLIC_TRUNSTILE_SITE_KEY;
 
