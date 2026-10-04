@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -53,10 +54,12 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
       <Dialog open={open} onOpenChange={(o) => !o && settle(false)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{options.title || "Are you sure?"}</DialogTitle>
+            <DialogTitle className="text-base font-semibold">{options.title || "Are you sure?"}</DialogTitle>
           </DialogHeader>
           {options.description && (
-            <p className="text-sm text-muted-foreground">{options.description}</p>
+            <DialogDescription className="text-sm text-muted-foreground break-all break-words leading-relaxed">
+              {options.description}
+            </DialogDescription>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => settle(false)}>
