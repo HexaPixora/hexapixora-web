@@ -4,16 +4,15 @@ import HeroModule from "@/components/modules/hero-module"; // fallback when no h
 import { cmsFetch, readJson } from "@/lib/cms-fetch";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 
-// Render live on every request so admin edits (and scheduled publishes) appear
-// immediately. On-demand tag revalidation proved unreliable on Vercel's edge for
-// prerendered routes, so we render dynamically like the blog/category routes.
-export const dynamic = "force-dynamic";
+// Revalidate periodically (120s) so cached pages serve in ~20ms and Render
+// backend cold starts don't block visitors.
+export const revalidate = 120;
 
 async function getHomepage() {
   try {
     const [pageRes, defaultsRes] = await Promise.all([
-      cmsFetch("/pages/homepage", { cache: "no-store" }),
-      cmsFetch("/layouts/module-defaults", { cache: "no-store" }),
+      cmsFetch("/pages/homepage", { next: { revalidate: 120 } }),
+      cmsFetch("/layouts/module-defaults", { next: { revalidate: 120 } }),
     ]);
 
     // readJson never throws on an empty/invalid body (e.g. module-defaults),

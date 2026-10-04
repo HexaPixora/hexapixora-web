@@ -35,4 +35,9 @@ export class CreateLeadDto {
   @IsString()
   @MaxLength(200)
   website?: string;
+
+  // Cloudflare Turnstile token for bot defense
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }

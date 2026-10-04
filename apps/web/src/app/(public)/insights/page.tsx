@@ -6,7 +6,7 @@ import { Metadata } from "next";
 import { apiUrl } from "@/lib/api-url";
 import { InsightCard, CategoryChip, formatInsightDate, insightExcerpt, insightPostUrl } from "@/components/public/insight-card";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 export const metadata: Metadata = {
   title: "Insights: Software, Web, AI & Cloud Guides | HexaPixora",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 async function getInsights() {
   try {
-    const res = await fetch(apiUrl("/blogs?published=true&limit=100"), { cache: "no-store" });
+    const res = await fetch(apiUrl("/blogs?published=true&limit=100"), { next: { revalidate: 120 } });
     const json = await res.json();
     return json?.data || [];
   } catch {
@@ -30,7 +30,7 @@ async function getInsights() {
 
 async function getCategories() {
   try {
-    const res = await fetch(apiUrl("/categories"), { cache: "no-store" });
+    const res = await fetch(apiUrl("/categories"), { next: { revalidate: 120 } });
     return await res.json();
   } catch {
     return [];

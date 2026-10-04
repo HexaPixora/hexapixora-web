@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { env } from '../config/env';
 import { MailService } from '../mail/mail.service';
@@ -16,12 +16,37 @@ export class LeadsService {
   ) {}
 
   async create(data: any) {
-    const { website, ...lead } = data ?? {};
+    const { website, turnstileToken, ...lead } = data ?? {};
 
     // Honeypot tripped — a bot filled the hidden field. Acknowledge the request
     // so the bot can't distinguish success from rejection, but persist nothing.
     if (website && String(website).trim().length > 0) {
       return { id: 'ignored', ...lead };
+    }
+
+    // Cloudflare Turnstile verification (active when TURNSTILE_SECRET_KEY is configured)
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    if (turnstileSecret) {
+      if (!turnstileToken) {
+        throw new BadRequestException('Security verification required. Please try again.');
+      }
+      try {
+        const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            secret: turnstileSecret,
+            response: turnstileToken,
+          }),
+        });
+        const verifyData: any = await verifyRes.json();
+        if (!verifyData.success) {
+          throw new BadRequestException('Spam protection verification failed. Please try again.');
+        }
+      } catch (err) {
+        if (err instanceof BadRequestException) throw err;
+        this.logger.error(`Turnstile verification network error: ${(err as Error).message}`);
+      }
     }
 
     const created = await this.prisma.lead.create({ data: lead });

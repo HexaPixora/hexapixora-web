@@ -30,6 +30,13 @@ export class MediaService {
     });
   }
 
+  async update(id: string, data: { name?: string; folder?: string }) {
+    return this.prisma.media.update({
+      where: { id },
+      data,
+    });
+  }
+
   async delete(id: string) {
     return this.prisma.media.delete({
       where: { id },

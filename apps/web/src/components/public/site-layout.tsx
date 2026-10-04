@@ -6,13 +6,13 @@ import { readJson } from "@/lib/cms-fetch";
 
 async function getLayoutData() {
   try {
-    // no-store so header/footer/menu/settings edits reflect immediately on the
-    // public site (this layout renders on every page).
+    // Revalidate periodically (120s) so pages serve instantly from edge cache
+    // without stalling visitors during cold starts.
     const [settingsRes, headerRes, footerRes, navsRes] = await Promise.all([
-      fetch(apiUrl('/settings'), { cache: "no-store" }).catch(() => null),
-      fetch(apiUrl('/layouts/header'), { cache: "no-store" }).catch(() => null),
-      fetch(apiUrl('/layouts/footer'), { cache: "no-store" }).catch(() => null),
-      fetch(apiUrl('/layouts/navigations'), { cache: "no-store" }).catch(() => null),
+      fetch(apiUrl('/settings'), { next: { revalidate: 120 } }).catch(() => null),
+      fetch(apiUrl('/layouts/header'), { next: { revalidate: 120 } }).catch(() => null),
+      fetch(apiUrl('/layouts/footer'), { next: { revalidate: 120 } }).catch(() => null),
+      fetch(apiUrl('/layouts/navigations'), { next: { revalidate: 120 } }).catch(() => null),
     ]);
 
     // readJson never throws on an empty/invalid body, so one missing layout

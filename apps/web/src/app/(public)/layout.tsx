@@ -6,7 +6,7 @@ import { CookieConsent } from "@/components/public/cookie-consent";
 
 async function getSettings(): Promise<any | null> {
   try {
-    const res = await fetch(apiUrl("/settings"), { cache: "no-store" });
+    const res = await fetch(apiUrl("/settings"), { next: { revalidate: 120 } });
     if (res.ok) return await res.json();
   } catch {
     // ignore — JSON-LD is best-effort
@@ -26,7 +26,7 @@ async function getFooterSocials(): Promise<string[]> {
     /* keep default */
   }
   try {
-    const res = await fetch(apiUrl("/layouts/footer"), { cache: "no-store" });
+    const res = await fetch(apiUrl("/layouts/footer"), { next: { revalidate: 120 } });
     if (!res.ok) return [];
     const body = await res.json();
     const socials = body?.data?.socials;
