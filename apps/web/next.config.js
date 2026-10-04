@@ -23,6 +23,26 @@ const nextConfig = {
   // (https://*.trycloudflare.com) so phones/other devices can load it without
   // Next blocking the cross-origin dev request.
   allowedDevOrigins: ['*.trycloudflare.com'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.render.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
+  },
   async rewrites() {
     return [
       {

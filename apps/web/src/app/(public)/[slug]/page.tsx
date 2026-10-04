@@ -5,17 +5,15 @@ import DynamicRenderer from "@/components/DynamicRenderer";
 import { cmsFetch, readJson } from "@/lib/cms-fetch";
 import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 
-// Render live on every request so admin edits (and scheduled publishes) appear
-// immediately, instead of relying on Vercel edge-cache invalidation that proved
-// unreliable for prerendered routes.
-export const dynamic = "force-dynamic";
+// Revalidate periodically (120s) so custom pages serve instantly from cache.
+export const revalidate = 120;
 
 // Wrapped in React cache() so generateMetadata and the page component share ONE
 // execution per request instead of double-fetching.
 const getPageData = cache(async (slug: string) => {
   const [pageRes, defaultsRes] = await Promise.all([
-    cmsFetch(`/pages/${slug}`, { cache: "no-store" }).catch(() => null),
-    cmsFetch("/layouts/module-defaults", { cache: "no-store" }).catch(() => null),
+    cmsFetch(`/pages/${slug}`, { next: { revalidate: 120 } }).catch(() => null),
+    cmsFetch("/layouts/module-defaults", { next: { revalidate: 120 } }).catch(() => null),
   ]);
 
   // readJson never throws — an empty/invalid sub-response (e.g. module-defaults)

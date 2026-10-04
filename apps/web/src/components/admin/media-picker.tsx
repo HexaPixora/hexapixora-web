@@ -18,6 +18,7 @@ import { UploadCloud, Search, Check, ImageOff, Loader2, FileVideo, File } from "
 type Media = {
   id: string;
   filename: string;
+  name?: string | null;
   url: string;
   mimetype: string;
   size: number;
@@ -109,9 +110,13 @@ export default function MediaPicker({
 
   const filtered = mediaList
     .filter(matchesMime)
-    .filter((m) =>
-      query ? m.filename.toLowerCase().includes(query.toLowerCase()) : true,
-    );
+    .filter((m) => {
+      if (!query.trim()) return true;
+      const q = query.toLowerCase().trim();
+      const matchName = m.name?.toLowerCase().includes(q);
+      const matchFilename = m.filename.toLowerCase().includes(q);
+      return Boolean(matchName || matchFilename);
+    });
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -131,7 +136,7 @@ export default function MediaPicker({
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by filename..."
+              placeholder="Search by name or filename..."
               className="pl-9"
             />
           </div>
@@ -178,12 +183,13 @@ export default function MediaPicker({
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {filtered.map((media) => {
                 const active = selected === media.url;
+                const displayName = media.name || media.filename;
                 return (
                   <button
                     type="button"
                     key={media.id}
                     onClick={() => setSelected(media.url)}
-                    title={media.filename}
+                    title={displayName}
                     className={`group relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                       active
                         ? "border-primary ring-2 ring-primary/30"
@@ -193,7 +199,7 @@ export default function MediaPicker({
                     {isImage(media) ? (
                       <img
                         src={media.url}
-                        alt={media.filename}
+                        alt={displayName}
                         className="w-full h-full object-contain bg-muted/40 p-1"
                       />
                     ) : (
@@ -210,8 +216,8 @@ export default function MediaPicker({
                         <Check size={12} />
                       </span>
                     )}
-                    <span className="absolute inset-x-0 bottom-0 bg-black/60 text-white text-[10px] truncate px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {media.filename}
+                    <span className="absolute inset-x-0 bottom-0 bg-black/70 text-white text-[10px] truncate px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {displayName}
                     </span>
                   </button>
                 );

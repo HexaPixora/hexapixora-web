@@ -1,7 +1,9 @@
 import {
   Controller,
   Post,
+  Patch,
   Delete,
+  Body,
   UseInterceptors,
   UploadedFile,
   Get,
@@ -42,7 +44,14 @@ const ALLOWED_MIME_TYPES = new Set([
   'image/svg+xml',
   'video/mp4',
   'video/webm',
+  'video/quicktime',
+  'video/x-msvideo',
+  'video/ogg',
   'application/pdf',
+  'application/zip',
+  'application/x-zip-compressed',
+  'text/plain',
+  'text/csv',
 ]);
 
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -78,7 +87,7 @@ export class MediaController {
         }
         cb(null, true);
       },
-      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
     }),
   )
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
@@ -125,8 +134,11 @@ export class MediaController {
       url = `/api/media/file/${finalName}`;
     }
 
+    const originalName = file.originalname ? basename(file.originalname) : finalName;
+
     const created = await this.mediaService.create({
       filename: finalName,
+      name: originalName,
       url,
       mimetype: file.mimetype,
       size: buffer.length,
@@ -139,6 +151,31 @@ export class MediaController {
   @Get()
   findAll() {
     return this.mediaService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('media')
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() body: { name?: string; folder?: string },
+  ) {
+    const item = await this.mediaService.findOne(id);
+    if (!item) {
+      throw new NotFoundException('Media not found');
+    }
+    const updateData: { name?: string; folder?: string } = {};
+    if (typeof body.name === 'string') {
+      const trimmed = body.name.trim();
+      if (!trimmed) {
+        throw new BadRequestException('Media name cannot be empty');
+      }
+      updateData.name = trimmed;
+    }
+    if (typeof body.folder === 'string') {
+      updateData.folder = body.folder.trim();
+    }
+    return this.mediaService.update(id, updateData);
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)

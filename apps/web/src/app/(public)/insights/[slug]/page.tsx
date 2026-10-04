@@ -12,7 +12,7 @@ import { InsightCard, CategoryChip } from "@/components/public/insight-card";
 import { InsightCategoryView } from "@/components/public/insight-category-view";
 import { FaqAccordion } from "@/components/public/faq-accordion";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 // URLs are fully flat: /insights/<slug> is EITHER a post or a category. Resolve
 // the post first (posts take precedence on a slug clash), then fall back to a
@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 // per request instead of hitting the API twice.
 const getInsight = cache(async (slug: string) => {
   try {
-    const res = await cmsFetch(`/blogs/slug/${slug}`, { cache: "no-store" });
+    const res = await cmsFetch(`/blogs/slug/${slug}`, { next: { revalidate: 120 } });
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -30,7 +30,7 @@ const getInsight = cache(async (slug: string) => {
 
 const getCategory = cache(async (slug: string) => {
   try {
-    const res = await fetch(apiUrl(`/categories/${slug}`), { cache: "no-store" });
+    const res = await fetch(apiUrl(`/categories/${slug}`), { next: { revalidate: 120 } });
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -40,7 +40,7 @@ const getCategory = cache(async (slug: string) => {
 
 async function getRelated(slug: string) {
   try {
-    const res = await fetch(apiUrl(`/blogs/slug/${slug}/related?limit=3`), { cache: "no-store" });
+    const res = await fetch(apiUrl(`/blogs/slug/${slug}/related?limit=3`), { next: { revalidate: 120 } });
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -52,7 +52,7 @@ async function getCategoryPosts(slug: string) {
   try {
     const res = await fetch(
       apiUrl(`/blogs?published=true&limit=100&category=${encodeURIComponent(slug)}`),
-      { cache: "no-store" },
+      { next: { revalidate: 120 } },
     );
     const json = await res.json();
     return json?.data || [];

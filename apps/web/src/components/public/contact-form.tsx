@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -33,6 +33,9 @@ export default function ContactForm(props: ContactFormProps) {
   const { title, subtitle, emailAddress, phoneNumber } = contactFormSchema.parse(props || {});
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const {
     register,
@@ -40,6 +43,40 @@ export default function ContactForm(props: ContactFormProps) {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  useEffect(() => {
+    if (!turnstileSiteKey || !turnstileRef.current) return;
+
+    const scriptId = "cf-turnstile-script";
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    const renderWidget = () => {
+      if ((window as any).turnstile && turnstileRef.current) {
+        try {
+          (window as any).turnstile.render(turnstileRef.current, {
+            sitekey: turnstileSiteKey,
+            callback: (token: string) => setTurnstileToken(token),
+            "expired-callback": () => setTurnstileToken(null),
+            theme: "dark",
+          });
+        } catch {
+          // ignore if already rendered
+        }
+      }
+    };
+
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.onload = renderWidget;
+      document.head.appendChild(script);
+    } else {
+      renderWidget();
+    }
+  }, [turnstileSiteKey]);
 
   const onSubmit = async (data: FormValues) => {
     setError(null);
@@ -51,10 +88,15 @@ export default function ContactForm(props: ContactFormProps) {
       return;
     }
     try {
-      await apiClient.post("/leads", { ...lead, type: "contact" });
+      await apiClient.post("/leads", {
+        ...lead,
+        type: "contact",
+        turnstileToken: turnstileToken || undefined,
+      });
       trackEvent("generate_lead", { form: "contact" });
       setSuccess(true);
       reset();
+      setTurnstileToken(null);
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong. Please try again later.");
     }
@@ -193,6 +235,12 @@ export default function ContactForm(props: ContactFormProps) {
                 />
                 {errors.message && <p className="flex items-center gap-1 text-xs text-destructive"><AlertCircle size={12} /> {errors.message.message}</p>}
               </div>
+
+              {turnstileSiteKey && (
+                <div className="flex justify-center py-2">
+                  <div ref={turnstileRef} />
+                </div>
+              )}
 
               <Button
                 type="submit"

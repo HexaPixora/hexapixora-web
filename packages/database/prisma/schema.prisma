@@ -214,6 +214,7 @@ model Faq {
 model Media {
   id               String   @id @default(uuid())
   filename         String
+  name             String?
   url              String
   mimetype         String
   size             Int
