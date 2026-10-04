@@ -25,7 +25,7 @@ export class LeadsService {
     }
 
     // Cloudflare Turnstile verification (active when TURNSTILE_SECRET_KEY is configured)
-    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || process.env.TRUNSTILE_SECRET_KEY;
     if (turnstileSecret) {
       if (!turnstileToken) {
         throw new BadRequestException('Security verification required. Please try again.');
