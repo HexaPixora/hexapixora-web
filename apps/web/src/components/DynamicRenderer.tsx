@@ -69,7 +69,6 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   SplideLogoTickerModule: dynamic(() => import("@/components/modules/splide-logo-ticker-module")),
   SplideGallerySyncModule: dynamic(() => import("@/components/modules/splide-gallery-sync-module")),
   ContactFormModule: dynamic(() => import("@/components/modules/contact-form-module")),
-  BookingModule: dynamic(() => import("@/components/modules/booking-module")),
   PricingModule: dynamic(() => import("@/components/modules/pricing-module")),
   LeadMagnetModule: dynamic(() => import("@/components/modules/lead-magnet-module")),
   HorizontalScrollModule: dynamic(() => import("@/components/modules/horizontal-scroll-module")),
