@@ -199,11 +199,7 @@ export default function AdminMediaPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Media Library" description={`${mediaList.length} files stored`}>
-        <Button onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-          <Upload size={16} className="mr-2" /> Upload Files
-        </Button>
-      </PageHeader>
+      <PageHeader title="Media Library" description={`${mediaList.length} files stored`} />
 
       {/* Search and Category Filter Toolbar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
