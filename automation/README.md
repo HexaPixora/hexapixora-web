@@ -1,12 +1,13 @@
-# Scheduled automation
+# Site automation
 
-Playbooks run by Claude cloud routines. Each run starts from zero context, reads
-only the playbook it is pointed at, does the job, and stops — nothing runs 24/7.
+Playbooks Claude follows on request — nothing runs 24/7. In Claude Code, type
+`/hexa-weekly` or `/hexa-monthly` (user-level skills that point at these files).
+The same files also work as prompts for scheduled cloud routines.
 
-| Playbook | Schedule (Asia/Karachi) | Writes to |
+| Playbook | Suggested cadence | Writes to |
 |---|---|---|
-| [weekly.md](weekly.md) | Mondays 10:00 | Publishes up to 2 posts via the automation API; prints a report |
-| [monthly-audit.md](monthly-audit.md) | 1st of month 10:00 | Opens a PR against `develop` (never pushes to `main`) |
+| [weekly.md](weekly.md) | Mondays | Publishes up to 2 posts via the automation API; prints a report |
+| [monthly-audit.md](monthly-audit.md) | 1st of the month | Opens a PR against `develop` (never pushes to `main`) |
 
 Shared rules: [style-guide.md](style-guide.md).
 
@@ -23,7 +24,10 @@ Auth header: `X-Automation-Key: $AUTOMATION_API_KEY`. Code: `apps/api/src/automa
 
 The API can't edit or delete anything, and creates at most 3 posts per 24h.
 
-## Environment variables (set on the routine's cloud environment)
+## Environment variables
+
+Local runs read them from `D:\secrets\hexapixora-automation.env` (`NAME=value`
+lines, never committed). Cloud routines set them on the cloud environment.
 
 | Name | Required | Value |
 |---|---|---|

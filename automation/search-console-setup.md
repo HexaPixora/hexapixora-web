@@ -37,9 +37,10 @@ Console**. Takes a minute and adds Bing/DuckDuckGo/ChatGPT search coverage.
 Search Console → **Settings → Users and permissions → Add user** → paste the
 service-account email → Permission **Restricted** (read-only) → Add.
 
-## E. Hand it to the routine
+## E. Hand it to the automation
 
-On the routine's cloud environment (claude.ai → Code → Environments → edit), add:
+Add these two lines to `D:\secrets\hexapixora-automation.env` (or, for cloud
+routines, to the cloud environment's variables):
 
 ```
 GSC_SITE_URL=sc-domain:hexapixora.com
