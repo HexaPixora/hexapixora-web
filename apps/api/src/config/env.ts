@@ -72,4 +72,8 @@ export const env = {
     privateKey: process.env.VAPID_PRIVATE_KEY ?? '',
     subject: process.env.VAPID_SUBJECT ?? 'mailto:admin@hexapixora.com',
   },
+
+  // Shared secret for the scheduled Claude routines (X-Automation-Key header).
+  // When unset, every /api/automation route is disabled.
+  automationApiKey: process.env.AUTOMATION_API_KEY ?? '',
 };
