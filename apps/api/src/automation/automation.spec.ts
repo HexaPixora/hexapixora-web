@@ -76,9 +76,15 @@ describe('AutomationService.createPost', () => {
     service = new AutomationService(prisma as unknown as PrismaService);
   });
 
+  // The `data` passed to the first prisma.blog.create call.
+  const createdData = () =>
+    (
+      prisma.blog.create.mock.calls as [[{ data: Record<string, unknown> }]]
+    )[0][0].data;
+
   it('publishes immediately, escapes raw HTML, and links only known categories', async () => {
     const res = await service.createPost(dto());
-    const data = prisma.blog.create.mock.calls[0][0].data;
+    const data = createdData();
 
     expect(data.status).toBe(ContentStatus.PUBLISHED);
     expect(data.isPublished).toBe(true);
@@ -92,7 +98,7 @@ describe('AutomationService.createPost', () => {
   it('schedules when publishAt is in the future', async () => {
     const future = new Date(Date.now() + 86_400_000).toISOString();
     await service.createPost(dto({ publishAt: future }));
-    const data = prisma.blog.create.mock.calls[0][0].data;
+    const data = createdData();
 
     expect(data.status).toBe(ContentStatus.SCHEDULED);
     expect(data.isPublished).toBe(false);
