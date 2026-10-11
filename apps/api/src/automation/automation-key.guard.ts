@@ -5,16 +5,20 @@ import {
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { createHash, timingSafeEqual } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import type { Request } from 'express';
 import { env } from '../config/env';
 
-const sha256 = (value: string) => createHash('sha256').update(value).digest();
+// Per-process random HMAC key: both values are MACed only to get equal-length
+// digests for timingSafeEqual. Nothing is stored, so no password hashing needed.
+const compareKey = randomBytes(32);
+const digest = (value: string) =>
+  createHmac('sha256', compareKey).update(value).digest();
 
 /**
- * Machine auth for the scheduled Claude routines. Compares the X-Automation-Key
- * header to AUTOMATION_API_KEY in constant time (both hashed first so length
- * differences don't leak). Routes are disabled entirely while the key is unset.
+ * Machine auth for the automation runs. Compares the X-Automation-Key header to
+ * AUTOMATION_API_KEY in constant time (length differences don't leak). Routes
+ * are disabled entirely while the key is unset.
  */
 @Injectable()
 export class AutomationKeyGuard implements CanActivate {
@@ -29,7 +33,7 @@ export class AutomationKeyGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    if (!timingSafeEqual(sha256(provided), sha256(env.automationApiKey))) {
+    if (!timingSafeEqual(digest(provided), digest(env.automationApiKey))) {
       throw new UnauthorizedException();
     }
     return true;
