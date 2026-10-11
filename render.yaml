@@ -19,6 +19,8 @@ services:
         generateValue: true
       - key: JWT_REFRESH_SECRET
         generateValue: true
+      - key: AUTOMATION_API_KEY
+        generateValue: true
       - key: CORS_ORIGINS
         sync: false
       - key: APP_URL
