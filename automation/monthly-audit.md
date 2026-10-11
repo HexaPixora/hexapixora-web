@@ -1,8 +1,10 @@
 # Monthly run: site audit → one PR
 
-You are running unattended in a clone of this repo. Changes go to a branch and a
-pull request against `develop`. **Never push to `main` or `develop` directly** —
-Render deploys `main` automatically.
+Changes go to a branch and a pull request against `develop`. **Never push to
+`main` or `develop` directly** — Render deploys `main` automatically.
+
+Local runs: load secrets as in `weekly.md` step 0, and if `git status` shows
+uncommitted work, stop and ask before switching branches.
 
 ## 1. Audit the live site (read-only)
 
