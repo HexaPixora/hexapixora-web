@@ -23,7 +23,7 @@ export const ParallaxBannerModuleDef = createModuleDefinition(
     { name: "heading", label: "Heading", type: "text" },
     { name: "subheading", label: "Subheading", type: "textarea" },
     { name: "buttonText", label: "Button Text", type: "text", placeholder: "Optional" },
-    { name: "buttonLink", label: "Button Link", type: "text", placeholder: "/contact" },
+    { name: "buttonLink", label: "Button Link", type: "text", placeholder: "/contact-us" },
     {
       name: "intensity", label: "Parallax Strength", type: "select",
       options: [
