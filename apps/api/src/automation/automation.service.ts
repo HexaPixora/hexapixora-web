@@ -1,14 +1,24 @@
 import {
+  BadRequestException,
   ConflictException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ContentStatus, LeadStatus, SubscriptionStatus } from '@prisma/client';
+import { createHash } from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import MarkdownIt from 'markdown-it';
 import { PrismaService } from '../prisma/prisma.service';
 import { env } from '../config/env';
+import {
+  isSupabaseStorageEnabled,
+  uploadToSupabase,
+} from '../media/supabase-storage';
 import { AutomationPostDto } from './dto/automation-post.dto';
 
 // Same settings as the blog importer: raw HTML in the source is escaped.
@@ -22,6 +32,17 @@ const mdParser = new MarkdownIt({
 // looping run can't flood the blog.
 const DAILY_POST_LIMIT = 3;
 const AUDIT_ENTITY = 'automation-blog';
+const DAILY_IMAGE_LIMIT = 10;
+const IMAGE_AUDIT_ENTITY = 'automation-media';
+
+// Raster images only (no SVG: it can carry script). The stored extension comes
+// from here, never from the client's filename.
+export const AUTOMATION_IMAGE_TYPES: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/avif': '.avif',
+};
 
 @Injectable()
 export class AutomationService {
@@ -48,6 +69,7 @@ export class AutomationService {
           publishAt: true,
           tags: true,
           metaKeywords: true,
+          thumbnail: true,
           categories: { select: { slug: true } },
         },
       }),
@@ -89,6 +111,8 @@ export class AutomationService {
     ) {
       throw new ConflictException(`Slug "${dto.slug}" already exists`);
     }
+
+    if (dto.thumbnail) await this.assertOwnMedia(dto.thumbnail);
 
     const categoryIds = await this.resolveCategories(dto.categories ?? []);
     const content = mdParser.render(dto.markdown);
@@ -144,6 +168,114 @@ export class AutomationService {
     );
 
     return { ...blog, url: `${env.appUrl}/insights/${blog.slug}` };
+  }
+
+  // Store a featured image in the media library (Supabase in production,
+  // ./uploads locally), content-addressed like MediaController so re-uploads dedupe.
+  async uploadImage(file: {
+    buffer: Buffer;
+    mimetype: string;
+    originalname?: string;
+  }) {
+    const ext = AUTOMATION_IMAGE_TYPES[file.mimetype];
+    if (!ext) {
+      throw new BadRequestException(`Unsupported image type: ${file.mimetype}`);
+    }
+
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recent = await this.prisma.auditLog.count({
+      where: {
+        entity: IMAGE_AUDIT_ENTITY,
+        action: 'CREATE',
+        createdAt: { gte: since },
+      },
+    });
+    if (recent >= DAILY_IMAGE_LIMIT) {
+      throw new HttpException(
+        `Daily automation limit reached (${DAILY_IMAGE_LIMIT} images / 24h)`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const hash = createHash('sha256').update(file.buffer).digest('hex');
+    const filename = `${hash}${ext}`;
+    const existing = await this.prisma.media.findFirst({ where: { filename } });
+    if (existing) return { id: existing.id, url: existing.url, deduped: true };
+
+    let url: string;
+    if (isSupabaseStorageEnabled()) {
+      url = await uploadToSupabase(filename, file.buffer, file.mimetype);
+    } else {
+      const dir = path.join(process.cwd(), 'uploads');
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, filename), file.buffer);
+      url = `/api/media/file/${filename}`;
+    }
+
+    const media = await this.prisma.media.create({
+      data: {
+        filename,
+        name: path.basename(file.originalname || filename),
+        url,
+        mimetype: file.mimetype,
+        size: file.buffer.length,
+        folder: 'blog',
+      },
+    });
+    await this.prisma.auditLog.create({
+      data: {
+        action: 'CREATE',
+        entity: IMAGE_AUDIT_ENTITY,
+        entityId: media.id,
+      },
+    });
+    return { id: media.id, url: media.url, deduped: false };
+  }
+
+  // Attach a library image to a post this API created. Hand-written posts are
+  // off limits, and the image must already be in our media library.
+  async setPostImage(slug: string, url: string) {
+    const blog = await this.prisma.blog.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (!blog) throw new NotFoundException(`Post "${slug}" not found`);
+
+    const ownedByAutomation = await this.prisma.auditLog.count({
+      where: { entity: AUDIT_ENTITY, action: 'CREATE', entityId: blog.id },
+    });
+    if (!ownedByAutomation) {
+      throw new ForbiddenException(
+        'Only posts created by the automation API can be edited',
+      );
+    }
+    await this.assertOwnMedia(url);
+
+    await this.prisma.blog.update({
+      where: { id: blog.id },
+      data: { thumbnail: url, ogImage: url },
+    });
+    await this.prisma.auditLog.create({
+      data: {
+        action: 'UPDATE',
+        entity: AUDIT_ENTITY,
+        entityId: blog.id,
+        details: { thumbnail: url },
+      },
+    });
+    return { slug, thumbnail: url };
+  }
+
+  private async assertOwnMedia(url: string) {
+    const media = await this.prisma.media.findFirst({
+      where: { url },
+      select: { id: true },
+    });
+    if (!media) {
+      throw new BadRequestException(
+        'Image must be uploaded via POST /automation/media first',
+      );
+    }
   }
 
   // Weekly digest: leads (CRM), newsletter, content output and API health.

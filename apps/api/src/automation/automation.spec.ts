@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   ExecutionContext,
+  ForbiddenException,
   HttpException,
   ServiceUnavailableException,
   UnauthorizedException,
@@ -11,6 +13,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AutomationKeyGuard } from './automation-key.guard';
 import { AutomationService } from './automation.service';
 import { AutomationPostDto } from './dto/automation-post.dto';
+
+jest.mock('fs', () => ({
+  ...jest.requireActual<typeof import('fs')>('fs'),
+  mkdirSync: jest.fn(),
+  writeFileSync: jest.fn(),
+}));
 
 const ctx = (headers: Record<string, string>) =>
   ({
@@ -118,5 +126,82 @@ describe('AutomationService.createPost', () => {
     await expect(service.createPost(dto())).rejects.toBeInstanceOf(
       ConflictException,
     );
+  });
+});
+
+describe('AutomationService images', () => {
+  let prisma: {
+    auditLog: { count: jest.Mock; create: jest.Mock };
+    blog: { findUnique: jest.Mock; update: jest.Mock };
+    media: { findFirst: jest.Mock; create: jest.Mock };
+  };
+  let service: AutomationService;
+  const png = {
+    buffer: Buffer.from('fake-png'),
+    mimetype: 'image/png',
+    originalname: 'x.png',
+  };
+
+  beforeEach(() => {
+    prisma = {
+      auditLog: { count: jest.fn().mockResolvedValue(0), create: jest.fn() },
+      blog: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'b1' }),
+        update: jest.fn(),
+      },
+      media: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        create: jest.fn(({ data }: { data: { url: string } }) =>
+          Promise.resolve({ id: 'm1', ...data }),
+        ),
+      },
+    };
+    service = new AutomationService(prisma as unknown as PrismaService);
+  });
+
+  it('rejects non-raster types such as SVG', async () => {
+    await expect(
+      service.uploadImage({ ...png, mimetype: 'image/svg+xml' }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('stores a new image content-addressed, and dedupes repeats', async () => {
+    const res = await service.uploadImage(png);
+    expect(res.url).toMatch(/^\/api\/media\/file\/[0-9a-f]{64}\.png$/);
+    expect(prisma.auditLog.create).toHaveBeenCalled();
+
+    prisma.media.findFirst.mockResolvedValue({ id: 'm1', url: res.url });
+    await expect(service.uploadImage(png)).resolves.toMatchObject({
+      deduped: true,
+    });
+  });
+
+  it('refuses to edit posts the automation did not create', async () => {
+    prisma.auditLog.count.mockResolvedValue(0);
+    await expect(
+      service.setPostImage('hand-written', '/x.png'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(prisma.blog.update).not.toHaveBeenCalled();
+  });
+
+  it('requires the image to be in the media library', async () => {
+    prisma.auditLog.count.mockResolvedValue(1);
+    prisma.media.findFirst.mockResolvedValue(null);
+    await expect(
+      service.setPostImage('auto-post', 'https://evil.example/x.png'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('sets thumbnail and ogImage on an automation post', async () => {
+    prisma.auditLog.count.mockResolvedValue(1);
+    prisma.media.findFirst.mockResolvedValue({ id: 'm1' });
+    await service.setPostImage('auto-post', '/api/media/file/a.png');
+    expect(prisma.blog.update).toHaveBeenCalledWith({
+      where: { id: 'b1' },
+      data: {
+        thumbnail: '/api/media/file/a.png',
+        ogImage: '/api/media/file/a.png',
+      },
+    });
   });
 });
