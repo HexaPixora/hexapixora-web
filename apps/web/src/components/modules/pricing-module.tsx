@@ -74,7 +74,7 @@ export default function PricingModule({ config }: { config?: PricingProps }) {
 
                 {plan.buttonText && (
                   <a
-                    href={plan.buttonUrl || "/contact"}
+                    href={plan.buttonUrl || "/contact-us"}
                     className={`mt-7 inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-semibold transition-transform hover:scale-[1.02] ${
                       plan.highlighted
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"

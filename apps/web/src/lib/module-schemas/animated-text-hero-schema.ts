@@ -6,7 +6,7 @@ export const animatedTextHeroSchema = z.object({
   heading: z.string().default("Where Pixels Meet Logic"),
   subheading: z.string().default("We design and build fast, scalable digital experiences."),
   buttonText: z.string().default("Get Started"),
-  buttonLink: z.string().default("/contact"),
+  buttonLink: z.string().default("/contact-us"),
 });
 
 export type AnimatedTextHeroProps = z.input<typeof animatedTextHeroSchema>;

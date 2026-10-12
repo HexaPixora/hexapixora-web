@@ -17,7 +17,7 @@ export const splideSliderSchema = z.object({
       description: z.string().default(""),
       buttonText: z.string().default(""),
       buttonUrl: z.string().default("")
-    })).default([{"image":"","title":"Scale Your Business","description":"We design top-tier products to boost your operations.","buttonText":"Explore More","buttonUrl":"/services"},{"image":"","title":"Strategic Analytics","description":"Make decisions based on accurate historical insights and real tracking data.","buttonText":"Contact Us","buttonUrl":"/contact"}]),
+    })).default([{"image":"","title":"Scale Your Business","description":"We design top-tier products to boost your operations.","buttonText":"Explore More","buttonUrl":"/services"},{"image":"","title":"Strategic Analytics","description":"Make decisions based on accurate historical insights and real tracking data.","buttonText":"Contact Us","buttonUrl":"/contact-us"}]),
 });
 
 export type SplideSliderProps = z.input<typeof splideSliderSchema>;

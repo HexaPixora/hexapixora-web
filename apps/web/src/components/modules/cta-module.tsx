@@ -6,7 +6,7 @@ export default function CTAModule({ config }: { config?: CTAProps }) {
     title = "Ready to get started?",
     subtitle = "Join us today and transform your business.",
     buttonText = "Get in Touch",
-    buttonUrl = "/contact",
+    buttonUrl = "/contact-us",
     backgroundColor = "#0f172a",
   } = ctasectionSchema.parse(config || {});
 

@@ -27,7 +27,7 @@ export const pricingSchema = z.object({
         description: "For small businesses getting online.",
         features: "5-page website\nResponsive design\nBasic SEO\n2 revisions",
         buttonText: "Get started",
-        buttonUrl: "/contact",
+        buttonUrl: "/contact-us",
         highlighted: false,
       },
       {
@@ -37,7 +37,7 @@ export const pricingSchema = z.object({
         description: "For brands ready to scale.",
         features: "Up to 15 pages\nCustom design\nAdvanced SEO\nCMS + blog\n5 revisions",
         buttonText: "Book a call",
-        buttonUrl: "/contact",
+        buttonUrl: "/contact-us",
         highlighted: true,
       },
       {
@@ -47,7 +47,7 @@ export const pricingSchema = z.object({
         description: "For complex, custom builds.",
         features: "Unlimited pages\nCustom web app\nIntegrations\nDedicated support\nSLA",
         buttonText: "Contact sales",
-        buttonUrl: "/contact",
+        buttonUrl: "/contact-us",
         highlighted: false,
       },
     ]),
