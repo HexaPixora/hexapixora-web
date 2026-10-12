@@ -32,14 +32,27 @@ If either variable is missing or the call fails after retries, stop and report t
 
 ## 2. Write and publish
 
-For each topic, write the post following `style-guide.md` exactly, save the JSON
-body to a file, then:
+For each topic, write the post following `style-guide.md` exactly.
+
+**Featured image (required).** Generate one original image per post following the
+*Images* section of `style-guide.md` — locally via the ComfyUI MCP (`comfy-mcp`,
+port 8188). Convert to WebP (≈1600×900, quality 85), then upload:
+
+```bash
+h -X POST "$API/automation/media" -F "file=@/tmp/post1.webp;type=image/webp"
+# → {"url": "..."}  use it as "thumbnail" in the post body
+```
+
+If image generation is unavailable, publish anyway, say so in the report, and
+attach it later with `PATCH $API/automation/posts/<slug>/image` (`{"url": "..."}`).
+
+Save the JSON body to a file, then:
 
 ```bash
 h -X POST "$API/automation/posts" -H "Content-Type: application/json" --data @/tmp/post1.json
 ```
 
-Body fields: `title, slug, markdown, excerpt, metaTitle, metaDescription,
+Body fields: `title, slug, markdown, excerpt, thumbnail, metaTitle, metaDescription,
 metaKeywords, categories, tags, faq: [{question, answer}]`. Publish the first post
 now; give the second `publishAt` = Thursday 10:00 Asia/Karachi this week (ISO,
 UTC) so traffic is spread out.
@@ -59,7 +72,7 @@ h "$API/automation/report?days=7"
 
 Finish with a short report (this is what the owner reads):
 
-- **Published:** titles + URLs (and the scheduled one with its time)
+- **Published:** titles + URLs (and the scheduled one with its time), each with its image
 - **Why these topics:** one line each (search data or trend source)
 - **Leads this week:** count, then one line per lead — name, type, country, 1-line
   gist of the message, and a suggested next step. Flag anything still `NEW` older than 3 days.
