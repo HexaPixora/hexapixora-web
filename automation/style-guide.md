@@ -35,3 +35,17 @@ connect to a decision a business owner makes.
 - `excerpt` ≤ 280 chars. `metaKeywords`: 4–6 comma-separated phrases.
 - `categories`: 1–2 names from the live category list only.
 - `tags`: 4–6 lowercase phrases.
+
+## Images
+
+Every post needs one featured image (used as the card thumbnail and social preview).
+
+- **Original only** — generated for us. Never use another company's image, logo or
+  watermark, and no stock photos with unclear licences.
+- **Style:** flat vector illustration, clean shapes, soft gradients, a single
+  confident colour palette, generous negative space; one simple visual metaphor for
+  the post's idea (e.g. a business owner and an AI assistant at a desk).
+- **No text, letters, numbers, UI copy or logos** in the image (models garble them).
+- **Format:** 16:9, about 1600×900, WebP. Keep the subject away from the edges —
+  cards crop it.
+
