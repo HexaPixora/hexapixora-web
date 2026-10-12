@@ -1,6 +1,7 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { skillsShowcaseSchema, SkillsShowcaseProps } from "@/lib/module-schemas/skills-showcase-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 function clampLevel(v: string): number {
   const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
@@ -39,7 +40,7 @@ export default function SkillsShowcaseModule({ config }: { config?: SkillsShowca
             {avatar && (
               <span className="h-14 w-14 overflow-hidden rounded-full border border-white/12 ring-1 ring-inset ring-white/10">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={avatar} alt={name || "Team member"} className="h-full w-full object-cover" />
+                <img src={avatar} alt={mediaAlt(avatar, name || "Team member")} className="h-full w-full object-cover" />
               </span>
             )}
             {(name || role) && (

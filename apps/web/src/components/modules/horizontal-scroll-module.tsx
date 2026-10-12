@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { horizontalScrollSchema, HorizontalScrollProps } from "@/lib/module-schemas/horizontal-scroll-schema";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function HorizontalScrollModule({ config }: { config?: HorizontalScrollProps }) {
   const { heading, subheading, aspectRatio, items } = horizontalScrollSchema.parse(config || {});
@@ -95,7 +96,7 @@ export default function HorizontalScrollModule({ config }: { config?: Horizontal
               {/* Sharp image — NO blur over the photo. */}
               {card.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={card.image} alt={card.title} className="absolute inset-0 h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]" />
+                <img src={card.image} alt={mediaAlt(card.image, card.title)} className="absolute inset-0 h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]" />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-blue/40 to-white/[0.06]" />
               )}

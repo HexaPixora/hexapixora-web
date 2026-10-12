@@ -28,7 +28,7 @@ The API can't touch hand-written posts or delete anything, and creates at most 3
 
 ## Environment variables
 
-Local runs read them from `D:\secrets\hexapixora-automation.env` (`NAME=value`
+Local runs read them from `D:\Workflow\Deployed\HexaPixora\secrets\hexapixora-automation.env` (`NAME=value`
 lines, never committed). Cloud routines set them on the cloud environment.
 
 | Name | Required | Value |

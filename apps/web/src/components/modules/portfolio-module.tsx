@@ -3,6 +3,7 @@ import { portfolioSchema, PortfolioProps } from "@/lib/module-schemas/portfolio-
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { mediaAlt } from "@/lib/media-alt";
 
 
 
@@ -39,7 +40,7 @@ export default function PortfolioModule({ config }: { config?: PortfolioProps })
                   {image ? (
                     <img 
                       src={image} 
-                      alt={project.title} 
+                      alt={mediaAlt(image, project.title)} 
                       className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
