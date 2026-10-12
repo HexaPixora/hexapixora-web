@@ -65,6 +65,12 @@ interface InsightPageProps {
   params: Promise<{ slug: string }>;
 }
 
+// Search results show ~60 characters of a title, so the brand suffix is only
+// added when it still fits.
+const TITLE_SUFFIX = " | HexaPixora Insights";
+const withSuffix = (title: string) =>
+  title.length + TITLE_SUFFIX.length <= 60 ? `${title}${TITLE_SUFFIX}` : title;
+
 export async function generateMetadata(props: InsightPageProps): Promise<Metadata> {
   const { slug } = await props.params;
 
@@ -76,7 +82,7 @@ export async function generateMetadata(props: InsightPageProps): Promise<Metadat
     const ogImage = rawImage ? absoluteMediaUrl(rawImage) : undefined;
 
     const base = {
-      title: `${post.metaTitle || post.title} | HexaPixora Insights`,
+      title: withSuffix(post.metaTitle || post.title),
       description: post.metaDescription || post.excerpt || `Read our latest insight: ${post.title}`,
       keywords: post.metaKeywords || undefined,
       alternates: { canonical },
@@ -228,7 +234,9 @@ export default async function InsightPage(props: InsightPageProps) {
 
           <div
             className="prose prose-lg mt-10 max-w-none break-words text-foreground/90 dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#7cc4ff] hover:prose-a:underline prose-img:rounded-2xl prose-img:border prose-img:border-white/10"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            // The page header already renders the post title as the only <h1>;
+            // imported posts often repeat it inside the body, so demote those.
+            dangerouslySetInnerHTML={{ __html: post.content.replace(/<(\/?)h1(?=[\s>])/gi, "<$1h2") }}
           />
 
           {faq.length > 0 && (

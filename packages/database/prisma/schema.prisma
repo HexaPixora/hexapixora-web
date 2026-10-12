@@ -219,6 +219,9 @@ model Media {
   mimetype         String
   size             Int
   folder           String?  @default("general")
+  // Alt text for images, edited in the media library and used wherever the
+  // image is rendered on the site (falls back to the module's own text).
+  alt              String?
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

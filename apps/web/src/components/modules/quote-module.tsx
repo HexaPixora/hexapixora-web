@@ -1,5 +1,6 @@
 import React from "react";
 import { quoteSchema, QuoteProps } from "@/lib/module-schemas/quote-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 // Same editorial serif as the Leader "Letter" module, so the two read as a set
 // on the leadership page. Loaded once in the root layout as a CSS variable.
@@ -33,7 +34,7 @@ export default function QuoteModule({ config }: { config?: QuoteProps }) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={c.avatar}
-                      alt={c.name}
+                      alt={mediaAlt(c.avatar, c.name)}
                       className="h-11 w-11 rounded-full object-cover"
                     />
                   )}

@@ -1,5 +1,6 @@
 import React from "react";
 import { gallerySchema, GalleryProps } from "@/lib/module-schemas/gallery-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 
 
@@ -33,7 +34,7 @@ export default function GalleryModule({ config }: { config?: GalleryProps }) {
                 <div key={idx} className="group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 bg-muted/20 aspect-square">
                   <img 
                     src={img.url} 
-                    alt={img.caption || `Gallery Image ${idx + 1}`}
+                    alt={mediaAlt(img.url, img.caption || `Gallery Image ${idx + 1}`)}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />

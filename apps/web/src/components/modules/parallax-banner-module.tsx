@@ -5,6 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { parallaxBannerSchema, ParallaxBannerProps } from "@/lib/module-schemas/parallax-banner-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 const STRENGTH: Record<string, number> = { subtle: 10, medium: 20, strong: 35 };
 const OVERLAY: Record<string, number> = { none: 0, light: 0.3, medium: 0.55, dark: 0.75 };
@@ -38,7 +39,7 @@ export default function ParallaxBannerModule({ config }: { config?: ParallaxBann
       <div ref={bg} className="absolute inset-x-0 h-[100%] will-change-transform">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="" className="w-full h-full object-cover" />
+          <img src={image} alt={mediaAlt(image)} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-primary/30 via-background to-muted" />
         )}
@@ -46,7 +47,7 @@ export default function ParallaxBannerModule({ config }: { config?: ParallaxBann
       <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${OVERLAY[overlay] ?? 0.55})` }} />
 
       <div className="relative z-10 text-center text-white px-6 max-w-3xl">
-        <h2 className="text-4xl md:text-6xl font-bold tracking-tight drop-shadow">{heading}</h2>
+        <h1 className="text-4xl md:text-6xl font-bold tracking-tight drop-shadow">{heading}</h1>
         {subheading && <p className="mt-4 text-lg md:text-xl text-white/85">{subheading}</p>}
         {buttonText && buttonLink && (
           <Link

@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { marqueeSchema, MarqueeProps } from "@/lib/module-schemas/marquee-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 const SPEED: Record<string, number> = { slow: 40, normal: 24, fast: 12 };
 
@@ -41,7 +42,7 @@ export default function MarqueeModule({ config }: { config?: MarqueeProps }) {
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={item.image}
-        alt={item.text || ""}
+        alt={mediaAlt(item.image, item.text || "")}
         className="h-9 w-auto object-contain opacity-60 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0 md:h-12"
       />
     ) : (

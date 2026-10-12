@@ -8,6 +8,13 @@ import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 // backend cold starts don't block visitors.
 export const revalidate = 120;
 
+// Media-library alt text (filename -> alt). Failure just means module fallbacks.
+async function getAltTexts(): Promise<Record<string, string>> {
+  const res = await cmsFetch("/media/alt-text", { next: { revalidate: 300 } }).catch(() => null);
+  const data = await readJson(res);
+  return data && typeof data === "object" && !Array.isArray(data) ? (data as Record<string, string>) : {};
+}
+
 async function getHomepage() {
   try {
     const [pageRes, defaultsRes] = await Promise.all([
@@ -64,7 +71,7 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const { page, sections, moduleDefaults } = await getHomepage();
+  const [{ page, sections, moduleDefaults }, altTexts] = await Promise.all([getHomepage(), getAltTexts()]);
 
   // No page has been designated as the homepage yet — render a minimal hero so
   // the site isn't blank. Set one from Admin → Pages ("Set as homepage").
@@ -86,7 +93,7 @@ export default async function HomePage() {
           </div>
         )}
 
-        <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} />
+        <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
       </div>
     </SiteLayout>
   );

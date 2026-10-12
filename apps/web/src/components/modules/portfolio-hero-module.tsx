@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { Globe, ArrowUpRight } from "lucide-react";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { portfolioHeroSchema, PortfolioHeroProps } from "@/lib/module-schemas/portfolio-hero-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 /* ---------- small building blocks ---------- */
 
@@ -270,7 +271,7 @@ export default function PortfolioHeroModule({ config }: { config?: PortfolioHero
               <div className="ph-pop relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/12 shadow-[0_40px_100px_-30px_rgba(16,147,253,0.5)] ring-1 ring-inset ring-white/10">
                 {image ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={image} alt={name || "Profile"} className="absolute inset-0 h-full w-full object-cover" />
+                  <img src={image} alt={mediaAlt(image, name || "Profile")} className="absolute inset-0 h-full w-full object-cover" />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-tr from-slate-900 to-indigo-950" />
                 )}

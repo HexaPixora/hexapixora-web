@@ -7,7 +7,7 @@ export const heroSchema = z.object({
   buttonText: z.string().default('View Services'),
   buttonUrl: z.string().default('/services'),
   secondaryButtonText: z.string().default('Contact Us'),
-  secondaryButtonUrl: z.string().default('/contact'),
+  secondaryButtonUrl: z.string().default('/contact-us'),
   backgroundImage: z.string().default(''),
 });
 
