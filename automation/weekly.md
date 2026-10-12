@@ -36,7 +36,11 @@ For each topic, write the post following `style-guide.md` exactly.
 
 **Featured image (required).** Generate one original image per post following the
 *Images* section of `style-guide.md` — locally via the ComfyUI MCP (`comfy-mcp`,
-port 8188). Convert to WebP (≈1600×900, quality 85), then upload:
+port 8188) with `D:\AI-Umair\comfy-workflowslog-header-zimage-t2i.json`
+(Z-Image Turbo, 1600×896): copy it, replace `SUBJECT HERE` in node 4, make 2 seeds,
+look at both and keep the better one. If ComfyUI isn't running, launch it with
+`--extra-model-paths-config D:\AI-Umair\comfy-workflows\extra_model_paths.yaml`
+(otherwise it can't see the Desktop models). Convert to WebP (quality 85), then upload:
 
 ```bash
 h -X POST "$API/automation/media" -F "file=@/tmp/post1.webp;type=image/webp"
