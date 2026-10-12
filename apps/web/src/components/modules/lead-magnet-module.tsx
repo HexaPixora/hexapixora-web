@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { apiClient } from "@/lib/api-client";
 import { leadMagnetSchema, LeadMagnetProps } from "@/lib/module-schemas/lead-magnet-schema";
 import { Download, CheckCircle2, Loader2, FileText } from "lucide-react";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function LeadMagnetModule({ config }: { config?: LeadMagnetProps }) {
   const {
@@ -65,7 +66,7 @@ export default function LeadMagnetModule({ config }: { config?: LeadMagnetProps 
             </h2>
             {subheading && <p className="mt-3 text-base" style={{ color: muted }}>{subheading}</p>}
             {coverImage && (
-              <img src={coverImage} alt={resourceTitle} className="mt-6 w-full max-w-xs rounded-xl border border-muted/40 shadow-lg" />
+              <img src={coverImage} alt={mediaAlt(coverImage, resourceTitle)} className="mt-6 w-full max-w-xs rounded-xl border border-muted/40 shadow-lg" />
             )}
           </div>
 

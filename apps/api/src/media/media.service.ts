@@ -30,7 +30,18 @@ export class MediaService {
     });
   }
 
-  async update(id: string, data: { name?: string; folder?: string }) {
+  // Public lookup used by the site renderer: filename -> alt text.
+  async findAltTexts() {
+    return this.prisma.media.findMany({
+      where: { alt: { not: null } },
+      select: { filename: true, alt: true },
+    });
+  }
+
+  async update(
+    id: string,
+    data: { name?: string; folder?: string; alt?: string | null },
+  ) {
     return this.prisma.media.update({
       where: { id },
       data,

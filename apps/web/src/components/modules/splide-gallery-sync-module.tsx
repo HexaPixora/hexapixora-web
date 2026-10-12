@@ -7,6 +7,7 @@ import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
 import gsap from "gsap";
 import { ArrowRight } from "lucide-react";
+import { mediaAlt } from "@/lib/media-alt";
 
 
 
@@ -191,7 +192,7 @@ export default function SplideGallerySyncModule({ config }: { config?: SplideGal
                     {item.image ? (
                       <img 
                         src={item.image} 
-                        alt={item.title || `Thumbnail ${index + 1}`} 
+                        alt={mediaAlt(item.image, item.title || `Thumbnail ${index + 1}`)} 
                         className="w-full h-full object-cover" 
                         loading="lazy"
                       />

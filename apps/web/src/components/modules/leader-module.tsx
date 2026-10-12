@@ -1,5 +1,6 @@
 import React from "react";
 import { leaderSchema, LeaderProps } from "@/lib/module-schemas/leader-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 // Display faces are loaded once in the root layout as CSS variables (so this
 // stays a plain component that the client-side admin preview can import).
@@ -46,7 +47,7 @@ export default function LeaderModule({ config }: { config?: LeaderProps }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={c.portrait}
-                  alt={c.name}
+                  alt={mediaAlt(c.portrait, c.name)}
                   className="aspect-[4/5] w-full object-cover grayscale-[12%] contrast-[1.03]"
                 />
               ) : (

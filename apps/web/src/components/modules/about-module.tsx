@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { aboutSchema, AboutProps } from "@/lib/module-schemas/about-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function AboutModule({ config }: { config?: AboutProps }) {
   const { eyebrow, heading, content, image, highlights, buttonText, buttonUrl } =
@@ -24,7 +25,7 @@ export default function AboutModule({ config }: { config?: AboutProps }) {
               {image ? (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image} alt={heading || "About us"} className="h-full w-full object-cover" />
+                  <img src={image} alt={mediaAlt(image, heading || "About us")} className="h-full w-full object-cover" />
                   <LiquidGlass tintClass="to-primary-blue/40" />
                 </>
               ) : (
