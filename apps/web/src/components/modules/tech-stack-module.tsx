@@ -1,6 +1,7 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { techStackSchema, TechStackProps } from "@/lib/module-schemas/tech-stack-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function TechStackModule({ config }: { config?: TechStackProps }) {
   const { eyebrow, heading, subheading, technologies } = techStackSchema.parse(config || {});
@@ -59,7 +60,7 @@ export default function TechStackModule({ config }: { config?: TechStackProps })
                     >
                       {t.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={t.icon} alt={t.name} className="h-6 w-6 flex-shrink-0 object-contain" />
+                        <img src={t.icon} alt={mediaAlt(t.icon, t.name)} className="h-6 w-6 flex-shrink-0 object-contain" />
                       ) : (
                         <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[#1093fd] shadow-[0_0_8px_1px_rgba(16,147,253,0.6)]" />
                       )}
