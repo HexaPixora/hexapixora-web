@@ -72,7 +72,8 @@ export class MediaController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);
           cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
         },
@@ -134,7 +135,9 @@ export class MediaController {
       url = `/api/media/file/${finalName}`;
     }
 
-    const originalName = file.originalname ? basename(file.originalname) : finalName;
+    const originalName = file.originalname
+      ? basename(file.originalname)
+      : finalName;
 
     const created = await this.mediaService.create({
       filename: finalName,
@@ -144,6 +147,14 @@ export class MediaController {
       size: buffer.length,
     });
     return { ...created, deduped: false };
+  }
+
+  // Public: alt text only (no URLs, sizes or names), so pages can render
+  // accessible images. Declared before ':id' routes.
+  @Get('alt-text')
+  async altTexts() {
+    const rows = await this.mediaService.findAltTexts();
+    return Object.fromEntries(rows.map((r) => [r.filename, r.alt]));
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -158,13 +169,14 @@ export class MediaController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() body: { name?: string; folder?: string },
+    @Body() body: { name?: string; folder?: string; alt?: string | null },
   ) {
     const item = await this.mediaService.findOne(id);
     if (!item) {
       throw new NotFoundException('Media not found');
     }
-    const updateData: { name?: string; folder?: string } = {};
+    const updateData: { name?: string; folder?: string; alt?: string | null } =
+      {};
     if (typeof body.name === 'string') {
       const trimmed = body.name.trim();
       if (!trimmed) {
@@ -174,6 +186,15 @@ export class MediaController {
     }
     if (typeof body.folder === 'string') {
       updateData.folder = body.folder.trim();
+    }
+    if (body.alt === null || typeof body.alt === 'string') {
+      const alt = (body.alt ?? '').trim();
+      if (alt.length > 300) {
+        throw new BadRequestException(
+          'Alt text must be 300 characters or less',
+        );
+      }
+      updateData.alt = alt || null;
     }
     return this.mediaService.update(id, updateData);
   }
@@ -214,7 +235,10 @@ export class MediaController {
     // Defense-in-depth: even though SVGs are sanitized on upload, a restrictive
     // CSP ensures no script can execute if one is opened directly.
     if (extname(safeName).toLowerCase() === '.svg') {
-      res.setHeader('Content-Security-Policy', "script-src 'none'; object-src 'none'");
+      res.setHeader(
+        'Content-Security-Policy',
+        "script-src 'none'; object-src 'none'",
+      );
     }
     res.sendFile(safeName, { root: UPLOAD_DIR });
   }

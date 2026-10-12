@@ -2,6 +2,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 import { resolveAnchorId } from "@/lib/modules-registry";
 import { Reveal } from "@/components/public/reveal";
+import { MediaAltProvider } from "@/components/media-alt-provider";
 
 // Skip the global scroll-reveal for: heroes/banners (above the fold — fading
 // them delays LCP and looks off) and modules that run their own entrance or
@@ -85,9 +86,11 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
 interface DynamicRendererProps {
   sections: any[];
   moduleDefaults: Record<string, any>;
+  // filename -> alt text from the media library (GET /media/alt-text)
+  altTexts?: Record<string, string>;
 }
 
-export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRendererProps) {
+export default function DynamicRenderer({ sections, moduleDefaults, altTexts }: DynamicRendererProps) {
   if (!sections || sections.length === 0) {
     return null;
   }
@@ -96,7 +99,7 @@ export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRen
   const usedAnchors = new Set<string>();
 
   return (
-    <>
+    <MediaAltProvider altTexts={altTexts}>
       {sections.filter((s) => s.isVisible).map((section, index) => {
         // Merge config: Section specific config > Global Module Default > Empty
         const globalDefault = moduleDefaults[section.type] || {};
@@ -148,6 +151,6 @@ export default function DynamicRenderer({ sections, moduleDefaults }: DynamicRen
           <React.Fragment key={section.id}>{content}</React.Fragment>
         );
       })}
-    </>
+    </MediaAltProvider>
   );
 }

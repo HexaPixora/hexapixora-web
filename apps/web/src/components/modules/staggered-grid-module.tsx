@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { staggeredGridSchema, StaggeredGridProps } from "@/lib/module-schemas/staggered-grid-schema";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function StaggeredGridModule({ config }: { config?: StaggeredGridProps }) {
   const { heading, subheading, items } = staggeredGridSchema.parse(config || {});
@@ -77,7 +78,7 @@ export default function StaggeredGridModule({ config }: { config?: StaggeredGrid
                   <div className="relative aspect-[16/10] overflow-hidden">
                     {/* Sharp image + liquid-glass light layers over it. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={card.image} alt={card.title} className="absolute inset-0 h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+                    <img src={card.image} alt={mediaAlt(card.image, card.title)} className="absolute inset-0 h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
                     <LiquidGlass tintClass="to-primary-blue/55" />
                   </div>
                 )}

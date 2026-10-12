@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
 import { apiUrl } from "@/lib/api-url";
 import { insightExcerpt } from "@/components/public/insight-card";
+import { mediaAlt } from "@/lib/media-alt";
 
 async function getBlogs(limit: number) {
   try {
@@ -41,7 +42,7 @@ export default async function BlogModule({ config }: { config?: BlogProps }) {
                 {post.thumbnail ? (
                   <img 
                     src={post.thumbnail} 
-                    alt={post.title} 
+                    alt={mediaAlt(post.thumbnail, post.title)} 
                     className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (

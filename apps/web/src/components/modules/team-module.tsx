@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link2 } from "lucide-react";
 import { teamSchema, TeamProps } from "@/lib/module-schemas/team-schema";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function TeamModule({ config }: { config?: TeamProps }) {
   const { heading, subheading, items } = teamSchema.parse(config || {});
@@ -71,7 +72,7 @@ export default function TeamModule({ config }: { config?: TeamProps }) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={member.image}
-                      alt={member.name}
+                      alt={mediaAlt(member.image, member.name)}
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.10]"
                     />
                   ) : (

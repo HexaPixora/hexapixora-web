@@ -36,6 +36,7 @@ type MediaItem = {
   id: string;
   filename: string;
   name?: string | null;
+  alt?: string | null;
   url: string;
   mimetype: string;
   size: number;
@@ -60,6 +61,7 @@ export default function AdminMediaPage() {
   // Renaming modal state
   const [renamingItem, setRenamingItem] = useState<MediaItem | null>(null);
   const [newName, setNewName] = useState("");
+  const [newAlt, setNewAlt] = useState("");
   const [savingRename, setSavingRename] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -145,6 +147,7 @@ export default function AdminMediaPage() {
   const openRenameModal = (media: MediaItem) => {
     setRenamingItem(media);
     setNewName(media.name || media.filename);
+    setNewAlt(media.alt || "");
   };
 
   const saveRename = async () => {
@@ -156,15 +159,20 @@ export default function AdminMediaPage() {
     }
     setSavingRename(true);
     try {
-      const res = await apiClient.patch(`/media/${renamingItem.id}`, { name: trimmed });
+      const res = await apiClient.patch(`/media/${renamingItem.id}`, {
+        name: trimmed,
+        alt: newAlt.trim() || null,
+      });
       setMediaList((prev) =>
-        prev.map((item) => (item.id === renamingItem.id ? { ...item, name: res.data.name } : item))
+        prev.map((item) =>
+          item.id === renamingItem.id ? { ...item, name: res.data.name, alt: res.data.alt } : item
+        )
       );
-      toast.success("Media renamed successfully");
+      toast.success("Media details saved");
       setRenamingItem(null);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to rename media");
+      toast.error(err.response?.data?.message || "Failed to save media details");
     } finally {
       setSavingRename(false);
     }
@@ -355,7 +363,7 @@ export default function AdminMediaPage() {
                     <button
                       onClick={() => openRenameModal(media)}
                       className="rounded-lg bg-white/20 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
-                      title="Rename"
+                      title="Edit name & alt text"
                     >
                       <Pencil size={15} />
                     </button>
@@ -396,7 +404,7 @@ export default function AdminMediaPage() {
                     <button
                       onClick={() => openRenameModal(media)}
                       className="opacity-60 transition-opacity hover:opacity-100 hover:text-primary"
-                      title="Rename"
+                      title="Edit name & alt text"
                     >
                       <Pencil size={12} />
                     </button>
@@ -414,13 +422,14 @@ export default function AdminMediaPage() {
         </div>
       )}
 
-      {/* Rename Dialog */}
+      {/* Edit details dialog (name + alt text) */}
       <Dialog open={Boolean(renamingItem)} onOpenChange={(o) => !o && setRenamingItem(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Rename Media</DialogTitle>
+            <DialogTitle>Edit Media Details</DialogTitle>
             <DialogDescription>
-              Set a friendly title/name for this media file. This name will appear in your CMS library and search.
+              The name appears in your CMS library and search. Alt text describes an image for screen readers
+              and search engines, and is used everywhere this image appears on the site.
             </DialogDescription>
           </DialogHeader>
 
@@ -444,6 +453,30 @@ export default function AdminMediaPage() {
               />
             </div>
 
+            {renamingItem && isImage(renamingItem) && (
+              <div className="space-y-2">
+                <label htmlFor="media-alt-input" className="text-sm font-medium">
+                  Alt text
+                </label>
+                <Input
+                  id="media-alt-input"
+                  value={newAlt}
+                  onChange={(e) => setNewAlt(e.target.value)}
+                  maxLength={300}
+                  placeholder="e.g. Team planning a website launch on a laptop"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      saveRename();
+                    }
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Describe what the image shows in a short sentence. Leave empty for purely decorative images.
+                </p>
+              </div>
+            )}
+
             {renamingItem && (
               <div className="rounded-lg border bg-muted/30 p-2.5 text-xs text-muted-foreground space-y-1">
                 <p className="truncate">
@@ -461,7 +494,7 @@ export default function AdminMediaPage() {
               Cancel
             </Button>
             <Button onClick={saveRename} disabled={savingRename || !newName.trim()}>
-              {savingRename ? "Saving..." : "Save Name"}
+              {savingRename ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>

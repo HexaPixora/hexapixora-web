@@ -8,6 +8,13 @@ import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 // Revalidate periodically (120s) so custom pages serve instantly from cache.
 export const revalidate = 120;
 
+// Media-library alt text (filename -> alt). Failure just means module fallbacks.
+async function getAltTexts(): Promise<Record<string, string>> {
+  const res = await cmsFetch("/media/alt-text", { next: { revalidate: 300 } }).catch(() => null);
+  const data = await readJson(res);
+  return data && typeof data === "object" && !Array.isArray(data) ? (data as Record<string, string>) : {};
+}
+
 // Wrapped in React cache() so generateMetadata and the page component share ONE
 // execution per request instead of double-fetching.
 const getPageData = cache(async (slug: string) => {
@@ -72,7 +79,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
 export default async function CustomDynamicPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
-  const data = await getPageData(params.slug);
+  const [data, altTexts] = await Promise.all([getPageData(params.slug), getAltTexts()]);
 
   if (!data) {
     notFound();
@@ -90,7 +97,7 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
           </div>
         )}
         
-        <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} />
+        <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
       </div>
     </SiteLayout>
   );
