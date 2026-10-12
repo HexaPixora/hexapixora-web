@@ -1,6 +1,7 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { storyHeroSchema, StoryHeroProps } from "@/lib/module-schemas/story-hero-schema";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function StoryHeroModule({ config }: { config?: StoryHeroProps }) {
   const { eyebrow, heading, intro, foundedLabel, image } = storyHeroSchema.parse(config || {});
@@ -27,7 +28,7 @@ export default function StoryHeroModule({ config }: { config?: StoryHeroProps })
       <section className="relative flex min-h-[70vh] items-center overflow-hidden">
         {/* Background image */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={image} alt={heading || "Our story"} className="absolute inset-0 h-full w-full object-cover" />
+        <img src={image} alt={mediaAlt(image, heading || "Our story")} className="absolute inset-0 h-full w-full object-cover" />
         {/* Readability overlays: bottom-up darkening + overall tint */}
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-black/35" />
         <div aria-hidden className="absolute inset-0 bg-[#08080a]/25" />

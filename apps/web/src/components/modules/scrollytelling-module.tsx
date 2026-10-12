@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scrollytellingSchema, ScrollytellingProps } from "@/lib/module-schemas/scrollytelling-schema";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { mediaAlt } from "@/lib/media-alt";
 
 export default function ScrollytellingModule({ config }: { config?: ScrollytellingProps }) {
   const { heading, steps } = scrollytellingSchema.parse(config || {});
@@ -58,7 +59,7 @@ export default function ScrollytellingModule({ config }: { config?: Scrollytelli
                 <img
                   key={i}
                   src={s.image}
-                  alt=""
+                  alt={mediaAlt(s.image, s.title || "")}
                   className={`absolute inset-0 aspect-[1/1] object-cover transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-0"}`}
                 />
               ) : null
@@ -81,7 +82,7 @@ export default function ScrollytellingModule({ config }: { config?: Scrollytelli
               {s.image && (
                 <div className="md:hidden relative mb-6 overflow-hidden rounded-xl border border-white/15 shadow-lg">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={s.image} alt="" className="w-full" />
+                  <img src={s.image} alt={mediaAlt(s.image, s.title || "")} className="w-full" />
                   <LiquidGlass tintClass="to-primary-blue/60" />
                 </div>
               )}

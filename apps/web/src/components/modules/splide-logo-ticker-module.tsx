@@ -6,6 +6,7 @@ import { splideLogoTickerSchema, SplideLogoTickerProps } from "@/lib/module-sche
 import Splide from "@splidejs/splide";
 import { AutoScroll } from "@splidejs/splide-extension-auto-scroll";
 import "@splidejs/splide/css";
+import { mediaAlt } from "@/lib/media-alt";
 
 
 
@@ -88,7 +89,7 @@ export default function SplideLogoTickerModule({ config }: { config?: SplideLogo
                   {logo.image ? (
                     <img
                       src={logo.image}
-                      alt={logo.name || `Partner Logo ${index + 1}`}
+                      alt={mediaAlt(logo.image, logo.name || `Partner Logo ${index + 1}`)}
                       className="h-10 w-auto max-w-[130px] object-contain"
                     />
                   ) : (
