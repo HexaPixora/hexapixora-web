@@ -19,10 +19,12 @@ Auth header: `X-Automation-Key: $AUTOMATION_API_KEY`. Code: `apps/api/src/automa
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/automation/context` | Categories + every existing post (titles, slugs, keywords) |
+| POST | `/automation/media` | Upload a featured image (JPEG/PNG/WebP/AVIF, ≤ 8 MB, max 10 / 24h) |
 | POST | `/automation/posts` | Publish (or schedule with `publishAt`) one Markdown post |
+| PATCH | `/automation/posts/:slug/image` | Set the image on a post the API created (`{"url"}`) |
 | GET | `/automation/report?days=7` | Leads, newsletter, content, API health |
 
-The API can't edit or delete anything, and creates at most 3 posts per 24h.
+The API can't touch hand-written posts or delete anything, and creates at most 3 posts per 24h.
 
 ## Environment variables
 
