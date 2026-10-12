@@ -55,3 +55,8 @@ export class AutomationPostDto {
   // Future time → SCHEDULED (the blogs cron publishes it); omitted → published now.
   @IsOptional() @IsDateString() publishAt?: string;
 }
+
+export class PostImageDto {
+  // URL returned by POST /automation/media.
+  @IsString() @MaxLength(500) url: string;
+}
