@@ -7,7 +7,7 @@ file, `style-guide.md` and the API are all you need. Finish in one pass.
 
 ```bash
 # Local runs: secrets live outside git. Cloud runs: already in the environment.
-[ -f /d/secrets/hexapixora-automation.env ] && set -a && . /d/secrets/hexapixora-automation.env && set +a
+[ -f "/d/Workflow/Deployed/HexaPixora/secrets/hexapixora-automation.env" ] && set -a && . "/d/Workflow/Deployed/HexaPixora/secrets/hexapixora-automation.env" && set +a
 API="$HEXA_API_URL"; KEY="$AUTOMATION_API_KEY"
 h() { curl -sS --retry 4 --retry-delay 15 --retry-all-errors -m 90 -H "X-Automation-Key: $KEY" "$@"; }
 h "$API/automation/context" > /tmp/context.json   # Render free tier may cold-start (~60s)
