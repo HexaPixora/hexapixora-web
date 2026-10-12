@@ -39,7 +39,7 @@ service-account email → Permission **Restricted** (read-only) → Add.
 
 ## E. Hand it to the automation
 
-Add these two lines to `D:\secrets\hexapixora-automation.env` (or, for cloud
+Add these two lines to `D:\Workflow\Deployed\HexaPixora\secrets\hexapixora-automation.env` (or, for cloud
 routines, to the cloud environment's variables):
 
 ```
