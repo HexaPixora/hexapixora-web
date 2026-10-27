@@ -2,19 +2,39 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # Each of these branches is a release channel (see RELEASING.md).
+    branches: [main, develop, alpha]
   pull_request:
 
-# Cancel superseded runs on the same ref.
+# Cancel superseded PR runs; never cancel a push run mid-release.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Least-privilege token: this workflow only needs to read the repo.
 permissions:
   contents: read
 
 jobs:
+  # Commit messages decide the next version, so PR commits must follow
+  # Conventional Commits (rules in commitlint.config.mjs).
+  commitlint:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Lint PR commit messages
+        run: >
+          npx -y -p @commitlint/cli@21.2.3 -p @commitlint/config-conventional@21.2.3
+          commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -47,3 +67,29 @@ jobs:
       - name: Lint (advisory)
         run: npm run lint
         continue-on-error: true
+
+  # Tag + GitHub Release on every green push to a release branch:
+  # main -> vX.Y.Z, develop -> vX.Y.Z-beta.N, alpha -> vX.Y.Z-alpha.N.
+  release:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
+    permissions:
+      contents: write # create tags + releases
+      issues: write # open an issue if a release fails
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Semantic release
+        run: npx -y -p semantic-release@25.0.9 -p conventional-changelog-conventionalcommits@9.3.1 semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
