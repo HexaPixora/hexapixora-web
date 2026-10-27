@@ -21,6 +21,8 @@ ENV NODE_ENV=production
 ENV PORT=8080
 EXPOSE 8080
 
-# Sync the schema (refuses destructive changes instead of dropping data), seed the
-# admin user if missing, then start the API.
-CMD ["sh", "-c", "npx prisma db push --schema=packages/database/prisma/schema.prisma --skip-generate && npm run db:seed --workspace=@repo/database && node apps/api/dist/main.js"]
+# Start lean: on small free instances (256 MB) the schema sync and seed steps can
+# exhaust memory. Set RUN_DB_SETUP=1 for a deploy that needs them (new database,
+# schema change); otherwise only the API starts.
+ENV RUN_DB_SETUP=0
+CMD ["sh", "-c", "if [ \"$RUN_DB_SETUP\" = 1 ]; then npx prisma db push --schema=packages/database/prisma/schema.prisma --skip-generate && npm run db:seed --workspace=@repo/database; fi; exec node --max-old-space-size=192 apps/api/dist/main.js"]
