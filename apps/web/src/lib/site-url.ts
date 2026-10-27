@@ -14,6 +14,9 @@ function resolveSiteUrl(): string {
   if (vercelProd) return `https://${vercelProd.replace(/\/+$/, "")}`;
   const vercel = process.env.VERCEL_URL;
   if (vercel) return `https://${vercel.replace(/\/+$/, "")}`;
+  // In the browser the admin and the public site share one origin, so the
+  // current origin is always a better answer than localhost.
+  if (typeof window !== "undefined") return window.location.origin;
   return "http://localhost:3000";
 }
 
