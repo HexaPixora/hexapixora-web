@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/cn";
 
 /** Animated placeholder block. */
 export function Skeleton({ className }: { className?: string }) {

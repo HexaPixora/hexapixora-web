@@ -4,14 +4,14 @@ import React, { useState, useEffect } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { footerSchema, FooterConfig, DEFAULT_FOOTER_CONFIG } from "@hexapixora/contracts/layout/footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
 import { Trash2, Plus } from "lucide-react";
 import MediaField from "@/components/admin/media-field";
 import { SocialIcon, SOCIAL_ICON_OPTIONS } from "@/components/icons/social-icons";
 import { revalidateCMS } from "@/actions/revalidate";
 import { useHasPermission } from "@/stores/use-auth-store";
-import { PageHeader, SectionCard, Field, PageLoading } from "@/components/admin/ui";
+import { PageHeader, SectionCard, Field, PageLoading } from "@hexapixora/ui/admin";
 
 const SELECT_CLASS =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";

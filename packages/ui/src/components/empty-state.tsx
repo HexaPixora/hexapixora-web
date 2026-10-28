@@ -1,6 +1,6 @@
 import React from "react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/cn";
 
 /**
  * Uniform "nothing here yet" panel: optional icon, title, hint, optional action.

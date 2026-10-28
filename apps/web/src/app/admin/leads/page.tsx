@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
 import { Mail, Phone, Trash2, Search, Inbox, Eye, Globe } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@hexapixora/ui/dialog";
 import {
   PageHeader,
   TableCard,
@@ -19,9 +19,9 @@ import {
   RowActions,
   EmptyRow,
   TableSkeleton,
-} from "@/components/admin/ui";
-import { LEAD_STATUS } from "@/lib/admin/status-colors";
-import { cn } from "@/lib/utils";
+} from "@hexapixora/ui/admin";
+import { LEAD_STATUS } from "@hexapixora/ui/status-colors";
+import { cn } from "@hexapixora/ui/cn";
 
 const STATUS_OPTIONS = ["NEW", "CONTACTED", "QUALIFIED", "CLOSED"];
 

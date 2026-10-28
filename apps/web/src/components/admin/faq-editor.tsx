@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Textarea } from "@hexapixora/ui/textarea";
+import { Button } from "@hexapixora/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 
 export type FaqItem = { question: string; answer: string };

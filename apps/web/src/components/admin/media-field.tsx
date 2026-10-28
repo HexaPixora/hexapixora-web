@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
 import MediaPicker from "./media-picker";
 import { UploadCloud, ImagePlus, Loader2 } from "lucide-react";
 

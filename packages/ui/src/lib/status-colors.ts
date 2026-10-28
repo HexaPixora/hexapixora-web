@@ -1,6 +1,6 @@
 /**
  * Single source of truth for status pill colors across the admin. Uses the same
- * tint convention as content StatusBadge (`/15` background + `text-…-600
+ * tint convention for content and lead statuses (`/15` background + `text-…-600
  * dark:text-…-400`) so leads and content statuses look like one system
  * instead of the previous ad-hoc `/20 text-…-400` variations.
  *
@@ -20,4 +20,10 @@ export const LEAD_STATUS: Record<string, StatusStyle> = {
   CONTACTED: { label: "Contacted", ...AMBER },
   QUALIFIED: { label: "Qualified", ...EMERALD },
   CLOSED: { label: "Closed", ...NEUTRAL },
+};
+
+export const CONTENT_STATUS: Record<"DRAFT" | "SCHEDULED" | "PUBLISHED", StatusStyle> = {
+  DRAFT: { label: "Draft", ...NEUTRAL },
+  SCHEDULED: { label: "Scheduled", ...AMBER },
+  PUBLISHED: { label: "Published", ...EMERALD },
 };

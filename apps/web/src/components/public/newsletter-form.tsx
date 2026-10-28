@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Button } from "@hexapixora/ui/button";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { trackEvent } from "@/lib/analytics";
 import { CheckCircle2 } from "lucide-react";

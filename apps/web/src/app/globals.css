@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Workspace packages render UI too; scan them so their classes are generated. */
+@source "../../../../packages/ui/src";
+
 @utility container {
   margin-inline: auto;
   padding-inline: 1rem;

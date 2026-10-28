@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Field, PageHeader } from "@/components/admin/ui";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Field, PageHeader } from "@hexapixora/ui/admin";
 import { User as UserIcon, Lock, Mail } from "lucide-react";
 
 function SectionCard({

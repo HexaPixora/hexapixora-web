@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@hexapixora/ui/button";
 import SearchBar from "@/components/public/search-bar";
 import { headerSchema, DEFAULT_HEADER_CONFIG } from "@hexapixora/contracts/layout/header";
 

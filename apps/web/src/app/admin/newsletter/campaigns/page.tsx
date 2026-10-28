@@ -3,15 +3,15 @@
 import React, { useEffect, useState } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@hexapixora/ui/dialog";
 import { Plus, Send, Mail, TestTube2, Rocket } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { NewsletterTabs } from "@/components/admin/newsletter-tabs";
 import TipTapEditor from "@/components/admin/tiptap-editor";
-import { Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, EmptyRow, TableSkeleton, StatusPill } from "@/components/admin/ui";
+import { Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, EmptyRow, TableSkeleton, StatusPill } from "@hexapixora/ui/admin";
 
 type Campaign = {
   id: string;

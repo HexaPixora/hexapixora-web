@@ -3,15 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Button } from "@hexapixora/ui/button";
+import { Badge } from "@hexapixora/ui/badge";
+import { Input } from "@hexapixora/ui/input";
 import { Pencil, Trash2, Plus, Eye, Search, BookOpen, Upload, Download } from "lucide-react";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { siteUrl } from "@/lib/site-url";
-import { cn } from "@/lib/utils";
+import { cn } from "@hexapixora/ui/cn";
 import {
   PageHeader,
   TableCard,
@@ -23,7 +23,7 @@ import {
   RowActions,
   EmptyRow,
   TableSkeleton,
-} from "@/components/admin/ui";
+} from "@hexapixora/ui/admin";
 
 type Blog = {
   id: string;

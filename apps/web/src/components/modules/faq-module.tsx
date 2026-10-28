@@ -1,7 +1,7 @@
 import React from "react";
 import { faqsectionSchema, FAQProps } from "@hexapixora/contracts/blocks/faq";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@hexapixora/ui/accordion";
 
 
 
