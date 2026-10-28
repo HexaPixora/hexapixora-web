@@ -14,14 +14,17 @@ export function maintenanceMode(): MaintenanceMode {
   return value === "on" || value === "off" ? value : "auto";
 }
 
-const UP_TTL_MS = 15_000; // healthy answers are reused for 15s, then refreshed in the background
+const UP_TTL_MS = 30_000; // healthy answers are reused for 30s
 const DOWN_TTL_MS = 5_000; // while down, re-check often so recovery is quick
 const PROBE_TIMEOUT_MS = 4_000;
+// A probe still pending after this long belongs to a request that never
+// finished (e.g. a frozen or cancelled invocation); start a new one instead.
+const INFLIGHT_MAX_AGE_MS = 2 * PROBE_TIMEOUT_MS + 1_000;
 
 let cached: { up: boolean; at: number } | null = null;
-let inflight: Promise<boolean> | null = null;
+let inflight: { promise: Promise<boolean>; at: number } | null = null;
 
-async function probe(): Promise<boolean> {
+async function probeOnce(): Promise<boolean> {
   try {
     const res = await fetch(apiUrl("/health"), {
       cache: "no-store",
@@ -33,23 +36,31 @@ async function probe(): Promise<boolean> {
   }
 }
 
+// Retry once before declaring the API down, so a single slow or dropped
+// response can't flip the whole site into maintenance.
+async function probe(): Promise<boolean> {
+  return (await probeOnce()) || probeOnce();
+}
+
 function refresh(): Promise<boolean> {
-  inflight ??= probe().then((up) => {
-    cached = { up, at: Date.now() };
-    inflight = null;
-    return up;
-  });
-  return inflight;
+  if (!inflight || Date.now() - inflight.at > INFLIGHT_MAX_AGE_MS) {
+    const promise = probe().then((up) => {
+      cached = { up, at: Date.now() };
+      inflight = null;
+      return up;
+    });
+    inflight = { promise, at: Date.now() };
+  }
+  return inflight.promise;
 }
 
 export async function isApiUp(): Promise<boolean> {
-  if (!cached) return refresh();
-  const age = Date.now() - cached.at;
-  if (cached.up) {
-    // Stale-while-revalidate: keep serving while a background probe runs, so
-    // normal traffic never waits on the health check.
-    if (age >= UP_TTL_MS) void refresh();
-    return true;
+  // Once the cached answer expires, wait for a fresh probe. Never refresh in
+  // the background: serverless runtimes freeze an invocation after its
+  // response is sent, so a pending probe resumes later with its timeout
+  // already elapsed and wrongly reports the API as down.
+  if (cached && Date.now() - cached.at < (cached.up ? UP_TTL_MS : DOWN_TTL_MS)) {
+    return cached.up;
   }
-  return age < DOWN_TTL_MS ? false : refresh();
+  return refresh();
 }
