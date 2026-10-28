@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiClient } from "@/lib/api-client";
-import { MessageSquare, Wrench, Briefcase, BookOpen, ArrowRight } from "lucide-react";
+import { MessageSquare, BookOpen, ArrowRight } from "lucide-react";
 
 type Lead = {
   id: string;
@@ -16,8 +16,6 @@ type Lead = {
 
 type Metrics = {
   leads: number | null;
-  services: number | null;
-  portfolio: number | null;
   blogs: number | null;
 };
 
@@ -33,16 +31,12 @@ function countOf(payload: any): number | null {
 
 const CARDS = [
   { key: "leads", label: "Total Leads", icon: MessageSquare, href: "/admin/leads" },
-  { key: "services", label: "Active Services", icon: Wrench, href: "/admin/modules" },
-  { key: "portfolio", label: "Portfolio Items", icon: Briefcase, href: "/admin/modules" },
   { key: "blogs", label: "Blog Posts", icon: BookOpen, href: "/admin/blogs" },
 ] as const;
 
 export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<Metrics>({
     leads: null,
-    services: null,
-    portfolio: null,
     blogs: null,
   });
   const [recentLeads, setRecentLeads] = useState<Lead[]>([]);
@@ -51,14 +45,10 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     Promise.all([
       apiClient.get("/leads", { params: { limit: 5 } }).catch(() => null),
-      apiClient.get("/services").catch(() => null),
-      apiClient.get("/portfolio").catch(() => null),
       apiClient.get("/blogs", { params: { limit: 1 } }).catch(() => null),
-    ]).then(([leadsRes, servicesRes, portfolioRes, blogsRes]) => {
+    ]).then(([leadsRes, blogsRes]) => {
       setMetrics({
         leads: countOf(leadsRes?.data),
-        services: countOf(servicesRes?.data),
-        portfolio: countOf(portfolioRes?.data),
         blogs: countOf(blogsRes?.data),
       });
       const leads = leadsRes?.data?.data;
@@ -74,7 +64,7 @@ export default function AdminDashboardPage() {
         <p className="text-muted-foreground">Overview of your agency metrics and recent activity.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         {CARDS.map((card) => {
           const value = metrics[card.key];
           return (
