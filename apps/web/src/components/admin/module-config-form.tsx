@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import type { ModuleDefinition, ModuleField } from "@/lib/modules-registry";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import type { ModuleDefinition, ModuleField } from "@hexapixora/contracts/blocks/registry";
+import { Input } from "@hexapixora/ui/input";
+import { Textarea } from "@hexapixora/ui/textarea";
+import { Button } from "@hexapixora/ui/button";
 import MediaField from "@/components/admin/media-field";
 import { CategorySelect } from "@/components/admin/category-select";
 import { ToggleLeft, ToggleRight, Trash2 } from "lucide-react";

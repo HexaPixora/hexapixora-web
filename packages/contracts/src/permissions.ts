@@ -1,0 +1,16 @@
+/**
+ * Grantable admin sections, shown as permission toggles when an admin edits a
+ * team member. The API derives its Section type from this list.
+ */
+export const SECTIONS = [
+  { key: "pages", label: "Pages", description: "Create and edit custom pages" },
+  { key: "blogs", label: "Blog", description: "Write and manage blog posts" },
+  { key: "categories", label: "Categories", description: "Manage the shared content category taxonomy" },
+  { key: "media", label: "Media Library", description: "Upload and manage media" },
+  { key: "layouts", label: "Builders & Layouts", description: "Header, footer, navigation, modules" },
+  { key: "leads", label: "Leads / CRM", description: "View and manage contact submissions" },
+  { key: "newsletter", label: "Newsletter", description: "View and manage subscribers" },
+  { key: "settings", label: "Settings", description: "Global site configuration" },
+] as const;
+
+export type SectionKey = (typeof SECTIONS)[number]["key"];

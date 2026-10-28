@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@hexapixora/ui/cn";
 import { Plus, Trash2, Zap, Bot, CornerDownRight, GripVertical } from "lucide-react";
 
 export interface QuickReply {

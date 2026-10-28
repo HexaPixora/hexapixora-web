@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@hexapixora/ui/card";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),

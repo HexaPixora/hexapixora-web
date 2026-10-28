@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api-client";
-import { cn } from "@/lib/utils";
+import { apiClient } from "@hexapixora/sdk/browser";
+import { cn } from "@hexapixora/ui/cn";
 
 type Cat = { id: string; name: string; slug: string; color?: string | null };
 

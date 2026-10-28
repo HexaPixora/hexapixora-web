@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@hexapixora/ui/button";
 import { Trash2, Download, Mail } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import {
@@ -18,8 +18,8 @@ import {
   EmptyRow,
   TableSkeleton,
   StatusPill,
-} from "@/components/admin/ui";
-import { cn } from "@/lib/utils";
+} from "@hexapixora/ui/admin";
+import { cn } from "@hexapixora/ui/cn";
 import { NewsletterTabs } from "@/components/admin/newsletter-tabs";
 
 type Subscriber = { id: string; email: string; status: string; createdAt: string };

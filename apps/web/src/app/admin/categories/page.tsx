@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@hexapixora/ui/dialog";
 import { Plus, Pencil, Trash2, Tag } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { useHasPermission } from "@/stores/use-auth-store";
 import {
   Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, RowActions, EmptyRow, TableSkeleton,
-} from "@/components/admin/ui";
+} from "@hexapixora/ui/admin";
 
 type Category = {
   id: string;

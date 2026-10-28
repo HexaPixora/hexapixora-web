@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { apiClient } from "@hexapixora/sdk/browser";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@hexapixora/ui/dialog";
 import { Plus, Edit, Trash2, Eye, LayoutTemplate, Home } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ import { siteUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { StatusBadge } from "@/components/admin/status-badge";
 import type { ContentStatus } from "@/components/admin/status-control";
-import { Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, RowActions, EmptyRow, TableSkeleton } from "@/components/admin/ui";
+import { Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, RowActions, EmptyRow, TableSkeleton } from "@hexapixora/ui/admin";
 
 type Page = {
   id: string;

@@ -2,9 +2,9 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { apiClient } from "@/lib/api-client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { apiClient } from "@hexapixora/sdk/browser";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@hexapixora/ui/card";
+import { Button } from "@hexapixora/ui/button";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 function UnsubscribeInner() {

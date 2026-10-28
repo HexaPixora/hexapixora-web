@@ -5,25 +5,21 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { ServicesModule } from './services/services.module';
-import { PortfolioModule } from './portfolio/portfolio.module';
-import { BlogsModule } from './blogs/blogs.module';
-import { CategoriesModule } from './categories/categories.module';
-import { TeamModule } from './team/team.module';
-import { FaqModule } from './faq/faq.module';
-import { MediaModule } from './media/media.module';
-import { LeadsModule } from './leads/leads.module';
-import { NewsletterModule } from './newsletter/newsletter.module';
-import { SettingsModule } from './settings/settings.module';
-import { PagesModule } from './pages/pages.module';
-import { LayoutsModule } from './layouts/layouts.module';
-import { SearchModule } from './search/search.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { TokensModule } from './tokens/tokens.module';
-import { AutomationModule } from './automation/automation.module';
+import { BlogsModule } from './modules/blogs/blogs.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { MediaModule } from './modules/media/media.module';
+import { LeadsModule } from './modules/leads/leads.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { PagesModule } from './modules/pages/pages.module';
+import { LayoutsModule } from './modules/layouts/layouts.module';
+import { SearchModule } from './modules/search/search.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { TokensModule } from './modules/tokens/tokens.module';
+import { AutomationModule } from './modules/automation/automation.module';
 
 @Module({
   imports: [
@@ -31,7 +27,7 @@ import { AutomationModule } from './automation/automation.module';
     // Sensitive routes (e.g. login) tighten this further with @Throttle.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     ScheduleModule.forRoot(),
-    AuthModule, UsersModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, CategoriesModule, TeamModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, SearchModule, NotificationsModule, TokensModule, AutomationModule],
+    AuthModule, UsersModule, PrismaModule, BlogsModule, CategoriesModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, SearchModule, NotificationsModule, TokensModule, AutomationModule],
   controllers: [AppController],
   providers: [
     AppService,

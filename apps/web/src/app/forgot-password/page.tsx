@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { apiClient } from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiClient } from "@hexapixora/sdk/browser";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@hexapixora/ui/card";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

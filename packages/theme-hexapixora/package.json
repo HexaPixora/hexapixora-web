@@ -1,0 +1,43 @@
+{
+  "name": "@hexapixora/theme-hexapixora",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The HexaPixora public theme: block components, renderer and shared public components. Pure UI: data comes in via props.",
+  "exports": {
+    "./block-renderer": "./src/block-renderer.tsx",
+    "./blocks/*": "./src/blocks/*-block.tsx",
+    "./components/*": "./src/components/*.tsx",
+    "./icons/*": "./src/icons/*.tsx",
+    "./layout/*": "./src/layout/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./styles/*": "./src/styles/*"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hexapixora/contracts": "*",
+    "@hexapixora/motion": "*",
+    "@hexapixora/sdk": "*",
+    "@hexapixora/ui": "*",
+    "@hookform/resolvers": "^5.4.0",
+    "@splidejs/splide": "^4.1.4",
+    "@splidejs/splide-extension-auto-scroll": "^0.5.3",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^1.17.0",
+    "react-hook-form": "^7.78.0",
+    "zod": "^4.6.7"
+  },
+  "peerDependencies": {
+    "next": "16.4.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@hexapixora/typescript-config": "*",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "5.9.2",
+    "@types/node": "^22.15.3"
+  }
+}

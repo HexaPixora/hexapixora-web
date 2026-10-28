@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { headerSchema, HeaderConfig, DEFAULT_HEADER_CONFIG } from "@/lib/module-schemas/header-schema";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { headerSchema, HeaderConfig, DEFAULT_HEADER_CONFIG } from "@hexapixora/contracts/layout/header";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
 import { revalidateCMS } from "@/actions/revalidate";
 import MediaField from "@/components/admin/media-field";
 import { useHasPermission } from "@/stores/use-auth-store";
-import { PageHeader, SectionCard, Field, PageLoading } from "@/components/admin/ui";
+import { PageHeader, SectionCard, Field, PageLoading } from "@hexapixora/ui/admin";
 
 const SELECT_CLASS =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";

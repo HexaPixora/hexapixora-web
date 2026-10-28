@@ -2,9 +2,9 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { apiClient } from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiClient } from "@hexapixora/sdk/browser";
+import { Button } from "@hexapixora/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@hexapixora/ui/card";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 function VerifyInner() {

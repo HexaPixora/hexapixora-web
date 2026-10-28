@@ -1,5 +1,5 @@
 import React from "react";
-import { apiUrl } from "@/lib/api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
 import { CookieConsent } from "@/components/public/cookie-consent";

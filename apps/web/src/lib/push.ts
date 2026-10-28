@@ -1,6 +1,6 @@
 "use client";
 
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 
 export type PushState = "unsupported" | "denied" | "subscribed" | "unsubscribed";
 

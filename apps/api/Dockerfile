@@ -13,7 +13,7 @@ COPY . .
 
 # Only the API and database workspaces (skips the Next.js app's dependencies).
 # Dev deps stay installed: the Prisma CLI and tsx are used at startup.
-RUN npm ci --include=dev --workspace=api --workspace=@repo/database --include-workspace-root \
+RUN npm ci --include=dev --workspace=api --workspace=@hexapixora/database --include-workspace-root \
   && npx prisma generate --schema=packages/database/prisma/schema.prisma \
   && npm run build --workspace=api
 
@@ -26,4 +26,4 @@ EXPOSE 8080
 # (or a new database); otherwise only the API starts. `migrate deploy` only
 # applies pending files in prisma/migrations and never drops data on its own.
 ENV RUN_DB_SETUP=0
-CMD ["sh", "-c", "if [ \"$RUN_DB_SETUP\" = 1 ]; then npx prisma migrate deploy --schema=packages/database/prisma/schema.prisma && npm run db:seed --workspace=@repo/database; fi; exec node --max-old-space-size=192 apps/api/dist/main.js"]
+CMD ["sh", "-c", "if [ \"$RUN_DB_SETUP\" = 1 ]; then npx prisma migrate deploy --schema=packages/database/prisma/schema.prisma && npm run db:seed --workspace=@hexapixora/database; fi; exec node --max-old-space-size=192 apps/api/dist/main.js"]

@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@hexapixora/ui/tabs";
 import SeoTab from "@/components/admin/seo-tab";
 import MediaPicker from "@/components/admin/media-picker";
 import { revalidateCMS } from "@/actions/revalidate";
 import { useHasPermission } from "@/stores/use-auth-store";
-import { PageHeader } from "@/components/admin/ui";
+import { PageHeader } from "@hexapixora/ui/admin";
 import {
   Globe, Palette, Search, Code,
   UploadCloud, Mail, Phone, MapPin, Map, Clock, Image as ImageIcon, ImagePlus, Trash2

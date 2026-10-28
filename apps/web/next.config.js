@@ -30,6 +30,8 @@ function publicSiteUrl() {
 }
 
 const nextConfig = {
+  // Workspace packages ship TypeScript source; Next compiles them like app code.
+  transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexapixora', '@hexapixora/ui'],
   env: {
     NEXT_PUBLIC_SITE_URL: publicSiteUrl(),
   },

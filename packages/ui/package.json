@@ -1,0 +1,33 @@
+{
+  "name": "@hexapixora/ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Admin UI kit: shadcn components on Radix plus admin primitives. Not used by public themes.",
+  "exports": {
+    "./admin": "./src/admin.ts",
+    "./cn": "./src/lib/cn.ts",
+    "./status-colors": "./src/lib/status-colors.ts",
+    "./*": "./src/components/*.tsx"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.17.0",
+    "radix-ui": "^1.5.0",
+    "tailwind-merge": "^3.6.0",
+    "vaul": "^1.1.2"
+  },
+  "peerDependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@hexapixora/typescript-config": "*",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "5.9.2"
+  }
+}

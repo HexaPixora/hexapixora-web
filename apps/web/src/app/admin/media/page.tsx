@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { absoluteMediaUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
 import {
   Upload,
   Copy,
@@ -21,7 +21,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { PageHeader, EmptyState } from "@/components/admin/ui";
+import { PageHeader, EmptyState } from "@hexapixora/ui/admin";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +29,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+} from "@hexapixora/ui/dialog";
+import { cn } from "@hexapixora/ui/cn";
 
 type MediaItem = {
   id: string;

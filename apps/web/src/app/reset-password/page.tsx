@@ -2,10 +2,10 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { apiClient } from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiClient } from "@hexapixora/sdk/browser";
+import { Button } from "@hexapixora/ui/button";
+import { Input } from "@hexapixora/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@hexapixora/ui/card";
 
 function ResetInner() {
   const token = useSearchParams().get("token") || "";
