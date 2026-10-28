@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { footerSchema, FooterConfig, DEFAULT_FOOTER_CONFIG } from "@hexapixora/contracts/layout/footer";
 import { Button } from "@/components/ui/button";

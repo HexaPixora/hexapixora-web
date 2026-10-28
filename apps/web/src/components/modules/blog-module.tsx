@@ -3,7 +3,7 @@ import { blogSchema, BlogProps } from "@hexapixora/contracts/blocks/blog";
 
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
-import { apiUrl } from "@/lib/api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 import { insightExcerpt } from "@/components/public/insight-card";
 import { mediaAlt } from "@/lib/media-alt";
 

@@ -1,8 +1,8 @@
 import React from "react";
 import PublicHeader from "@/components/public/header";
 import PublicFooter from "@/components/public/footer";
-import { apiUrl } from "@/lib/api-url";
-import { readJson } from "@/lib/cms-fetch";
+import { apiUrl } from "@hexapixora/sdk/server";
+import { readJson } from "@hexapixora/sdk/server";
 
 async function getLayoutData() {
   try {

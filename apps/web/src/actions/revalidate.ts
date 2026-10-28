@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
-import { apiUrl } from "@/lib/api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 
 // Server actions are reachable by anyone who can POST to the site, so confirm
 // the caller holds a valid admin session (verified by the API) before purging.

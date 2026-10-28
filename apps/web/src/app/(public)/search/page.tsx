@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Search, Newspaper, FileText, ArrowUpRight, SearchX } from "lucide-react";
 import SiteLayout from "@/components/public/site-layout";
-import { apiUrl } from "@/lib/api-url";
-import { readJson } from "@/lib/cms-fetch";
+import { apiUrl } from "@hexapixora/sdk/server";
+import { readJson } from "@hexapixora/sdk/server";
 
 export const dynamic = "force-dynamic";
 

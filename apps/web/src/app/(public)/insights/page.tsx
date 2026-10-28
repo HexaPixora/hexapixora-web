@@ -3,7 +3,7 @@ import SiteLayout from "@/components/public/site-layout";
 import Link from "next/link";
 import { ArrowUpRight, Calendar, Clock, BookOpen } from "lucide-react";
 import { Metadata } from "next";
-import { apiUrl } from "@/lib/api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 import { InsightCard, CategoryChip, formatInsightDate, insightExcerpt, insightPostUrl } from "@/components/public/insight-card";
 
 export const revalidate = 120;

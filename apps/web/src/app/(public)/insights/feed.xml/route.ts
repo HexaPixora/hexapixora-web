@@ -1,4 +1,4 @@
-import { apiUrl } from "@/lib/api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 import { siteUrl } from "@/lib/site-url";
 
 // Rebuild the feed at most hourly.

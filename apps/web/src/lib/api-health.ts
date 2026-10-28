@@ -1,4 +1,4 @@
-import { apiUrl } from "./api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 
 /**
  * Backend health as seen by the proxy, used to switch the whole site into
