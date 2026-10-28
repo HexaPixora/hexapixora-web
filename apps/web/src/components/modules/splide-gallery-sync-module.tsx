@@ -5,7 +5,7 @@ import { splideGallerySyncSchema, SplideGallerySyncProps } from "@hexapixora/con
 
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
-import gsap from "gsap";
+import { gsap } from "@hexapixora/motion/gsap";
 import { ArrowRight } from "lucide-react";
 import { mediaAlt } from "@/lib/media-alt";
 

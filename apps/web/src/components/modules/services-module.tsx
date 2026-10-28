@@ -3,7 +3,7 @@ import Link from "next/link";
 import { icons, Wrench } from "lucide-react";
 import { servicesSchema, ServicesProps } from "@hexapixora/contracts/blocks/services";
 import { Stagger, StaggerItem } from "@/components/public/motion";
-import { Reveal } from "@/components/public/reveal";
+import { Reveal } from "@hexapixora/motion/reveal";
 
 // Resolve a lucide icon by name. Accepts names copied straight from lucide.dev
 // (kebab-case, e.g. "pen-tool") as well as PascalCase ("PenTool"); falls back

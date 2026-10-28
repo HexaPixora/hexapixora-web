@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { gsap } from "@hexapixora/motion/gsap";
 import { Globe, ArrowUpRight } from "lucide-react";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { portfolioHeroSchema, PortfolioHeroProps } from "@hexapixora/contracts/blocks/portfolio-hero";

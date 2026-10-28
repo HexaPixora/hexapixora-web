@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { gsap } from "@hexapixora/motion/gsap";
 import { ArrowUpRight } from "lucide-react";
 import { heroSchema, HeroProps } from "@hexapixora/contracts/blocks/hero";
 

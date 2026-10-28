@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { scrollytellingSchema, ScrollytellingProps } from "@hexapixora/contracts/blocks/scrollytelling";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { mediaAlt } from "@/lib/media-alt";
@@ -16,7 +15,6 @@ export default function ScrollytellingModule({ config }: { config?: Scrollytelli
 
   useEffect(() => {
     if (!root.current || items.length === 0) return;
-    gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       stepEls.current.forEach((el, i) => {
         if (!el) return;

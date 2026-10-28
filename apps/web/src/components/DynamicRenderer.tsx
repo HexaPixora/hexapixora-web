@@ -1,7 +1,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { resolveAnchorId } from "@hexapixora/contracts/blocks/registry";
-import { Reveal } from "@/components/public/reveal";
+import { Reveal } from "@hexapixora/motion/reveal";
 import { MediaAltProvider } from "@/components/media-alt-provider";
 
 // Skip the global scroll-reveal for: heroes/banners (above the fold — fading

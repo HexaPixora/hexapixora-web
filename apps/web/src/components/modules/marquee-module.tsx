@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import gsap from "gsap";
+import { gsap } from "@hexapixora/motion/gsap";
 import { marqueeSchema, MarqueeProps } from "@hexapixora/contracts/blocks/marquee";
 import { mediaAlt } from "@/lib/media-alt";
 

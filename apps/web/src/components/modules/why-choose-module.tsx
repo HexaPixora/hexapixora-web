@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { whyChooseSchema, WhyChooseProps } from "@hexapixora/contracts/blocks/why-choose";
 import { Stagger, StaggerItem } from "@/components/public/motion";
-import { Reveal } from "@/components/public/reveal";
+import { Reveal } from "@hexapixora/motion/reveal";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   sparkles: Sparkles,
