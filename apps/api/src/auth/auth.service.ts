@@ -4,7 +4,7 @@ import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TokensService } from '../tokens/tokens.service';
 import { MailService } from '../mail/mail.service';
-import { TokenType } from '@repo/database';
+import { TokenType } from '@hexapixora/database';
 import { env } from '../config/env';
 import * as bcrypt from 'bcryptjs';
 

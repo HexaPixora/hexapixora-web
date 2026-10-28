@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { env } from '../config/env';
 import { MailService } from '../mail/mail.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '@repo/database';
+import { NotificationType } from '@hexapixora/database';
 
 @Injectable()
 export class LeadsService {

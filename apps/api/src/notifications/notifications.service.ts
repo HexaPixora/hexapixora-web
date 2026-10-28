@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationType } from '@repo/database';
+import { NotificationType } from '@hexapixora/database';
 import { PushService } from './push.service';
 
 @Injectable()

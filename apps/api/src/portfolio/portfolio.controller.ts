@@ -3,7 +3,7 @@ import { PortfolioService } from './portfolio.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@repo/database';
+import { Role } from '@hexapixora/database';
 import { CreatePortfolioDto, UpdatePortfolioDto } from './dto/portfolio.dto';
 
 @Controller('portfolio')

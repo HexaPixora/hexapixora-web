@@ -3,7 +3,7 @@ import { TeamService } from './team.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@repo/database';
+import { Role } from '@hexapixora/database';
 import { CreateTeamMemberDto, UpdateTeamMemberDto } from './dto/team.dto';
 import { ReorderDto } from '../common/dto/reorder.dto';
 

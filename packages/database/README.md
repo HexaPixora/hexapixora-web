@@ -1,4 +1,4 @@
-# @repo/database
+# @hexapixora/database
 
 Prisma schema, migrations and seed for the API.
 
@@ -7,7 +7,7 @@ Prisma schema, migrations and seed for the API.
 1. Edit `prisma/schema.prisma`.
 2. Create a migration against your **local** database:
    ```bash
-   npm run db:migrate --workspace=@repo/database -- --name <short_snake_case_name>
+   npm run db:migrate --workspace=@hexapixora/database -- --name <short_snake_case_name>
    ```
 3. Read the generated `prisma/migrations/<timestamp>_<name>/migration.sql`. Renames
    and dropped columns lose data unless you edit the SQL to copy it first.
@@ -21,7 +21,7 @@ reset) and the seed, then starts. Set it back to `0` afterwards.
 
 Check what production has applied:
 ```bash
-npm run db:status --workspace=@repo/database   # with DATABASE_URL pointing at production
+npm run db:status --workspace=@hexapixora/database   # with DATABASE_URL pointing at production
 ```
 
 ## Rules

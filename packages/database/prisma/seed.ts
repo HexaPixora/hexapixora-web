@@ -6,7 +6,7 @@
  *   - admin email already exists        → leaves it untouched (never clobbers a
  *                                          password the user may have changed)
  *
- * Run: `npm run db:seed --workspace=@repo/database`
+ * Run: `npm run db:seed --workspace=@hexapixora/database`
  * Env: SEED_ADMIN_EMAIL (default admin@hexapixora.com), SEED_ADMIN_PASSWORD (required),
  *      SEED_ADMIN_NAME (default "Administrator").
  */
