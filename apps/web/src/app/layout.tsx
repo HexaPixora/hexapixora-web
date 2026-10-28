@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Fraunces, Sacramento } from "next/font/google";
 import "./globals.css";
-import { apiUrl } from "@/lib/api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 import { SITE_URL, absoluteMediaUrl } from "@/lib/site-url";
 
 const inter = Inter({ subsets: ["latin"] });

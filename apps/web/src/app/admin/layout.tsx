@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { useAuthStore } from "@/stores/use-auth-store";
 import {
   LayoutDashboard, Wrench, Image as ImageIcon, BookOpen, Settings,

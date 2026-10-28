@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { absoluteMediaUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { toast } from "sonner";

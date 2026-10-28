@@ -2,7 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
-import { cmsFetch, readJson, readResource } from "@/lib/cms-fetch";
+import { cmsFetch, readJson, readResource } from "@hexapixora/sdk/server";
 import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 
 // Revalidate periodically (120s) so custom pages serve instantly from cache.

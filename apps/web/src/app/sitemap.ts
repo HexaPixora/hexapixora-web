@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { apiUrl } from "@/lib/api-url";
+import { apiUrl } from "@hexapixora/sdk/server";
 import { siteUrl } from "@/lib/site-url";
 
 // Regenerate at most once an hour — content changes also trigger on-demand

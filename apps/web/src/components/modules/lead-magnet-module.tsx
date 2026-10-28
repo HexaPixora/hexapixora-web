@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { leadMagnetSchema, LeadMagnetProps } from "@hexapixora/contracts/blocks/lead-magnet";
 import { Download, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { mediaAlt } from "@/lib/media-alt";

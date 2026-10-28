@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { useHasPermission } from "@/stores/use-auth-store";

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { PageHeader } from "@/components/admin/ui";
