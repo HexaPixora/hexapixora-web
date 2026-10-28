@@ -19,7 +19,6 @@ function required(name: string, devDefault: string): string {
     );
   }
 
-  // eslint-disable-next-line no-console
   console.warn(
     `[env] ${name} is not set — using an insecure development default. Set it before deploying.`,
   );
@@ -71,6 +70,17 @@ export const env = {
     publicKey: process.env.VAPID_PUBLIC_KEY ?? '',
     privateKey: process.env.VAPID_PRIVATE_KEY ?? '',
     subject: process.env.VAPID_SUBJECT ?? 'mailto:admin@hexapixora.com',
+  },
+
+  // Cloudflare Turnstile for the contact form. Verification is skipped when unset.
+  turnstileSecretKey: process.env.TURNSTILE_SECRET_KEY ?? '',
+
+  // Supabase Storage for media. When the URL or key is unset, uploads fall back
+  // to the local ./uploads disk (fine for dev, ephemeral on container hosts).
+  storage: {
+    supabaseUrl: process.env.SUPABASE_URL ?? '',
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
+    bucket: process.env.SUPABASE_STORAGE_BUCKET || 'media',
   },
 
   // Shared secret for the scheduled automation routines (X-Automation-Key header).

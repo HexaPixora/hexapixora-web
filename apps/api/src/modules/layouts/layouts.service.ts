@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@hexapixora/database';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class LayoutsService {
     return found ?? { key, data: null };
   }
 
-  async upsert(key: string, data: any) {
+  async upsert(key: string, data: Prisma.InputJsonValue) {
     return this.prisma.layoutConfig.upsert({
       where: { key },
       update: { data },

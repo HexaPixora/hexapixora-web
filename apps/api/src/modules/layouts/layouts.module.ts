@@ -4,6 +4,6 @@ import { LayoutsService } from './layouts.service';
 
 @Module({
   controllers: [LayoutsController],
-  providers: [LayoutsService]
+  providers: [LayoutsService],
 })
 export class LayoutsModule {}
