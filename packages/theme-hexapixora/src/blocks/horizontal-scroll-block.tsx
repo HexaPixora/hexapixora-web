@@ -4,8 +4,8 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { horizontalScrollSchema, HorizontalScrollProps } from "@hexapixora/contracts/blocks/horizontal-scroll";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { mediaAlt } from "@/lib/media-alt";
+import { LiquidGlass } from "../components/liquid-glass";
+import { mediaAlt } from "../lib/media-alt";
 
 export default function HorizontalScrollModule({ config }: { config?: HorizontalScrollProps }) {
   const { heading, subheading, aspectRatio, items } = horizontalScrollSchema.parse(config || {});

@@ -3,8 +3,8 @@
 import { useRef, useEffect, useState } from "react";
 import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { scrollytellingSchema, ScrollytellingProps } from "@hexapixora/contracts/blocks/scrollytelling";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { mediaAlt } from "@/lib/media-alt";
+import { LiquidGlass } from "../components/liquid-glass";
+import { mediaAlt } from "../lib/media-alt";
 
 export default function ScrollytellingModule({ config }: { config?: ScrollytellingProps }) {
   const { heading, steps } = scrollytellingSchema.parse(config || {});

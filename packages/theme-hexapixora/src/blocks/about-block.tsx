@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { LiquidGlass } from "../components/liquid-glass";
 import { aboutSchema, AboutProps } from "@hexapixora/contracts/blocks/about";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 export default function AboutModule({ config }: { config?: AboutProps }) {
   const { eyebrow, heading, content, image, highlights, buttonText, buttonUrl } =

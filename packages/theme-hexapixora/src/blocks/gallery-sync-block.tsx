@@ -7,7 +7,7 @@ import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
 import { gsap } from "@hexapixora/motion/gsap";
 import { ArrowRight } from "lucide-react";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 
 

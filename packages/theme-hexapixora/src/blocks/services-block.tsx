@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { icons, Wrench } from "lucide-react";
 import { servicesSchema, ServicesProps } from "@hexapixora/contracts/blocks/services";
-import { Stagger, StaggerItem } from "@/components/public/motion";
+import { Stagger, StaggerItem } from "../components/motion";
 import { Reveal } from "@hexapixora/motion/reveal";
 
 // Resolve a lucide icon by name. Accepts names copied straight from lucide.dev

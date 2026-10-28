@@ -4,8 +4,8 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { staggeredGridSchema, StaggeredGridProps } from "@hexapixora/contracts/blocks/staggered-grid";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { mediaAlt } from "@/lib/media-alt";
+import { LiquidGlass } from "../components/liquid-glass";
+import { mediaAlt } from "../lib/media-alt";
 
 export default function StaggeredGridModule({ config }: { config?: StaggeredGridProps }) {
   const { heading, subheading, items } = staggeredGridSchema.parse(config || {});

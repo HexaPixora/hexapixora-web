@@ -6,7 +6,7 @@ import { splideLogoTickerSchema, SplideLogoTickerProps } from "@hexapixora/contr
 import Splide from "@splidejs/splide";
 import { AutoScroll } from "@splidejs/splide-extension-auto-scroll";
 import "@splidejs/splide/css";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 
 

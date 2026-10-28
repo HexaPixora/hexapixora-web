@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { parallaxBannerSchema, ParallaxBannerProps } from "@hexapixora/contracts/blocks/parallax-banner";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 const STRENGTH: Record<string, number> = { subtle: 10, medium: 20, strong: 35 };
 const OVERLAY: Record<string, number> = { none: 0, light: 0.3, medium: 0.55, dark: 0.75 };

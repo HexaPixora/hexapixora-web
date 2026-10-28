@@ -4,8 +4,8 @@ import { useRef, useEffect } from "react";
 import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { Link2 } from "lucide-react";
 import { teamSchema, TeamProps } from "@hexapixora/contracts/blocks/team";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { mediaAlt } from "@/lib/media-alt";
+import { LiquidGlass } from "../components/liquid-glass";
+import { mediaAlt } from "../lib/media-alt";
 
 export default function TeamModule({ config }: { config?: TeamProps }) {
   const { heading, subheading, items } = teamSchema.parse(config || {});

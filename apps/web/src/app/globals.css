@@ -3,6 +3,7 @@
 
 /* Workspace packages render UI too; scan them so their classes are generated. */
 @source "../../../../packages/ui/src";
+@source "../../../../packages/theme-hexapixora/src";
 
 @utility container {
   margin-inline: auto;

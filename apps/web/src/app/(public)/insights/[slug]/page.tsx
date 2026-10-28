@@ -8,7 +8,7 @@ import { apiUrl } from "@hexapixora/sdk/server";
 import { cmsFetch, readResource } from "@hexapixora/sdk/server";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
-import { InsightCard, CategoryChip } from "@/components/public/insight-card";
+import { InsightCard, CategoryChip } from "@hexapixora/theme-hexapixora/components/insight-card";
 import { InsightCategoryView } from "@/components/public/insight-category-view";
 import { FaqAccordion } from "@/components/public/faq-accordion";
 

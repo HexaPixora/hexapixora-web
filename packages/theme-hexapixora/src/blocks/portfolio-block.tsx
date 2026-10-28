@@ -3,7 +3,7 @@ import { portfolioSchema, PortfolioProps } from "@hexapixora/contracts/blocks/po
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 
 

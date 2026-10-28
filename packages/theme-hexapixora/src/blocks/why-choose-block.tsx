@@ -4,7 +4,7 @@ import {
   Target, TrendingUp, Code, Headphones, Palette, Gauge, Lightbulb, ThumbsUp,
 } from "lucide-react";
 import { whyChooseSchema, WhyChooseProps } from "@hexapixora/contracts/blocks/why-choose";
-import { Stagger, StaggerItem } from "@/components/public/motion";
+import { Stagger, StaggerItem } from "../components/motion";
 import { Reveal } from "@hexapixora/motion/reveal";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {

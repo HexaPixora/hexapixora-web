@@ -1,6 +1,6 @@
 import React from "react";
 import { quoteSchema, QuoteProps } from "@hexapixora/contracts/blocks/quote";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 // Same editorial serif as the Leader "Letter" module, so the two read as a set
 // on the leadership page. Loaded once in the root layout as a CSS variable.

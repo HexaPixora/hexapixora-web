@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { gsap } from "@hexapixora/motion/gsap";
 import { marqueeSchema, MarqueeProps } from "@hexapixora/contracts/blocks/marquee";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 const SPEED: Record<string, number> = { slow: 40, normal: 24, fast: 12 };
 

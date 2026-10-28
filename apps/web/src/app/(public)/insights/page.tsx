@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Calendar, Clock, BookOpen } from "lucide-react";
 import { Metadata } from "next";
 import { apiUrl } from "@hexapixora/sdk/server";
-import { InsightCard, CategoryChip, formatInsightDate, insightExcerpt, insightPostUrl } from "@/components/public/insight-card";
+import { InsightCard, CategoryChip, formatInsightDate, insightExcerpt, insightPostUrl } from "@hexapixora/theme-hexapixora/components/insight-card";
 
 export const revalidate = 120;
 

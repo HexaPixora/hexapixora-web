@@ -1,6 +1,6 @@
 import React from "react";
 import { gallerySchema, GalleryProps } from "@hexapixora/contracts/blocks/gallery";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 
 

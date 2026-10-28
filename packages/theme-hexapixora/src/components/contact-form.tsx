@@ -11,7 +11,7 @@ import { Textarea } from "@hexapixora/ui/textarea";
 import { Mail, Phone, Send, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import { contactFormSchema, ContactFormProps } from "@hexapixora/contracts/blocks/contact-form";
 import { COUNTRIES } from "@hexapixora/contracts/countries";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent } from "../lib/analytics";
 
 const schema = z.object({
   name: z.string().min(2, "Please enter your full name"),

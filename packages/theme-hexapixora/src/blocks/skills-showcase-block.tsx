@@ -1,7 +1,7 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { skillsShowcaseSchema, SkillsShowcaseProps } from "@hexapixora/contracts/blocks/skills-showcase";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 function clampLevel(v: string): number {
   const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);

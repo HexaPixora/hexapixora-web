@@ -1,6 +1,6 @@
 import React from "react";
 import { statsSchema, StatsProps } from "@hexapixora/contracts/blocks/stats";
-import { CountUp } from "@/components/public/motion";
+import { CountUp } from "../components/motion";
 
 
 export default function StatsModule({ config }: { config?: StatsProps }) {

@@ -3,9 +3,9 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "@hexapixora/motion/gsap";
 import { Globe, ArrowUpRight } from "lucide-react";
-import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { LiquidGlass } from "../components/liquid-glass";
 import { portfolioHeroSchema, PortfolioHeroProps } from "@hexapixora/contracts/blocks/portfolio-hero";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 /* ---------- small building blocks ---------- */
 

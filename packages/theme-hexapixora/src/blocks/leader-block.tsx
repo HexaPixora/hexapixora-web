@@ -1,6 +1,6 @@
 import React from "react";
 import { leaderSchema, LeaderProps } from "@hexapixora/contracts/blocks/leader";
-import { mediaAlt } from "@/lib/media-alt";
+import { mediaAlt } from "../lib/media-alt";
 
 // Display faces are loaded once in the root layout as CSS variables (so this
 // stays a plain component that the client-side admin preview can import).

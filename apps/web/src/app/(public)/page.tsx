@@ -1,6 +1,6 @@
 import SiteLayout from "@/components/public/site-layout";
-import DynamicRenderer from "@/components/DynamicRenderer";
-import HeroModule from "@/components/modules/hero-module"; // fallback when no homepage is set
+import DynamicRenderer from "@hexapixora/theme-hexapixora/block-renderer";
+import HeroModule from "@hexapixora/theme-hexapixora/blocks/hero"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 
