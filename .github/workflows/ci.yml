@@ -93,3 +93,31 @@ jobs:
         run: npx -y -p semantic-release@25.0.9 -p conventional-changelog-conventionalcommits@9.3.1 semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # After a stable release, merge main back into develop so the new tag is part
+  # of develop's history. Without it, betas keep counting from the old version
+  # (1.0.0-beta.2 instead of 1.1.0-beta.1). A merge conflict fails this job so
+  # it gets resolved by hand instead of guessed.
+  sync-develop:
+    needs: release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the merge to develop
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Merge main into develop
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main --tags
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "develop already contains main"
+            exit 0
+          fi
+          git merge --no-ff origin/main -m "chore(release): sync develop with main"
+          git push origin develop

@@ -14,6 +14,10 @@ generated notes. Nothing is committed back and nothing is published to npm.
 | `alpha`   | unstable | `v1.5.0-alpha.1`  | Vercel preview (experiments)     |
 
 Flow: `feature/*` → PR → `develop` (beta) → PR → `main` (stable).
+After each stable release the `sync-develop` CI job merges `main` back into
+`develop`, so the new tag is in develop's history and the next beta starts
+from it (`v1.1.0-beta.1`, not `v1.0.0-beta.N`). Merge `develop` → `main` with a
+**merge commit**, never squash.
 Use `alpha` for risky work that shouldn't block the beta line; it is created
 on demand (`git switch -c alpha develop && git push -u origin alpha`).
 
