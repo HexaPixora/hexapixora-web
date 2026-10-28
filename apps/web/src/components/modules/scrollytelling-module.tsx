@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { scrollytellingSchema, ScrollytellingProps } from "@/lib/module-schemas/scrollytelling-schema";
+import { scrollytellingSchema, ScrollytellingProps } from "@hexapixora/contracts/blocks/scrollytelling";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { mediaAlt } from "@/lib/media-alt";
 

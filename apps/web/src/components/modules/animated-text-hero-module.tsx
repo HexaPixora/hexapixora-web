@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
-import { animatedTextHeroSchema, AnimatedTextHeroProps } from "@/lib/module-schemas/animated-text-hero-schema";
+import { animatedTextHeroSchema, AnimatedTextHeroProps } from "@hexapixora/contracts/blocks/animated-text-hero";
 
 export default function AnimatedTextHeroModule({ config }: { config?: AnimatedTextHeroProps }) {
   const { eyebrow, heading, subheading, buttonText, buttonLink } = animatedTextHeroSchema.parse(config || {});

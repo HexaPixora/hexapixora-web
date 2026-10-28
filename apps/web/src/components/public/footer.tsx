@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { footerSchema, DEFAULT_FOOTER_CONFIG } from "@/lib/module-schemas/footer-schema";
+import { footerSchema, DEFAULT_FOOTER_CONFIG } from "@hexapixora/contracts/layout/footer";
 import { ArrowRight } from "lucide-react";
 import { SocialIcon } from "@/components/icons/social-icons";
 import { NewsletterForm } from "@/components/public/newsletter-form";

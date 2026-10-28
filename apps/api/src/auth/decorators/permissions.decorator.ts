@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { Section } from '../permissions';
+import type { SectionKey as Section } from '@hexapixora/contracts/permissions';
 
 export const PERMISSIONS_KEY = 'permissions';
 

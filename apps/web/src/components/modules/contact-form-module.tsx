@@ -1,6 +1,6 @@
 import React from "react";
 import ContactForm from "../public/contact-form";
-import { ContactFormProps } from "@/lib/module-schemas/contact-form-schema";
+import { ContactFormProps } from "@hexapixora/contracts/blocks/contact-form";
 
 export default function ContactFormModule({ config }: { config: ContactFormProps }) {
   const turnstileSiteKey =

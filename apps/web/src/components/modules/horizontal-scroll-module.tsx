@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { horizontalScrollSchema, HorizontalScrollProps } from "@/lib/module-schemas/horizontal-scroll-schema";
+import { horizontalScrollSchema, HorizontalScrollProps } from "@hexapixora/contracts/blocks/horizontal-scroll";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { mediaAlt } from "@/lib/media-alt";
 

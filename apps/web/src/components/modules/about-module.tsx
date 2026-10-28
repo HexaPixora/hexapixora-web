@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import { aboutSchema, AboutProps } from "@/lib/module-schemas/about-schema";
+import { aboutSchema, AboutProps } from "@hexapixora/contracts/blocks/about";
 import { mediaAlt } from "@/lib/media-alt";
 
 export default function AboutModule({ config }: { config?: AboutProps }) {

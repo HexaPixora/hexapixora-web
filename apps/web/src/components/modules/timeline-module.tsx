@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { timelineSchema, TimelineProps } from "@/lib/module-schemas/timeline-schema";
+import { timelineSchema, TimelineProps } from "@hexapixora/contracts/blocks/timeline";
 
 export default function TimelineModule({ config }: { config?: TimelineProps }) {
   const { heading, subheading, lineColor, backgroundImage, overlay, steps } = timelineSchema.parse(config || {});

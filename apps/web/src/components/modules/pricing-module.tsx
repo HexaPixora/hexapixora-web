@@ -1,5 +1,5 @@
 import React from "react";
-import { pricingSchema, PricingProps } from "@/lib/module-schemas/pricing-schema";
+import { pricingSchema, PricingProps } from "@hexapixora/contracts/blocks/pricing";
 import { Check, Star } from "lucide-react";
 
 export default function PricingModule({ config }: { config?: PricingProps }) {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { splideSliderSchema, SplideSliderProps } from "@/lib/module-schemas/splide-slider-schema";
+import { splideSliderSchema, SplideSliderProps } from "@hexapixora/contracts/blocks/slider";
 
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";

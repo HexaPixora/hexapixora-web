@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { parallaxBannerSchema, ParallaxBannerProps } from "@/lib/module-schemas/parallax-banner-schema";
+import { parallaxBannerSchema, ParallaxBannerProps } from "@hexapixora/contracts/blocks/parallax-banner";
 import { mediaAlt } from "@/lib/media-alt";
 
 const STRENGTH: Record<string, number> = { subtle: 10, medium: 20, strong: 35 };

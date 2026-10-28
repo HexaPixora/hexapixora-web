@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
-import { headerSchema, HeaderConfig, DEFAULT_HEADER_CONFIG } from "@/lib/module-schemas/header-schema";
+import { headerSchema, HeaderConfig, DEFAULT_HEADER_CONFIG } from "@hexapixora/contracts/layout/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { revalidateCMS } from "@/actions/revalidate";

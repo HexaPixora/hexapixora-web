@@ -1,5 +1,5 @@
 import React from "react";
-import { statsSchema, StatsProps } from "@/lib/module-schemas/stats-schema";
+import { statsSchema, StatsProps } from "@hexapixora/contracts/blocks/stats";
 import { CountUp } from "@/components/public/motion";
 
 

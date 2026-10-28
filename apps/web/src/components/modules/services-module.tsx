@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { icons, Wrench } from "lucide-react";
-import { servicesSchema, ServicesProps } from "@/lib/module-schemas/services-schema";
+import { servicesSchema, ServicesProps } from "@hexapixora/contracts/blocks/services";
 import { Stagger, StaggerItem } from "@/components/public/motion";
 import { Reveal } from "@/components/public/reveal";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { ModuleDefinition, ModuleField } from "@/lib/modules-registry";
+import type { ModuleDefinition, ModuleField } from "@hexapixora/contracts/blocks/registry";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";

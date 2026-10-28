@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { instagramReelsSchema, InstagramReelsProps } from "@/lib/module-schemas/instagram-reels-schema";
+import { instagramReelsSchema, InstagramReelsProps } from "@hexapixora/contracts/blocks/instagram-reels";
 
 /** Inline Instagram glyph (lucide doesn't export one in this build). */
 function IgIcon({ size = 16, className }: { size?: number; className?: string }) {

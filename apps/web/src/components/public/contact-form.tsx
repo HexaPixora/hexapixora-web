@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, Send, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
-import { contactFormSchema, ContactFormProps } from "@/lib/module-schemas/contact-form-schema";
-import { COUNTRIES } from "@/lib/countries";
+import { contactFormSchema, ContactFormProps } from "@hexapixora/contracts/blocks/contact-form";
+import { COUNTRIES } from "@hexapixora/contracts/countries";
 import { trackEvent } from "@/lib/analytics";
 
 const schema = z.object({

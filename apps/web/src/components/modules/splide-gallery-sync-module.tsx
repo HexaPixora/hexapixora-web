@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { splideGallerySyncSchema, SplideGallerySyncProps } from "@/lib/module-schemas/splide-gallery-sync-schema";
+import { splideGallerySyncSchema, SplideGallerySyncProps } from "@hexapixora/contracts/blocks/gallery-sync";
 
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";

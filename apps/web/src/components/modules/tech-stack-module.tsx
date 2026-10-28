@@ -1,6 +1,6 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
-import { techStackSchema, TechStackProps } from "@/lib/module-schemas/tech-stack-schema";
+import { techStackSchema, TechStackProps } from "@hexapixora/contracts/blocks/tech-stack";
 import { mediaAlt } from "@/lib/media-alt";
 
 export default function TechStackModule({ config }: { config?: TechStackProps }) {

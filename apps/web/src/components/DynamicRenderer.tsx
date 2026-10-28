@@ -1,6 +1,6 @@
 import React from "react";
 import dynamic from "next/dynamic";
-import { resolveAnchorId } from "@/lib/modules-registry";
+import { resolveAnchorId } from "@hexapixora/contracts/blocks/registry";
 import { Reveal } from "@/components/public/reveal";
 import { MediaAltProvider } from "@/components/media-alt-provider";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useId } from "react";
-import { customCodeSchema, CustomCodeProps } from "@/lib/module-schemas/custom-code-schema";
+import { customCodeSchema, CustomCodeProps } from "@hexapixora/contracts/blocks/custom-code";
 
 const PADDING_MAP: Record<string, string> = {
   none: "py-0",

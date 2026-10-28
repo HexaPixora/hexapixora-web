@@ -1,5 +1,5 @@
 import React from "react";
-import { ctasectionSchema, CTAProps } from "@/lib/module-schemas/ctasection-schema";
+import { ctasectionSchema, CTAProps } from "@hexapixora/contracts/blocks/cta";
 
 export default function CTAModule({ config }: { config?: CTAProps }) {
   const {
