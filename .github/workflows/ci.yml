@@ -62,7 +62,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
 
       # Lint is advisory for now: the codebase carries known warning-level
-      # findings (any / exhaustive-deps / next-img) tracked in POLISH_PLAN.md.
+      # findings (any / exhaustive-deps / next-img) to be cleared in the rebuild.
       # It reports but does not fail the build.
       - name: Lint (advisory)
         run: npm run lint

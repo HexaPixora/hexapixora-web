@@ -5,10 +5,10 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // Bare liveness ping — Render's healthCheckPath hits this (/api).
+  // Bare liveness ping (/api) for the host's health check — no DB round-trip.
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  ping() {
+    return { status: 'ok' };
   }
 
   // Readiness probe with a DB round-trip. Returns db:"down" instead of throwing

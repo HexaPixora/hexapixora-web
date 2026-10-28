@@ -47,8 +47,6 @@ export default async function SiteLayout({
   headerOverlay = false
 }: SiteLayoutProps) {
   const data = (showHeader || showFooter) ? await getLayoutData() : { settings: null, headerConfig: null, footerConfig: null, navigations: [] };
-  
-  console.log("SiteLayout fetched navigations:", data.navigations?.length);
 
 
   return (

@@ -4,7 +4,7 @@ import { BadRequestException } from '@nestjs/common';
  * Minimal Supabase Storage client over the built-in fetch (no SDK dependency).
  *
  * Enabled only when SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set — so
- * production persists media to Supabase (survives Railway redeploys) while
+ * production persists media to Supabase (survives redeploys) while
  * local dev falls back to the local ./uploads disk with no config.
  *
  * Requires a PUBLIC bucket (default name "media") created in the Supabase

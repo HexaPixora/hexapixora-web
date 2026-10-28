@@ -1,5 +1,5 @@
-# API image (NestJS + Prisma). Mirrors the Render setup in render.yaml so the API
-# can run on any container host (Northflank, Koyeb, Fly, a VPS...).
+# API image (NestJS + Prisma), deployed on Northflank; runs on any container
+# host (Koyeb, Fly, a VPS...).
 # Build from the repo root:  docker build -f apps/api/Dockerfile .
 FROM node:24-slim
 
