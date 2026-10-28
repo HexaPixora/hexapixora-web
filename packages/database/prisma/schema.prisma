@@ -88,49 +88,7 @@ model AuditLog {
 // CMS Modules
 // ==========================================
 
-model Service {
-  id               String   @id @default(uuid())
-  title            String
-  slug             String   @unique
-  icon             String?
-  banner           String?
-  excerpt          String?
-  content          String
-  features         Json?    // Array of strings or objects
-  faq              Json?    // Array of { question, answer }
-  
-  // SEO
-  metaTitle        String?
-  metaDescription  String?
-  metaKeywords     String?
-  ogImage          String?
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
 
-model Portfolio {
-  id               String   @id @default(uuid())
-  title            String
-  slug             String   @unique
-  clientName       String?
-  industry         String?
-  description      String
-  challenge        String?
-  solution         String?
-  results          String?
-  technologies     Json?    // Array of strings
-  gallery          Json?    // Array of media URLs
-  
-  // SEO
-  metaTitle        String?
-  metaDescription  String?
-  metaKeywords     String?
-  ogImage          String?
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
 
 // Publishing lifecycle shared by Page and Blog. DRAFT = not public; SCHEDULED =
 // goes live automatically once publishAt passes (a cron flips it to PUBLISHED);
@@ -186,30 +144,7 @@ model Blog {
   updatedAt        DateTime @updatedAt
 }
 
-model TeamMember {
-  id               String   @id @default(uuid())
-  name             String
-  designation      String
-  bio              String?
-  image            String?
-  linkedinUrl      String?
-  githubUrl        String?
-  order            Int      @default(0)
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
 
-model Faq {
-  id               String   @id @default(uuid())
-  question         String
-  answer           String
-  category         String?
-  order            Int      @default(0)
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
 
 model Media {
   id               String   @id @default(uuid())

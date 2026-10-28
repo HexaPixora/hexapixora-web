@@ -8,12 +8,8 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { ServicesModule } from './services/services.module';
-import { PortfolioModule } from './portfolio/portfolio.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { CategoriesModule } from './categories/categories.module';
-import { TeamModule } from './team/team.module';
-import { FaqModule } from './faq/faq.module';
 import { MediaModule } from './media/media.module';
 import { LeadsModule } from './leads/leads.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
@@ -31,7 +27,7 @@ import { AutomationModule } from './automation/automation.module';
     // Sensitive routes (e.g. login) tighten this further with @Throttle.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     ScheduleModule.forRoot(),
-    AuthModule, UsersModule, PrismaModule, ServicesModule, PortfolioModule, BlogsModule, CategoriesModule, TeamModule, FaqModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, SearchModule, NotificationsModule, TokensModule, AutomationModule],
+    AuthModule, UsersModule, PrismaModule, BlogsModule, CategoriesModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, SearchModule, NotificationsModule, TokensModule, AutomationModule],
   controllers: [AppController],
   providers: [
     AppService,
