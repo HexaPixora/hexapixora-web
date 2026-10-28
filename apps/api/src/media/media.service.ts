@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@repo/database';
+import { Prisma } from '@hexapixora/database';
 
 @Injectable()
 export class MediaService {

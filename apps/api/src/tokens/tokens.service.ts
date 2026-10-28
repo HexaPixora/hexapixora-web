@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
-import { TokenType, VerificationToken } from '@repo/database';
+import { TokenType, VerificationToken } from '@hexapixora/database';
 
 const DEFAULT_TTL_MS = 60 * 60 * 1000; // 1 hour
 

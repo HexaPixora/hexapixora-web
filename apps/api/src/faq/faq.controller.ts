@@ -3,7 +3,7 @@ import { FaqService } from './faq.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@repo/database';
+import { Role } from '@hexapixora/database';
 import { CreateFaqDto, UpdateFaqDto } from './dto/faq.dto';
 import { ReorderDto } from '../common/dto/reorder.dto';
 

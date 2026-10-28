@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { MailService } from '../mail/mail.service';
-import { NotificationType } from '@repo/database';
+import { NotificationType } from '@hexapixora/database';
 import { env } from '../config/env';
 
 @Injectable()

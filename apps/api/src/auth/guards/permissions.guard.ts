@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from '@repo/database';
+import { Role } from '@hexapixora/database';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 import { Section } from '../permissions';
 
