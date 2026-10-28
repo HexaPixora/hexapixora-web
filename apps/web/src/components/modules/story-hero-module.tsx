@@ -1,6 +1,6 @@
 import React from "react";
 import { Sparkles } from "lucide-react";
-import { storyHeroSchema, StoryHeroProps } from "@/lib/module-schemas/story-hero-schema";
+import { storyHeroSchema, StoryHeroProps } from "@hexapixora/contracts/blocks/story-hero";
 import { mediaAlt } from "@/lib/media-alt";
 
 export default function StoryHeroModule({ config }: { config?: StoryHeroProps }) {

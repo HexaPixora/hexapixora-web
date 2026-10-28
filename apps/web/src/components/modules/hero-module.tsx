@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ArrowUpRight } from "lucide-react";
-import { heroSchema, HeroProps } from "@/lib/module-schemas/hero-schema";
+import { heroSchema, HeroProps } from "@hexapixora/contracts/blocks/hero";
 
 export default function HeroModule({ config }: { config?: HeroProps }) {
   const {

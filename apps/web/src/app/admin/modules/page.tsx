@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import { Settings2, Eye, Component } from "lucide-react";
-import { MODULES, ModuleDefinition, groupedModules } from "@/lib/modules-registry";
+import { MODULES, ModuleDefinition, groupedModules } from "@hexapixora/contracts/blocks/registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import HeroModule from "@/components/modules/hero-module";
 import CTAModule from "@/components/modules/cta-module";

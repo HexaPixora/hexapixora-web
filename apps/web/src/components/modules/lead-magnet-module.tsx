@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { apiClient } from "@/lib/api-client";
-import { leadMagnetSchema, LeadMagnetProps } from "@/lib/module-schemas/lead-magnet-schema";
+import { leadMagnetSchema, LeadMagnetProps } from "@hexapixora/contracts/blocks/lead-magnet";
 import { Download, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { mediaAlt } from "@/lib/media-alt";
 

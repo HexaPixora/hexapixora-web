@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/public/search-bar";
-import { headerSchema, DEFAULT_HEADER_CONFIG } from "@/lib/module-schemas/header-schema";
+import { headerSchema, DEFAULT_HEADER_CONFIG } from "@hexapixora/contracts/layout/header";
 
 interface MenuItem {
   id: string;

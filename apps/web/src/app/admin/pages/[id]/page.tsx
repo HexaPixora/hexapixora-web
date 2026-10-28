@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2 } from "lucide-react";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import MediaField from "@/components/admin/media-field";
-import { MODULES, groupedModules, DEFAULT_ANCHOR_IDS } from "@/lib/modules-registry";
+import { MODULES, groupedModules, DEFAULT_ANCHOR_IDS } from "@hexapixora/contracts/blocks/registry";
 import { revalidateCMS } from "@/actions/revalidate";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";

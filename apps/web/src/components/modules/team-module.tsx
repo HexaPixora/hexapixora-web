@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link2 } from "lucide-react";
-import { teamSchema, TeamProps } from "@/lib/module-schemas/team-schema";
+import { teamSchema, TeamProps } from "@hexapixora/contracts/blocks/team";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { mediaAlt } from "@/lib/media-alt";
 

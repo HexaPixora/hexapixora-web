@@ -1,5 +1,5 @@
 import React from "react";
-import { portfolioSchema, PortfolioProps } from "@/lib/module-schemas/portfolio-schema";
+import { portfolioSchema, PortfolioProps } from "@hexapixora/contracts/blocks/portfolio";
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";

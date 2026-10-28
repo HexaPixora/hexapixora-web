@@ -1,5 +1,5 @@
 import React from "react";
-import { gallerySchema, GalleryProps } from "@/lib/module-schemas/gallery-schema";
+import { gallerySchema, GalleryProps } from "@hexapixora/contracts/blocks/gallery";
 import { mediaAlt } from "@/lib/media-alt";
 
 

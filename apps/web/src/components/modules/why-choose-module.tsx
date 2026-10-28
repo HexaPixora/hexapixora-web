@@ -3,7 +3,7 @@ import {
   Sparkles, Zap, ShieldCheck, Rocket, Award, Clock, Users, Heart,
   Target, TrendingUp, Code, Headphones, Palette, Gauge, Lightbulb, ThumbsUp,
 } from "lucide-react";
-import { whyChooseSchema, WhyChooseProps } from "@/lib/module-schemas/why-choose-schema";
+import { whyChooseSchema, WhyChooseProps } from "@hexapixora/contracts/blocks/why-choose";
 import { Stagger, StaggerItem } from "@/components/public/motion";
 import { Reveal } from "@/components/public/reveal";
 

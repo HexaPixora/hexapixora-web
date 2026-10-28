@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '@hexapixora/database';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
-import { Section } from '../permissions';
+import type { SectionKey as Section } from '@hexapixora/contracts/permissions';
 
 /**
  * Grants access when the user is ADMIN/SUPER_ADMIN, or when a TEAM_MEMBER has

@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { counterStatsSchema, CounterStatsProps } from "@/lib/module-schemas/counter-stats-schema";
+import { counterStatsSchema, CounterStatsProps } from "@hexapixora/contracts/blocks/counter-stats";
 
 export default function CounterStatsModule({ config }: { config?: CounterStatsProps }) {
   const { heading, subheading, stats } = counterStatsSchema.parse(config || {});

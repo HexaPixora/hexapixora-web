@@ -1,5 +1,5 @@
 import React from "react";
-import { quoteSchema, QuoteProps } from "@/lib/module-schemas/quote-schema";
+import { quoteSchema, QuoteProps } from "@hexapixora/contracts/blocks/quote";
 import { mediaAlt } from "@/lib/media-alt";
 
 // Same editorial serif as the Leader "Letter" module, so the two read as a set

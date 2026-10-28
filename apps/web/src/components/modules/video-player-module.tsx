@@ -1,5 +1,5 @@
 import React from "react";
-import { videoPlayerSchema, VideoPlayerProps } from "@/lib/module-schemas/video-player-schema";
+import { videoPlayerSchema, VideoPlayerProps } from "@hexapixora/contracts/blocks/video-player";
 
 type PlaybackOpts = { autoplay: boolean; loop: boolean; controls: boolean };
 

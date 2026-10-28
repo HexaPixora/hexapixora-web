@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { staggeredGridSchema, StaggeredGridProps } from "@/lib/module-schemas/staggered-grid-schema";
+import { staggeredGridSchema, StaggeredGridProps } from "@hexapixora/contracts/blocks/staggered-grid";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { mediaAlt } from "@/lib/media-alt";
 

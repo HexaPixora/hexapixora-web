@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { splideLogoTickerSchema, SplideLogoTickerProps } from "@/lib/module-schemas/splide-logo-ticker-schema";
+import { splideLogoTickerSchema, SplideLogoTickerProps } from "@hexapixora/contracts/blocks/logo-ticker";
 
 import Splide from "@splidejs/splide";
 import { AutoScroll } from "@splidejs/splide-extension-auto-scroll";

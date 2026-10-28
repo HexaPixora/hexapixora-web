@@ -1,5 +1,5 @@
 import React from "react";
-import { blogSchema, BlogProps } from "@/lib/module-schemas/blog-schema";
+import { blogSchema, BlogProps } from "@hexapixora/contracts/blocks/blog";
 
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";

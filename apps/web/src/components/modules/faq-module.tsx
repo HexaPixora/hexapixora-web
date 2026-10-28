@@ -1,5 +1,5 @@
 import React from "react";
-import { faqsectionSchema, FAQProps } from "@/lib/module-schemas/faqsection-schema";
+import { faqsectionSchema, FAQProps } from "@hexapixora/contracts/blocks/faq";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 

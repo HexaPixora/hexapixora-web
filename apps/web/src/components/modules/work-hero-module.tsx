@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowUpRight, Sparkles } from "lucide-react";
-import { workHeroSchema, WorkHeroProps } from "@/lib/module-schemas/work-hero-schema";
+import { workHeroSchema, WorkHeroProps } from "@hexapixora/contracts/blocks/work-hero";
 
 export default function WorkHeroModule({ config }: { config?: WorkHeroProps }) {
   const { eyebrow, heading, subheading, buttonText, buttonUrl, stats } = workHeroSchema.parse(config || {});
