@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Clock, BookOpen, User } from "lucide-react";
 import { Metadata } from "next";
 import { apiUrl } from "@/lib/api-url";
-import { cmsFetch } from "@/lib/cms-fetch";
+import { cmsFetch, readResource } from "@/lib/cms-fetch";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
 import { InsightCard, CategoryChip } from "@/components/public/insight-card";
@@ -18,24 +18,16 @@ export const revalidate = 120;
 // the post first (posts take precedence on a slug clash), then fall back to a
 // category. Wrapped in cache() so generateMetadata and the page share one fetch
 // per request instead of hitting the API twice.
+// A missing post/category returns null (→ notFound); an unreachable API throws
+// instead, so an outage is never cached as a 404.
 const getInsight = cache(async (slug: string) => {
-  try {
-    const res = await cmsFetch(`/blogs/slug/${slug}`, { next: { revalidate: 120 } });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
+  const res = await cmsFetch(`/blogs/slug/${slug}`, { next: { revalidate: 120 } }).catch(() => null);
+  return readResource(res);
 });
 
 const getCategory = cache(async (slug: string) => {
-  try {
-    const res = await fetch(apiUrl(`/categories/${slug}`), { next: { revalidate: 120 } });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
+  const res = await fetch(apiUrl(`/categories/${slug}`), { next: { revalidate: 120 } }).catch(() => null);
+  return readResource(res);
 });
 
 async function getRelated(slug: string) {

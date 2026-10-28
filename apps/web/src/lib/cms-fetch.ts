@@ -16,6 +16,27 @@ export async function readJson(res: Response | null | undefined): Promise<any> {
   }
 }
 
+/** Thrown when the API can't be reached or answers 5xx (as opposed to a 404). */
+export class ApiUnavailableError extends Error {
+  constructor(detail: string) {
+    super(`CMS API unavailable: ${detail}`);
+    this.name = "ApiUnavailableError";
+  }
+}
+
+/**
+ * Read a resource that a page depends on. Like readJson, but tells "missing"
+ * apart from "API down": a 404 (or other 4xx) returns null so the page can call
+ * notFound(), while a failed fetch (null) or 5xx throws. Throwing renders the
+ * error boundary and is never cached by ISR, so an outage can't leave a cached
+ * 404 behind.
+ */
+export async function readResource(res: Response | null | undefined): Promise<any> {
+  if (!res) throw new ApiUnavailableError("request failed");
+  if (res.status >= 500) throw new ApiUnavailableError(`HTTP ${res.status}`);
+  return readJson(res);
+}
+
 /**
  * Server-side fetch to the CMS API. Thin wrapper over `fetch` that resolves the
  * API base URL; preserves any `next` cache tags the caller passes.

@@ -2,7 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import SiteLayout from "@/components/public/site-layout";
 import DynamicRenderer from "@/components/DynamicRenderer";
-import { cmsFetch, readJson } from "@/lib/cms-fetch";
+import { cmsFetch, readJson, readResource } from "@/lib/cms-fetch";
 import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 
 // Revalidate periodically (120s) so custom pages serve instantly from cache.
@@ -23,9 +23,10 @@ const getPageData = cache(async (slug: string) => {
     cmsFetch("/layouts/module-defaults", { next: { revalidate: 120 } }).catch(() => null),
   ]);
 
-  // readJson never throws — an empty/invalid sub-response (e.g. module-defaults)
-  // must not take down the whole page.
-  const pageData = (await readJson(pageRes))?.data;
+  // The page itself must exist: a 404 means notFound(), an outage throws (see
+  // readResource). Sub-responses like module-defaults use readJson, which never
+  // throws, so they can't take down the whole page.
+  const pageData = (await readResource(pageRes))?.data;
   if (!pageData) return null;
 
   let parsedSections: any[] = [];

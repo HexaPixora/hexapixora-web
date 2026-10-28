@@ -124,7 +124,7 @@ export class MediaController {
       return { ...existing, deduped: true };
     }
 
-    // Persist to Supabase Storage in production (survives Railway redeploys);
+    // Persist to Supabase Storage in production (survives redeploys);
     // fall back to the local ./uploads disk when Supabase isn't configured.
     let url: string;
     if (isSupabaseStorageEnabled()) {
