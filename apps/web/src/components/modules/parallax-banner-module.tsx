@@ -2,8 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { parallaxBannerSchema, ParallaxBannerProps } from "@hexapixora/contracts/blocks/parallax-banner";
 import { mediaAlt } from "@/lib/media-alt";
 
@@ -19,7 +18,6 @@ export default function ParallaxBannerModule({ config }: { config?: ParallaxBann
 
   useEffect(() => {
     if (!root.current || !bg.current) return;
-    gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       gsap.fromTo(
         bg.current,

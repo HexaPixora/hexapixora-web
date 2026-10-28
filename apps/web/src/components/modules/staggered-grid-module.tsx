@@ -2,8 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { staggeredGridSchema, StaggeredGridProps } from "@hexapixora/contracts/blocks/staggered-grid";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { mediaAlt } from "@/lib/media-alt";
@@ -16,7 +15,6 @@ export default function StaggeredGridModule({ config }: { config?: StaggeredGrid
   useEffect(() => {
     const el = root.current;
     if (!el || cards.length === 0) return;
-    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       const items = gsap.utils.toArray<HTMLElement>(".sg-card");

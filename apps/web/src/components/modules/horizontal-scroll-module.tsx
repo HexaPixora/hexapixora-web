@@ -2,8 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { horizontalScrollSchema, HorizontalScrollProps } from "@hexapixora/contracts/blocks/horizontal-scroll";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { mediaAlt } from "@/lib/media-alt";
@@ -25,7 +24,6 @@ export default function HorizontalScrollModule({ config }: { config?: Horizontal
     const el = root.current;
     const tr = track.current;
     if (!el || !tr || cards.length === 0) return;
-    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       // Horizontal distance the track must travel = its overflow past the section.

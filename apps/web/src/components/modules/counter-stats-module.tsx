@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { counterStatsSchema, CounterStatsProps } from "@hexapixora/contracts/blocks/counter-stats";
 
 export default function CounterStatsModule({ config }: { config?: CounterStatsProps }) {
@@ -13,7 +12,6 @@ export default function CounterStatsModule({ config }: { config?: CounterStatsPr
 
   useEffect(() => {
     if (!root.current || items.length === 0) return;
-    gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       gsap.set(".stat-card", { opacity: 0, y: 28 });
       ScrollTrigger.create({

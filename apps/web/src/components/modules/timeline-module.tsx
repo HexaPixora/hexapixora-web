@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { timelineSchema, TimelineProps } from "@hexapixora/contracts/blocks/timeline";
 
 export default function TimelineModule({ config }: { config?: TimelineProps }) {
@@ -25,7 +24,6 @@ export default function TimelineModule({ config }: { config?: TimelineProps }) {
   useEffect(() => {
     const rootEl = root.current;
     if (!rootEl || items.length === 0) return;
-    gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       if (fill.current && track.current) {
         gsap.fromTo(

@@ -1,0 +1,24 @@
+{
+  "name": "@hexapixora/motion",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Animation layer for themes: GSAP setup and motion primitives.",
+  "exports": {
+    "./gsap": "./src/gsap.ts",
+    "./reveal": "./src/reveal.tsx"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0"
+  },
+  "peerDependencies": {
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "@hexapixora/typescript-config": "*",
+    "@types/react": "19.2.2",
+    "typescript": "5.9.2"
+  }
+}

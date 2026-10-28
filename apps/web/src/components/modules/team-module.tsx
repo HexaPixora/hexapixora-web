@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { Link2 } from "lucide-react";
 import { teamSchema, TeamProps } from "@hexapixora/contracts/blocks/team";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -17,7 +16,6 @@ export default function TeamModule({ config }: { config?: TeamProps }) {
   useEffect(() => {
     const el = root.current;
     if (!el || members.length === 0) return;
-    gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>(".team-card");
       if (!cards.length) return;
