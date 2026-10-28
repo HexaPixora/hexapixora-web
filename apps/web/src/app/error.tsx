@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { ComicPanelArt } from "@/components/public/comic-panel-art";
+import { ComicPanelArt } from "@hexapixora/theme-hexapixora/components/comic-panel-art";
 
 // Unexpected render failures, including a page whose API fetch failed mid-way
 // (pages throw ApiUnavailableError instead of returning a cached 404).

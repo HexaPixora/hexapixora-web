@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, X, Loader2, ArrowRight } from "lucide-react";
-import pageIcon from "@/components/icons/page-icon.svg";
-import globalIcon from "@/components/icons/global-icon.svg";
+import pageIcon from "../icons/page-icon.svg";
+import globalIcon from "../icons/global-icon.svg";
 
 type Result = { type: "blog" | "page"; title: string; snippet: string; url: string };
 

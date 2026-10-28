@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Input } from "@hexapixora/ui/input";
 import { Button } from "@hexapixora/ui/button";
 import { apiClient } from "@hexapixora/sdk/browser";
-import { trackEvent } from "@hexapixora/theme-hexapixora/lib/analytics";
+import { trackEvent } from "../lib/analytics";
 import { CheckCircle2 } from "lucide-react";
 
 export function NewsletterForm() {

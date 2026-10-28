@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Tag } from "lucide-react";
-import { InsightCard } from "@hexapixora/theme-hexapixora/components/insight-card";
+import { InsightCard } from "./insight-card";
 
 /** Category browse view, rendered by /insights/[slug] when the slug resolves to
  *  a category rather than a post. */

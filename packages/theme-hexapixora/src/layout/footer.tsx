@@ -4,8 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { footerSchema, DEFAULT_FOOTER_CONFIG } from "@hexapixora/contracts/layout/footer";
 import { ArrowRight } from "lucide-react";
-import { SocialIcon } from "@/components/icons/social-icons";
-import { NewsletterForm } from "@/components/public/newsletter-form";
+import { SocialIcon } from "../icons/social-icons";
+import { NewsletterForm } from "../components/newsletter-form";
 
 interface MenuItem {
   id: string;
