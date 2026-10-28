@@ -21,8 +21,9 @@ ENV NODE_ENV=production
 ENV PORT=8080
 EXPOSE 8080
 
-# Start lean: on small free instances (256 MB) the schema sync and seed steps can
-# exhaust memory. Set RUN_DB_SETUP=1 for a deploy that needs them (new database,
-# schema change); otherwise only the API starts.
+# Start lean: on small free instances (256 MB) the migrate and seed steps can
+# exhaust memory. Set RUN_DB_SETUP=1 for a deploy that ships a new migration
+# (or a new database); otherwise only the API starts. `migrate deploy` only
+# applies pending files in prisma/migrations and never drops data on its own.
 ENV RUN_DB_SETUP=0
-CMD ["sh", "-c", "if [ \"$RUN_DB_SETUP\" = 1 ]; then npx prisma db push --schema=packages/database/prisma/schema.prisma --skip-generate && npm run db:seed --workspace=@repo/database; fi; exec node --max-old-space-size=192 apps/api/dist/main.js"]
+CMD ["sh", "-c", "if [ \"$RUN_DB_SETUP\" = 1 ]; then npx prisma migrate deploy --schema=packages/database/prisma/schema.prisma && npm run db:seed --workspace=@repo/database; fi; exec node --max-old-space-size=192 apps/api/dist/main.js"]
