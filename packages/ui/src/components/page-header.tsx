@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/cn";
 
 /**
  * Standard admin page header: title + optional subtitle on the left, action

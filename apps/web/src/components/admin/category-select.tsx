@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
-import { cn } from "@/lib/utils";
+import { cn } from "@hexapixora/ui/cn";
 
 type Cat = { id: string; name: string; slug: string; color?: string | null };
 

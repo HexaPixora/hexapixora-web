@@ -8,8 +8,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@hexapixora/ui/dialog";
+import { Button } from "@hexapixora/ui/button";
 
 type ConfirmOptions = {
   title?: string;

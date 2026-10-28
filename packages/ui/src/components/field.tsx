@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/cn";
 
 /**
  * Label + control + hint/error wrapper with one canonical spacing/typography.

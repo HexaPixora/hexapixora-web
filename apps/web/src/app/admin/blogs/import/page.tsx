@@ -4,11 +4,11 @@ import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@hexapixora/ui/button";
+import { Badge } from "@hexapixora/ui/badge";
 import MediaField from "@/components/admin/media-field";
 import { CategorySelect } from "@/components/admin/category-select";
-import { PageHeader } from "@/components/admin/ui";
+import { PageHeader } from "@hexapixora/ui/admin";
 import {
   UploadCloud, Loader2, ArrowLeft, CheckCircle2, AlertCircle, MinusCircle,
   AlertTriangle, Image as ImageIcon, ListTree,
