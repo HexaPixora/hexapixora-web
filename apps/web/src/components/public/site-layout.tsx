@@ -1,10 +1,10 @@
 import React from "react";
-import PublicHeader from "@/components/public/header";
-import PublicFooter from "@/components/public/footer";
+import { SiteShell, EMPTY_SITE_SHELL_DATA, type SiteShellData } from "@hexapixora/theme-hexapixora/layout/site-shell";
 import { apiUrl } from "@hexapixora/sdk/server";
 import { readJson } from "@hexapixora/sdk/server";
 
-async function getLayoutData() {
+// The app loads layout data; the theme's SiteShell renders it.
+async function getLayoutData(): Promise<SiteShellData> {
   try {
     // Revalidate periodically (120s) so pages serve instantly from edge cache
     // without stalling visitors during cold starts.
@@ -27,7 +27,7 @@ async function getLayoutData() {
     };
   } catch (err) {
     console.error("Layout fetch error:", err);
-    return { settings: null, headerConfig: null, footerConfig: null, navigations: [] };
+    return EMPTY_SITE_SHELL_DATA;
   }
 }
 
@@ -46,27 +46,11 @@ export default async function SiteLayout({
   showFooter = true,
   headerOverlay = false
 }: SiteLayoutProps) {
-  const data = (showHeader || showFooter) ? await getLayoutData() : { settings: null, headerConfig: null, footerConfig: null, navigations: [] };
-
+  const data = (showHeader || showFooter) ? await getLayoutData() : EMPTY_SITE_SHELL_DATA;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {showHeader && (
-        <PublicHeader 
-          settings={data.settings} 
-          config={data.headerConfig} 
-          navigations={data.navigations} 
-        />
-      )}
-      <main className={`flex-1 flex flex-col ${headerOverlay && showHeader ? "-mt-16" : ""}`}>{children}</main>
-      {showFooter && (
-        <PublicFooter 
-          settings={data.settings} 
-          config={data.footerConfig} 
-          headerConfig={data.headerConfig}
-          navigations={data.navigations} 
-        />
-      )}
-    </div>
+    <SiteShell data={data} showHeader={showHeader} showFooter={showFooter} headerOverlay={headerOverlay}>
+      {children}
+    </SiteShell>
   );
 }
