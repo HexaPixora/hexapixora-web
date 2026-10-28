@@ -15,7 +15,8 @@
   },
   "overrides": {
     "postcss": "^8.5.10",
-    "deepmerge-ts": "^8.0.2"
+    "deepmerge-ts": "^8.0.2",
+    "multer": "^2.5.0"
   },
   "engines": {
     "node": ">=18"
