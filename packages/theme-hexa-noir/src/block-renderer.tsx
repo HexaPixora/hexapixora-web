@@ -29,6 +29,9 @@ const NO_REVEAL = new Set([
   // Grids with their own Framer stagger (services/why-choose)
   "ServicesSection",
   "WhyChooseModule",
+  // Restyled blocks that run their own entrance motion.
+  "CTASection",
+  "LeadMagnetModule",
   // Cinematic blocks run their own entrance motion.
   ...Object.keys(NOIR_BLOCKS),
 ]);

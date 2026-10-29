@@ -1,60 +1,46 @@
-import React from "react";
-import { ArrowUpRight, Sparkles } from "lucide-react";
-import { workHeroSchema, WorkHeroProps } from "@hexapixora/contracts/blocks/work-hero";
+import { useId } from "react";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { workHeroSchema } from "@hexapixora/contracts/blocks/work-hero";
+import { HeroTitle } from "@hexapixora/motion/hero-title";
+import { PillLink } from "../../components/pill-link";
+import { StatValue } from "../../components/stat-value";
 
-export function WorkHeroBlock({ config }: { config?: WorkHeroProps }) {
-  const { eyebrow, heading, subheading, buttonText, buttonUrl, stats } = workHeroSchema.parse(config || {});
-  const statList = (stats || []).filter((s: any) => s.value || s.label);
+/** Opener for the work page: headline, intro, a button and a row of stats. */
+export function WorkHeroBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(workHeroSchema, config);
+  const titleId = useId();
+  const stats = c.stats.filter((stat) => stat.value || stat.label);
 
   return (
-    <section className="relative isolate overflow-hidden py-20 md:py-28 lg:py-32">
-      {/* Ambient aurora + subtle grid */}
-      <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[46vh] w-[80vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.14)] blur-[130px]" />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.35] [mask-image:radial-gradient(60%_50%_at_50%_0%,#000,transparent)] bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:44px_44px]"
-      />
+    <section
+      data-block="work-hero"
+      aria-labelledby={titleId}
+      className="relative pb-section pt-[calc(var(--header-h)+80px)]"
+    >
+      <div className="page-width">
+        {c.eyebrow ? <p className="mono mb-6 text-signal">{c.eyebrow}</p> : null}
+        {c.heading ? (
+          <HeroTitle id={titleId} className="wide max-w-[18ch] text-display-hero font-medium" lines={[{ text: c.heading }]} />
+        ) : null}
+        {c.subheading ? <p className="mt-6 max-w-[56ch] text-lg text-copy-dim">{c.subheading}</p> : null}
+        {c.buttonText ? (
+          <div className="mt-8">
+            <PillLink href={c.buttonUrl}>{c.buttonText}</PillLink>
+          </div>
+        ) : null}
 
-      <div className="container">
-        <div className="mx-auto max-w-3xl text-center">
-          {eyebrow && (
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-[#7cc4ff] ring-1 ring-inset ring-white/10 backdrop-blur-xl">
-              <Sparkles size={13} /> {eyebrow}
-            </span>
-          )}
-          {heading && (
-            <h1 className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-4xl font-black leading-[1.08] tracking-tight text-transparent md:text-6xl lg:text-7xl">
-              {heading}
-            </h1>
-          )}
-          {subheading && (
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">{subheading}</p>
-          )}
-          {buttonText && (
-            <div className="mt-8">
-              <a
-                href={buttonUrl || "#"}
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[#2a9dff] to-[#1074e0] px-8 py-3.5 text-base font-semibold text-white shadow-[0_16px_38px_-12px_rgba(16,147,253,0.72)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_46px_-12px_rgba(16,147,253,0.88)]"
-              >
-                {buttonText}
-                <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </a>
-            </div>
-          )}
-        </div>
-
-        {statList.length > 0 && (
-          <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] ring-1 ring-inset ring-white/10 sm:grid-cols-4">
-            {statList.map((s: any, i: number) => (
-              <div key={i} className="bg-white/[0.02] px-5 py-7 text-center">
-                <div className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-3xl font-black leading-[1.15] tracking-tight text-transparent md:text-4xl">
-                  {s.value}
-                </div>
-                {s.label && <div className="mt-1.5 text-xs text-muted-foreground sm:text-sm">{s.label}</div>}
+        {stats.length > 0 ? (
+          <dl className="mt-16 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
+            {stats.map((stat, i) => (
+              <div key={i} className="flex flex-col-reverse bg-page p-[26px]">
+                <dt className="text-copy-dim">{stat.label}</dt>
+                <dd className="font-display text-display-md font-medium leading-none">
+                  <StatValue value={stat.value} />
+                </dd>
               </div>
             ))}
-          </div>
-        )}
+          </dl>
+        ) : null}
       </div>
     </section>
   );

@@ -1,60 +1,48 @@
-"use client";
-
-import { useRef, useEffect } from "react";
-import Link from "next/link";
-import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
-import { parallaxBannerSchema, ParallaxBannerProps } from "@hexapixora/contracts/blocks/parallax-banner";
+import { useId } from "react";
+import { safeHref } from "@hexapixora/contracts/links";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { parallaxBannerSchema } from "@hexapixora/contracts/blocks/parallax-banner";
+import { FilmCanvas } from "@hexapixora/motion/film-canvas";
+import { HeroTitle } from "@hexapixora/motion/hero-title";
+import { Parallax } from "@hexapixora/motion/parallax";
+import { filmLooks } from "../../index";
+import { PillLink } from "../../components/pill-link";
 import { mediaAlt } from "../../lib/media-alt";
 
-const STRENGTH: Record<string, number> = { subtle: 10, medium: 20, strong: 35 };
-const OVERLAY: Record<string, number> = { none: 0, light: 0.3, medium: 0.55, dark: 0.75 };
+// Travel of the image layer (percent of its height) and the scrim strength.
+const STRENGTH: Record<string, number> = { subtle: 5, medium: 9, strong: 12 };
+const SCRIM: Record<string, number> = { none: 0, light: 0.3, medium: 0.55, dark: 0.75 };
 
-export function ParallaxBannerBlock({ config }: { config?: ParallaxBannerProps }) {
-  const { image, heading, subheading, buttonText, buttonLink, intensity, overlay } =
-    parallaxBannerSchema.parse(config || {});
-  const root = useRef<HTMLDivElement>(null);
-  const bg = useRef<HTMLDivElement>(null);
-  const strength = STRENGTH[intensity] ?? 20;
-
-  useEffect(() => {
-    if (!root.current || !bg.current) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        bg.current,
-        { yPercent: -strength },
-        {
-          yPercent: strength,
-          ease: "none",
-          scrollTrigger: { trigger: root.current, start: "top bottom", end: "bottom top", scrub: true },
-        }
-      );
-    }, root);
-    return () => ctx.revert();
-  }, [strength, image]);
+/** Full-screen opener: a photo that drifts behind a centred headline. */
+export function ParallaxBannerBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(parallaxBannerSchema, config);
+  const titleId = useId();
+  const image = safeHref(c.image);
 
   return (
-    <section ref={root} className="relative h-[100vh] overflow-hidden flex items-center justify-center">
-      <div ref={bg} className="absolute inset-x-0 h-[100%] will-change-transform">
-        {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt={mediaAlt(image)} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary/30 via-background to-muted" />
-        )}
-      </div>
-      <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${OVERLAY[overlay] ?? 0.55})` }} />
+    <section
+      data-block="parallax-banner"
+      aria-labelledby={titleId}
+      className="relative isolate flex h-svh min-h-[600px] items-center justify-center overflow-hidden"
+    >
+      {image ? (
+        // The layer is 130% tall so its drift never shows an edge.
+        <Parallax strength={STRENGTH[c.intensity] ?? 9} className="absolute inset-x-0 top-[-15%] -z-20 h-[130%]">
+          <img src={image} alt={mediaAlt(image)} fetchPriority="high" className="h-full w-full object-cover" />
+        </Parallax>
+      ) : (
+        <FilmCanvas look={filmLooks.dusk} seed={9} className="absolute inset-0 -z-20 h-full w-full" />
+      )}
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-page" style={{ opacity: SCRIM[c.overlay] ?? 0.55 }} />
 
-      <div className="relative z-10 text-center text-white px-6 max-w-3xl">
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight drop-shadow">{heading}</h1>
-        {subheading && <p className="mt-4 text-lg md:text-xl text-white/85">{subheading}</p>}
-        {buttonText && buttonLink && (
-          <Link
-            href={buttonLink}
-            className="inline-flex mt-8 rounded-full bg-primary text-primary-foreground px-7 py-3 font-semibold hover:bg-primary/90 transition-colors"
-          >
-            {buttonText}
-          </Link>
-        )}
+      <div className="page-width text-center">
+        <HeroTitle id={titleId} className="wide mx-auto max-w-[18ch] text-display-hero font-medium" lines={[{ text: c.heading }]} />
+        {c.subheading ? <p className="mx-auto mt-6 max-w-[52ch] text-lg md:text-xl">{c.subheading}</p> : null}
+        {c.buttonText ? (
+          <div className="mt-9">
+            <PillLink href={c.buttonLink}>{c.buttonText}</PillLink>
+          </div>
+        ) : null}
       </div>
     </section>
   );

@@ -44,6 +44,8 @@
   --text-question: clamp(1.05rem, 2vw, 1.4rem);
   --text-display-md: clamp(2.4rem, 5vw, 4.2rem);
   --text-display-md--line-height: 0.95;
+  --text-display-hero: clamp(2.4rem, 6vw, 5.6rem);
+  --text-display-hero--line-height: 0.98;
   --text-display-pillar: clamp(3rem, 8vw, 7.4rem);
   --text-display-pillar--line-height: 0.9;
   --text-display-lg: clamp(3rem, 9.4vw, 9.6rem);

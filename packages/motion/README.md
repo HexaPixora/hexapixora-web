@@ -15,6 +15,7 @@ The animation layer themes build on.
 | `@hexapixora/motion/redact-bar` | `<RedactBar width label>`: a redaction bar that slides in; screen readers hear the label |
 | `@hexapixora/motion/hero-title` | `<HeroTitle lines>`: lines rise on load with CSS only (safe for the LCP headline) |
 | `@hexapixora/motion/drift` | `<Drift x y>`: content drifts while its section scrolls away |
+| `@hexapixora/motion/parallax` | `<Parallax strength>`: an oversized background layer that drifts while its section scrolls past |
 | `@hexapixora/motion/hide-on-scroll-header` | `<HideOnScrollHeader>`: sets `data-solid` / `data-away` for the theme to style |
 | `@hexapixora/motion/film-canvas` | `<FilmCanvas look seed>`: generated light-streak footage, half resolution, 30 fps, only while visible |
 | `@hexapixora/motion/styles/motion.css` | CSS for `HeroTitle`; import once in the app's `globals.css` |

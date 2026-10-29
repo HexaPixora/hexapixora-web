@@ -14,6 +14,7 @@
     "./redact-bar": "./src/redact-bar.tsx",
     "./hero-title": "./src/hero-title.tsx",
     "./drift": "./src/drift.tsx",
+    "./parallax": "./src/parallax.tsx",
     "./hide-on-scroll-header": "./src/hide-on-scroll-header.tsx",
     "./film-canvas": "./src/film-canvas.tsx",
     "./hooks/*": "./src/hooks/*.ts",
