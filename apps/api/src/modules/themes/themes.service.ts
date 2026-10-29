@@ -64,6 +64,7 @@ export class ThemesService {
         ...SUMMARY,
         manifest: true,
         sourceCss: true,
+        css: true,
         assets: { select: { path: true, mime: true, size: true } },
       },
     });
