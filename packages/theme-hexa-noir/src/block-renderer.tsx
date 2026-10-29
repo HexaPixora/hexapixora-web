@@ -1,7 +1,8 @@
 import React from "react";
 import { resolveAnchorId } from "@hexapixora/contracts/blocks/registry";
 import { migrateSection, type Section } from "@hexapixora/contracts/blocks/legacy/migrate";
-import { LEGACY_BLOCKS, LIBRARY_BLOCKS } from "./block-map";
+import type { BlockId } from "@hexapixora/contracts/blocks/library";
+import { LIBRARY_BLOCKS } from "./block-map";
 import { MediaAltProvider } from "./components/media-alt-provider";
 import type { BlockProps } from "./lib/block-props";
 
@@ -23,21 +24,19 @@ function DefaultSection({ type, label }: { type: string; label?: string }) {
   );
 }
 
-type Resolved = { type: string; config: Record<string, unknown>; Block?: React.ComponentType<BlockProps> };
+type Resolved = { type: BlockId; config: Record<string, unknown>; Block: React.ComponentType<BlockProps> };
 
 /**
  * What to render for a stored section. Old sections move to the block library
  * on the fly (plans/phase-3c), so a page looks the same before and after its
- * stored data is migrated. An empty section uses the module defaults.
+ * stored data is migrated; an empty old section uses the module defaults.
+ * Unknown and removed types resolve to nothing.
  */
-function resolve(section: Section, moduleDefaults: Record<string, Record<string, unknown>>): Resolved {
-  const fallback = moduleDefaults[section.type];
-  const moved = migrateSection(section, fallback);
-  const library = moved ? LIBRARY_BLOCKS[moved.type as keyof typeof LIBRARY_BLOCKS] : undefined;
-  if (moved && library) return { type: moved.type, config: moved.config ?? {}, Block: library };
-
-  const own = section.config && Object.keys(section.config).length > 0 ? section.config : (fallback ?? {});
-  return { type: section.type, config: own, Block: LEGACY_BLOCKS[section.type] };
+function resolve(section: Section, moduleDefaults: Record<string, Record<string, unknown>>): Resolved | null {
+  const moved = migrateSection(section, moduleDefaults[section.type]);
+  if (!moved) return null;
+  const type = moved.type as BlockId;
+  return { type, config: moved.config ?? {}, Block: LIBRARY_BLOCKS[type] };
 }
 
 interface BlockRendererProps {
@@ -62,8 +61,9 @@ export function BlockRenderer({ sections, moduleDefaults, altTexts, latestPosts 
       {sections
         .filter((s) => s.isVisible)
         .map((section, index) => {
-          const { type, config, Block } = resolve(section, moduleDefaults);
-          if (!Block) return <DefaultSection key={section.id} type={section.type} label={section.label} />;
+          const resolved = resolve(section, moduleDefaults);
+          if (!resolved) return <DefaultSection key={section.id} type={section.type} label={section.label} />;
+          const { type, config, Block } = resolved;
 
           // Anchor id for in-page links (#contact, #faq, …). First section to
           // claim an id wins; duplicates are dropped to keep the HTML valid.
