@@ -1,59 +1,35 @@
-import React from "react";
-import { Sparkles } from "lucide-react";
-import { ourProcessSchema, OurProcessProps } from "@hexapixora/contracts/blocks/our-process";
+import { useId } from "react";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { ourProcessSchema } from "@hexapixora/contracts/blocks/our-process";
+import { DrawLine } from "@hexapixora/motion/draw-line";
+import { SectionFrame } from "../../components/section-frame";
+import { SectionHeading } from "../../components/section-heading";
 
-export function OurProcessBlock({ config }: { config?: OurProcessProps }) {
-  const { eyebrow, heading, subheading, steps } = ourProcessSchema.parse(config || {});
-  const list = (steps || []).filter((s: any) => s.title || s.description);
-
-  if (!heading && list.length === 0) return null;
-
-  // Balance the grid: up to 4 across, but 3 when there are exactly 3/6 steps.
-  const cols = list.length % 3 === 0 && list.length % 4 !== 0 ? "lg:grid-cols-3" : "lg:grid-cols-4";
+/** Numbered steps on a line that draws itself, like the process steps block. */
+export function OurProcessBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(ourProcessSchema, config);
+  const headingId = useId();
+  const steps = c.steps.filter((step) => step.title || step.description);
+  if (!c.heading && steps.length === 0) return null;
+  // Three or six steps sit better three across than four.
+  const columns = steps.length % 3 === 0 && steps.length % 4 !== 0 ? "lg:grid-cols-3" : "lg:grid-cols-4";
 
   return (
-    <section className="relative isolate overflow-hidden py-20 md:py-28">
-      <div aria-hidden className="pointer-events-none absolute left-1/2 top-25 -z-10 h-[36vh] w-[70vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.1)] blur-[120px]" />
-
-      <div className="container">
-        {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          {eyebrow && (
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-[#7cc4ff] ring-1 ring-inset ring-white/10">
-              <Sparkles size={13} /> {eyebrow}
-            </span>
-          )}
-          {heading && (
-            <h2 className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-3xl font-black leading-[1.15] tracking-tight text-transparent md:text-5xl">
-              {heading}
-            </h2>
-          )}
-          {subheading && <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{subheading}</p>}
-        </div>
-
-        {/* Steps */}
-        {list.length > 0 && (
-          <div className={`mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 ${cols}`}>
-            {list.map((s: any, i: number) => (
-              <div
-                key={i}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 ring-1 ring-inset ring-white/10 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:ring-white/20 md:p-7"
-              >
-                {/* Corner glow on hover */}
-                <div aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[rgba(16,147,253,0.18)] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
-
-                {/* Step number */}
-                <span className="bg-gradient-to-b from-[#7cc4ff] to-[#1074e0] bg-clip-text text-4xl font-black leading-none tracking-tight text-transparent md:text-5xl">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-
-                {s.title && <h3 className="mt-4 text-lg font-bold text-foreground">{s.title}</h3>}
-                {s.description && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.description}</p>}
-              </div>
-            ))}
-          </div>
-        )}
+    <SectionFrame block="our-process" labelledBy={c.heading ? headingId : undefined}>
+      <SectionHeading id={headingId} eyebrow={c.eyebrow} heading={c.heading} subheading={c.subheading} />
+      <div className="relative">
+        <span aria-hidden="true" className="absolute inset-x-0 top-2.5 h-px bg-line" />
+        <DrawLine className="absolute inset-x-0 top-2.5 block h-0.5 bg-signal shadow-[0_0_14px_var(--color-signal)]" />
+        <ol className={`grid gap-12 pt-10 sm:grid-cols-2 md:gap-6 ${columns}`}>
+          {steps.map((step, i) => (
+            <li key={i} data-part="step" className="relative">
+              <span className="mono">Step {String(i + 1).padStart(2, "0")}</span>
+              {step.title ? <h3 className="wide my-2 text-[22px] font-medium">{step.title}</h3> : null}
+              {step.description ? <p className="text-copy-dim">{step.description}</p> : null}
+            </li>
+          ))}
+        </ol>
       </div>
-    </section>
+    </SectionFrame>
   );
 }

@@ -3,11 +3,7 @@ import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
 import { faqListSchema } from "@hexapixora/contracts/blocks/faq-list";
 import { ChapterHeading } from "../../components/chapter-heading";
 import { SectionFrame } from "../../components/section-frame";
-
-/** JSON for a <script> tag: `<` is escaped so CMS text can never close the tag. */
-function jsonLd(data: unknown): string {
-  return JSON.stringify(data).replace(/</g, "\\u003c");
-}
+import { jsonLd } from "../../lib/json-ld";
 
 /** Native <details>: keyboard and screen-reader friendly, and readable without JS. */
 export function FaqListBlock({ config }: { config?: unknown }) {

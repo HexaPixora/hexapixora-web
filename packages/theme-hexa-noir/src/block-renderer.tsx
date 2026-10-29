@@ -32,6 +32,17 @@ const NO_REVEAL = new Set([
   // Restyled blocks that run their own entrance motion.
   "CTASection",
   "LeadMagnetModule",
+  "AboutSection",
+  "OurStoryModule",
+  "OurProcessModule",
+  "TechStackModule",
+  "TimelineModule",
+  "RichTextModule",
+  "LeaderModule",
+  "QuoteModule",
+  "SkillsShowcaseModule",
+  "FAQSection",
+  "StatsSection",
   // Cinematic blocks run their own entrance motion.
   ...Object.keys(NOIR_BLOCKS),
 ]);

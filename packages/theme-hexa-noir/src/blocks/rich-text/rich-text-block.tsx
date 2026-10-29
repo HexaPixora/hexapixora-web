@@ -1,29 +1,33 @@
-import React from "react";
-import { richTextSchema, RichTextProps } from "@hexapixora/contracts/blocks/rich-text";
+import { useId } from "react";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { richTextSchema } from "@hexapixora/contracts/blocks/rich-text";
 
-export function RichTextBlock({ config }: { config?: RichTextProps }) {
-  const { heading, lastUpdated, content } = richTextSchema.parse(config || {});
+/**
+ * Long-form text written in the admin editor (legal pages, notes). It usually
+ * opens its page, so its heading is the <h1> and it clears the fixed header.
+ */
+export function RichTextBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(richTextSchema, config);
+  const headingId = useId();
 
   return (
-    <section className="relative isolate overflow-hidden py-20 md:py-28">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[30vh] w-[60vh] -translate-x-1/2 rounded-full bg-[rgba(16,147,253,0.08)] blur-[120px]"
-      />
-
-      <div className="container">
-        <div className="mx-auto max-w-3xl">
-          {heading && (
-            <h1 className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-4xl font-black leading-[1.1] tracking-tight text-transparent md:text-5xl">
-              {heading}
+    <section
+      data-block="rich-text"
+      aria-labelledby={c.heading ? headingId : undefined}
+      className="pb-section pt-[calc(var(--header-h)+64px)]"
+    >
+      <div className="page-width">
+        <div className="max-w-[72ch]">
+          {c.heading ? (
+            <h1 id={headingId} className="wide text-display-md font-medium">
+              {c.heading}
             </h1>
-          )}
-          {lastUpdated && <p className="mt-3 text-sm text-muted-foreground">{lastUpdated}</p>}
-
-          {/* Admin-authored rich text (TipTap). */}
+          ) : null}
+          {c.lastUpdated ? <p className="mono mt-5 text-copy-dim">{c.lastUpdated}</p> : null}
+          {/* Admin-authored HTML from the editor; only signed-in admins can write it. */}
           <div
-            className="prose prose-invert prose-lg mt-8 max-w-none break-words text-foreground/90 prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#7cc4ff] hover:prose-a:underline prose-strong:text-foreground prose-li:marker:text-[#7cc4ff]"
-            dangerouslySetInnerHTML={{ __html: content }}
+            className="prose prose-invert prose-lg noir-prose mt-10 max-w-none break-words"
+            dangerouslySetInnerHTML={{ __html: c.content }}
           />
         </div>
       </div>

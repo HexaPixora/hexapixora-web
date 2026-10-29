@@ -1,88 +1,47 @@
-import React from "react";
-import Link from "next/link";
-import { icons, Wrench } from "lucide-react";
-import { servicesSchema, ServicesProps } from "@hexapixora/contracts/blocks/services";
-import { Stagger, StaggerItem } from "../../components/motion";
-import { Reveal } from "@hexapixora/motion/reveal";
+import { useId } from "react";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { servicesSchema } from "@hexapixora/contracts/blocks/services";
+import { ClipReveal } from "@hexapixora/motion/clip-reveal";
+import { ContentIcon } from "../../components/content-icon";
+import { SafeLink } from "../../components/safe-link";
+import { SectionFrame } from "../../components/section-frame";
+import { SectionHeading } from "../../components/section-heading";
 
-// Resolve a lucide icon by name. Accepts names copied straight from lucide.dev
-// (kebab-case, e.g. "pen-tool") as well as PascalCase ("PenTool"); falls back
-// to Wrench if the name doesn't match.
-function iconByName(name?: string) {
-  if (!name) return Wrench;
-  const pascal = name.trim().replace(/(^|[-_\s])(\w)/g, (_m, _sep, c) => c.toUpperCase());
-  return (icons as Record<string, typeof Wrench>)[pascal] || Wrench;
-}
-
-export function ServicesBlock({ config }: { config?: ServicesProps }) {
-  const { heading, subheading, iconColor, buttonColor, buttonTextColor, items } =
-    servicesSchema.parse(config || {});
-  const services = items || [];
-  // Global card colors (blank = theme).
-  const ic = iconColor?.trim();
-  const btn = buttonColor?.trim();
-  const btnText = buttonTextColor?.trim();
+/**
+ * Service cards with an icon, text and a link. The stored icon and button
+ * colours are ignored: the theme owns colour.
+ */
+export function ServicesBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(servicesSchema, config);
+  const headingId = useId();
+  const services = c.items.filter((item) => item.title);
+  if (services.length === 0) return null;
 
   return (
-    <section className="py-24 bg-muted/30 border-y">
-      <div className="container">
-        <Reveal>
-          <div className="flex flex-col items-center text-center max-w-[800px] mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{heading}</h2>
-            {subheading && <p className="text-lg text-muted-foreground">{subheading}</p>}
-          </div>
-        </Reveal>
-
-        <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service: any, idx: number) => {
-            const Icon = iconByName(service.icon);
-            return (
-              <StaggerItem
-                key={idx}
-                hoverLift
-                className="group relative flex h-full flex-col bg-background border rounded-2xl p-8 shadow-sm transition-[box-shadow,border-color] duration-300 hover:shadow-xl hover:border-primary/40"
+    <SectionFrame block="services" labelledBy={c.heading ? headingId : undefined}>
+      <SectionHeading id={headingId} heading={c.heading} subheading={c.subheading} />
+      <ul className="grid gap-px border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
+        {services.map((service, i) => (
+          <ClipReveal
+            key={i}
+            as="li"
+            className="group relative flex flex-col gap-4 bg-page p-7 transition-colors duration-[400ms] hover:bg-page-raised"
+          >
+            <span className="mono text-copy-dim">{String(i + 1).padStart(2, "0")}</span>
+            <ContentIcon name={service.icon} className="h-8 w-8 text-signal" />
+            <h3 className="wide text-title font-medium">{service.title}</h3>
+            {service.description ? <p className="flex-1 text-copy-dim">{service.description}</p> : null}
+            {service.link && service.buttonText ? (
+              <SafeLink
+                href={service.link}
+                className="mono mt-2 self-start transition-colors duration-300 after:absolute after:inset-0 hover:text-signal"
               >
-                <div
-                  className={`relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/12 ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:scale-110 ${
-                    ic ? "" : "text-[#7cc4ff]"
-                  }`}
-                  style={ic ? { backgroundColor: `${ic}1f`, color: ic } : undefined}
-                >
-                  <Icon className="h-7 w-7" strokeWidth={2} />
-                </div>
-
-                <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-                <p className="text-muted-foreground mb-6 line-clamp-3 flex-grow">
-                  {service.description || "No description provided."}
-                </p>
-
-                {service.link && service.buttonText && (
-                  <Link
-                    href={service.link}
-                    className={`mt-auto self-start inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
-                      btn
-                        ? `hover:-translate-y-0.5 hover:opacity-90 ${btnText ? "" : "text-white"}`
-                        : "bg-gradient-to-b from-[#2a9dff] to-[#1074e0] text-white hover:scale-105"
-                    }`}
-                    style={{
-                      ...(btn ? { backgroundColor: btn } : {}),
-                      ...(btnText ? { color: btnText } : {}),
-                    }}
-                  >
-                    {service.buttonText}
-                  </Link>
-                )}
-              </StaggerItem>
-            );
-          })}
-
-          {services.length === 0 && (
-            <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed rounded-xl">
-              No services found. Add some in the CMS.
-            </div>
-          )}
-        </Stagger>
-      </div>
-    </section>
+                {service.buttonText} <span aria-hidden="true">→</span>
+              </SafeLink>
+            ) : null}
+          </ClipReveal>
+        ))}
+      </ul>
+    </SectionFrame>
   );
 }

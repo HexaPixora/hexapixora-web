@@ -1,132 +1,96 @@
-import React from "react";
-import { leaderSchema, LeaderProps } from "@hexapixora/contracts/blocks/leader";
+import { useId } from "react";
+import { safeHref } from "@hexapixora/contracts/links";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { leaderSchema } from "@hexapixora/contracts/blocks/leader";
+import { ClipReveal } from "@hexapixora/motion/clip-reveal";
+import { SectionFrame } from "../../components/section-frame";
+import { StatGrid } from "../../components/stat-grid";
 import { mediaAlt } from "../../lib/media-alt";
 
-// Display faces are loaded once in the root layout as CSS variables (so this
-// stays a plain component that the client-side admin preview can import).
-const SERIF = "var(--font-serif), Georgia, 'Times New Roman', serif";
-const SCRIPT = "var(--font-signature), 'Segoe Script', cursive";
+// The handwritten face is loaded by the app (next/font, not preloaded).
+const SIGNATURE_FONT = "var(--font-signature), 'Segoe Script', cursive";
 
-export function LeaderBlock({ config }: { config?: LeaderProps }) {
-  const c = leaderSchema.parse(config || {});
-  const accent = c.accentColor || "#1093fd";
-  const paragraphs = (c.letter || "")
+/**
+ * A letter from the founder: portrait, pull quote, letter, signature and a
+ * few numbers. The stored accent colour is ignored (the theme owns colour).
+ */
+export function LeaderBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(leaderSchema, config);
+  const quoteId = useId();
+  const portrait = safeHref(c.portrait);
+  const stats = c.stats.filter((stat) => stat.value || stat.label);
+  const paragraphs = c.letter
     .split(/\n{2,}/)
-    .map((p) => p.trim())
+    .map((paragraph) => paragraph.trim())
     .filter(Boolean);
-  const stats = (c.stats || []).filter((s) => s.value || s.label);
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#08080a] py-24 md:py-32">
-      {/* Oversized editorial quotation watermark */}
-      <span
-        aria-hidden
-        style={{ fontFamily: SERIF }}
-        className="pointer-events-none absolute z-0 select-none text-[18rem] leading-none text-white/[0.035] md:left-10 md:text-[26rem]"
-      >
-        &ldquo;
-      </span>
-      {/* Single directional accent wash — not the site's glass aurora */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{ background: `radial-gradient(55% 55% at 12% 18%, ${accent}18, transparent 68%)` }}
-      />
-
-      <div className="container relative z-10">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] lg:gap-16">
-          {/* Portrait — offset print-style frame */}
-          <figure className="relative mx-auto w-full max-w-sm lg:mx-0">
-            <div
-              aria-hidden
-              className="absolute inset-0 translate-x-4 translate-y-4 rounded-[2px]"
-              style={{ backgroundColor: accent }}
-            />
-            <div className="relative overflow-hidden rounded-[2px]">
-              {c.portrait ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={c.portrait}
-                  alt={mediaAlt(c.portrait, c.name)}
-                  className="aspect-[4/5] w-full object-cover grayscale-[12%] contrast-[1.03]"
-                />
-              ) : (
-                <div className="flex aspect-[4/5] w-full items-center justify-center bg-gradient-to-br from-neutral-800 to-neutral-950">
-                  <span style={{ fontFamily: SERIF }} className="text-7xl text-white/20">
-                    {(c.name || "H").charAt(0)}
-                  </span>
-                </div>
-              )}
-            </div>
-            {c.portraitCaption && (
-              <figcaption className="mt-3 pl-1 text-[11px] uppercase tracking-[0.2em] text-white/40">
-                {c.portraitCaption}
-              </figcaption>
-            )}
-          </figure>
-
-          {/* Content */}
-          <div>
-            {c.kicker && (
-              <div className="mb-6 flex items-center gap-3">
-                <span className="h-px w-9" style={{ backgroundColor: accent }} />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/50">
-                  {c.kicker}
-                </span>
-              </div>
-            )}
-
-            {c.quote && (
-              <blockquote
-                style={{ fontFamily: SERIF }}
-                className="text-[1.75rem] font-normal italic leading-[1.22] text-white md:text-[2.6rem] md:leading-[1.16]"
-              >
-                {c.quote}
-              </blockquote>
-            )}
-
-            {paragraphs.length > 0 && (
-              <div className="mt-7 space-y-4 text-base leading-relaxed text-white/60 md:max-w-xl">
-                {paragraphs.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-            )}
-
-            {/* Signature block */}
-            <div className="mt-9">
-              {c.signature && (
-                <p
-                  style={{ fontFamily: SCRIPT, color: accent }}
-                  className="text-5xl leading-none md:text-6xl"
-                >
-                  {c.signature}
-                </p>
-              )}
-              <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
-                {c.name && (
-                  <span className="text-sm font-semibold uppercase tracking-wider text-white">{c.name}</span>
-                )}
-                {c.title && <span className="text-sm text-white/45">— {c.title}</span>}
-              </div>
-            </div>
-
-            {/* Credibility stats */}
-            {stats.length > 0 && (
-              <div className="mt-10 flex flex-wrap gap-x-10 gap-y-5 border-t border-white/10 pt-7">
-                {stats.map((s, i) => (
-                  <div key={i}>
-                    <div style={{ fontFamily: SERIF }} className="text-2xl text-white md:text-[1.7rem]">
-                      {s.value}
-                    </div>
-                    <div className="mt-1 text-[11px] uppercase tracking-[0.15em] text-white/45">{s.label}</div>
-                  </div>
-                ))}
-              </div>
+    <SectionFrame
+      block="leader"
+      labelledBy={c.kicker ? quoteId : undefined}
+      innerClassName="grid items-start gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16"
+    >
+      <ClipReveal as="div" className="relative mx-auto w-full max-w-sm lg:mx-0">
+        <figure>
+          {/* Offset block behind the portrait, like a print frame. */}
+          <div aria-hidden="true" className="absolute inset-0 translate-x-4 translate-y-4 bg-signal" />
+          <div className="relative aspect-[4/5] overflow-hidden bg-page-raised">
+            {portrait ? (
+              <img
+                src={portrait}
+                alt={mediaAlt(portrait, c.name)}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span aria-hidden="true" className="wide grid h-full place-items-center text-display-lg text-copy/20">
+                {(c.name || "H").charAt(0)}
+              </span>
             )}
           </div>
+          {c.portraitCaption ? (
+            <figcaption className="mono relative mt-8 text-copy-dim">{c.portraitCaption}</figcaption>
+          ) : null}
+        </figure>
+      </ClipReveal>
+
+      <div>
+        {c.kicker ? (
+          <h2 id={quoteId} className="mono mb-6 flex items-center gap-3 text-copy-dim">
+            <span aria-hidden="true" className="h-px w-9 bg-signal" />
+            {c.kicker}
+          </h2>
+        ) : null}
+        {c.quote ? (
+          <blockquote className="font-display text-statement font-light">{c.quote}</blockquote>
+        ) : null}
+        {paragraphs.length > 0 ? (
+          <div className="mt-7 grid max-w-[60ch] gap-4 text-copy-dim">
+            {paragraphs.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="mt-9">
+          {c.signature ? (
+            <p aria-hidden="true" className="text-5xl leading-none text-signal md:text-6xl" style={{ fontFamily: SIGNATURE_FONT }}>
+              {c.signature}
+            </p>
+          ) : null}
+          <p className="mt-3">
+            {c.name ? <span className="mono">{c.name}</span> : null}
+            {c.title ? <span className="text-copy-dim"> — {c.title}</span> : null}
+          </p>
         </div>
+
+        {stats.length > 0 ? (
+          <div className="mt-10">
+            <StatGrid stats={stats} />
+          </div>
+        ) : null}
       </div>
-    </section>
+    </SectionFrame>
   );
 }

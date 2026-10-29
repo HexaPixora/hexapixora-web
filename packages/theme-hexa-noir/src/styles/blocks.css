@@ -114,3 +114,30 @@
   [data-part="nodes"] line { animation: none; }
   [data-part="faq-item"] summary::after { transition: none; }
 }
+
+/* Long-form HTML (rich text, articles): the typography plugin's colours
+ * pointed at theme tokens, headings in the display face. Use with
+ * `prose prose-invert noir-prose`. */
+.noir-prose {
+  --tw-prose-invert-body: var(--color-copy-dim);
+  --tw-prose-invert-headings: var(--color-copy);
+  --tw-prose-invert-lead: var(--color-copy-dim);
+  --tw-prose-invert-links: var(--color-signal);
+  --tw-prose-invert-bold: var(--color-copy);
+  --tw-prose-invert-counters: var(--color-signal);
+  --tw-prose-invert-bullets: var(--color-signal);
+  --tw-prose-invert-hr: var(--color-line);
+  --tw-prose-invert-quotes: var(--color-copy);
+  --tw-prose-invert-quote-borders: var(--color-signal);
+  --tw-prose-invert-captions: var(--color-copy-dim);
+  --tw-prose-invert-code: var(--color-copy);
+  --tw-prose-invert-th-borders: var(--color-line);
+  --tw-prose-invert-td-borders: var(--color-line);
+}
+
+.noir-prose :where(h1, h2, h3, h4) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}

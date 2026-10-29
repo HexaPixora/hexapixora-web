@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, JetBrains_Mono, Manrope, Sacramento, Unbounded } from "next/font/google";
+import { JetBrains_Mono, Manrope, Sacramento, Unbounded } from "next/font/google";
 import "./globals.css";
 import { apiUrl } from "@hexapixora/sdk/server";
 import { colors } from "@hexapixora/theme-hexa-noir";
@@ -25,14 +25,8 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// Editorial display + handwritten signature faces, used only by the Leader/CEO
-// module. `preload: false` so they're not fetched on pages that don't use them —
-// they download only when an element references the CSS variable.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-});
+// Handwritten signature face, used only by the Leader block. `preload: false`
+// so it is fetched only on pages that render a signature.
 const sacramento = Sacramento({
   subsets: ["latin"],
   weight: "400",
@@ -132,7 +126,7 @@ export default function RootLayout({
     // during SSR / first paint — no white flash on any device, JS or not.
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${unbounded.variable} ${manrope.variable} ${jetbrainsMono.variable} ${fraunces.variable} ${sacramento.variable} min-h-screen bg-page font-body text-copy antialiased`}
+        className={`${unbounded.variable} ${manrope.variable} ${jetbrainsMono.variable} ${sacramento.variable} min-h-screen bg-page font-body text-copy antialiased`}
       >
         {/* Marks JS as available before content paints, so scroll-reveal only
             hides sections when it can also reveal them (no-JS users see all). */}
