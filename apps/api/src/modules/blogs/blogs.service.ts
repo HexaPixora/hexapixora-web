@@ -6,6 +6,7 @@ import yaml from 'js-yaml';
 import MarkdownIt from 'markdown-it';
 import TurndownService from 'turndown';
 import AdmZip from 'adm-zip';
+import { sanitizeHtml } from '../../common/html/sanitize-html';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RevalidateService } from '../revalidate/revalidate.service';
 import { CategoriesService, slugify } from '../categories/categories.service';
@@ -82,6 +83,7 @@ export class BlogsService {
   async create(data: CreateBlogDto) {
     const { categoryIds, ...rest } = data;
     const draft: BlogDraft = rest;
+    this.cleanContent(draft);
     this.applyReadTime(draft);
     return this.prisma.blog.create({
       data: {
@@ -206,6 +208,7 @@ export class BlogsService {
     await this.findOne(id);
     const { categoryIds, ...rest } = data;
     const draft: BlogDraft = rest;
+    this.cleanContent(draft);
     this.applyReadTime(draft);
     return this.prisma.blog.update({
       where: { id },
@@ -218,6 +221,13 @@ export class BlogsService {
       },
       include: { categories: true },
     });
+  }
+
+  // Post bodies are rendered as HTML on the site, so they are cleaned before
+  // they are stored (admin editor, markdown import and bulk import alike).
+  private cleanContent(draft: BlogDraft) {
+    if (typeof draft.content === 'string')
+      draft.content = sanitizeHtml(draft.content);
   }
 
   async remove(id: string) {

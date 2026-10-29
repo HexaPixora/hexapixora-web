@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ContentStatus, Prisma } from '@prisma/client';
+import { sanitizeSections } from '../../common/html/sanitize-html';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RevalidateService } from '../revalidate/revalidate.service';
 import { CreatePageDto, UpdatePageDto } from './dto/page.dto';
@@ -84,7 +85,7 @@ export class PagesService {
   }
 
   async create(data: CreatePageDto) {
-    const draft = this.normalizeStatus(data as PageDraft);
+    const draft = this.normalizeStatus(this.cleanSections(data) as PageDraft);
     return this.prisma.page.create({
       data: { ...draft, title: data.title, slug: data.slug },
     });
@@ -93,8 +94,16 @@ export class PagesService {
   async update(id: string, data: UpdatePageDto) {
     return this.prisma.page.update({
       where: { id },
-      data: this.normalizeStatus(data as PageDraft),
+      data: this.normalizeStatus(this.cleanSections(data) as PageDraft),
     });
+  }
+
+  // Rich-text sections are rendered as HTML on the site, so their HTML is
+  // cleaned before it is stored.
+  private cleanSections<T extends { sections?: unknown }>(data: T): T {
+    return data.sections === undefined
+      ? data
+      : { ...data, sections: sanitizeSections(data.sections) };
   }
 
   async remove(id: string) {
