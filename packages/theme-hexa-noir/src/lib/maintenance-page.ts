@@ -1,10 +1,10 @@
+import { colors } from "../index";
+
 /**
  * Self-contained maintenance page served by the proxy with a 503 while the API
  * is down. It can't depend on the app (layouts fetch the API), so it ships its
- * own CSS and art, and polls /api/health to reload once the backend is back.
- *
- * Palette and motifs follow the art direction (night-city ink, screentone,
- * speed lines). The panel art is a placeholder until the mascot is drawn.
+ * own CSS in the Hexa Noir colours and polls /api/health to reload once the
+ * backend is back.
  */
 const SITE_NAME = process.env.SITE_NAME || "HexaPixora";
 const RETRY_AFTER_SECONDS = 30;
@@ -15,47 +15,31 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0b0f2e">
+<meta name="theme-color" content="${colors.black}">
 <title>Back soon | ${SITE_NAME}</title>
 <style>
-  :root { --ink:#0b0f2e; --surface:#1b2587; --paper:#def0fb; --muted:#a9b4d8; --pop:#ffd23f; }
+  :root { --page:${colors.black}; --copy:${colors.bone}; --dim:${colors.dim}; --signal:${colors.ember}; --line:${colors.line}; }
   * { box-sizing:border-box; margin:0; }
-  body { min-height:100vh; display:grid; place-items:center; padding:24px 16px; background:var(--ink); color:var(--paper);
-    font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; position:relative; overflow-x:hidden; }
-  body::after { content:""; position:fixed; inset:0; pointer-events:none; opacity:.08; mix-blend-mode:screen;
-    background-image:radial-gradient(var(--paper) 1px,transparent 1.2px); background-size:12px 12px; }
-  .panel { position:relative; z-index:1; width:100%; max-width:560px; background:var(--surface); border:3px solid var(--paper);
-    box-shadow:6px 6px 0 var(--pop); padding:32px 24px; text-align:center; }
-  .art { width:100%; max-width:280px; height:auto; display:block; margin:0 auto 24px; }
-  .art .lines { transform-origin:140px 90px; animation:spin 24s linear infinite; }
-  h1 { font-size:clamp(1.75rem,5vw,2.5rem); line-height:1.15; font-weight:900; letter-spacing:-.01em; margin-bottom:12px; }
-  p { color:var(--muted); }
-  .status { margin-top:24px; display:inline-flex; align-items:center; gap:10px; font-size:.875rem; color:var(--paper);
-    border:2px solid var(--paper); padding:6px 14px; }
-  .dot { width:10px; height:10px; border-radius:50%; background:var(--pop); animation:pulse 1.6s ease-in-out infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
+  body { min-height:100vh; display:grid; align-content:center; padding:48px clamp(20px,5vw,64px); background:var(--page); color:var(--copy);
+    font:18px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { width:100%; max-width:1312px; margin:0 auto; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+  .label { color:var(--signal); margin-bottom:24px; }
+  h1 { max-width:16ch; font-size:clamp(2.4rem,7vw,5.6rem); line-height:.98; font-weight:600; text-transform:uppercase; letter-spacing:-.01em; }
+  .intro { max-width:48ch; margin-top:24px; color:var(--dim); }
+  .status { margin-top:40px; display:inline-flex; align-items:center; gap:12px; border:1px solid var(--line); border-radius:999px;
+    padding:10px 18px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--signal); box-shadow:0 0 12px var(--signal); animation:pulse 1.6s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity:.3; } }
-  @media (prefers-reduced-motion: reduce) { .art .lines, .dot { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { .dot { animation:none; } }
 </style>
 </head>
 <body>
-<main class="panel">
-  <svg class="art" viewBox="0 0 280 180" role="img" aria-label="A comic panel with speed lines">
-    <rect x="4" y="4" width="272" height="172" fill="#0b0f2e" stroke="#def0fb" stroke-width="3"/>
-    <g class="lines" stroke="#def0fb" stroke-width="2" stroke-linecap="round" opacity=".55">
-      <line x1="140" y1="90" x2="140" y2="-60"/><line x1="140" y1="90" x2="290" y2="-20"/>
-      <line x1="140" y1="90" x2="330" y2="90"/><line x1="140" y1="90" x2="290" y2="200"/>
-      <line x1="140" y1="90" x2="140" y2="240"/><line x1="140" y1="90" x2="-10" y2="200"/>
-      <line x1="140" y1="90" x2="-50" y2="90"/><line x1="140" y1="90" x2="-10" y2="-20"/>
-      <line x1="140" y1="90" x2="220" y2="-60"/><line x1="140" y1="90" x2="60" y2="240"/>
-    </g>
-    <circle cx="140" cy="90" r="38" fill="#1b2587" stroke="#def0fb" stroke-width="3"/>
-    <path d="M124 84 q4 -6 8 0 M148 84 q4 -6 8 0" fill="none" stroke="#def0fb" stroke-width="3" stroke-linecap="round"/>
-    <path d="M128 102 q12 10 24 0" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>
-  </svg>
-  <h1>We&rsquo;re inking the next panel</h1>
-  <p>${SITE_NAME} is down for a quick update. This page reloads by itself as soon as we&rsquo;re back.</p>
-  <div class="status" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="s">Checking again shortly&hellip;</span></div>
+<main>
+  <p class="mono label">Maintenance</p>
+  <h1>Back in a moment</h1>
+  <p class="intro">${SITE_NAME} is down for a quick update. This page reloads by itself as soon as we&rsquo;re back.</p>
+  <div class="status mono" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="s">Checking again shortly&hellip;</span></div>
 </main>
 <script>
   (function () {

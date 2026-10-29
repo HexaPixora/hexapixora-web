@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { SiteLayout } from "@/components/public/site-layout";
+import { PageHeader } from "@hexapixora/theme-hexa-noir/components/page-header";
 import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
 import { cmsFetch, readJson, readResource } from "@hexapixora/sdk/server";
 import { getLatestPosts } from "@/lib/latest-posts";
@@ -92,13 +93,8 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
   return (
     <SiteLayout showHeader={page.showHeader} showFooter={page.showFooter} headerOverlay>
       <div className="flex flex-col min-h-screen">
-        {sections.length === 0 && (
-          <div className="container py-24 text-center">
-            <h1 className="text-4xl font-bold tracking-tight mb-4">{page.title}</h1>
-            <p className="text-muted-foreground text-lg">This page is currently empty.</p>
-          </div>
-        )}
-        
+        {sections.length === 0 && <PageHeader title={page.title} intro="This page is currently empty." />}
+
         <BlockRenderer
           sections={sections}
           moduleDefaults={moduleDefaults}

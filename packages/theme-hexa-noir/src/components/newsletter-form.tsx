@@ -1,21 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
-import { Input } from "@hexapixora/ui/input";
-import { Button } from "@hexapixora/ui/button";
+import { useId, useState, type FormEvent } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { trackEvent } from "../lib/analytics";
-import { CheckCircle2 } from "lucide-react";
+import { ERROR_CLASS, FIELD_CLASS } from "../lib/form-classes";
 
+/** The footer sign-up: an optional first name and an email. */
 export function NewsletterForm() {
+  const id = useId();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<null | "new" | "already">(null);
   const [error, setError] = useState("");
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
     if (!email.trim()) return;
     setError("");
     setLoading(true);
@@ -26,9 +26,13 @@ export function NewsletterForm() {
       });
       trackEvent("newsletter_signup");
       setDone("new");
-    } catch (err: any) {
-      if (err?.response?.status === 409) setDone("already");
-      else setError(err?.response?.data?.message || "Couldn't subscribe — please try again.");
+    } catch (err: unknown) {
+      const response = (err as { response?: { status?: number; data?: { message?: unknown } } })?.response;
+      if (response?.status === 409) setDone("already");
+      else
+        setError(
+          typeof response?.data?.message === "string" ? response.data.message : "Couldn't subscribe. Please try again.",
+        );
     } finally {
       setLoading(false);
     }
@@ -36,38 +40,56 @@ export function NewsletterForm() {
 
   if (done) {
     return (
-      <p className="flex items-center gap-2 text-sm text-emerald-500">
-        <CheckCircle2 size={16} />
-        {done === "already" ? "You're already subscribed." : "Thanks — you're subscribed!"}
+      <p role="status" className="text-copy">
+        <span className="mono mr-2 text-signal">Done</span>
+        {done === "already" ? "You're already subscribed." : "Thanks, you're subscribed."}
       </p>
     );
   }
 
   return (
-    <form className="flex flex-col gap-2" onSubmit={submit}>
-      <Input
+    <form className="grid gap-3" onSubmit={submit}>
+      <label htmlFor={`${id}-name`} className="sr-only">
+        First name (optional)
+      </label>
+      <input
+        id={`${id}-name`}
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="First name (optional)"
         autoComplete="given-name"
-        className="bg-foreground/5 border-foreground/15"
+        className={FIELD_CLASS}
       />
-      <div className="flex gap-2">
-        <Input
+      <div className="flex items-end gap-4">
+        <label htmlFor={`${id}-email`} className="sr-only">
+          Email address
+        </label>
+        <input
+          id={`${id}-email`}
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@email.com"
           autoComplete="email"
-          className="flex-1 bg-foreground/5 border-foreground/15"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={`${FIELD_CLASS} flex-1`}
         />
-        <Button type="submit" disabled={loading}>
-          {loading ? "…" : "Subscribe"}
-        </Button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="mono shrink-0 py-3 text-signal transition-colors hover:text-copy disabled:opacity-60"
+        >
+          {loading ? "Sending…" : "Subscribe →"}
+        </button>
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error ? (
+        <p id={`${id}-error`} role="alert" className={ERROR_CLASS}>
+          {error}
+        </p>
+      ) : null}
     </form>
   );
 }

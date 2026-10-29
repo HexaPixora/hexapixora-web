@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { PILL_CLASS } from "@hexapixora/theme-hexa-noir/components/safe-link";
 import { TrackingScripts } from "@/components/seo/tracking-scripts";
 
 const COOKIE_NAME = "hexapixora_cookie_consent";
@@ -56,15 +57,16 @@ export function CookieConsent({
       )}
 
       {consent === null && (
-        <div className="fixed inset-x-0 bottom-0 z-[70] px-4 pb-4 sm:px-6 sm:pb-6">
-          <div className="mx-auto flex max-w-4xl flex-col gap-4 rounded-2xl border border-white/12 bg-[#0e0e12]/90 p-5 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.8)] ring-1 ring-inset ring-white/10 backdrop-blur-xl sm:flex-row sm:items-center sm:gap-6 sm:p-6">
-            <p className="flex-1 text-sm leading-relaxed text-white/75">
-              We use cookies to analyse traffic and improve your experience. You can accept or reject
-              analytics cookies — see our{" "}
-              <Link
-                href="/privacy-policy"
-                className="font-medium text-[#7cc4ff] underline-offset-2 hover:underline"
-              >
+        <section
+          aria-label="Cookie choices"
+          className="fixed inset-x-0 bottom-0 z-[70] px-gutter pb-[calc(1rem+env(safe-area-inset-bottom))]"
+        >
+          <div className="mx-auto flex max-w-4xl flex-col gap-5 border border-line bg-page-raised p-6 sm:flex-row sm:items-center sm:gap-8">
+            <p className="flex-1 text-sm text-copy-dim">
+              <span className="mono mr-2 text-signal">Cookies</span>
+              We use cookies to analyse traffic and improve your experience. You can accept or reject analytics cookies.
+              See our{" "}
+              <Link href="/privacy-policy" className="text-copy underline underline-offset-4 hover:text-signal">
                 Privacy Policy
               </Link>
               .
@@ -73,20 +75,20 @@ export function CookieConsent({
               <button
                 type="button"
                 onClick={() => choose("rejected")}
-                className="rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.08] hover:text-white"
+                className={`${PILL_CLASS} border border-copy px-5 py-3 text-sm hover:bg-copy hover:text-page`}
               >
                 Reject
               </button>
               <button
                 type="button"
                 onClick={() => choose("accepted")}
-                className="rounded-full bg-gradient-to-b from-[#2a9dff] to-[#1074e0] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_10px_26px_-10px_rgba(16,147,253,0.8)] transition-transform hover:-translate-y-0.5"
+                className={`${PILL_CLASS} bg-signal px-5 py-3 text-sm text-on-signal hover:bg-copy hover:text-page`}
               >
                 Accept all
               </button>
             </div>
           </div>
-        </div>
+        </section>
       )}
     </>
   );

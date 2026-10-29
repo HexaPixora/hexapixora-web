@@ -141,3 +141,56 @@
   text-transform: uppercase;
   letter-spacing: -0.01em;
 }
+
+/* FAQ markup stored inside imported articles (the API's renderFaqAccordion):
+ * drawn like the FAQ blocks, overriding the prose defaults. */
+.article-faq {
+  margin-top: 1.5rem;
+}
+
+.article-faq details.faq-item {
+  margin: 0;
+  border-top: 1px solid var(--color-line);
+  padding: 22px 0;
+}
+
+.article-faq details.faq-item:last-child {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.article-faq summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin: 0;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 800;
+  color: var(--color-copy);
+}
+
+.article-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.article-faq summary::after {
+  content: "+";
+  color: var(--color-signal);
+  transition: transform 0.3s;
+}
+
+.article-faq details[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.article-faq .faq-answer {
+  margin-top: 0.625rem;
+  color: var(--color-copy-dim);
+}
+
+.article-faq .faq-answer > :first-child { margin-top: 0; }
+.article-faq .faq-answer > :last-child { margin-bottom: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .article-faq summary::after { transition: none; }
+}

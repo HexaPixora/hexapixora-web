@@ -50,17 +50,25 @@ const NO_REVEAL = new Set([
   "VideoPlayerModule",
   "InstagramReelsModule",
   "PricingModule",
+  "ContactFormModule",
+  "CustomCodeModule",
   // Cinematic blocks run their own entrance motion.
   ...Object.keys(NOIR_BLOCKS),
 ]);
 
+/**
+ * A stored block type this theme has no component for. Visitors see nothing
+ * (an empty box would be thin content); developers get a note.
+ */
 function DefaultSection({ type, label }: { type: string; label?: string; config?: unknown; posts?: unknown[] }) {
+  if (process.env.NODE_ENV === "production") return null;
   return (
-    <section className="container py-16 border-b">
-      <h2 className="text-2xl font-bold tracking-tight mb-4">{label || type}</h2>
-      <div className="bg-muted/30 border border-dashed rounded-xl p-12 text-center text-muted-foreground">
-        <p className="font-mono text-sm">[Placeholder for {type} Component]</p>
-        <p className="text-xs mt-2">Configure this module in the admin dashboard.</p>
+    <section data-block="unknown" className="border-t border-line py-16">
+      <div className="page-width">
+        <p className="mono border border-dashed border-line p-8 text-copy-dim">
+          No component for <span className="text-signal">{type}</span>
+          {label && label !== type ? ` (${label})` : ""}
+        </p>
       </div>
     </section>
   );
