@@ -29,6 +29,9 @@ export function sanitizeHtml(dirty: string): string {
 
 /** Block types whose config holds editor-written HTML, and the field it is in. */
 const HTML_FIELDS: Record<string, string> = {
+  // The block library's text block (plans/phase-3c).
+  text: 'content',
+  // Its old name, kept until stored pages have moved.
   RichTextModule: 'content',
 };
 
