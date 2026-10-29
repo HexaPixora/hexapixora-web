@@ -16,13 +16,13 @@
     "./styles/*": "./src/styles/*"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@hexapixora/contracts": "*",
     "@hexapixora/motion": "*",
     "@hexapixora/sdk": "*",
-    "@hexapixora/ui": "*",
     "@hookform/resolvers": "^5.4.0",
     "lucide-react": "^1.17.0",
     "react-hook-form": "^7.78.0",
@@ -38,6 +38,8 @@
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "@hexapixora/eslint-config": "*",
+    "eslint": "^9.39.1"
   }
 }

@@ -121,7 +121,7 @@ export function LeadMagnetForm({
       >
         {submitting ? "Sending…" : buttonText}
       </button>
-      <p className="text-xs text-copy-dim">We'll email you occasionally. Unsubscribe anytime.</p>
+      <p className="text-xs text-copy-dim">We&apos;ll email you occasionally. Unsubscribe anytime.</p>
     </form>
   );
 }

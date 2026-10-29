@@ -122,15 +122,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // `dark` is hardcoded (not toggled at runtime) so the dark theme is applied
-    // during SSR / first paint — no white flash on any device, JS or not.
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${unbounded.variable} ${manrope.variable} ${jetbrainsMono.variable} ${sacramento.variable} min-h-screen bg-page font-body text-copy antialiased`}
       >
-        {/* Marks JS as available before content paints, so scroll-reveal only
-            hides sections when it can also reveal them (no-JS users see all). */}
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         {children}
       </body>
     </html>

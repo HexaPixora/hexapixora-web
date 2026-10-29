@@ -15,7 +15,6 @@
     "@hexapixora/motion": "*",
     "@hexapixora/sdk": "*",
     "@hexapixora/theme-hexa-noir": "*",
-    "@hexapixora/ui": "*",
     "@tailwindcss/typography": "^0.5.20",
     "lucide-react": "^1.17.0",
     "next": "16.4.3",
