@@ -98,7 +98,7 @@ export class UsersService {
     await this.mail.sendEmailChangeVerification({
       to: newEmail,
       name: user.name,
-      url: `${env.appUrl}/verify-email?token=${token}`,
+      url: `${env.adminUrl}/verify-email?token=${token}`,
       siteName: await this.siteName(),
     });
     return { message: 'Check your new inbox — we sent a link to confirm the change.' };

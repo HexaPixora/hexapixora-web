@@ -11,8 +11,11 @@
         "API_PROXY_ORIGIN",
         "NEXT_PUBLIC_API_URL",
         "NEXT_PUBLIC_SITE_URL",
+        "NEXT_PUBLIC_ADMIN_URL",
         "NEXT_PUBLIC_WS_ORIGIN",
-        "PREVIEW_TOKEN"
+        "PREVIEW_TOKEN",
+        "REVALIDATE_SECRET",
+        "MAINTENANCE_MODE"
       ],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"]
     },
