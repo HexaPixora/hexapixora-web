@@ -39,10 +39,7 @@ export default function ContactForm(props: ContactFormExtendedProps) {
   const [error, setError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
-  const turnstileSiteKey =
-    props.turnstileSiteKey ||
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
-    process.env.NEXT_PUBLIC_TRUNSTILE_SITE_KEY;
+  const turnstileSiteKey = props.turnstileSiteKey;
 
   const {
     register,
