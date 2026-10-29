@@ -73,14 +73,22 @@ function FieldControl({
   }
 }
 
+/** Fields without `showFor` always show; the others only for the listed layouts. */
+function shows(field: Pick<ModuleField, "showFor">, layout: unknown): boolean {
+  return !field.showFor || (typeof layout === "string" && field.showFor.includes(layout));
+}
+
 /** Repeatable list of objects, each shaped by `field.itemFields`. */
 function ListEditor({
   field,
   items,
+  layout,
   onItems,
 }: {
   field: ModuleField;
   items: any[];
+  /** The block's chosen layout, which decides the item fields shown. */
+  layout: unknown;
   onItems: (next: any[]) => void;
 }) {
   const singular = field.label.replace(/s$/, "");
@@ -101,7 +109,7 @@ function ListEditor({
               <Trash2 size={14} />
             </button>
           </div>
-          {field.itemFields?.map((subField) => (
+          {field.itemFields?.filter((subField) => shows(subField, layout)).map((subField) => (
             <div key={subField.name} className="space-y-1.5">
               <label className="text-xs font-medium text-foreground/80">{subField.label}</label>
               <FieldControl
@@ -144,15 +152,16 @@ export function ModuleConfigForm({
   if (!def) return <p className="text-sm text-muted-foreground">{emptyText}</p>;
 
   const set = (name: string, val: any) => onChange({ ...value, [name]: val });
+  const layout = value.layout ?? def.defaultConfig.layout;
 
   return (
     <div className="space-y-4">
-      {def.fields.map((field) => (
+      {def.fields.filter((field) => shows(field, layout)).map((field) => (
         <div key={field.name} className="space-y-1.5 border-b pb-4 last:border-0">
           <label className="text-sm font-semibold text-foreground/90">{field.label}</label>
           {field.description && <p className="mb-2 text-xs text-muted-foreground">{field.description}</p>}
           {field.type === "list" ? (
-            <ListEditor field={field} items={value[field.name] || []} onItems={(arr) => set(field.name, arr)} />
+            <ListEditor field={field} items={value[field.name] || []} layout={layout} onItems={(arr) => set(field.name, arr)} />
           ) : (
             <FieldControl field={field} value={value[field.name]} onChange={(val) => set(field.name, val)} />
           )}
