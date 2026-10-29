@@ -6,7 +6,7 @@ function apiProxyOrigin() {
   const explicit = process.env.API_PROXY_ORIGIN;
   if (explicit) return explicit.replace(/\/+$/, '');
 
-  const base = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  const base = process.env.API_URL;
   if (base) {
     try {
       return new URL(base).origin;
@@ -20,6 +20,11 @@ function apiProxyOrigin() {
 const nextConfig = {
   // Workspace packages ship TypeScript source; Next compiles them like app code.
   transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexapixora', '@hexapixora/ui'],
+  // The public site's address is not a secret: it appears in every "View page"
+  // link the admin renders in the browser.
+  env: {
+    SITE_URL: (process.env.SITE_URL || 'http://localhost:3000').replace(/\/+$/, ''),
+  },
   allowedDevOrigins: ['*.trycloudflare.com'],
   images: {
     remotePatterns: [

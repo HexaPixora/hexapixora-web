@@ -1,15 +1,13 @@
 /**
- * Public base URL of the live site (the public-facing web app).
- * Used for "View page" / "Preview" links from the admin. Set
- * NEXT_PUBLIC_SITE_URL in production, e.g. https://hexapixora.com
+ * Public base URL of the live site, for canonical, OG and sitemap URLs.
+ * Server-only. SITE_URL overrides it, e.g. https://hexapixora.com.
  */
 function resolveSiteUrl(): string {
   // Explicit config always wins (set this in prod, e.g. https://hexapixora.com).
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  const explicit = process.env.SITE_URL;
   if (explicit) return explicit.replace(/\/+$/, "");
   // On Vercel, fall back to the real deployment domain so OG/canonical URLs are
-  // correct even if NEXT_PUBLIC_SITE_URL was never set. These are server-only
-  // (available where metadata is generated), preferring the stable prod domain.
+  // correct even if SITE_URL was never set, preferring the stable prod domain.
   const vercelProd = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   if (vercelProd) return `https://${vercelProd.replace(/\/+$/, "")}`;
   const vercel = process.env.VERCEL_URL;

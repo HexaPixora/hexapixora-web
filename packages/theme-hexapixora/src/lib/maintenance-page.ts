@@ -6,7 +6,7 @@
  * Palette and motifs follow the art direction (night-city ink, screentone,
  * speed lines). The panel art is a placeholder until the mascot is drawn.
  */
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "HexaPixora";
+const SITE_NAME = process.env.SITE_NAME || "HexaPixora";
 const RETRY_AFTER_SECONDS = 30;
 
 const html = `<!doctype html>
