@@ -22,8 +22,10 @@ export function ImageHero({ c, titleId }: HeroLayoutProps) {
     <section
       data-block="hero"
       data-variant="image"
+      data-media-hero={picture ? undefined : ""}
       aria-labelledby={titleId}
-      className="relative isolate flex h-svh min-h-[600px] items-center justify-center overflow-hidden"
+      // Over the fallback footage the text uses the on-media colour; a photo gets a page-coloured scrim.
+      className={`relative isolate flex h-svh min-h-[600px] items-center justify-center overflow-hidden ${picture ? "" : "text-on-media"}`}
     >
       {picture && c.motion !== "none" ? (
         // The layer is 130% tall so its drift never shows an edge.

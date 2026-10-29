@@ -22,6 +22,8 @@
   --color-on-signal-dim: #2a1206;
   --color-brand: #1b2587;
   --color-line: rgb(241 236 226 / 0.14);
+  /* Text over footage and dark imagery; stays light in light themes. */
+  --color-on-media: #f1ece2;
   /* Paper dossiers (case files). */
   --color-paper: #e9e3d6;
   --color-paper-ink: #15161c;

@@ -18,6 +18,7 @@ export const HEXA_NOIR_TOKENS: ThemeTokens = {
     "on-signal-dim": "#2a1206",
     brand: "#1b2587",
     line: "rgb(241 236 226 / 0.14)",
+    "on-media": "#f1ece2",
     paper: "#e9e3d6",
     "paper-ink": "#15161c",
     "paper-dim": "#5d5a54",

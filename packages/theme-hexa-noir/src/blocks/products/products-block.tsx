@@ -48,7 +48,7 @@ export function ProductsBlock({ config }: BlockProps) {
             key={i}
             as="li"
             part="lab-card"
-            className="relative flex min-h-[440px] flex-col justify-between overflow-hidden border border-line p-[30px] [container-type:inline-size]"
+            className={`relative flex min-h-[440px] flex-col justify-between overflow-hidden border border-line p-[30px] [container-type:inline-size] ${item.visual === "film" ? "text-on-media" : ""}`}
           >
             {item.visual === "film" ? (
               <FilmCanvas look={filmLooks.cobalt} seed={4 + i} className="absolute inset-0 h-full w-full opacity-90" />
