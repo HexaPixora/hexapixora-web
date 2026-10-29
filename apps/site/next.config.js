@@ -32,7 +32,7 @@ function publicSiteUrl() {
 // Origin of the admin app (e.g. https://admin.hexapixora.com). Unset in local
 // dev, where the admin runs separately on its own port.
 function adminRedirects() {
-  const admin = (process.env.NEXT_PUBLIC_ADMIN_URL || '').replace(/\/+$/, '');
+  const admin = (process.env.ADMIN_URL || '').replace(/\/+$/, '');
   if (!admin) return [];
   return ['/admin', '/admin/:path*', '/login', '/forgot-password', '/reset-password', '/verify-email'].map(
     (source) => ({ source, destination: `${admin}${source}`, permanent: false }),
