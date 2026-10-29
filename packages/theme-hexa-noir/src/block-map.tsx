@@ -17,6 +17,7 @@ export const LIBRARY_BLOCKS: Partial<Record<BlockId, BlockComponent>> = {
   cards: dynamic(() => import("./blocks/cards/cards-block").then((m) => m.CardsBlock)),
   steps: dynamic(() => import("./blocks/steps/steps-block").then((m) => m.StepsBlock)),
   stats: dynamic(() => import("./blocks/stats/stats-block").then((m) => m.StatsBlock)),
+  people: dynamic(() => import("./blocks/people/people-block").then((m) => m.PeopleBlock)),
 };
 
 /** Old stored types whose library block is still to come (Phase 3c-3). */
@@ -24,7 +25,6 @@ export const LEGACY_BLOCKS: Record<string, BlockComponent> = {
   CTASection: dynamic(() => import("./blocks/cta/cta-block").then((m) => m.CtaBlock)),
   PortfolioSection: dynamic(() => import("./blocks/portfolio/portfolio-block").then((m) => m.PortfolioBlock)),
   BlogSection: dynamic(() => import("./blocks/blog/blog-block").then((m) => m.BlogBlock)),
-  TeamSection: dynamic(() => import("./blocks/team/team-block").then((m) => m.TeamBlock)),
   FAQSection: dynamic(() => import("./blocks/faq/faq-block").then((m) => m.FaqBlock)),
   GalleryModule: dynamic(() => import("./blocks/gallery/gallery-block").then((m) => m.GalleryBlock)),
   SplideSliderModule: dynamic(() => import("./blocks/slider/slider-block").then((m) => m.SliderBlock)),
@@ -44,7 +44,6 @@ export const LEGACY_BLOCKS: Record<string, BlockComponent> = {
   StaggeredGridModule: dynamic(() =>
     import("./blocks/staggered-grid/staggered-grid-block").then((m) => m.StaggeredGridBlock),
   ),
-  crew: dynamic(() => import("./blocks/crew/crew-block").then((m) => m.CrewBlock)),
   "case-files": dynamic(() => import("./blocks/case-files/case-files-block").then((m) => m.CaseFilesBlock)),
   lab: dynamic(() => import("./blocks/lab/lab-block").then((m) => m.LabBlock)),
   "faq-list": dynamic(() => import("./blocks/faq-list/faq-list-block").then((m) => m.FaqListBlock)),
