@@ -115,7 +115,12 @@ export class MailService {
     return `<a href="${url}" style="display:inline-block;background:#1074e0;color:#ffffff;text-decoration:none;padding:12px 26px;border-radius:10px;font-weight:600;font-size:15px;">${this.escape(label)}</a>`;
   }
 
-  private async send({ to, subject, html, replyTo }: SendArgs): Promise<boolean> {
+  private async send({
+    to,
+    subject,
+    html,
+    replyTo,
+  }: SendArgs): Promise<boolean> {
     if (!this.isConfigured()) {
       this.logger.warn(
         `RESEND_API_KEY not set — skipping email "${subject}". Configure it to enable delivery.`,
@@ -148,7 +153,9 @@ export class MailService {
       }
       return true;
     } catch (err) {
-      this.logger.error(`Failed to send "${subject}": ${(err as Error).message}`);
+      this.logger.error(
+        `Failed to send "${subject}": ${(err as Error).message}`,
+      );
       return false;
     }
   }
@@ -185,7 +192,9 @@ export class MailService {
     inviterName?: string | null;
   }): Promise<boolean> {
     const { to, name, url, siteName, inviterName } = params;
-    const who = inviterName ? this.escape(inviterName) : `The ${this.escape(siteName)} team`;
+    const who = inviterName
+      ? this.escape(inviterName)
+      : `The ${this.escape(siteName)} team`;
     const greeting = name ? ` ${this.escape(name)},` : '';
     return this.send({
       to,
@@ -195,7 +204,8 @@ export class MailService {
         intro: `Hi${greeting} ${who} has invited you to join the ${this.escape(siteName)} admin. Click below to accept and set your password.`,
         buttonLabel: 'Accept invite',
         url,
-        footnote: 'This invite link expires in 7 days. If you weren’t expecting this, you can ignore this email.',
+        footnote:
+          'This invite link expires in 7 days. If you weren’t expecting this, you can ignore this email.',
       }),
     });
   }
@@ -240,7 +250,8 @@ export class MailService {
         intro: `Hi ${first}, confirm that you want to use this address for your ${this.escape(siteName)} account by clicking below.`,
         buttonLabel: 'Confirm email',
         url,
-        footnote: 'This link expires in 1 hour. If you didn’t request this change, you can ignore this email.',
+        footnote:
+          'This link expires in 1 hour. If you didn’t request this change, you can ignore this email.',
       }),
     });
   }
@@ -265,7 +276,12 @@ export class MailService {
     });
     const footerHtml = `You're receiving this because you subscribed to ${this.escape(siteName)}.<br/>
       <a href="${unsubscribeUrl}" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a>`;
-    return this.brandedShell({ siteName, logoUrl, bodyHtml: `<div>${body}</div>`, footerHtml });
+    return this.brandedShell({
+      siteName,
+      logoUrl,
+      bodyHtml: `<div>${body}</div>`,
+      footerHtml,
+    });
   }
 
   /** Personalised, brand-matched welcome sent the moment someone subscribes. */
@@ -297,7 +313,9 @@ export class MailService {
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
         ${bullets
           .map(
-            (b) => `<tr><td style="padding:4px 10px 4px 0;color:#1093fd;vertical-align:top;">●</td>
+            (
+              b,
+            ) => `<tr><td style="padding:4px 10px 4px 0;color:#1093fd;vertical-align:top;">●</td>
               <td style="padding:4px 0;color:#d4d7dd;">${this.escape(b)}</td></tr>`,
           )
           .join('')}
@@ -326,9 +344,13 @@ export class MailService {
    * Send many emails via Resend's batch endpoint (≤100 per request). Returns the
    * number accepted. Used for newsletter campaigns; never throws.
    */
-  async sendBatch(items: Array<{ to: string; subject: string; html: string }>): Promise<number> {
+  async sendBatch(
+    items: Array<{ to: string; subject: string; html: string }>,
+  ): Promise<number> {
     if (!this.isConfigured()) {
-      this.logger.warn(`RESEND_API_KEY not set — skipping batch of ${items.length} email(s).`);
+      this.logger.warn(
+        `RESEND_API_KEY not set — skipping batch of ${items.length} email(s).`,
+      );
       return 0;
     }
     let sent = 0;
@@ -342,14 +364,21 @@ export class MailService {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(
-            chunk.map((e) => ({ from: env.mail.from, to: [e.to], subject: e.subject, html: e.html })),
+            chunk.map((e) => ({
+              from: env.mail.from,
+              to: [e.to],
+              subject: e.subject,
+              html: e.html,
+            })),
           ),
         });
         if (res.ok) {
           sent += chunk.length;
         } else {
           const detail = await res.text().catch(() => '');
-          this.logger.error(`Resend batch failed (${res.status}): ${detail.slice(0, 300)}`);
+          this.logger.error(
+            `Resend batch failed (${res.status}): ${detail.slice(0, 300)}`,
+          );
         }
       } catch (err) {
         this.logger.error(`Batch send error: ${(err as Error).message}`);

@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { counterStatsSchema, CounterStatsProps } from "@hexapixora/contracts/blocks/counter-stats";
 
-export default function CounterStatsModule({ config }: { config?: CounterStatsProps }) {
+export function CounterStatsBlock({ config }: { config?: CounterStatsProps }) {
   const { heading, subheading, stats } = counterStatsSchema.parse(config || {});
   const items = (stats || []).filter((s: any) => s.value || s.label);
   const root = useRef<HTMLElement>(null);

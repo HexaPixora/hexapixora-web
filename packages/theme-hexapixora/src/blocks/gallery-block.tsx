@@ -7,7 +7,7 @@ import { mediaAlt } from "../lib/media-alt";
 
 
 
-export default function GalleryModule({ config }: { config?: GalleryProps }) {
+export function GalleryBlock({ config }: { config?: GalleryProps }) {
   const { heading, columns = "3", images = [] } = gallerySchema.parse(config || {});
 
   // Determine grid columns based on config

@@ -1,10 +1,23 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { NewsletterService } from './newsletter.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { SubscribeDto } from './dto/subscribe.dto';
-import { CreateCampaignDto, TestCampaignDto, UnsubscribeDto } from './dto/campaign.dto';
+import {
+  CreateCampaignDto,
+  TestCampaignDto,
+  UnsubscribeDto,
+} from './dto/campaign.dto';
 import { Throttle } from '@nestjs/throttler';
 
 @Controller('newsletter')

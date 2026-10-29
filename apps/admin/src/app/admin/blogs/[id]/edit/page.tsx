@@ -9,10 +9,10 @@ import { apiClient } from "@hexapixora/sdk/browser";
 import { Button } from "@hexapixora/ui/button";
 import { Input } from "@hexapixora/ui/input";
 import { Textarea } from "@hexapixora/ui/textarea";
-import TipTapEditor from "@/components/admin/tiptap-editor";
-import TagInput from "@/components/admin/tag-input";
-import SeoTab from "@/components/admin/seo-tab";
-import MediaField from "@/components/admin/media-field";
+import { TiptapEditor } from "@/components/admin/tiptap-editor";
+import { TagInput } from "@/components/admin/tag-input";
+import { SeoTab } from "@/components/admin/seo-tab";
+import { MediaField } from "@/components/admin/media-field";
 import { CategorySelect } from "@/components/admin/category-select";
 import { FaqEditor } from "@/components/admin/faq-editor";
 import { StatusControl, ContentStatus } from "@/components/admin/status-control";
@@ -236,7 +236,7 @@ export default function EditBlogPage() {
                 <Sparkles size={14} className="text-primary" /> Body Content
               </label>
               <div className="prose-container">
-                <TipTapEditor
+                <TiptapEditor
                   value={content}
                   onChange={(html) => { setContent(html); setValue("content", html); }}
                   placeholder="Start writing your amazing article..."

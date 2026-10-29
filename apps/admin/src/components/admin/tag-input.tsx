@@ -10,7 +10,7 @@ interface TagInputProps {
   label?: string;
 }
 
-export default function TagInput({ value, onChange, placeholder = "Add tag and press Enter...", label }: TagInputProps) {
+export function TagInput({ value, onChange, placeholder = "Add tag and press Enter...", label }: TagInputProps) {
   const [input, setInput] = useState("");
 
   const addTag = (tag: string) => {

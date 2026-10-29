@@ -2,7 +2,6 @@ import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 import turboPlugin from "eslint-plugin-turbo";
 import tseslint from "typescript-eslint";
-import onlyWarn from "eslint-plugin-only-warn";
 import path from "node:path";
 
 // File names are kebab-case (`hero-block.tsx`, `create-blog.dto.ts`). Dots
@@ -34,6 +33,24 @@ const conventionsPlugin = {
 };
 
 /**
+ * Rules held at "warn" until the Phase 3 theme and Phase 4 editor rewrites
+ * replace the code that still trips them; errors after that. Configs that add
+ * presets after the base must append this again so it wins.
+ *
+ * @type {import("eslint").Linter.Config}
+ */
+export const transitionalRules = {
+  rules: {
+    // TypeScript already reports undefined names, including Node globals in
+    // config files.
+    "no-undef": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "no-empty": "warn",
+  },
+};
+
+/**
  * A shared ESLint configuration for the repository.
  *
  * @type {import("eslint").Linter.Config[]}
@@ -55,15 +72,10 @@ export const config = [
       conventions: conventionsPlugin,
     },
     rules: {
-      // Warning while files are migrated (Phase 2); an error once PR 9 lands.
-      "conventions/filename-case": "warn",
+      "conventions/filename-case": "error",
     },
   },
-  {
-    plugins: {
-      onlyWarn,
-    },
-  },
+  transitionalRules,
   {
     ignores: ["dist/**"],
   },

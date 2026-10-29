@@ -9,7 +9,7 @@ import { mediaAlt } from "../lib/media-alt";
 const STRENGTH: Record<string, number> = { subtle: 10, medium: 20, strong: 35 };
 const OVERLAY: Record<string, number> = { none: 0, light: 0.3, medium: 0.55, dark: 0.75 };
 
-export default function ParallaxBannerModule({ config }: { config?: ParallaxBannerProps }) {
+export function ParallaxBannerBlock({ config }: { config?: ParallaxBannerProps }) {
   const { image, heading, subheading, buttonText, buttonLink, intensity, overlay } =
     parallaxBannerSchema.parse(config || {});
   const root = useRef<HTMLDivElement>(null);

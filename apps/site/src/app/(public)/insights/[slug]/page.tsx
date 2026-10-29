@@ -1,5 +1,5 @@
 import React, { cache } from "react";
-import SiteLayout from "@/components/public/site-layout";
+import { SiteLayout } from "@/components/public/site-layout";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Clock, BookOpen, User } from "lucide-react";

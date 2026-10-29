@@ -30,8 +30,15 @@ describe('AppController', () => {
     });
 
     it('throws 503 when the database is down', async () => {
-      appService.health.mockResolvedValue({ status: 'degraded', db: 'down', uptime: 1, timestamp: 't' });
-      await expect(appController.health()).rejects.toBeInstanceOf(ServiceUnavailableException);
+      appService.health.mockResolvedValue({
+        status: 'degraded',
+        db: 'down',
+        uptime: 1,
+        timestamp: 't',
+      });
+      await expect(appController.health()).rejects.toBeInstanceOf(
+        ServiceUnavailableException,
+      );
     });
   });
 });

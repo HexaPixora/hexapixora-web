@@ -5,7 +5,7 @@ import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { Button } from "@hexapixora/ui/button";
 import { Input } from "@hexapixora/ui/input";
-import MediaPicker from "./media-picker";
+import { MediaPicker } from "./media-picker";
 import { UploadCloud, ImagePlus, Loader2 } from "lucide-react";
 
 interface MediaFieldProps {
@@ -25,7 +25,7 @@ interface MediaFieldProps {
  * one from the media library. Uploads are deduplicated server-side, so picking
  * a file that was uploaded before reuses the same asset.
  */
-export default function MediaField({
+export function MediaField({
   type = "image",
   value,
   onChange,

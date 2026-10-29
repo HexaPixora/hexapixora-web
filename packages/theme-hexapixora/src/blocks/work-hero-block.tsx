@@ -2,7 +2,7 @@ import React from "react";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import { workHeroSchema, WorkHeroProps } from "@hexapixora/contracts/blocks/work-hero";
 
-export default function WorkHeroModule({ config }: { config?: WorkHeroProps }) {
+export function WorkHeroBlock({ config }: { config?: WorkHeroProps }) {
   const { eyebrow, heading, subheading, buttonText, buttonUrl, stats } = workHeroSchema.parse(config || {});
   const statList = (stats || []).filter((s: any) => s.value || s.label);
 

@@ -39,7 +39,7 @@ function toPermalink(raw: string): string | null {
   return null;
 }
 
-export default function InstagramReelsModule({ config }: { config?: InstagramReelsProps }) {
+export function InstagramReelsBlock({ config }: { config?: InstagramReelsProps }) {
   const { eyebrow, heading, subheading, reels, ctaLabel, ctaUrl } = instagramReelsSchema.parse(config || {});
 
   // We only ever keep the validated permalink and build the embed blockquote

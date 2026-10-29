@@ -6,7 +6,7 @@ import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { Button } from "@hexapixora/ui/button";
 import { Badge } from "@hexapixora/ui/badge";
-import MediaField from "@/components/admin/media-field";
+import { MediaField } from "@/components/admin/media-field";
 import { CategorySelect } from "@/components/admin/category-select";
 import { PageHeader } from "@hexapixora/ui/admin";
 import {

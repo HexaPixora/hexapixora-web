@@ -18,7 +18,10 @@ export class SearchService {
    * (Postgres ILIKE); the result shape is stable so this can later be swapped
    * for full-text search (tsvector + GIN index) without touching callers.
    */
-  async search(query: string, limit = 8): Promise<{ results: SearchResult[]; total: number }> {
+  async search(
+    query: string,
+    limit = 8,
+  ): Promise<{ results: SearchResult[]; total: number }> {
     const q = (query || '').trim();
     if (q.length < 2) return { results: [], total: 0 };
     const like = { contains: q, mode: 'insensitive' as const };
@@ -71,12 +74,21 @@ export class SearchService {
 }
 
 /** A short, plain-text snippet, preferring a window around the first match. */
-function makeSnippet(text: string | null | undefined, q: string, len = 140): string {
+function makeSnippet(
+  text: string | null | undefined,
+  q: string,
+  len = 140,
+): string {
   if (!text) return '';
-  const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const clean = text
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   const idx = clean.toLowerCase().indexOf(q.toLowerCase());
   if (idx < 0) return clean.slice(0, len) + (clean.length > len ? '…' : '');
   const start = Math.max(0, idx - 40);
   const slice = clean.slice(start, start + len);
-  return (start > 0 ? '…' : '') + slice + (start + len < clean.length ? '…' : '');
+  return (
+    (start > 0 ? '…' : '') + slice + (start + len < clean.length ? '…' : '')
+  );
 }

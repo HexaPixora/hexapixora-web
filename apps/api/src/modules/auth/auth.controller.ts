@@ -11,7 +11,8 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
-import type { Response, Request } from 'express';
+import type { Response } from 'express';
+import type { AuthRequest, RefreshUser } from './auth.types';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
 
@@ -24,7 +25,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getMe(@Req() req: any) {
+  getMe(@Req() req: AuthRequest) {
     return req.user;
   }
 
@@ -84,11 +85,10 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   async refreshTokens(
-    @Req() req: any,
+    @Req() req: AuthRequest<RefreshUser>,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user.id;
-    const refreshToken = req.user.refreshToken;
+    const { id: userId, refreshToken = '' } = req.user!;
     const tokens = await this.authService.refreshTokens(userId, refreshToken);
 
     res.cookie('access_token', tokens.accessToken, {
@@ -110,8 +110,12 @@ export class AuthController {
 
   @UseGuards(JwtRefreshGuard)
   @Post('logout')
-  async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    await this.authService.logout(req.user.id, req.user.refreshToken);
+  async logout(
+    @Req() req: AuthRequest<RefreshUser>,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { id, refreshToken = '' } = req.user!;
+    await this.authService.logout(id, refreshToken);
     res.clearCookie('access_token', { path: '/' });
     res.clearCookie('refresh_token', { path: '/api/auth/refresh' });
     return { message: 'Logged out successfully' };

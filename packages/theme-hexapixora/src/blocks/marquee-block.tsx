@@ -7,7 +7,7 @@ import { mediaAlt } from "../lib/media-alt";
 
 const SPEED: Record<string, number> = { slow: 40, normal: 24, fast: 12 };
 
-export default function MarqueeModule({ config }: { config?: MarqueeProps }) {
+export function MarqueeBlock({ config }: { config?: MarqueeProps }) {
   const { items, speed, direction } = marqueeSchema.parse(config || {});
   const list = (items || []).filter((i: any) => i.text || i.image);
   const track = useRef<HTMLDivElement>(null);

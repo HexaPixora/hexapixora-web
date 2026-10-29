@@ -17,7 +17,7 @@ const WIDTH_MAP: Record<string, string> = {
   "max-w-6xl": "container max-w-6xl",
 };
 
-export default function CustomCodeModule({ config }: { config?: CustomCodeProps }) {
+export function CustomCodeBlock({ config }: { config?: CustomCodeProps }) {
   const parsed = customCodeSchema.parse(config || {});
   const { title, html, css, js, renderMode, containerWidth, paddingY } = parsed;
 
@@ -50,7 +50,7 @@ export default function CustomCodeModule({ config }: { config?: CustomCodeProps 
       const scriptFn = new Function("container", "window", "document", js);
       cleanupFn = scriptFn(containerNode, window, document);
     } catch (err) {
-      console.error(`[CustomCodeModule] Error executing custom JS script:`, err);
+      console.error(`[CustomCodeBlock] Error executing custom JS script:`, err);
     }
 
     return () => {
@@ -58,7 +58,7 @@ export default function CustomCodeModule({ config }: { config?: CustomCodeProps 
         try {
           cleanupFn();
         } catch (e) {
-          console.error(`[CustomCodeModule] Error in custom script cleanup:`, e);
+          console.error(`[CustomCodeBlock] Error in custom script cleanup:`, e);
         }
       }
     };

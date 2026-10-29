@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import SiteLayout from "@/components/public/site-layout";
+import { SiteLayout } from "@/components/public/site-layout";
 import { ComicPanelArt } from "@hexapixora/theme-hexapixora/components/comic-panel-art";
 
 export const metadata: Metadata = {

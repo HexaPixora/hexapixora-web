@@ -2,7 +2,7 @@ import React from "react";
 import { pricingSchema, PricingProps } from "@hexapixora/contracts/blocks/pricing";
 import { Check, Star } from "lucide-react";
 
-export default function PricingModule({ config }: { config?: PricingProps }) {
+export function PricingBlock({ config }: { config?: PricingProps }) {
   const { heading, subheading, backgroundColor, plans } = pricingSchema.parse(config || {});
 
   const isDark = (hex: string) => {

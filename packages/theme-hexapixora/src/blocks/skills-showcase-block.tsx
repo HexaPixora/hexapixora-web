@@ -9,7 +9,7 @@ function clampLevel(v: string): number {
   return Math.max(0, Math.min(100, n));
 }
 
-export default function SkillsShowcaseModule({ config }: { config?: SkillsShowcaseProps }) {
+export function SkillsShowcaseBlock({ config }: { config?: SkillsShowcaseProps }) {
   const { eyebrow, heading, subheading, name, role, avatar, skills } = skillsShowcaseSchema.parse(config || {});
   const list = (skills || []).filter((s: any) => s.name);
 

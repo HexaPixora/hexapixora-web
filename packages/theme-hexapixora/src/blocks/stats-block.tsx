@@ -3,7 +3,7 @@ import { statsSchema, StatsProps } from "@hexapixora/contracts/blocks/stats";
 import { CountUp } from "../components/motion";
 
 
-export default function StatsModule({ config }: { config?: StatsProps }) {
+export function StatsBlock({ config }: { config?: StatsProps }) {
   const { 
     heading, subheading, 
     stat1Value, stat1Label,

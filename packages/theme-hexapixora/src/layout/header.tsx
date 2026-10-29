@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "@hexapixora/ui/button";
-import SearchBar from "../components/search-bar";
+import { SearchBar } from "../components/search-bar";
 import { headerSchema, DEFAULT_HEADER_CONFIG } from "@hexapixora/contracts/layout/header";
 
 interface MenuItem {
@@ -29,7 +29,7 @@ interface HeaderProps {
   navigations: Navigation[];
 }
 
-export default function PublicHeader({ settings, config, navigations }: HeaderProps) {
+export function Header({ settings, config, navigations }: HeaderProps) {
   // Parse config with zod to ensure safe fallbacks
   const { navId, logoUrl, ctaText, ctaUrl, ctaStyle, isSticky, glassmorphism } = headerSchema.parse(config || DEFAULT_HEADER_CONFIG);
 

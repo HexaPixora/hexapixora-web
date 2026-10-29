@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 import { storyHeroSchema, StoryHeroProps } from "@hexapixora/contracts/blocks/story-hero";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function StoryHeroModule({ config }: { config?: StoryHeroProps }) {
+export function StoryHeroBlock({ config }: { config?: StoryHeroProps }) {
   const { eyebrow, heading, intro, foundedLabel, image } = storyHeroSchema.parse(config || {});
   const hasImage = Boolean(image);
 

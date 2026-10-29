@@ -28,7 +28,7 @@ interface FooterProps {
   navigations: Navigation[];
 }
 
-export default function PublicFooter({ settings, config, headerConfig, navigations }: FooterProps) {
+export function Footer({ settings, config, headerConfig, navigations }: FooterProps) {
   // Parse config with zod to ensure safe fallbacks
   const footerConfig = footerSchema.parse(config || DEFAULT_FOOTER_CONFIG);
   const {

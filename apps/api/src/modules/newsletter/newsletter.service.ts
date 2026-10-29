@@ -24,14 +24,19 @@ export class NewsletterService {
   ) {}
 
   async subscribe(email: string, name?: string) {
-    const existing = await this.prisma.newsletterSubscriber.findUnique({ where: { email } });
+    const existing = await this.prisma.newsletterSubscriber.findUnique({
+      where: { email },
+    });
     if (existing && existing.status === 'ACTIVE') {
       throw new ConflictException('Email already subscribed');
     }
     const trimmedName = name?.trim() || undefined;
     const subscriber = await this.prisma.newsletterSubscriber.upsert({
       where: { email },
-      update: { status: 'ACTIVE', ...(trimmedName ? { name: trimmedName } : {}) },
+      update: {
+        status: 'ACTIVE',
+        ...(trimmedName ? { name: trimmedName } : {}),
+      },
       create: { email, ...(trimmedName ? { name: trimmedName } : {}) },
     });
 
@@ -62,7 +67,8 @@ export class NewsletterService {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       this.prisma.newsletterSubscriber.findMany({
-        skip, take: limit,
+        skip,
+        take: limit,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.newsletterSubscriber.count(),
@@ -84,15 +90,21 @@ export class NewsletterService {
   // --- Unsubscribe (stateless signed token — no per-subscriber column needed) ---
 
   private unsubscribeUrl(email: string): string {
-    const token = this.jwt.sign({ email, t: 'unsub' }, { secret: env.jwtAccessSecret });
+    const token = this.jwt.sign(
+      { email, t: 'unsub' },
+      { secret: env.jwtAccessSecret },
+    );
     return `${env.appUrl}/unsubscribe?token=${token}`;
   }
 
   async unsubscribeByToken(token: string) {
     let email: string;
     try {
-      const payload: any = this.jwt.verify(token, { secret: env.jwtAccessSecret });
-      if (payload?.t !== 'unsub' || !payload?.email) throw new Error('bad token');
+      const payload = this.jwt.verify<{ t?: string; email?: string }>(token, {
+        secret: env.jwtAccessSecret,
+      });
+      if (payload?.t !== 'unsub' || !payload?.email)
+        throw new Error('bad token');
       email = payload.email;
     } catch {
       throw new BadRequestException('This unsubscribe link is invalid.');
@@ -106,7 +118,10 @@ export class NewsletterService {
 
   // Branding used across newsletter emails: site name + an absolute logo URL
   // (email clients can't resolve app-relative paths).
-  private async branding(): Promise<{ siteName: string; logoUrl: string | null }> {
+  private async branding(): Promise<{
+    siteName: string;
+    logoUrl: string | null;
+  }> {
     const s = await this.prisma.siteSetting
       .findUnique({ where: { id: 'global' } })
       .catch(() => null);
@@ -131,7 +146,10 @@ export class NewsletterService {
   }
 
   listCampaigns() {
-    return this.prisma.campaign.findMany({ orderBy: { createdAt: 'desc' }, take: 50 });
+    return this.prisma.campaign.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
   }
 
   async sendTest(input: { subject: string; content: string; to: string }) {
@@ -143,9 +161,13 @@ export class NewsletterService {
       logoUrl,
       recipient: { email: input.to },
     });
-    const ok = await this.mail.sendBatch([{ to: input.to, subject: `[TEST] ${input.subject}`, html }]);
+    const ok = await this.mail.sendBatch([
+      { to: input.to, subject: `[TEST] ${input.subject}`, html },
+    ]);
     if (!ok) {
-      throw new BadRequestException('Could not send the test email. Is RESEND_API_KEY configured?');
+      throw new BadRequestException(
+        'Could not send the test email. Is RESEND_API_KEY configured?',
+      );
     }
     return { message: `Test sent to ${input.to}.` };
   }
@@ -161,7 +183,9 @@ export class NewsletterService {
       select: { email: true, name: true },
     });
     if (subs.length === 0) {
-      throw new BadRequestException('There are no active subscribers to send to.');
+      throw new BadRequestException(
+        'There are no active subscribers to send to.',
+      );
     }
     const branding = await this.branding();
     await this.prisma.campaign.update({
@@ -171,7 +195,10 @@ export class NewsletterService {
     // Fire-and-forget so the request returns immediately; the campaign flips to
     // SENT/FAILED once the batch completes.
     void this.dispatchCampaign(campaign, subs, branding);
-    return { message: `Sending to ${subs.length} subscriber(s)…`, recipientCount: subs.length };
+    return {
+      message: `Sending to ${subs.length} subscriber(s)…`,
+      recipientCount: subs.length,
+    };
   }
 
   private async dispatchCampaign(
@@ -194,10 +221,16 @@ export class NewsletterService {
       const sent = await this.mail.sendBatch(items);
       await this.prisma.campaign.update({
         where: { id: campaign.id },
-        data: { status: sent > 0 ? 'SENT' : 'FAILED', sentCount: sent, sentAt: new Date() },
+        data: {
+          status: sent > 0 ? 'SENT' : 'FAILED',
+          sentCount: sent,
+          sentAt: new Date(),
+        },
       });
     } catch (err) {
-      this.logger.error(`Campaign ${campaign.id} dispatch failed: ${(err as Error).message}`);
+      this.logger.error(
+        `Campaign ${campaign.id} dispatch failed: ${(err as Error).message}`,
+      );
       await this.prisma.campaign
         .update({ where: { id: campaign.id }, data: { status: 'FAILED' } })
         .catch(() => undefined);

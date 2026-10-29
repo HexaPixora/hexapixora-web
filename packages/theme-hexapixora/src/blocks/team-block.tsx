@@ -7,7 +7,7 @@ import { teamSchema, TeamProps } from "@hexapixora/contracts/blocks/team";
 import { LiquidGlass } from "../components/liquid-glass";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function TeamModule({ config }: { config?: TeamProps }) {
+export function TeamBlock({ config }: { config?: TeamProps }) {
   const { heading, subheading, items } = teamSchema.parse(config || {});
   const members = (items || []).filter((m: any) => m.name || m.image);
   const root = useRef<HTMLElement>(null);

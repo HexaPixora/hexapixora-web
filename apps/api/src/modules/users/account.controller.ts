@@ -18,21 +18,34 @@ export class AccountController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
-  updateProfile(@CurrentUser() user: { id: string }, @Body() body: UpdateProfileDto) {
+  updateProfile(
+    @CurrentUser() user: { id: string },
+    @Body() body: UpdateProfileDto,
+  ) {
     return this.users.updateProfile(user.id, { name: body.name });
   }
 
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('change-password')
-  changePassword(@CurrentUser() user: { id: string }, @Body() body: ChangePasswordDto) {
-    return this.users.changePassword(user.id, body.currentPassword, body.newPassword);
+  changePassword(
+    @CurrentUser() user: { id: string },
+    @Body() body: ChangePasswordDto,
+  ) {
+    return this.users.changePassword(
+      user.id,
+      body.currentPassword,
+      body.newPassword,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('change-email')
-  changeEmail(@CurrentUser() user: { id: string }, @Body() body: ChangeEmailDto) {
+  changeEmail(
+    @CurrentUser() user: { id: string },
+    @Body() body: ChangeEmailDto,
+  ) {
     return this.users.requestEmailChange(user.id, body.newEmail);
   }
 

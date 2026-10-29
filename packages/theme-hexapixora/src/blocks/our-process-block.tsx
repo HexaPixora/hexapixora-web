@@ -2,7 +2,7 @@ import React from "react";
 import { Sparkles } from "lucide-react";
 import { ourProcessSchema, OurProcessProps } from "@hexapixora/contracts/blocks/our-process";
 
-export default function OurProcessModule({ config }: { config?: OurProcessProps }) {
+export function OurProcessBlock({ config }: { config?: OurProcessProps }) {
   const { eyebrow, heading, subheading, steps } = ourProcessSchema.parse(config || {});
   const list = (steps || []).filter((s: any) => s.title || s.description);
 

@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { Button } from "@hexapixora/ui/button";
 import { Input } from "@hexapixora/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@hexapixora/ui/tabs";
-import SeoTab from "@/components/admin/seo-tab";
-import MediaPicker from "@/components/admin/media-picker";
+import { SeoTab } from "@/components/admin/seo-tab";
+import { MediaPicker } from "@/components/admin/media-picker";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { PageHeader } from "@hexapixora/ui/admin";
 import {

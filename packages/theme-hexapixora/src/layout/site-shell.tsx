@@ -1,6 +1,6 @@
 import type React from "react";
-import PublicHeader from "./header";
-import PublicFooter from "./footer";
+import { Header } from "./header";
+import { Footer } from "./footer";
 
 /** Layout data the app loads from the API and hands to the theme. */
 export type SiteShellData = {
@@ -37,7 +37,7 @@ export function SiteShell({
   return (
     <div className="flex min-h-screen flex-col">
       {showHeader && (
-        <PublicHeader 
+        <Header 
           settings={data.settings} 
           config={data.headerConfig} 
           navigations={data.navigations} 
@@ -45,7 +45,7 @@ export function SiteShell({
       )}
       <main className={`flex-1 flex flex-col ${headerOverlay && showHeader ? "-mt-16" : ""}`}>{children}</main>
       {showFooter && (
-        <PublicFooter 
+        <Footer 
           settings={data.settings} 
           config={data.footerConfig} 
           headerConfig={data.headerConfig}

@@ -12,7 +12,7 @@ import { mediaAlt } from "../lib/media-alt";
 
 
 
-export default function SplideLogoTickerModule({ config }: { config?: SplideLogoTickerProps }) {
+export function LogoTickerBlock({ config }: { config?: SplideLogoTickerProps }) {
   const {
     heading,
     speed = "1",

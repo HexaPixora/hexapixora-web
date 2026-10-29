@@ -37,7 +37,9 @@ export class NotificationsService {
       });
       return notification;
     } catch (err) {
-      this.logger.error(`Failed to record notification: ${(err as Error).message}`);
+      this.logger.error(
+        `Failed to record notification: ${(err as Error).message}`,
+      );
       return null;
     }
   }
@@ -54,12 +56,18 @@ export class NotificationsService {
   }
 
   async markRead(id: string) {
-    await this.prisma.notification.updateMany({ where: { id }, data: { read: true } });
+    await this.prisma.notification.updateMany({
+      where: { id },
+      data: { read: true },
+    });
     return { ok: true };
   }
 
   async markAllRead() {
-    await this.prisma.notification.updateMany({ where: { read: false }, data: { read: true } });
+    await this.prisma.notification.updateMany({
+      where: { read: false },
+      data: { read: true },
+    });
     return { ok: true };
   }
 }

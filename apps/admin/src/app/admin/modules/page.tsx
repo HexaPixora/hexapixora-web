@@ -10,59 +10,59 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import { Settings2, Eye, Component } from "lucide-react";
 import { MODULES, ModuleDefinition, groupedModules } from "@hexapixora/contracts/blocks/registry";
-import HeroModule from "@hexapixora/theme-hexapixora/blocks/hero";
-import CTAModule from "@hexapixora/theme-hexapixora/blocks/cta";
-import ServicesModule from "@hexapixora/theme-hexapixora/blocks/services";
-import PortfolioModule from "@hexapixora/theme-hexapixora/blocks/portfolio";
-import PortfolioHeroModule from "@hexapixora/theme-hexapixora/blocks/portfolio-hero";
-import WhyChooseModule from "@hexapixora/theme-hexapixora/blocks/why-choose";
-import OurStoryModule from "@hexapixora/theme-hexapixora/blocks/our-story";
-import OurProcessModule from "@hexapixora/theme-hexapixora/blocks/our-process";
-import WorkHeroModule from "@hexapixora/theme-hexapixora/blocks/work-hero";
-import StoryHeroModule from "@hexapixora/theme-hexapixora/blocks/story-hero";
-import TechStackModule from "@hexapixora/theme-hexapixora/blocks/tech-stack";
-import SkillsShowcaseModule from "@hexapixora/theme-hexapixora/blocks/skills-showcase";
-import LeaderModule from "@hexapixora/theme-hexapixora/blocks/leader";
-import QuoteModule from "@hexapixora/theme-hexapixora/blocks/quote";
-import InstagramReelsModule from "@hexapixora/theme-hexapixora/blocks/instagram-reels";
-import RichTextModule from "@hexapixora/theme-hexapixora/blocks/rich-text";
-import TeamModule from "@hexapixora/theme-hexapixora/blocks/team";
-import FAQModule from "@hexapixora/theme-hexapixora/blocks/faq";
-import StatsModule from "@hexapixora/theme-hexapixora/blocks/stats";
-import AboutModule from "@hexapixora/theme-hexapixora/blocks/about";
-import SplideSliderModule from "@hexapixora/theme-hexapixora/blocks/slider";
-import SplideLogoTickerModule from "@hexapixora/theme-hexapixora/blocks/logo-ticker";
-import SplideGallerySyncModule from "@hexapixora/theme-hexapixora/blocks/gallery-sync";
-import ContactFormModule from "@hexapixora/theme-hexapixora/blocks/contact-form";
-import CustomCodeModule from "@hexapixora/theme-hexapixora/blocks/custom-code";
+import { HeroBlock } from "@hexapixora/theme-hexapixora/blocks/hero";
+import { CtaBlock } from "@hexapixora/theme-hexapixora/blocks/cta";
+import { ServicesBlock } from "@hexapixora/theme-hexapixora/blocks/services";
+import { PortfolioBlock } from "@hexapixora/theme-hexapixora/blocks/portfolio";
+import { PortfolioHeroBlock } from "@hexapixora/theme-hexapixora/blocks/portfolio-hero";
+import { WhyChooseBlock } from "@hexapixora/theme-hexapixora/blocks/why-choose";
+import { OurStoryBlock } from "@hexapixora/theme-hexapixora/blocks/our-story";
+import { OurProcessBlock } from "@hexapixora/theme-hexapixora/blocks/our-process";
+import { WorkHeroBlock } from "@hexapixora/theme-hexapixora/blocks/work-hero";
+import { StoryHeroBlock } from "@hexapixora/theme-hexapixora/blocks/story-hero";
+import { TechStackBlock } from "@hexapixora/theme-hexapixora/blocks/tech-stack";
+import { SkillsShowcaseBlock } from "@hexapixora/theme-hexapixora/blocks/skills-showcase";
+import { LeaderBlock } from "@hexapixora/theme-hexapixora/blocks/leader";
+import { QuoteBlock } from "@hexapixora/theme-hexapixora/blocks/quote";
+import { InstagramReelsBlock } from "@hexapixora/theme-hexapixora/blocks/instagram-reels";
+import { RichTextBlock } from "@hexapixora/theme-hexapixora/blocks/rich-text";
+import { TeamBlock } from "@hexapixora/theme-hexapixora/blocks/team";
+import { FaqBlock } from "@hexapixora/theme-hexapixora/blocks/faq";
+import { StatsBlock } from "@hexapixora/theme-hexapixora/blocks/stats";
+import { AboutBlock } from "@hexapixora/theme-hexapixora/blocks/about";
+import { SliderBlock } from "@hexapixora/theme-hexapixora/blocks/slider";
+import { LogoTickerBlock } from "@hexapixora/theme-hexapixora/blocks/logo-ticker";
+import { GallerySyncBlock } from "@hexapixora/theme-hexapixora/blocks/gallery-sync";
+import { ContactFormBlock } from "@hexapixora/theme-hexapixora/blocks/contact-form";
+import { CustomCodeBlock } from "@hexapixora/theme-hexapixora/blocks/custom-code";
 
 // Map for previews
 const PREVIEW_MAP: Record<string, React.FC<any>> = {
-  "HeroSection": HeroModule,
-  "CTASection": CTAModule,
-  "ServicesSection": ServicesModule,
-  "PortfolioSection": PortfolioModule,
-  "PortfolioHeroModule": PortfolioHeroModule,
-  "WhyChooseModule": WhyChooseModule,
-  "OurStoryModule": OurStoryModule,
-  "OurProcessModule": OurProcessModule,
-  "WorkHeroModule": WorkHeroModule,
-  "StoryHeroModule": StoryHeroModule,
-  "TechStackModule": TechStackModule,
-  "SkillsShowcaseModule": SkillsShowcaseModule,
-  "LeaderModule": LeaderModule,
-  "QuoteModule": QuoteModule,
-  "InstagramReelsModule": InstagramReelsModule,
-  "RichTextModule": RichTextModule,
-  "TeamSection": TeamModule,
-  "FAQSection": FAQModule,
-  "StatsSection": StatsModule,
-  "AboutSection": AboutModule,
-  "SplideSliderModule": SplideSliderModule,
-  "SplideLogoTickerModule": SplideLogoTickerModule,
-  "SplideGallerySyncModule": SplideGallerySyncModule,
-  "ContactFormModule": ContactFormModule,
-  "CustomCodeModule": CustomCodeModule,
+  "HeroSection": HeroBlock,
+  "CTASection": CtaBlock,
+  "ServicesSection": ServicesBlock,
+  "PortfolioSection": PortfolioBlock,
+  "PortfolioHeroModule": PortfolioHeroBlock,
+  "WhyChooseModule": WhyChooseBlock,
+  "OurStoryModule": OurStoryBlock,
+  "OurProcessModule": OurProcessBlock,
+  "WorkHeroModule": WorkHeroBlock,
+  "StoryHeroModule": StoryHeroBlock,
+  "TechStackModule": TechStackBlock,
+  "SkillsShowcaseModule": SkillsShowcaseBlock,
+  "LeaderModule": LeaderBlock,
+  "QuoteModule": QuoteBlock,
+  "InstagramReelsModule": InstagramReelsBlock,
+  "RichTextModule": RichTextBlock,
+  "TeamSection": TeamBlock,
+  "FAQSection": FaqBlock,
+  "StatsSection": StatsBlock,
+  "AboutSection": AboutBlock,
+  "SplideSliderModule": SliderBlock,
+  "SplideLogoTickerModule": LogoTickerBlock,
+  "SplideGallerySyncModule": GallerySyncBlock,
+  "ContactFormModule": ContactFormBlock,
+  "CustomCodeModule": CustomCodeBlock,
 };
 
 export default function ModulesLibraryPage() {

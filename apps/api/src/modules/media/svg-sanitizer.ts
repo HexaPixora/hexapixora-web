@@ -6,7 +6,7 @@ import { JSDOM } from 'jsdom';
 const { window } = new JSDOM('');
 // jsdom's window satisfies DOMPurify's WindowLike at runtime but not its
 // stricter type, so cast through unknown.
-const DOMPurify = createDOMPurify(window as unknown as Parameters<typeof createDOMPurify>[0]);
+const DOMPurify = createDOMPurify(window);
 
 /**
  * Strip any active/dangerous content from an SVG so it is safe to serve from

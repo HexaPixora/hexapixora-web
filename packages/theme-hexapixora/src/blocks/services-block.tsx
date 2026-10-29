@@ -14,7 +14,7 @@ function iconByName(name?: string) {
   return (icons as Record<string, typeof Wrench>)[pascal] || Wrench;
 }
 
-export default function ServicesModule({ config }: { config?: ServicesProps }) {
+export function ServicesBlock({ config }: { config?: ServicesProps }) {
   const { heading, subheading, iconColor, buttonColor, buttonTextColor, items } =
     servicesSchema.parse(config || {});
   const services = items || [];

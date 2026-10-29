@@ -40,7 +40,11 @@ export class CreateBlogDto extends SeoFields {
   @IsOptional() @IsBoolean() isPublished?: boolean;
   @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;
   @IsOptional() @IsDateString() publishAt?: string;
-  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => FaqItemDto) faq?: FaqItemDto[];
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FaqItemDto)
+  faq?: FaqItemDto[];
 }
 
 export class UpdateBlogDto extends SeoFields {
@@ -55,5 +59,9 @@ export class UpdateBlogDto extends SeoFields {
   @IsOptional() @IsBoolean() isPublished?: boolean;
   @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;
   @IsOptional() @IsDateString() publishAt?: string;
-  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => FaqItemDto) faq?: FaqItemDto[];
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FaqItemDto)
+  faq?: FaqItemDto[];
 }

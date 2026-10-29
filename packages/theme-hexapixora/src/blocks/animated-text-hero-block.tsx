@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { gsap } from "@hexapixora/motion/gsap";
 import { animatedTextHeroSchema, AnimatedTextHeroProps } from "@hexapixora/contracts/blocks/animated-text-hero";
 
-export default function AnimatedTextHeroModule({ config }: { config?: AnimatedTextHeroProps }) {
+export function AnimatedTextHeroBlock({ config }: { config?: AnimatedTextHeroProps }) {
   const { eyebrow, heading, subheading, buttonText, buttonLink } = animatedTextHeroSchema.parse(config || {});
   const root = useRef<HTMLElement>(null);
   const words = (heading || "").split(/\s+/).filter(Boolean);

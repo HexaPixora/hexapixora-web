@@ -5,6 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TokensService } from '../tokens/tokens.service';
 import { MailService } from '../mail/mail.service';
 import { TokenType } from '@hexapixora/database';
+import type { AuthUser, JwtPayload } from './auth.types';
 import { env } from '../../config/env';
 import * as bcrypt from 'bcryptjs';
 
@@ -25,18 +26,23 @@ export class AuthService {
     return s?.siteName || 'HexaPixora';
   }
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, pass: string): Promise<AuthUser | null> {
     const user = await this.usersService.findByEmail(email);
     // INVITED users have a null password until they accept — they can't log in.
     if (user && user.password && (await bcrypt.compare(pass, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
     }
     return null;
   }
 
-  async login(user: any) {
-    const payload = { email: user.email, sub: user.id, role: user.role };
+  async login(user: AuthUser) {
+    const payload: JwtPayload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    };
     const accessToken = this.jwtService.sign(payload, {
       secret: env.jwtAccessSecret,
       expiresIn: '15m',
@@ -68,7 +74,7 @@ export class AuthService {
     const session = await this.prisma.session.findUnique({
       where: { token: rt },
     });
-    
+
     if (!session || session.userId !== userId) {
       throw new UnauthorizedException('Access Denied');
     }

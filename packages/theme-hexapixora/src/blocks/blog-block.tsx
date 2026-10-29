@@ -17,7 +17,7 @@ async function getBlogs(limit: number) {
   }
 }
 
-export default async function BlogModule({ config }: { config?: BlogProps }) {
+export async function BlogBlock({ config }: { config?: BlogProps }) {
   const { heading, subheading, limit } = blogSchema.parse(config || {});
   const maxItems = parseInt(limit) || 3;
   const posts = await getBlogs(maxItems);

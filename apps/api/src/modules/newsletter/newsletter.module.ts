@@ -8,6 +8,6 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [NotificationsModule, MailModule, JwtModule.register({})],
   controllers: [NewsletterController],
-  providers: [NewsletterService]
+  providers: [NewsletterService],
 })
 export class NewsletterModule {}

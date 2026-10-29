@@ -1,7 +1,7 @@
 import React from "react";
 import { ctasectionSchema, CTAProps } from "@hexapixora/contracts/blocks/cta";
 
-export default function CTAModule({ config }: { config?: CTAProps }) {
+export function CtaBlock({ config }: { config?: CTAProps }) {
   const {
     title = "Ready to get started?",
     subtitle = "Join us today and transform your business.",

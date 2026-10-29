@@ -1,6 +1,6 @@
-import SiteLayout from "@/components/public/site-layout";
-import DynamicRenderer from "@hexapixora/theme-hexapixora/block-renderer";
-import HeroModule from "@hexapixora/theme-hexapixora/blocks/hero"; // fallback when no homepage is set
+import { SiteLayout } from "@/components/public/site-layout";
+import { BlockRenderer } from "@hexapixora/theme-hexapixora/block-renderer";
+import { HeroBlock } from "@hexapixora/theme-hexapixora/blocks/hero"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 
@@ -78,7 +78,7 @@ export default async function HomePage() {
   if (!page) {
     return (
       <SiteLayout headerOverlay>
-        <HeroModule config={(moduleDefaults as any)["HeroSection"] || {}} />
+        <HeroBlock config={(moduleDefaults as any)["HeroSection"] || {}} />
       </SiteLayout>
     );
   }
@@ -93,7 +93,7 @@ export default async function HomePage() {
           </div>
         )}
 
-        <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
+        <BlockRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
       </div>
     </SiteLayout>
   );

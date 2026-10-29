@@ -26,7 +26,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   thumbs: ThumbsUp,
 };
 
-export default function WhyChooseModule({ config }: { config?: WhyChooseProps }) {
+export function WhyChooseBlock({ config }: { config?: WhyChooseProps }) {
   const { eyebrow, heading, subheading, items } = whyChooseSchema.parse(config || {});
   const list = (items || []).filter((i: any) => i.title || i.description);
 

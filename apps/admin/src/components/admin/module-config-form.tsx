@@ -5,7 +5,7 @@ import type { ModuleDefinition, ModuleField } from "@hexapixora/contracts/blocks
 import { Input } from "@hexapixora/ui/input";
 import { Textarea } from "@hexapixora/ui/textarea";
 import { Button } from "@hexapixora/ui/button";
-import MediaField from "@/components/admin/media-field";
+import { MediaField } from "@/components/admin/media-field";
 import { CategorySelect } from "@/components/admin/category-select";
 import { ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 

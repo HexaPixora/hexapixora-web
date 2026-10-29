@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { headerSchema, HeaderConfig, DEFAULT_HEADER_CONFIG } from "@hexapixora/contracts/layout/header";
 import { Button } from "@hexapixora/ui/button";
 import { Input } from "@hexapixora/ui/input";
-import MediaField from "@/components/admin/media-field";
+import { MediaField } from "@/components/admin/media-field";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { PageHeader, SectionCard, Field, PageLoading } from "@hexapixora/ui/admin";
 

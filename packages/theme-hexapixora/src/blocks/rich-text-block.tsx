@@ -1,7 +1,7 @@
 import React from "react";
 import { richTextSchema, RichTextProps } from "@hexapixora/contracts/blocks/rich-text";
 
-export default function RichTextModule({ config }: { config?: RichTextProps }) {
+export function RichTextBlock({ config }: { config?: RichTextProps }) {
   const { heading, lastUpdated, content } = richTextSchema.parse(config || {});
 
   return (

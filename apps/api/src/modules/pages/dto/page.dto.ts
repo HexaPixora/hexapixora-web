@@ -12,7 +12,7 @@ import { ContentStatus } from '@prisma/client';
 class PageFields {
   // sections is free-form JSON (array of module configs from the builder, or a
   // serialized string from quick-create) — accepted as-is.
-  @IsOptional() @Allow() sections?: any;
+  @IsOptional() @Allow() sections?: unknown;
   @IsOptional() @IsBoolean() showHeader?: boolean;
   @IsOptional() @IsBoolean() showFooter?: boolean;
   @IsOptional() @IsEnum(ContentStatus) status?: ContentStatus;

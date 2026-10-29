@@ -39,12 +39,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if (typeof body === 'string') {
         message = body;
       } else if (body && typeof body === 'object') {
-        message = (body as any).message ?? exception.message;
-        error = (body as any).error ?? error;
+        const fields = body as { message?: string | string[]; error?: string };
+        message = fields.message ?? exception.message;
+        error = fields.error ?? error;
       }
     }
 
-    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (status >= Number(HttpStatus.INTERNAL_SERVER_ERROR)) {
       this.logger.error(
         `${req.method} ${req.url} → ${status}`,
         exception instanceof Error ? exception.stack : String(exception),

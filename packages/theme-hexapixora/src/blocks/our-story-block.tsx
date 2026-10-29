@@ -2,7 +2,7 @@ import React from "react";
 import { Sparkles } from "lucide-react";
 import { ourStorySchema, OurStoryProps } from "@hexapixora/contracts/blocks/our-story";
 
-export default function OurStoryModule({ config }: { config?: OurStoryProps }) {
+export function OurStoryBlock({ config }: { config?: OurStoryProps }) {
   const { eyebrow, heading, subheading, milestones } = ourStorySchema.parse(config || {});
   const list = (milestones || []).filter((m: any) => m.title || m.description || m.year);
 

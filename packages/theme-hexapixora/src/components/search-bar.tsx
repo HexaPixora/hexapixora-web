@@ -9,7 +9,7 @@ import globalIcon from "../icons/global-icon.svg";
 
 type Result = { type: "blog" | "page"; title: string; snippet: string; url: string };
 
-export default function SearchBar({
+export function SearchBar({
   open,
   onOpenChange,
   glass = true,

@@ -5,7 +5,7 @@ import { LiquidGlass } from "../components/liquid-glass";
 import { aboutSchema, AboutProps } from "@hexapixora/contracts/blocks/about";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function AboutModule({ config }: { config?: AboutProps }) {
+export function AboutBlock({ config }: { config?: AboutProps }) {
   const { eyebrow, heading, content, image, highlights, buttonText, buttonUrl } =
     aboutSchema.parse(config || {});
   const hl = (highlights || []).filter((h: any) => h.title || h.description);
