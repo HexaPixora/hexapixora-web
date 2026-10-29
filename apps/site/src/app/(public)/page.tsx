@@ -1,7 +1,6 @@
 import { SiteLayout } from "@/components/public/site-layout";
 import { PageHeader } from "@hexapixora/theme-hexa-noir/components/page-header";
 import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
-import { HeroBlock } from "@hexapixora/theme-hexa-noir/blocks/hero"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
 import { getLatestPosts } from "@/lib/latest-posts";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
@@ -80,7 +79,7 @@ export default async function HomePage() {
   if (!page) {
     return (
       <SiteLayout headerOverlay>
-        <HeroBlock config={(moduleDefaults as any)["HeroSection"] || {}} />
+        <BlockRenderer sections={[{ id: "fallback-hero", type: "HeroSection", isVisible: true }]} moduleDefaults={moduleDefaults} />
       </SiteLayout>
     );
   }

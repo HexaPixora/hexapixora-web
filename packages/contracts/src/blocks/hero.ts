@@ -42,7 +42,7 @@ export const HeroDef = defineBlock(
     layoutField([
       { label: "Film (moving footage)", value: "film" },
       { label: "Image background", value: "image" },
-      { label: "Text and image", value: "split" },
+      { label: "Story (label row, photo behind)", value: "split" },
       { label: "With numbers", value: "stats" },
       { label: "Type only", value: "type" },
       { label: "Profile", value: "profile" },
@@ -78,7 +78,7 @@ export const HeroDef = defineBlock(
       label: "Small note",
       type: "text",
       showFor: ["film", "split", "profile"],
-      description: "Film: scroll hint. Text and image: e.g. Est. 2019. Profile: availability.",
+      description: "Film: scroll hint. Story: e.g. Est. 2019. Profile: availability.",
     },
     {
       name: "stats",

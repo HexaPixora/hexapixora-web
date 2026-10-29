@@ -10,7 +10,7 @@ export const stepItemSchema = z.object({
 });
 
 export const stepsSchema = z.object({
-  layout: z.enum(["row", "timeline", "story"]).default("row"),
+  layout: z.enum(["row", "timeline", "milestones", "story"]).default("row"),
   ...headShape,
   heading: z.string().default("How we work"),
   items: z.array(stepItemSchema).default([
@@ -31,12 +31,13 @@ export type StepsConfig = z.infer<typeof stepsSchema>;
 export const StepsDef = defineBlock(
   "steps",
   "Steps",
-  "A process, a timeline of milestones, or a scroll story with pictures.",
+  "A process, a timeline, milestones by year, or a scroll story with pictures.",
   stepsSchema,
   [
     layoutField([
       { label: "Row of steps", value: "row" },
-      { label: "Timeline", value: "timeline" },
+      { label: "Timeline (line with dots)", value: "timeline" },
+      { label: "Milestones (large years)", value: "milestones" },
       { label: "Scroll story (with images)", value: "story" },
     ]),
     ...headFields,

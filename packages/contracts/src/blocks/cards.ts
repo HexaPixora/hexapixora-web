@@ -11,7 +11,7 @@ export const cardItemSchema = z.object({
   linkText: z.string().default(""),
   /** meters: a level from 0 to 100. */
   value: z.string().default(""),
-  /** pillars: a comma-separated list shown under the text. */
+  /** pillars: one per line, optionally "Name | /link". */
   tags: z.string().default(""),
 });
 
@@ -72,7 +72,13 @@ export const CardsDef = defineBlock(
         { name: "url", label: "Link", type: "text", showFor: ["grid"] },
         { name: "linkText", label: "Link text", type: "text", showFor: ["grid"] },
         { name: "value", label: "Level (0–100)", type: "text", showFor: ["meters"] },
-        { name: "tags", label: "Tags", type: "text", showFor: ["pillars"], description: "Comma-separated." },
+        {
+          name: "tags",
+          label: "Services",
+          type: "textarea",
+          showFor: ["pillars"],
+          description: "One per line. Add | /link to link one.",
+        },
       ],
     },
     actionsField(),

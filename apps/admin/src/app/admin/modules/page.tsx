@@ -10,56 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import { Settings2, Eye, Component } from "lucide-react";
 import { MODULES, ModuleDefinition, groupedModules } from "@hexapixora/contracts/blocks/registry";
-import { HeroBlock } from "@hexapixora/theme-hexa-noir/blocks/hero";
-import { CtaBlock } from "@hexapixora/theme-hexa-noir/blocks/cta";
-import { ServicesBlock } from "@hexapixora/theme-hexa-noir/blocks/services";
-import { PortfolioBlock } from "@hexapixora/theme-hexa-noir/blocks/portfolio";
-import { PortfolioHeroBlock } from "@hexapixora/theme-hexa-noir/blocks/portfolio-hero";
-import { WhyChooseBlock } from "@hexapixora/theme-hexa-noir/blocks/why-choose";
-import { OurStoryBlock } from "@hexapixora/theme-hexa-noir/blocks/our-story";
-import { OurProcessBlock } from "@hexapixora/theme-hexa-noir/blocks/our-process";
-import { WorkHeroBlock } from "@hexapixora/theme-hexa-noir/blocks/work-hero";
-import { StoryHeroBlock } from "@hexapixora/theme-hexa-noir/blocks/story-hero";
-import { TechStackBlock } from "@hexapixora/theme-hexa-noir/blocks/tech-stack";
-import { SkillsShowcaseBlock } from "@hexapixora/theme-hexa-noir/blocks/skills-showcase";
-import { LeaderBlock } from "@hexapixora/theme-hexa-noir/blocks/leader";
-import { QuoteBlock } from "@hexapixora/theme-hexa-noir/blocks/quote";
-import { RichTextBlock } from "@hexapixora/theme-hexa-noir/blocks/rich-text";
-import { TeamBlock } from "@hexapixora/theme-hexa-noir/blocks/team";
-import { FaqBlock } from "@hexapixora/theme-hexa-noir/blocks/faq";
-import { StatsBlock } from "@hexapixora/theme-hexa-noir/blocks/stats";
-import { AboutBlock } from "@hexapixora/theme-hexa-noir/blocks/about";
-import { SliderBlock } from "@hexapixora/theme-hexa-noir/blocks/slider";
-import { LogoTickerBlock } from "@hexapixora/theme-hexa-noir/blocks/logo-ticker";
-import { GallerySyncBlock } from "@hexapixora/theme-hexa-noir/blocks/gallery-sync";
-import { ContactFormBlock } from "@hexapixora/theme-hexa-noir/blocks/contact-form";
+import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
 
-// Map for previews
-const PREVIEW_MAP: Record<string, React.FC<any>> = {
-  "HeroSection": HeroBlock,
-  "CTASection": CtaBlock,
-  "ServicesSection": ServicesBlock,
-  "PortfolioSection": PortfolioBlock,
-  "PortfolioHeroModule": PortfolioHeroBlock,
-  "WhyChooseModule": WhyChooseBlock,
-  "OurStoryModule": OurStoryBlock,
-  "OurProcessModule": OurProcessBlock,
-  "WorkHeroModule": WorkHeroBlock,
-  "StoryHeroModule": StoryHeroBlock,
-  "TechStackModule": TechStackBlock,
-  "SkillsShowcaseModule": SkillsShowcaseBlock,
-  "LeaderModule": LeaderBlock,
-  "QuoteModule": QuoteBlock,
-  "RichTextModule": RichTextBlock,
-  "TeamSection": TeamBlock,
-  "FAQSection": FaqBlock,
-  "StatsSection": StatsBlock,
-  "AboutSection": AboutBlock,
-  "SplideSliderModule": SliderBlock,
-  "SplideLogoTickerModule": LogoTickerBlock,
-  "SplideGallerySyncModule": GallerySyncBlock,
-  "ContactFormModule": ContactFormBlock,
-};
 
 export default function ModulesLibraryPage() {
   const canManage = useHasPermission("layouts");
@@ -185,15 +137,20 @@ export default function ModulesLibraryPage() {
             <DialogTitle>Preview: {previewId ? MODULES[previewId]?.label : ''}</DialogTitle>
           </DialogHeader>
           <div className="border rounded-xl overflow-hidden mt-4 bg-background">
-            {previewId && PREVIEW_MAP[previewId] ? (
-              React.createElement(PREVIEW_MAP[previewId], {
-                config: moduleDefaults[previewId] || MODULES[previewId]?.defaultConfig
-              })
-            ) : (
-              <div className="p-12 text-center text-muted-foreground bg-muted/30">
-                <p>Preview not available yet.</p>
-              </div>
-            )}
+            {/* Rendered like the site does, so old block types show in their new form. */}
+            {previewId ? (
+              <BlockRenderer
+                sections={[
+                  {
+                    id: "preview",
+                    type: previewId,
+                    isVisible: true,
+                    config: moduleDefaults[previewId] || MODULES[previewId]?.defaultConfig,
+                  },
+                ]}
+                moduleDefaults={{}}
+              />
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>
