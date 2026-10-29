@@ -16,7 +16,7 @@ export function CtaBlock({ config }: { config?: unknown }) {
   return (
     <SectionFrame block="cta" labelledBy={titleId} innerClassName="grid gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
       <ClipReveal>
-        <h2 id={titleId} className="wide max-w-[16ch] text-display-md font-bold">
+        <h2 id={titleId} className="wide max-w-[16ch] text-display-md font-medium">
           {c.title}
         </h2>
         {c.subtitle ? <p className="mt-5 max-w-[48ch] text-lg text-copy-dim">{c.subtitle}</p> : null}

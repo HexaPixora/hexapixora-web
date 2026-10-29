@@ -6,7 +6,7 @@ import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { PillLink } from "../../components/pill-link";
 import { SafeLink } from "../../components/safe-link";
-import { StatValue } from "../../components/stat-value";
+import { StatGrid } from "../../components/stat-grid";
 import { mediaAlt } from "../../lib/media-alt";
 
 const SOCIAL_LABELS: Record<string, string> = {
@@ -108,16 +108,7 @@ export function PortfolioHeroBlock({ config }: { config?: unknown }) {
 
       {stats.length > 0 ? (
         <div className="page-width mt-16">
-          <dl className="grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
-            {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col-reverse bg-page p-[26px]">
-                <dt className="text-copy-dim">{stat.label}</dt>
-                <dd className="font-display text-display-md font-medium leading-none">
-                  <StatValue value={stat.value} />
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <StatGrid stats={stats} />
         </div>
       ) : null}
     </section>

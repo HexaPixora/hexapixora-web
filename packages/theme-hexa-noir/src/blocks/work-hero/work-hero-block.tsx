@@ -3,7 +3,7 @@ import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
 import { workHeroSchema } from "@hexapixora/contracts/blocks/work-hero";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { PillLink } from "../../components/pill-link";
-import { StatValue } from "../../components/stat-value";
+import { StatGrid } from "../../components/stat-grid";
 
 /** Opener for the work page: headline, intro, a button and a row of stats. */
 export function WorkHeroBlock({ config }: { config?: unknown }) {
@@ -30,16 +30,9 @@ export function WorkHeroBlock({ config }: { config?: unknown }) {
         ) : null}
 
         {stats.length > 0 ? (
-          <dl className="mt-16 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
-            {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col-reverse bg-page p-[26px]">
-                <dt className="text-copy-dim">{stat.label}</dt>
-                <dd className="font-display text-display-md font-medium leading-none">
-                  <StatValue value={stat.value} />
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <div className="mt-16">
+            <StatGrid stats={stats} />
+          </div>
         ) : null}
       </div>
     </section>

@@ -1,87 +1,73 @@
-import React from "react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { LiquidGlass } from "../../components/liquid-glass";
-import { aboutSchema, AboutProps } from "@hexapixora/contracts/blocks/about";
+import { useId } from "react";
+import { safeHref } from "@hexapixora/contracts/links";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { aboutSchema } from "@hexapixora/contracts/blocks/about";
+import { ClipReveal } from "@hexapixora/motion/clip-reveal";
+import { PillLink } from "../../components/pill-link";
+import { SectionFrame } from "../../components/section-frame";
 import { mediaAlt } from "../../lib/media-alt";
 
-export function AboutBlock({ config }: { config?: AboutProps }) {
-  const { eyebrow, heading, content, image, highlights, buttonText, buttonUrl } =
-    aboutSchema.parse(config || {});
-  const hl = (highlights || []).filter((h: any) => h.title || h.description);
-  const paragraphs = (content || "").split("\n").map((p) => p.trim()).filter(Boolean);
+/** Image beside a heading, paragraphs, highlight cards and a button. */
+export function AboutBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(aboutSchema, config);
+  const headingId = useId();
+  const image = safeHref(c.image);
+  const highlights = c.highlights.filter((item) => item.title || item.description);
+  const paragraphs = c.content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   return (
-    <section className="relative isolate overflow-hidden py-20 md:py-28">
-      {/* Ambient aurora */}
-      <div aria-hidden className="pointer-events-none absolute -left-32 top-1/4 -z-10 h-[40vh] w-[40vh] rounded-full bg-[rgba(16,147,253,0.12)] blur-[120px]" />
-      <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 -z-10 h-[36vh] w-[36vh] rounded-full bg-[rgba(80,60,220,0.12)] blur-[120px]" />
+    <SectionFrame
+      block="about"
+      labelledBy={c.heading ? headingId : undefined}
+      innerClassName={`grid items-center gap-12 ${image ? "lg:grid-cols-2 lg:gap-16" : ""}`}
+    >
+      {image ? (
+        <ClipReveal className="relative aspect-[4/3] overflow-hidden border border-line lg:aspect-square">
+          <img
+            src={image}
+            alt={mediaAlt(image, c.heading)}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
+        </ClipReveal>
+      ) : null}
 
-      <div className="container">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          {/* Image — sharp photo under liquid-glass light. */}
-          <div className="relative">
-            <div className="relative aspect-square overflow-hidden rounded-[2rem] border border-white/12 shadow-[0_40px_100px_-40px_rgba(16,147,253,0.5)] ring-1 ring-inset ring-white/10 md:aspect-[4/3] lg:aspect-square">
-              {image ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image} alt={mediaAlt(image, heading || "About us")} className="h-full w-full object-cover" />
-                  <LiquidGlass tintClass="to-primary-blue/40" />
-                </>
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950 text-sm text-white/40">
-                  Add an image in the builder
-                </div>
-              )}
-            </div>
+      <div>
+        {c.eyebrow ? <p className="mono mb-5 text-signal">{c.eyebrow}</p> : null}
+        {c.heading ? (
+          <h2 id={headingId} className="wide max-w-[20ch] text-display-md font-medium">
+            {c.heading}
+          </h2>
+        ) : null}
+        {paragraphs.length > 0 ? (
+          <div className="mt-6 grid max-w-[60ch] gap-4 text-lg text-copy-dim">
+            {paragraphs.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
           </div>
+        ) : null}
 
-          {/* Content */}
-          <div className="flex flex-col items-start">
-            {eyebrow && (
-              <span className="mb-6 inline-flex items-center rounded-full border border-white/12 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-[#7cc4ff] ring-1 ring-inset ring-white/10">
-                {eyebrow}
-              </span>
-            )}
+        {highlights.length > 0 ? (
+          <ul className="mt-10 grid gap-px border border-line bg-line sm:grid-cols-2">
+            {highlights.map((item, i) => (
+              <li key={i} className="bg-page p-6">
+                {item.title ? <h3 className="wide mb-2 text-title font-medium">{item.title}</h3> : null}
+                {item.description ? <p className="text-copy-dim">{item.description}</p> : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
-            <h2 className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-3xl font-black leading-[1.15] tracking-tight text-transparent md:text-5xl">
-              {heading || "Who we are"}
-            </h2>
-
-            {paragraphs.length > 0 && (
-              <div className="prose prose-lg mt-6 max-w-none leading-relaxed text-muted-foreground dark:prose-invert">
-                {paragraphs.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-            )}
-
-            {hl.length > 0 && (
-              <div className="mt-8 grid w-full grid-cols-1 gap-4 border-t border-white/10 pt-8 sm:grid-cols-2">
-                {hl.map((h: any, i: number) => (
-                  <div
-                    key={i}
-                    className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 ring-1 ring-inset ring-white/10 transition-colors hover:border-white/20"
-                  >
-                    {h.title && <h4 className="mb-1 text-lg font-bold text-foreground">{h.title}</h4>}
-                    {h.description && <p className="text-sm leading-relaxed text-muted-foreground">{h.description}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {buttonText && (
-              <Link
-                href={buttonUrl || "#"}
-                className="group mt-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[#2a9dff] to-[#1074e0] px-7 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_-10px_rgba(16,147,253,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-10px_rgba(16,147,253,0.95)]"
-              >
-                {buttonText}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            )}
+        {c.buttonText ? (
+          <div className="mt-10">
+            <PillLink href={c.buttonUrl}>{c.buttonText}</PillLink>
           </div>
-        </div>
+        ) : null}
       </div>
-    </section>
+    </SectionFrame>
   );
 }

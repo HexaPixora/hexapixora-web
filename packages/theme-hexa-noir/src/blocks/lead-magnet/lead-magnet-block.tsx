@@ -20,7 +20,7 @@ export function LeadMagnetBlock({ config }: { config?: unknown }) {
     <SectionFrame block="lead-magnet" labelledBy={titleId} innerClassName="grid items-start gap-12 md:grid-cols-2">
       <div>
         {c.resourceTitle ? <p className="mono mb-5 text-signal">{c.resourceTitle}</p> : null}
-        <h2 id={titleId} className="wide text-display-md font-bold">
+        <h2 id={titleId} className="wide text-display-md font-medium">
           {c.heading}
         </h2>
         {c.subheading ? <p className="mt-5 max-w-[48ch] text-lg text-copy-dim">{c.subheading}</p> : null}
