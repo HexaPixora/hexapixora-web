@@ -67,12 +67,13 @@
   --ease-cut: cubic-bezier(0.7, 0, 0.2, 1);
 }
 
-/* `inline` because the values point at next/font variables set on <body>. */
+/* `inline`: the font utilities read the stacks declared on <body> (below),
+ * so a theme pack can swap the fonts at runtime. */
 @theme inline {
-  --font-display: var(--font-unbounded), "Arial Black", sans-serif;
-  --font-body: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
-  --font-sans: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
 }
 
 :root {
@@ -115,9 +116,8 @@
   }
 
   body {
-    /* The font stacks as real variables, declared where next/font sets
-     * --font-unbounded etc. The @theme inline mapping only inlines them
-     * into utilities, so CSS rules (and theme packs) read these. */
+    /* The font stacks, declared where next/font sets --font-unbounded etc.
+     * Utilities and CSS rules read these; a theme pack overrides them. */
     --font-display: var(--font-unbounded), "Arial Black", sans-serif;
     --font-body: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
     --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
