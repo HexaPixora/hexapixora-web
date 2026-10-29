@@ -43,11 +43,18 @@ const NO_REVEAL = new Set([
   "SkillsShowcaseModule",
   "FAQSection",
   "StatsSection",
+  "PortfolioSection",
+  "BlogSection",
+  "TeamSection",
+  "GalleryModule",
+  "VideoPlayerModule",
+  "InstagramReelsModule",
+  "PricingModule",
   // Cinematic blocks run their own entrance motion.
   ...Object.keys(NOIR_BLOCKS),
 ]);
 
-function DefaultSection({ type, label, config }: { type: string, label?: string, config?: any }) {
+function DefaultSection({ type, label }: { type: string; label?: string; config?: unknown; posts?: unknown[] }) {
   return (
     <section className="container py-16 border-b">
       <h2 className="text-2xl font-bold tracking-tight mb-4">{label || type}</h2>
@@ -106,9 +113,11 @@ interface BlockRendererProps {
   moduleDefaults: Record<string, any>;
   // filename -> alt text from the media library (GET /media/alt-text)
   altTexts?: Record<string, string>;
+  /** Latest published posts, loaded by the app when a page has a blog block. */
+  latestPosts?: unknown[];
 }
 
-export function BlockRenderer({ sections, moduleDefaults, altTexts }: BlockRendererProps) {
+export function BlockRenderer({ sections, moduleDefaults, altTexts, latestPosts }: BlockRendererProps) {
   if (!sections || sections.length === 0) {
     return null;
   }
@@ -154,7 +163,7 @@ export function BlockRenderer({ sections, moduleDefaults, altTexts }: BlockRende
         if (anchor) usedAnchors.add(anchor);
 
         const rendered = (
-          <Component type={typeToRender} label={section.label} config={mergedConfig} />
+          <Component type={typeToRender} label={section.label} config={mergedConfig} posts={latestPosts} />
         );
 
         // Fade + rise on scroll — except heroes and the first (above-fold) section.

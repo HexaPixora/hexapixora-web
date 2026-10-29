@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteLayout } from "@/components/public/site-layout";
 import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
 import { cmsFetch, readJson, readResource } from "@hexapixora/sdk/server";
+import { getLatestPosts } from "@/lib/latest-posts";
 import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 
 // Revalidate periodically (120s) so custom pages serve instantly from cache.
@@ -98,7 +99,12 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
           </div>
         )}
         
-        <BlockRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
+        <BlockRenderer
+          sections={sections}
+          moduleDefaults={moduleDefaults}
+          altTexts={altTexts}
+          latestPosts={await getLatestPosts(sections)}
+        />
       </div>
     </SiteLayout>
   );

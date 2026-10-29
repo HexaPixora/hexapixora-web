@@ -1,10 +1,23 @@
-import React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Calendar, Clock } from "lucide-react";
+import { safeHref } from "@hexapixora/contracts/links";
 
-/** Canonical URL for a post: /insights/<slug>. URLs are fully flat — categories
- *  live at /insights/<category-slug> too (resolved by the same [slug] route). */
-export function insightPostUrl(post: any): string {
+export type InsightCategory = { name?: string; slug?: string; color?: string | null };
+
+export type InsightPost = {
+  id?: string;
+  slug: string;
+  title: string;
+  excerpt?: string | null;
+  content?: string | null;
+  thumbnail?: string | null;
+  publishDate?: string | null;
+  createdAt?: string | null;
+  readTime?: number | null;
+  categories?: InsightCategory[];
+};
+
+/** Canonical URL for a post: /insights/<slug>. Categories share the same flat route. */
+export function insightPostUrl(post: Pick<InsightPost, "slug">): string {
   return `/insights/${post.slug}`;
 }
 
@@ -13,74 +26,69 @@ export function formatInsightDate(d?: string | null): string {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-export function insightExcerpt(post: any, max = 150): string {
+export function insightExcerpt(post: Pick<InsightPost, "excerpt" | "content">, max = 150): string {
   if (post?.excerpt) return post.excerpt;
-  const text = String(post?.content || "").replace(/<[^<>]*>?/gm, " ").replace(/\s+/g, " ").trim();
+  const text = String(post?.content || "")
+    .replace(/<[^<>]*>?/gm, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
 }
 
-/** Premium gradient fallback when a post has no featured image. */
-function ImageFallback({ label }: { label: string }) {
-  return (
-    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950">
-      <span className="bg-gradient-to-b from-white/70 to-white/20 bg-clip-text text-5xl font-black tracking-tight text-transparent">
-        {(label || "H").charAt(0).toUpperCase()}
-      </span>
-    </div>
-  );
-}
-
-export function CategoryChip({ category, className = "" }: { category?: any; className?: string }) {
+/**
+ * A category label. The stored category colour is ignored: the theme owns
+ * colour, so every category reads the same.
+ */
+export function CategoryChip({ category, className = "" }: { category?: InsightCategory; className?: string }) {
   if (!category?.name) return null;
   return (
-    <span
-      className={`inline-flex items-center rounded-full border border-white/20 bg-black/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white backdrop-blur-md ${className}`}
-      style={category.color ? { borderColor: category.color, backgroundColor: `${category.color}22` } : undefined}
-    >
+    <span className={`mono inline-flex border border-line bg-page/80 px-2.5 py-1 text-copy ${className}`}>
       {category.name}
     </span>
   );
 }
 
-export function InsightCard({ post, className = "" }: { post: any; className?: string }) {
-  const cat = post.categories?.[0];
+/** An article card: image, category, date, title, excerpt. The whole card is one link. */
+export function InsightCard({ post, className = "" }: { post: InsightPost; className?: string }) {
+  const category = post.categories?.[0];
   const date = post.publishDate || post.createdAt;
+  const thumbnail = safeHref(post.thumbnail);
 
   return (
-    <Link
-      href={insightPostUrl(post)}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] transition-colors duration-300 hover:border-white/20 ${className}`}
+    <article
+      className={`group relative flex h-full flex-col border border-line bg-page transition-colors duration-[400ms] hover:bg-page-raised ${className}`}
     >
-      <div className="relative aspect-[16/10] overflow-hidden">
-        {post.thumbnail ? (
-          // eslint-disable-next-line @next/next/no-img-element
+      <div className="relative aspect-[16/10] overflow-hidden bg-page-raised">
+        {thumbnail ? (
           <img
-            src={post.thumbnail}
-            alt={post.title}
+            src={thumbnail}
+            alt=""
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
           />
         ) : (
-          <ImageFallback label={cat?.name || post.title} />
+          <span aria-hidden="true" className="wide grid h-full place-items-center text-display-md text-copy/10">
+            {(category?.name || post.title).charAt(0)}
+          </span>
         )}
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-        <CategoryChip category={cat} className="absolute left-4 top-4" />
+        <CategoryChip category={category} className="absolute left-4 top-4" />
       </div>
-
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><Calendar size={13} /> {formatInsightDate(date)}</span>
-          {post.readTime ? <span className="inline-flex items-center gap-1.5"><Clock size={13} /> {post.readTime} min read</span> : null}
-        </div>
-        <h3 className="line-clamp-2 text-lg font-bold leading-snug text-foreground transition-colors duration-300 group-hover:text-[#7cc4ff]">
-          {post.title}
+      <div className="flex flex-1 flex-col p-6">
+        <p className="mono flex flex-wrap gap-x-4 text-copy-dim">
+          {date ? <time dateTime={date}>{formatInsightDate(date)}</time> : null}
+          {post.readTime ? <span>{post.readTime} min read</span> : null}
+        </p>
+        <h3 className="wide mt-3 line-clamp-3 text-title font-medium">
+          <Link href={insightPostUrl(post)} className="after:absolute after:inset-0">
+            {post.title}
+          </Link>
         </h3>
-        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{insightExcerpt(post)}</p>
-        <div className="mt-auto flex items-center gap-1.5 border-t border-white/10 pt-4 text-sm font-semibold text-[#7cc4ff]">
-          Read insight
-          <ArrowUpRight size={15} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </div>
+        <p className="mt-3 line-clamp-3 text-copy-dim">{insightExcerpt(post)}</p>
+        <span aria-hidden="true" className="mono mt-auto pt-6 text-signal">
+          Read insight →
+        </span>
       </div>
-    </Link>
+    </article>
   );
 }

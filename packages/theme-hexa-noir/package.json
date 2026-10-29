@@ -24,8 +24,6 @@
     "@hexapixora/sdk": "*",
     "@hexapixora/ui": "*",
     "@hookform/resolvers": "^5.4.0",
-    "@splidejs/splide": "^4.1.4",
-    "@splidejs/splide-extension-auto-scroll": "^0.5.3",
     "lucide-react": "^1.17.0",
     "react-hook-form": "^7.78.0",
     "zod": "^4.6.7"

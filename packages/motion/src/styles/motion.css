@@ -23,3 +23,39 @@
     animation: none;
   }
 }
+
+/* <Marquee>: an endless row. The track holds two copies and slides by half
+ * its width. It pauses on hover and keyboard focus (WCAG 2.2.2) and stops,
+ * scrollable instead, under reduced motion. */
+[data-marquee] {
+  overflow: hidden;
+}
+
+[data-marquee-track] {
+  display: flex;
+  width: max-content;
+  animation: motion-marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+[data-marquee][data-direction="right"] [data-marquee-track] {
+  animation-direction: reverse;
+}
+
+[data-marquee]:hover [data-marquee-track],
+[data-marquee]:focus-within [data-marquee-track] {
+  animation-play-state: paused;
+}
+
+@keyframes motion-marquee {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-marquee] {
+    overflow-x: auto;
+  }
+
+  [data-marquee-track] {
+    animation: none;
+  }
+}
