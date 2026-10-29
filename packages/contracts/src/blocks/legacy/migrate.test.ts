@@ -105,7 +105,7 @@ describe("migrateSection", () => {
 
     assert.equal(
       cfg(run("PortfolioSection", { items: [{ title: "P", categories: ["Web", "App"] }] })).items[0].tags,
-      "Web, App",
+      "Web\nApp",
     );
     assert.equal(cfg(run("StatsSection", { stat4Value: "" })).items.length, 3);
     assert.equal(cfg(run("MarqueeModule", { speed: "warp" })).speed, "normal");

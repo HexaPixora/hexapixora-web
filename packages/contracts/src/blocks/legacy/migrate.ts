@@ -354,7 +354,7 @@ const CONVERTERS: Record<string, { schema: z.ZodType<Config>; to: (c: any) => Co
     to: (c: z.infer<typeof ourStorySchema>) => ({
       type: "steps",
       config: {
-        layout: "timeline",
+        layout: "milestones",
         label: c.eyebrow,
         heading: c.heading,
         intro: c.subheading,
@@ -448,7 +448,7 @@ const CONVERTERS: Record<string, { schema: z.ZodType<Config>; to: (c: any) => Co
         items: c.items.map((item) => ({
           title: item.title,
           image: item.image,
-          tags: (item.categories.length ? item.categories : item.category ? [item.category] : []).join(", "),
+          tags: (item.categories.length ? item.categories : item.category ? [item.category] : []).join("\n"),
         })),
       },
     }),

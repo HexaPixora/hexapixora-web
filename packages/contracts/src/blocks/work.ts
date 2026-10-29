@@ -9,7 +9,7 @@ export const workItemSchema = z.object({
   text: z.string().default(""),
   image: z.string().default(""),
   url: z.string().default(""),
-  /** grid: comma-separated categories. */
+  /** grid: categories, one per line. */
   tags: z.string().default(""),
   // dossier: an NDA case file; each detail can be redacted.
   number: z.string().default(""),
@@ -67,7 +67,7 @@ export const WorkDef = defineBlock(
         { name: "text", label: "Text", type: "textarea", showFor: ["staggered", "scroll"] },
         { name: "image", label: "Image", type: "image", showFor: ["grid", "staggered", "scroll"] },
         { name: "url", label: "Link", type: "text", showFor: ["staggered", "scroll"] },
-        { name: "tags", label: "Categories", type: "text", showFor: ["grid"], description: "Comma-separated." },
+        { name: "tags", label: "Categories", type: "textarea", showFor: ["grid"], description: "One per line." },
         { name: "client", label: "Client", type: "text", showFor: dossier },
         { name: "clientRedacted", label: "Hide client", type: "boolean", showFor: dossier },
         { name: "sector", label: "Sector", type: "text", showFor: dossier },
