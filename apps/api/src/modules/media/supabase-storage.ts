@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import { env } from '../../config/env';
 
 /**
  * Minimal Supabase Storage client over the built-in fetch (no SDK dependency).
@@ -14,7 +15,7 @@ import { BadRequestException } from '@nestjs/common';
 // trailing slash (e.g. https://<ref>.supabase.co/rest/v1) can't corrupt the
 // storage request URL — that produced a misleading PostgREST "PGRST125" error.
 const SUPABASE_URL = (() => {
-  const raw = process.env.SUPABASE_URL;
+  const raw = env.storage.supabaseUrl;
   if (!raw) return undefined;
   try {
     return new URL(raw).origin;
@@ -22,8 +23,8 @@ const SUPABASE_URL = (() => {
     return raw.replace(/\/+$/, '');
   }
 })();
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'media';
+const SERVICE_KEY = env.storage.serviceRoleKey || undefined;
+const BUCKET = env.storage.bucket;
 
 export function isSupabaseStorageEnabled(): boolean {
   return Boolean(SUPABASE_URL && SERVICE_KEY);

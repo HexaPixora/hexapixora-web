@@ -5,7 +5,8 @@
   "description": "Typed access to the HexaPixora API for the site, the admin and scripts.",
   "exports": {
     "./server": "./src/server.ts",
-    "./browser": "./src/browser.ts"
+    "./browser": "./src/browser.ts",
+    "./health": "./src/health.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit"

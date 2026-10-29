@@ -19,7 +19,6 @@ function required(name: string, devDefault: string): string {
     );
   }
 
-  // eslint-disable-next-line no-console
   console.warn(
     `[env] ${name} is not set — using an insecure development default. Set it before deploying.`,
   );
@@ -35,16 +34,21 @@ function list(name: string, devDefault: string[]): string[] {
     .filter(Boolean);
 }
 
+const appUrl = (
+  process.env.APP_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  'http://localhost:3000'
+).replace(/\/+$/, '');
+
 export const env = {
   isProd,
   port: parseInt(process.env.PORT ?? '3001', 10),
-  // Public origin of the web/admin app — used to build magic-link URLs (invite,
-  // password reset, email verification) in outgoing emails. Set APP_URL in prod.
-  appUrl: (
-    process.env.APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    'http://localhost:3000'
-  ).replace(/\/+$/, ''),
+  // Public origin of the site — used for links to public pages in outgoing
+  // emails (unsubscribe, blog posts). Set APP_URL in prod.
+  appUrl,
+  // Origin of the admin app, which hosts the account pages (password reset,
+  // email verification). Falls back to the site while both share one origin.
+  adminUrl: (process.env.ADMIN_URL || appUrl).replace(/\/+$/, ''),
   jwtAccessSecret: required('JWT_ACCESS_SECRET', 'dev_only_access_secret'),
   jwtRefreshSecret: required('JWT_REFRESH_SECRET', 'dev_only_refresh_secret'),
   corsOrigins: list('CORS_ORIGINS', [
@@ -73,7 +77,26 @@ export const env = {
     subject: process.env.VAPID_SUBJECT ?? 'mailto:admin@hexapixora.com',
   },
 
+  // Cloudflare Turnstile for the contact form. Verification is skipped when unset.
+  turnstileSecretKey: process.env.TURNSTILE_SECRET_KEY ?? '',
+
+  // Supabase Storage for media. When the URL or key is unset, uploads fall back
+  // to the local ./uploads disk (fine for dev, ephemeral on container hosts).
+  storage: {
+    supabaseUrl: process.env.SUPABASE_URL ?? '',
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
+    bucket: process.env.SUPABASE_STORAGE_BUCKET || 'media',
+  },
+
   // Shared secret for the scheduled automation routines (X-Automation-Key header).
   // When unset, every /api/automation route is disabled.
   automationApiKey: process.env.AUTOMATION_API_KEY ?? '',
+
+  // On-demand revalidation of the site's cached pages after content writes.
+  // SITE_REVALIDATE_URL is the site's /hooks/revalidate route; when it or the
+  // secret is unset, pages refresh only on their normal revalidate interval.
+  revalidate: {
+    url: process.env.SITE_REVALIDATE_URL ?? '',
+    secret: process.env.REVALIDATE_SECRET ?? '',
+  },
 };

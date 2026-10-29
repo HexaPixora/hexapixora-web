@@ -48,17 +48,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # The API + web type-checks import the generated Prisma client.
+      # The API and app type-checks import the generated Prisma client.
       - name: Generate Prisma client
         run: npx prisma generate --schema=packages/database/prisma/schema.prisma
 
-      - name: Type-check (web + api)
+      - name: Type-check (site, admin, api)
         run: npm run check-types
 
-      - name: Build (web + api)
+      - name: Build (site, admin, api)
         run: npm run build
         env:
-          # Build-time only; the web app talks to the API at runtime via env.
+          # Build-time only; the apps talk to the API at runtime via env.
           NEXT_TELEMETRY_DISABLED: "1"
 
       # Lint is advisory for now: the codebase carries known warning-level

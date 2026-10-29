@@ -102,7 +102,7 @@ export class AuthService {
     await this.mail.sendPasswordReset({
       to: user.email,
       name: user.name,
-      url: `${env.appUrl}/reset-password?token=${token}`,
+      url: `${env.adminUrl}/reset-password?token=${token}`,
       siteName: await this.siteName(),
     });
   }

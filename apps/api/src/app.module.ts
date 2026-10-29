@@ -5,6 +5,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { RevalidateInterceptor } from './common/interceptors/revalidate.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -20,6 +21,7 @@ import { SearchModule } from './modules/search/search.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TokensModule } from './modules/tokens/tokens.module';
 import { AutomationModule } from './modules/automation/automation.module';
+import { RevalidateModule } from './modules/revalidate/revalidate.module';
 
 @Module({
   imports: [
@@ -27,12 +29,13 @@ import { AutomationModule } from './modules/automation/automation.module';
     // Sensitive routes (e.g. login) tighten this further with @Throttle.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     ScheduleModule.forRoot(),
-    AuthModule, UsersModule, PrismaModule, BlogsModule, CategoriesModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, SearchModule, NotificationsModule, TokensModule, AutomationModule],
+    AuthModule, UsersModule, PrismaModule, BlogsModule, CategoriesModule, MediaModule, LeadsModule, NewsletterModule, SettingsModule, PagesModule, LayoutsModule, SearchModule, NotificationsModule, TokensModule, AutomationModule, RevalidateModule],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: RevalidateInterceptor },
   ],
 })
 export class AppModule {}

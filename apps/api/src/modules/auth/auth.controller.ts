@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Body, Req, Res, UseGuards, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Req,
+  Res,
+  UseGuards,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
@@ -7,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
 
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { env } from '../../config/env';
 
 @Controller('auth')
 export class AuthController {
@@ -21,12 +31,15 @@ export class AuthController {
   // Tight limit on credential checks to blunt brute-force attempts.
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @Post('login')
-  async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() body: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const user = await this.authService.validateUser(body.email, body.password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    
+
     const tokens = await this.authService.login(user);
 
     // HTTP-only SESSION cookies (no maxAge): the session lasts as long as the
@@ -34,14 +47,14 @@ export class AuthController {
     // JWT still expires (15m) but is auto-refreshed while the tab stays open.
     res.cookie('access_token', tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.isProd,
       sameSite: 'lax',
       path: '/',
     });
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.isProd,
       sameSite: 'lax',
       path: '/api/auth/refresh',
     });
@@ -56,7 +69,8 @@ export class AuthController {
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     await this.authService.requestPasswordReset(body.email);
     return {
-      message: 'If an account exists for that email, a reset link is on its way.',
+      message:
+        'If an account exists for that email, a reset link is on its way.',
     };
   }
 
@@ -69,21 +83,24 @@ export class AuthController {
 
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
-  async refreshTokens(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+  async refreshTokens(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const userId = req.user.id;
     const refreshToken = req.user.refreshToken;
     const tokens = await this.authService.refreshTokens(userId, refreshToken);
 
     res.cookie('access_token', tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.isProd,
       sameSite: 'lax',
       path: '/',
     });
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.isProd,
       sameSite: 'lax',
       path: '/api/auth/refresh',
     });
