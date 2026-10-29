@@ -15,6 +15,7 @@
     "@hexapixora/contracts": "*",
     "@hexapixora/motion": "*",
     "@hexapixora/sdk": "*",
+    "@hexapixora/theme-hexa-noir": "*",
     "@hexapixora/theme-hexapixora": "*",
     "@hexapixora/ui": "*",
     "@hookform/resolvers": "^5.4.0",

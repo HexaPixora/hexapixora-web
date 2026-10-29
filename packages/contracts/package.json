@@ -6,6 +6,7 @@
   "exports": {
     "./blocks/*": "./src/blocks/*.ts",
     "./layout/*": "./src/layout/*.ts",
+    "./links": "./src/links.ts",
     "./permissions": "./src/permissions.ts",
     "./countries": "./src/countries.ts"
   },

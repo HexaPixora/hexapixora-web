@@ -1,0 +1,116 @@
+/* Block details that Tailwind classes can't express (pseudo-elements,
+ * patterned backgrounds, keyframes). Only tokens, never raw colours, so a
+ * theme pack that repaints the tokens repaints these too. */
+
+/* Film hero: darken the bottom of each tile so the copy stays readable. */
+[data-part="film-tile"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, color-mix(in srgb, var(--color-page) 55%, transparent));
+}
+
+/* Pillars: services listed with a slash marker. */
+[data-part="service-list"] li::before {
+  content: "/ ";
+  color: var(--color-signal);
+}
+
+/* Case files as paper dossiers: ruled paper, an accent strip and a stamp. */
+[data-block="case-files"][data-variant="paper"] [data-part="file"] {
+  background-color: var(--color-paper);
+  color: var(--color-paper-ink);
+  background-image: repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-paper-ink) 5%, transparent) 0 1px, transparent 1px 28px);
+  box-shadow: 0 30px 50px -30px rgb(0 0 0 / 0.8);
+}
+
+[data-block="case-files"][data-variant="paper"] [data-part="file"]:nth-child(3n + 1) { rotate: -1deg; }
+[data-block="case-files"][data-variant="paper"] [data-part="file"]:nth-child(3n) { rotate: 1deg; }
+
+[data-block="case-files"][data-variant="paper"] [data-part="file"] [data-part="file-meta"] { color: var(--color-paper-dim); }
+[data-block="case-files"][data-variant="paper"] [data-part="file-rows"] { border-color: var(--color-paper-rule); }
+
+[data-block="case-files"][data-variant="flat"] [data-part="file"] {
+  background-color: var(--color-page-raised);
+  border: 1px solid var(--color-line);
+}
+
+[data-part="file"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: var(--color-signal);
+}
+
+[data-part="redact"] {
+  display: inline-block;
+  height: 1em;
+  vertical-align: -2px;
+  background: var(--color-redact);
+  border-radius: 1px;
+  user-select: none;
+}
+
+/* Lab: the AI card's grid paper and its dashed node network. */
+[data-part="lab-card"][data-visual="nodes"] {
+  background-color: var(--color-panel);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-signal) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-signal) 8%, transparent) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+[data-part="nodes"] line {
+  stroke: color-mix(in srgb, var(--color-signal) 35%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 6;
+  animation: noir-flow 2s linear infinite;
+}
+
+[data-part="nodes"] circle {
+  fill: var(--color-panel);
+  stroke: var(--color-signal);
+  stroke-width: 2;
+}
+
+@keyframes noir-flow {
+  to { stroke-dashoffset: -24; }
+}
+
+/* Process: a glowing dot above each step. */
+[data-part="step"]::before {
+  content: "";
+  position: absolute;
+  top: -36px;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-signal);
+  box-shadow: 0 0 16px var(--color-signal);
+}
+
+/* FAQ: a plus that turns into a cross when open. */
+[data-part="faq-item"] summary {
+  list-style: none;
+}
+
+[data-part="faq-item"] summary::-webkit-details-marker {
+  display: none;
+}
+
+[data-part="faq-item"] summary::after {
+  content: "+";
+  color: var(--color-signal);
+  transition: transform 0.3s;
+}
+
+[data-part="faq-item"][open] summary::after {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-part="nodes"] line { animation: none; }
+  [data-part="faq-item"] summary::after { transition: none; }
+}

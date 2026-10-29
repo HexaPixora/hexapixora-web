@@ -10,8 +10,11 @@ export function RedactBar({
   className,
   width,
   label = "Withheld under NDA",
+  part,
 }: {
   className?: string;
+  /** Sets `data-part`, the hook theme CSS uses to style the bar. */
+  part?: string;
   /** Visual width of the bar, e.g. "140px" or "8ch". */
   width?: string;
   label?: string;
@@ -28,7 +31,7 @@ export function RedactBar({
   });
 
   return (
-    <span ref={ref} className={className} style={width ? { width } : undefined}>
+    <span ref={ref} className={className} data-part={part} style={width ? { width } : undefined}>
       <span className="sr-only">{label}</span>
     </span>
   );

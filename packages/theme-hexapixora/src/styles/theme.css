@@ -5,10 +5,14 @@
 /* Scan this package's components so their Tailwind classes are generated. */
 @source "..";
 
+/* Same column as Hexa Noir's page-width. !important because Tailwind's own
+   container adds breakpoint max-widths (up to 96rem) that would otherwise win
+   on screens wider than 1536px. The fallbacks keep the admin, which doesn't
+   load Hexa Noir, at its previous values. */
 @utility container {
   margin-inline: auto;
-  padding-inline: 1rem;
-  max-width: 1440px;
+  padding-inline: var(--spacing-gutter, 1rem);
+  max-width: var(--container-page, 1440px) !important;
   width: 100%;
 }
 

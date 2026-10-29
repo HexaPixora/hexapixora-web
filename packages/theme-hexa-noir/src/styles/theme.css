@@ -3,18 +3,32 @@
  * after the old theme so these rules win). Fonts are loaded by the app with
  * next/font and arrive as --font-unbounded, --font-manrope, --font-jetbrains-mono. */
 
+/* Shared pieces of the block engines that Tailwind can't express. */
+@import "./blocks.css";
+
 /* Scan this package's components so their Tailwind classes are generated. */
 @source "..";
 
 @theme {
-  /* Palette. Names avoid Tailwind's defaults (black, blue) so old blocks keep theirs. */
-  --color-ink: #07080c;
-  --color-ink-raised: #12131a;
-  --color-bone: #f1ece2;
-  --color-dim: #9a958c;
-  --color-ember: #ff5a1f;
+  /* Colours by role, not by hue, so a theme pack can repaint them (a light
+   * pack sets --color-page to cream). Names avoid Tailwind's defaults and the
+   * old theme's tokens. */
+  --color-page: #07080c;
+  --color-page-raised: #12131a;
+  --color-panel: #0e0f16;
+  --color-copy: #f1ece2;
+  --color-copy-dim: #9a958c;
+  --color-signal: #ff5a1f;
+  --color-on-signal: #07080c;
+  --color-on-signal-dim: #2a1206;
   --color-brand: #1b2587;
   --color-line: rgb(241 236 226 / 0.14);
+  /* Paper dossiers (case files). */
+  --color-paper: #e9e3d6;
+  --color-paper-ink: #15161c;
+  --color-paper-dim: #5d5a54;
+  --color-paper-rule: rgb(21 22 28 / 0.2);
+  --color-redact: #0b0b0e;
 
   /* Type scale, taken from the reference preview. */
   --text-label: 0.75rem;
@@ -23,8 +37,12 @@
   --text-title--line-height: 1.1;
   --text-statement: clamp(1.8rem, 4.2vw, 3.8rem);
   --text-statement--line-height: 1.15;
+  --text-promise: clamp(1.4rem, 3vw, 2.4rem);
+  --text-question: clamp(1.05rem, 2vw, 1.4rem);
   --text-display-md: clamp(2.4rem, 5vw, 4.2rem);
   --text-display-md--line-height: 0.95;
+  --text-display-pillar: clamp(3rem, 8vw, 7.4rem);
+  --text-display-pillar--line-height: 0.9;
   --text-display-lg: clamp(3rem, 9.4vw, 9.6rem);
   --text-display-lg--line-height: 0.95;
   --text-display-xl: clamp(3rem, 11vw, 10rem);
@@ -34,6 +52,10 @@
   --spacing-section: 140px;
   --spacing-chapter: 56px;
   --spacing-gutter: max(20px, env(safe-area-inset-left), env(safe-area-inset-right));
+
+  /* Content column: 1440px including the side gutter (max-w-page). Backgrounds
+   * stay full-bleed; text and cards never grow past this on wide screens. */
+  --container-page: 1440px;
 
   /* Square everything; pills are reserved for buttons. */
   --radius-pill: 999px;
@@ -75,19 +97,19 @@
 @layer base {
   html {
     color-scheme: dark;
-    background-color: var(--color-ink);
+    background-color: var(--color-page);
   }
 
   body {
-    background-color: var(--color-ink);
-    color: var(--color-bone);
+    background-color: var(--color-page);
+    color: var(--color-copy);
     font-family: var(--font-body);
     line-height: 1.55;
   }
 
   ::selection {
-    background-color: var(--color-ember);
-    color: var(--color-ink);
+    background-color: var(--color-signal);
+    color: var(--color-on-signal);
   }
 
   /* Anchor targets clear the fixed header. */
@@ -96,7 +118,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ember);
+    outline: 2px solid var(--color-signal);
     outline-offset: 3px;
   }
 
@@ -149,5 +171,13 @@
 
 /* Side padding that respects the notch. */
 @utility gutter-x {
+  padding-inline: var(--spacing-gutter);
+}
+
+/* The centred content column every block, header and footer sits in. */
+@utility page-width {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
   padding-inline: var(--spacing-gutter);
 }

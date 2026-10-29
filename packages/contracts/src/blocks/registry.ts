@@ -37,6 +37,15 @@ import { StoryHeroModuleDef } from "./story-hero";
 import { TechStackModuleDef } from "./tech-stack";
 import { SkillsShowcaseModuleDef } from "./skills-showcase";
 import { CustomCodeModuleDef } from "./custom-code";
+import { FilmHeroDef } from "./film-hero";
+import { StatementDef } from "./statement";
+import { CrewDef } from "./crew";
+import { PillarsDef } from "./pillars";
+import { CaseFilesDef } from "./case-files";
+import { LabDef } from "./lab";
+import { ProcessStepsDef } from "./process-steps";
+import { FaqListDef } from "./faq-list";
+import { ClosingCtaDef } from "./closing-cta";
 
 export type { ModuleFieldType, ModuleField, ModuleDefinition } from "./types";
 import type { ModuleDefinition } from "./types";
@@ -80,12 +89,24 @@ export const MODULES: Record<string, ModuleDefinition> = {
   InstagramReelsModule: InstagramReelsModuleDef,
   RichTextModule: RichTextModuleDef,
   CustomCodeModule: CustomCodeModuleDef,
+  // Cinematic section blocks (Phase 3). Stored under their block id; any
+  // theme pack restyles them through tokens and variants.
+  "film-hero": FilmHeroDef,
+  statement: StatementDef,
+  crew: CrewDef,
+  pillars: PillarsDef,
+  "case-files": CaseFilesDef,
+  lab: LabDef,
+  "process-steps": ProcessStepsDef,
+  "faq-list": FaqListDef,
+  "closing-cta": ClosingCtaDef,
 };
 
 // Builder categories — group modules by purpose so they're easy to find and
 // pick. Order here is the display order. Any registered module NOT listed below
 // automatically falls into a trailing "Other" group (see groupedModules).
 export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
+  { label: "Cinematic sections", modules: ["film-hero", "statement", "crew", "pillars", "case-files", "lab", "process-steps", "faq-list", "closing-cta"] },
   { label: "Hero & Banners", modules: ["HeroSection", "WorkHeroModule", "StoryHeroModule", "AnimatedTextHeroModule", "PortfolioHeroModule", "ParallaxBannerModule"] },
   { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "LeaderModule", "QuoteModule", "RichTextModule", "TechStackModule", "TimelineModule", "ScrollytellingModule", "CustomCodeModule"] },
   { label: "Services & Pricing", modules: ["ServicesSection", "PricingModule"] },
@@ -112,6 +133,8 @@ export const DEFAULT_ANCHOR_IDS: Record<string, string> = {
   LeaderModule: "leadership",
   QuoteModule: "quote",
   InstagramReelsModule: "reels",
+  "faq-list": "faq",
+  "process-steps": "process",
 };
 
 /** Resolve a section's anchor id: its own config.anchorId wins, else a default. */
