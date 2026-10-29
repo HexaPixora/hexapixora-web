@@ -16,6 +16,7 @@ export const COLOR_ROLES = [
   "on-signal-dim",
   "brand",
   "line",
+  "on-media",
   "paper",
   "paper-ink",
   "paper-dim",

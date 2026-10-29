@@ -42,6 +42,7 @@ const COLOR_FIELDS = fields(COLOR_ROLES, {
   signal: "The accent: buttons, highlights, numbers.",
   "on-signal": "Text on the accent.",
   line: "Hairlines and borders.",
+  "on-media": "Text over the moving film and dark images; keep it light.",
   paper: "Case-file paper.",
 });
 const TYPE_FIELDS = fields(TYPE_STEPS, { label: "Small labels.", "display-hero": "The page's main heading." });
