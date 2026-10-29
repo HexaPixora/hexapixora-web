@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { leaderSchema } from "@hexapixora/contracts/blocks/leader";
+import { leaderSchema } from "@hexapixora/contracts/blocks/legacy/leader";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { SectionFrame } from "../../components/section-frame";
 import { StatGrid } from "../../components/stat-grid";

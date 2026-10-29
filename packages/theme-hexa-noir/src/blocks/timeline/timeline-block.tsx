@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { timelineSchema } from "@hexapixora/contracts/blocks/timeline";
+import { timelineSchema } from "@hexapixora/contracts/blocks/legacy/timeline";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { DrawLine } from "@hexapixora/motion/draw-line";
 import { SectionFrame } from "../../components/section-frame";

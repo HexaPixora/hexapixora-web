@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { workHeroSchema } from "@hexapixora/contracts/blocks/work-hero";
+import { workHeroSchema } from "@hexapixora/contracts/blocks/legacy/work-hero";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { PillLink } from "../../components/pill-link";
 import { StatGrid } from "../../components/stat-grid";

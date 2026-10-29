@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { leadMagnetSchema } from "@hexapixora/contracts/blocks/lead-magnet";
+import { leadMagnetSchema } from "@hexapixora/contracts/blocks/legacy/lead-magnet";
 import { SectionFrame } from "../../components/section-frame";
 import { mediaAlt } from "../../lib/media-alt";
 import { LeadMagnetForm } from "./lead-magnet-form";

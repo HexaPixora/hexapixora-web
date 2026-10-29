@@ -1,7 +1,7 @@
 import { useId } from "react";
 import Link from "next/link";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { contactFormSchema } from "@hexapixora/contracts/blocks/contact-form";
+import { contactFormSchema } from "@hexapixora/contracts/blocks/legacy/contact-form";
 import { SectionFrame } from "../../components/section-frame";
 import { ContactForm } from "./contact-form";
 

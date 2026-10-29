@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { crewSchema } from "@hexapixora/contracts/blocks/crew";
+import { crewSchema } from "@hexapixora/contracts/blocks/legacy/crew";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { ChapterHeading } from "../../components/chapter-heading";
 import { SectionFrame } from "../../components/section-frame";

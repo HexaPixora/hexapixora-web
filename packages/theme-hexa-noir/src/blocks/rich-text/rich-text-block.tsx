@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { richTextSchema } from "@hexapixora/contracts/blocks/rich-text";
+import { richTextSchema } from "@hexapixora/contracts/blocks/legacy/rich-text";
 
 /**
  * Long-form text written in the admin editor (legal pages, notes). It usually

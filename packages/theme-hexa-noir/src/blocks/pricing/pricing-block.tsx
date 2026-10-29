@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { pricingSchema } from "@hexapixora/contracts/blocks/pricing";
+import { pricingSchema } from "@hexapixora/contracts/blocks/legacy/pricing";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { PillLink } from "../../components/pill-link";
 import { SectionFrame } from "../../components/section-frame";

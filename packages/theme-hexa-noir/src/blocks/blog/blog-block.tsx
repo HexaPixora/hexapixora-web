@@ -1,7 +1,7 @@
 import { useId } from "react";
 import Link from "next/link";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { blogSchema } from "@hexapixora/contracts/blocks/blog";
+import { blogSchema } from "@hexapixora/contracts/blocks/legacy/blog";
 import { InsightCard, type InsightPost } from "../../components/insight-card";
 import { SectionFrame } from "../../components/section-frame";
 import { SectionHeading } from "../../components/section-heading";

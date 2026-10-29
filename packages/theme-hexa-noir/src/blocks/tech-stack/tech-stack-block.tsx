@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { techStackSchema } from "@hexapixora/contracts/blocks/tech-stack";
+import { techStackSchema } from "@hexapixora/contracts/blocks/legacy/tech-stack";
 import { SectionFrame } from "../../components/section-frame";
 import { SectionHeading } from "../../components/section-heading";
 

@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { faqsectionSchema } from "@hexapixora/contracts/blocks/faq";
+import { faqsectionSchema } from "@hexapixora/contracts/blocks/legacy/faq";
 import { FaqDetails, faqPageData } from "../../components/faq-details";
 import { SectionFrame } from "../../components/section-frame";
 import { SectionHeading } from "../../components/section-heading";

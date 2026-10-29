@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { parallaxBannerSchema } from "@hexapixora/contracts/blocks/parallax-banner";
+import { parallaxBannerSchema } from "@hexapixora/contracts/blocks/legacy/parallax-banner";
 import { FilmCanvas } from "@hexapixora/motion/film-canvas";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { Parallax } from "@hexapixora/motion/parallax";

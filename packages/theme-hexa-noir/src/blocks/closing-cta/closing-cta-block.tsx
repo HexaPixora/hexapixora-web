@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { closingCtaSchema } from "@hexapixora/contracts/blocks/closing-cta";
+import { closingCtaSchema } from "@hexapixora/contracts/blocks/legacy/closing-cta";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { FilmCanvas } from "@hexapixora/motion/film-canvas";
 import { filmLooks } from "../../index";

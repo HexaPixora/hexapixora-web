@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { labSchema } from "@hexapixora/contracts/blocks/lab";
+import { labSchema } from "@hexapixora/contracts/blocks/legacy/lab";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { FilmCanvas } from "@hexapixora/motion/film-canvas";
 import { filmLooks } from "../../index";

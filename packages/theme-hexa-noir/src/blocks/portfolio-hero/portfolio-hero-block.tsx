@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { portfolioHeroSchema } from "@hexapixora/contracts/blocks/portfolio-hero";
+import { portfolioHeroSchema } from "@hexapixora/contracts/blocks/legacy/portfolio-hero";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { PillLink } from "../../components/pill-link";

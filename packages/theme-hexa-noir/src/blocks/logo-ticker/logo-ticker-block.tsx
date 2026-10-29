@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { splideLogoTickerSchema } from "@hexapixora/contracts/blocks/logo-ticker";
+import { splideLogoTickerSchema } from "@hexapixora/contracts/blocks/legacy/logo-ticker";
 import { Marquee } from "@hexapixora/motion/marquee";
 import { mediaAlt } from "../../lib/media-alt";
 

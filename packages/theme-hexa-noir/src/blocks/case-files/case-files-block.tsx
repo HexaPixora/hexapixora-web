@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { CASE_FILE_ROWS, caseFilesSchema, type CaseFile } from "@hexapixora/contracts/blocks/case-files";
+import { CASE_FILE_ROWS, caseFilesSchema, type CaseFile } from "@hexapixora/contracts/blocks/legacy/case-files";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { CountUp } from "@hexapixora/motion/count-up";
 import { RedactBar } from "@hexapixora/motion/redact-bar";

@@ -1,76 +1,41 @@
-import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { z } from "zod";
+import { defineBlock } from "./define-block";
+import { headFields, headShape, layoutField, surfaceField, surfaceShape } from "./shared";
 
-export const statsSchema = z.object({
-  heading: z.string().default("By the Numbers"),
-  subheading: z.string().default("Our impact so far"),
-  stat1Value: z.string().default("500+"),
-  stat1Label: z.string().default("Projects Completed"),
-  stat2Value: z.string().default("50+"),
-  stat2Label: z.string().default("Team Members"),
-  stat3Value: z.string().default("99%"),
-  stat3Label: z.string().default("Client Satisfaction"),
-  stat4Value: z.string().default("10M+"),
-  stat4Label: z.string().default("Revenue Generated"),
+export const statItemSchema = z.object({
+  value: z.string().default(""),
+  suffix: z.string().default(""),
+  label: z.string().default(""),
 });
 
-export type StatsProps = z.input<typeof statsSchema>;
+export const statsSchema = z.object({
+  layout: z.enum(["counters", "row"]).default("counters"),
+  ...headShape,
+  items: z.array(statItemSchema).default([
+    { value: "120", suffix: "+", label: "Projects shipped" },
+    { value: "98", suffix: "%", label: "On the agreed date" },
+    { value: "1", suffix: "s", label: "Page load" },
+  ]),
+  ...surfaceShape,
+});
 
-export const StatsSectionDef = defineBlock(
-  'StatsSection',
-  "Statistics",
-  "Displays up to 4 key numbers/statistics.",
-  statsSchema,
-  [
-    {
-        name: "heading",
-        label: "Heading",
-        type: "text"
-    },
-    {
-        name: "subheading",
-        label: "Subheading",
-        type: "textarea"
-    },
-    {
-        name: "stat1Value",
-        label: "Stat 1 Value",
-        type: "text"
-    },
-    {
-        name: "stat1Label",
-        label: "Stat 1 Label",
-        type: "text"
-    },
-    {
-        name: "stat2Value",
-        label: "Stat 2 Value",
-        type: "text"
-    },
-    {
-        name: "stat2Label",
-        label: "Stat 2 Label",
-        type: "text"
-    },
-    {
-        name: "stat3Value",
-        label: "Stat 3 Value",
-        type: "text"
-    },
-    {
-        name: "stat3Label",
-        label: "Stat 3 Label",
-        type: "text"
-    },
-    {
-        name: "stat4Value",
-        label: "Stat 4 Value",
-        type: "text"
-    },
-    {
-        name: "stat4Label",
-        label: "Stat 4 Label",
-        type: "text"
-    }
-]
-);
+export type StatsConfig = z.infer<typeof statsSchema>;
+
+export const StatsDef = defineBlock("stats", "Numbers", "Key numbers in a row, optionally counting up.", statsSchema, [
+  layoutField([
+    { label: "Counting up", value: "counters" },
+    { label: "Plain row", value: "row" },
+  ]),
+  ...headFields,
+  {
+    name: "items",
+    label: "Numbers",
+    type: "list",
+    itemFields: [
+      { name: "value", label: "Value", type: "text" },
+      { name: "suffix", label: "Suffix", type: "text", placeholder: "+ or %" },
+      { name: "label", label: "Label", type: "text" },
+    ],
+  },
+  surfaceField,
+]);

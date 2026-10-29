@@ -1,28 +1,58 @@
-import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { z } from "zod";
+import { defineBlock } from "./define-block";
+import { headFields, headShape, layoutField, surfaceField, surfaceShape } from "./shared";
 
 export const quoteSchema = z.object({
-  eyebrow: z.string().default(""),
-  quote: z.string().default(
-    "Great design isn't decoration. It's the clearest expression of what a company believes — made visible, made usable, and made unforgettable.",
-  ),
-  avatar: z.string().default(""),
-  name: z.string().default("Umair Breet"),
-  title: z.string().default("Founder & CEO"),
+  layout: z.enum(["pull", "letter"]).default("pull"),
+  ...headShape,
+  quote: z.string().default("Great design is the clearest expression of what a company believes."),
+  /** letter: the letter itself; blank lines start paragraphs. */
+  text: z.string().default(""),
+  image: z.string().default(""),
+  imageCaption: z.string().default(""),
+  name: z.string().default(""),
+  role: z.string().default(""),
+  signature: z.string().default(""),
+  stats: z.array(z.object({ value: z.string().default(""), label: z.string().default("") })).default([]),
+  ...surfaceShape,
 });
 
-export type QuoteProps = z.input<typeof quoteSchema>;
+export type QuoteConfig = z.infer<typeof quoteSchema>;
 
-export const QuoteModuleDef = defineBlock(
-  'QuoteModule',
-  "Featured Quote",
-  "A single standout quote on a floating glass card with a quote-mark medallion straddling the top edge — a distinctive centerpiece for a leadership or about page.",
+export const QuoteDef = defineBlock(
+  "quote",
+  "Quote",
+  "A pull quote, or a signed letter with a portrait.",
   quoteSchema,
   [
-    { name: "eyebrow", label: "Eyebrow / Label", type: "text", description: "Small label above the quote. Leave empty to hide." },
+    layoutField([
+      { label: "Pull quote", value: "pull" },
+      { label: "Letter", value: "letter" },
+    ]),
+    ...headFields,
     { name: "quote", label: "Quote", type: "textarea" },
-    { name: "avatar", label: "Author photo", type: "image", description: "Optional small round avatar." },
-    { name: "name", label: "Author name", type: "text" },
-    { name: "title", label: "Author title / role", type: "text" },
+    {
+      name: "text",
+      label: "Letter",
+      type: "textarea",
+      showFor: ["letter"],
+      description: "Leave a blank line between paragraphs.",
+    },
+    { name: "image", label: "Portrait", type: "image" },
+    { name: "imageCaption", label: "Portrait caption", type: "text", showFor: ["letter"] },
+    { name: "name", label: "Name", type: "text" },
+    { name: "role", label: "Role", type: "text" },
+    { name: "signature", label: "Signature", type: "text", showFor: ["letter"] },
+    {
+      name: "stats",
+      label: "Numbers",
+      type: "list",
+      showFor: ["letter"],
+      itemFields: [
+        { name: "value", label: "Value", type: "text" },
+        { name: "label", label: "Label", type: "text" },
+      ],
+    },
+    surfaceField,
   ],
 );

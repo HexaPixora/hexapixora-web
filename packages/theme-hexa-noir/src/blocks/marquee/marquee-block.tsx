@@ -1,6 +1,6 @@
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { marqueeSchema } from "@hexapixora/contracts/blocks/marquee";
+import { marqueeSchema } from "@hexapixora/contracts/blocks/legacy/marquee";
 import { Marquee } from "@hexapixora/motion/marquee";
 import { mediaAlt } from "../../lib/media-alt";
 
