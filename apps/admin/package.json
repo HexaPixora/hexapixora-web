@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start --port 3002",
     "lint": "eslint .",
-    "check-types": "next typegen && tsc --noEmit"
+    "check-types": "next typegen && tsc --noEmit",
+    "test": "node --import tsx --test src/lib/puck/*.test.ts"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
