@@ -8,10 +8,18 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import AdmZip from 'adm-zip';
 import { randomUUID } from 'node:crypto';
-import type { ThemeManifest } from '@hexapixora/contracts/theme-pack/schema';
+import {
+  themeManifestSchema,
+  type ThemeManifest,
+} from '@hexapixora/contracts/theme-pack/schema';
 import { env } from '../../config/env';
 import { PrismaService } from '../../prisma/prisma.service';
-import { compileThemeCss, unpackThemePack } from './theme-installer';
+import { SaveThemeVersionDto } from './dto/save-theme-version.dto';
+import {
+  compileThemeCss,
+  unpackThemePack,
+  type PackAsset,
+} from './theme-installer';
 
 const PREVIEW_PURPOSE = 'theme-preview';
 const PREVIEW_TTL_SECONDS = 60 * 60;
@@ -43,9 +51,82 @@ export class ThemesService {
   }
 
   /** Unpacks, checks and stores a pack. It is not activated. */
-  async install(zipBytes: Buffer) {
+  install(zipBytes: Buffer) {
     const { manifest, sourceCss, assets } = unpackThemePack(zipBytes);
+    return this.store(manifest, sourceCss, assets);
+  }
 
+  /** A pack with everything the editor needs (no file bytes). */
+  async detail(id: string) {
+    const pack = await this.prisma.themePack.findUnique({
+      where: { id },
+      select: {
+        ...SUMMARY,
+        manifest: true,
+        sourceCss: true,
+        assets: { select: { path: true, mime: true, size: true } },
+      },
+    });
+    if (!pack) throw new NotFoundException('Theme not found');
+    return pack;
+  }
+
+  /**
+   * Saves edited tokens as a new pack version: from an installed pack (its
+   * fonts, images and theme.css come along) or from the built-in theme.
+   */
+  async saveVersion(dto: SaveThemeVersionDto) {
+    const base = dto.baseId
+      ? await this.prisma.themePack.findUnique({
+          where: { id: dto.baseId },
+          include: { assets: true },
+        })
+      : null;
+    if (dto.baseId && !base) throw new NotFoundException('Theme not found');
+
+    const parsed = themeManifestSchema.safeParse({
+      name: dto.name,
+      slug: dto.slug,
+      version: dto.version,
+      author: base?.author ?? '',
+      description: dto.description ?? base?.description ?? '',
+      tokens: dto.tokens,
+    });
+    if (!parsed.success) {
+      throw new BadRequestException({
+        message: 'The theme was not saved.',
+        errors: parsed.error.issues.map(
+          (issue) => `${issue.path.join('.')}: ${issue.message}`,
+        ),
+      });
+    }
+
+    const assets: PackAsset[] = (base?.assets ?? []).map((asset) => ({
+      path: asset.path,
+      mime: asset.mime,
+      bytes: Buffer.from(asset.bytes),
+    }));
+    const present = new Set(assets.map((asset) => asset.path));
+    const missing = Object.values(parsed.data.tokens.fonts)
+      .flatMap((font) => font?.files ?? [])
+      .filter((file) => !present.has(file.src))
+      .map((file) => `${file.src} is not one of this theme's files.`);
+    if (missing.length) {
+      throw new BadRequestException({
+        message: 'The theme was not saved.',
+        errors: missing,
+      });
+    }
+
+    return this.store(parsed.data, base?.sourceCss ?? '', assets);
+  }
+
+  /** Stores a checked pack under a new id; refuses a version that exists. */
+  private async store(
+    manifest: ThemeManifest,
+    sourceCss: string,
+    assets: PackAsset[],
+  ) {
     const taken = await this.prisma.themePack.findUnique({
       where: {
         slug_version: { slug: manifest.slug, version: manifest.version },
