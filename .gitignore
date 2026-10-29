@@ -26,6 +26,8 @@ coverage
 out/
 build
 dist
+# The page editor preview stylesheet (admin `npm run frame-css`)
+apps/admin/public/editor-frame.css
 
 # Uploads
 uploads/

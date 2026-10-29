@@ -4,7 +4,10 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "frame-css": "tailwindcss -i src/editor-frame.css -o public/editor-frame.css --minify",
+    "predev": "npm run frame-css",
     "dev": "next dev -H 0.0.0.0 --port 3002",
+    "prebuild": "npm run frame-css",
     "build": "next build",
     "start": "next start --port 3002",
     "lint": "eslint .",
@@ -41,6 +44,7 @@
   "devDependencies": {
     "@hexapixora/eslint-config": "*",
     "@hexapixora/typescript-config": "*",
+    "@tailwindcss/cli": "4.3.0",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",

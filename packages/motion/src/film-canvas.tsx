@@ -28,7 +28,7 @@ export function FilmCanvas({ look, seed = 0, className }: { look: FilmLook; seed
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    const reduce = prefersReducedMotion();
+    const reduce = prefersReducedMotion(canvas);
     const s = seed * 13.7;
     let visible = false;
     let started = false;
