@@ -7,6 +7,31 @@ const PARAM = "theme-preview";
 const STORE = "hexapixora:theme-preview";
 const STYLE_ID = "theme-pack-preview";
 const TOKEN = /^[A-Za-z0-9._-]{16,512}$/;
+const LIVE_PARAM = "theme-live";
+const LIVE_STORE = "hexapixora:theme-live";
+/** The admin's origin: the only sender live CSS is accepted from (set at build). */
+const ADMIN_ORIGIN = process.env.ADMIN_ORIGIN ?? "";
+
+/** Puts preview CSS on the page as text: a style element never parses markup. */
+function applyCss(css: string) {
+  const style = document.getElementById(STYLE_ID) ?? document.head.appendChild(document.createElement("style"));
+  style.id = STYLE_ID;
+  style.textContent = css;
+}
+
+/** Live mode: framed by the admin's theme editor, opened with ?theme-live=1 (remembered for this frame). */
+function isLiveFrame(): boolean {
+  if (!ADMIN_ORIGIN || window.parent === window) return false;
+  try {
+    if (new URLSearchParams(window.location.search).get(LIVE_PARAM) === "1") {
+      sessionStorage.setItem(LIVE_STORE, "1");
+      return true;
+    }
+    return sessionStorage.getItem(LIVE_STORE) === "1";
+  } catch {
+    return false;
+  }
+}
 
 function readToken(): string | null {
   try {
@@ -27,9 +52,25 @@ function readToken(): string | null {
  * ?theme-preview=<signed token>; this tab then shows that pack on every page
  * until "Exit preview". The token is kept in sessionStorage only, so other
  * tabs, browsers and visitors keep the active theme, and pages stay cached.
+ *
+ * Live mode feeds the admin's theme editor: framed by the admin, the site asks
+ * for CSS and applies what the admin's exact origin sends, on every page the
+ * editor navigates to.
  */
 export function ThemePreview() {
   const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLiveFrame()) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== ADMIN_ORIGIN || event.source !== window.parent) return;
+      const data = event.data as { type?: unknown; css?: unknown } | null;
+      if (data?.type === "hexapixora:theme-css" && isSafeThemeCss(data.css)) applyCss(data.css);
+    };
+    window.addEventListener("message", onMessage);
+    window.parent.postMessage({ type: "hexapixora:theme-ready" }, ADMIN_ORIGIN);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   useEffect(() => {
     const token = readToken();
@@ -40,10 +81,7 @@ export function ThemePreview() {
       .then((body: { data?: { css?: unknown; name?: unknown } } | null) => {
         const css = body?.data?.css;
         if (cancelled || !isSafeThemeCss(css)) return;
-        const style = document.getElementById(STYLE_ID) ?? document.head.appendChild(document.createElement("style"));
-        style.id = STYLE_ID;
-        // Text, not HTML: the style element never parses markup.
-        style.textContent = css;
+        applyCss(css);
         setName(typeof body?.data?.name === "string" ? body.data.name : "Theme");
       })
       .catch(() => undefined);
