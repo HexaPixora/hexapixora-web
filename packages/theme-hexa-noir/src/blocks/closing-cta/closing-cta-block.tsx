@@ -16,11 +16,14 @@ export function ClosingCtaBlock({ config }: { config?: unknown }) {
       block="closing-cta"
       variant={c.variant}
       labelledBy={headingId}
-      className="grid min-h-[90vh] content-center overflow-hidden text-center"
+      className="grid min-h-[90vh] content-center overflow-hidden"
+      innerClassName="grid text-center"
+      backdrop={
+        c.variant === "film" ? (
+          <FilmCanvas look={filmLooks.dusk} seed={5} className="absolute inset-0 h-full w-full opacity-55" />
+        ) : null
+      }
     >
-      {c.variant === "film" ? (
-        <FilmCanvas look={filmLooks.dusk} seed={5} className="absolute inset-0 h-full w-full opacity-55" />
-      ) : null}
       <ClipReveal className="relative">
         <h2 id={headingId} className="wide text-display-xl font-bold">
           {c.titleTop}
