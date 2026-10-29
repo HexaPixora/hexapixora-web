@@ -4,7 +4,6 @@ import { defineBlock } from './define-block';
 export const pricingSchema = z.object({
   heading: z.string().default("Simple, transparent pricing"),
   subheading: z.string().default("Choose the plan that fits your goals. No hidden fees."),
-  backgroundColor: z.string().default("#ffffff"),
   plans: z
     .array(
       z.object({
@@ -63,7 +62,6 @@ export const PricingModuleDef = defineBlock(
   [
     { name: "heading", label: "Heading", type: "text" },
     { name: "subheading", label: "Subheading", type: "textarea" },
-    { name: "backgroundColor", label: "Background Color (Hex)", type: "color" },
     {
       name: "plans",
       label: "Plans",

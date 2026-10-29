@@ -4,7 +4,6 @@ import { defineBlock } from './define-block';
 export const timelineSchema = z.object({
   heading: z.string().default("Our Journey"),
   subheading: z.string().default(""),
-  lineColor: z.string().default(""),
   backgroundImage: z.string().default(""),
   overlay: z.enum(["none", "light", "medium", "dark"]).default("medium"),
   steps: z.array(z.object({
@@ -28,7 +27,6 @@ export const TimelineModuleDef = defineBlock(
   [
     { name: "heading", label: "Heading", type: "text" },
     { name: "subheading", label: "Subheading", type: "textarea" },
-    { name: "lineColor", label: "Line Color", type: "color", description: "Leave blank to use the theme color." },
     { name: "backgroundImage", label: "Background Image", type: "image", description: "Optional. Leave blank for a plain background." },
     {
       name: "overlay", label: "Overlay Darkness", type: "select",

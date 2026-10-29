@@ -87,19 +87,6 @@ export default function HeaderBuilderPage() {
         </Field>
       </SectionCard>
 
-      <SectionCard title="Layout & Styling" bodyClassName="space-y-5">
-        <div className="flex flex-wrap gap-4">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={config.isSticky} onChange={(e) => update("isSticky", e.target.checked)} className="rounded border-input" />
-            Sticky header (stays at top while scrolling)
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={config.glassmorphism} onChange={(e) => update("glassmorphism", e.target.checked)} className="rounded border-input" />
-            Glassmorphism (blur effect)
-          </label>
-        </div>
-      </SectionCard>
-
       <SectionCard title="Call to Action (CTA) Button">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Button Text">
@@ -107,14 +94,6 @@ export default function HeaderBuilderPage() {
           </Field>
           <Field label="Button Link">
             <Input value={config.ctaUrl || ""} onChange={(e) => update("ctaUrl", e.target.value)} placeholder="/contact" />
-          </Field>
-          <Field label="Button Style" className="sm:col-span-2">
-            <select value={config.ctaStyle} onChange={(e) => update("ctaStyle", e.target.value as any)} className={SELECT_CLASS}>
-              <option value="default">Default</option>
-              <option value="primary">Primary</option>
-              <option value="outline">Outline</option>
-              <option value="ghost">Ghost (text only)</option>
-            </select>
           </Field>
         </div>
       </SectionCard>

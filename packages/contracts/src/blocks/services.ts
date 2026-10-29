@@ -5,9 +5,6 @@ export const servicesSchema = z.object({
   heading: z.string().default("Our Services"),
   subheading: z.string().default("What we can do for you"),
   // Global styling for all cards. Empty = use the theme color; set a hex to override.
-  iconColor: z.string().default(""),
-  buttonColor: z.string().default(""),
-  buttonTextColor: z.string().default(""),
   items: z.array(z.object({
       title: z.string().default(""),
       description: z.string().default(""),
@@ -26,14 +23,11 @@ export type ServicesProps = z.input<typeof servicesSchema>;
 export const ServicesSectionDef = defineBlock(
   'ServicesSection',
   "Services Grid",
-  "A grid of services with lucide icons and a per-card button. Colors are global.",
+  "A grid of services with lucide icons and a per-card button.",
   servicesSchema,
   [
     { name: "heading", label: "Heading", type: "text" },
     { name: "subheading", label: "Subheading", type: "textarea" },
-    { name: "iconColor", label: "Icon Color (all cards)", type: "color", description: "Leave blank to use the theme color." },
-    { name: "buttonColor", label: "Button Color (all cards)", type: "color", description: "Leave blank to use the theme color." },
-    { name: "buttonTextColor", label: "Button Text Color (all cards)", type: "color", description: "Leave blank for automatic (white on a colored button)." },
     {
       name: "items",
       label: "Services",

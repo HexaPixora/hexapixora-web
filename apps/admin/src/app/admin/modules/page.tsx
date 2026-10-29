@@ -24,7 +24,6 @@ import { TechStackBlock } from "@hexapixora/theme-hexa-noir/blocks/tech-stack";
 import { SkillsShowcaseBlock } from "@hexapixora/theme-hexa-noir/blocks/skills-showcase";
 import { LeaderBlock } from "@hexapixora/theme-hexa-noir/blocks/leader";
 import { QuoteBlock } from "@hexapixora/theme-hexa-noir/blocks/quote";
-import { InstagramReelsBlock } from "@hexapixora/theme-hexa-noir/blocks/instagram-reels";
 import { RichTextBlock } from "@hexapixora/theme-hexa-noir/blocks/rich-text";
 import { TeamBlock } from "@hexapixora/theme-hexa-noir/blocks/team";
 import { FaqBlock } from "@hexapixora/theme-hexa-noir/blocks/faq";
@@ -34,7 +33,6 @@ import { SliderBlock } from "@hexapixora/theme-hexa-noir/blocks/slider";
 import { LogoTickerBlock } from "@hexapixora/theme-hexa-noir/blocks/logo-ticker";
 import { GallerySyncBlock } from "@hexapixora/theme-hexa-noir/blocks/gallery-sync";
 import { ContactFormBlock } from "@hexapixora/theme-hexa-noir/blocks/contact-form";
-import { CustomCodeBlock } from "@hexapixora/theme-hexa-noir/blocks/custom-code";
 
 // Map for previews
 const PREVIEW_MAP: Record<string, React.FC<any>> = {
@@ -52,7 +50,6 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "SkillsShowcaseModule": SkillsShowcaseBlock,
   "LeaderModule": LeaderBlock,
   "QuoteModule": QuoteBlock,
-  "InstagramReelsModule": InstagramReelsBlock,
   "RichTextModule": RichTextBlock,
   "TeamSection": TeamBlock,
   "FAQSection": FaqBlock,
@@ -62,7 +59,6 @@ const PREVIEW_MAP: Record<string, React.FC<any>> = {
   "SplideLogoTickerModule": LogoTickerBlock,
   "SplideGallerySyncModule": GallerySyncBlock,
   "ContactFormModule": ContactFormBlock,
-  "CustomCodeModule": CustomCodeBlock,
 };
 
 export default function ModulesLibraryPage() {
