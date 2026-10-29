@@ -5,7 +5,6 @@
   "description": "Animation layer for themes: GSAP setup and motion primitives.",
   "exports": {
     "./load-gsap": "./src/load-gsap.ts",
-    "./reveal": "./src/reveal.tsx",
     "./clip-reveal": "./src/clip-reveal.tsx",
     "./word-light": "./src/word-light.tsx",
     "./count-up": "./src/count-up.tsx",
@@ -21,7 +20,8 @@
     "./styles/*": "./src/styles/*"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "gsap": "^3.15.0"
@@ -32,6 +32,8 @@
   "devDependencies": {
     "@hexapixora/typescript-config": "*",
     "@types/react": "19.2.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "@hexapixora/eslint-config": "*",
+    "eslint": "^9.39.1"
   }
 }

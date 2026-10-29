@@ -32,7 +32,7 @@ export function NavLink({
         className={className}
         onClick={onClick}
         target={newTab ? "_blank" : undefined}
-        rel={isExternalHref(url) ? "noopener noreferrer" : undefined}
+        rel="noopener noreferrer"
       >
         {children}
       </a>

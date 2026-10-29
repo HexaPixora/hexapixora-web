@@ -1,7 +1,5 @@
 /* Admin UI tokens (shadcn on Radix): colours, radius and base styles for
- * @hexapixora/ui components. The admin imports this after Tailwind. Until the
- * old public blocks are restyled (Phase 3.4), the site imports it too and
- * Hexa Noir maps these surface tokens onto its palette. */
+ * @hexapixora/ui components. The admin imports this after Tailwind. */
 
 /* Same column as Hexa Noir's page-width. !important because Tailwind's own
    container adds breakpoint max-widths (up to 96rem) that would otherwise win

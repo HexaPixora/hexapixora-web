@@ -1,57 +1,8 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { resolveAnchorId } from "@hexapixora/contracts/blocks/registry";
-import { Reveal } from "@hexapixora/motion/reveal";
 import { NOIR_BLOCKS } from "./block-map";
 import { MediaAltProvider } from "./components/media-alt-provider";
-
-// Skip the global scroll-reveal for: heroes/banners (above the fold — fading
-// them delays LCP and looks off) and modules that run their own entrance or
-// continuous motion (GSAP counters, Splide tickers, marquee, and the grids that
-// stagger their own children below). Everything else gets the reveal.
-const NO_REVEAL = new Set([
-  // Heroes / banners
-  "HeroSection",
-  "WorkHeroModule",
-  "StoryHeroModule",
-  "AnimatedTextHeroModule",
-  "PortfolioHeroModule",
-  "ParallaxBannerModule",
-  // Self-animating / continuous-motion modules
-  "CounterStatsModule",
-  "ScrollytellingModule",
-  "HorizontalScrollModule",
-  "MarqueeModule",
-  "SplideLogoTickerModule",
-  "SplideSliderModule",
-  "SplideGallerySyncModule",
-  "StaggeredGridModule",
-  // Grids with their own Framer stagger (services/why-choose)
-  "ServicesSection",
-  "WhyChooseModule",
-  // Restyled blocks that run their own entrance motion.
-  "CTASection",
-  "LeadMagnetModule",
-  "AboutSection",
-  "OurStoryModule",
-  "OurProcessModule",
-  "TechStackModule",
-  "TimelineModule",
-  "RichTextModule",
-  "LeaderModule",
-  "QuoteModule",
-  "SkillsShowcaseModule",
-  "FAQSection",
-  "StatsSection",
-  "PortfolioSection",
-  "BlogSection",
-  "TeamSection",
-  "GalleryModule",
-  "PricingModule",
-  "ContactFormModule",
-  // Cinematic blocks run their own entrance motion.
-  ...Object.keys(NOIR_BLOCKS),
-]);
 
 /**
  * A stored block type this theme has no component for. Visitors see nothing
@@ -71,7 +22,18 @@ function DefaultSection({ type, label }: { type: string; label?: string; config?
   );
 }
 
-const SECTION_MAP: Record<string, React.ComponentType<any>> = {
+/** What the renderer hands every block; blocks read the parts they need. */
+type BlockProps = { type: string; label?: string; config?: unknown; posts?: unknown[] };
+
+type Section = {
+  id: string;
+  type: string;
+  label?: string;
+  isVisible?: boolean;
+  config?: Record<string, unknown> | null;
+};
+
+const SECTION_MAP: Record<string, React.ComponentType<BlockProps>> = {
   HeroSection: dynamic(() => import("./blocks/hero/hero-block").then((m) => m.HeroBlock)),
   CTASection: dynamic(() => import("./blocks/cta/cta-block").then((m) => m.CtaBlock)),
   ServicesSection: dynamic(() => import("./blocks/services/services-block").then((m) => m.ServicesBlock)),
@@ -111,8 +73,8 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
 };
 
 interface BlockRendererProps {
-  sections: any[];
-  moduleDefaults: Record<string, any>;
+  sections: Section[];
+  moduleDefaults: Record<string, Record<string, unknown>>;
   // filename -> alt text from the media library (GET /media/alt-text)
   altTexts?: Record<string, string>;
   /** Latest published posts, loaded by the app when a page has a blog block. */
@@ -129,7 +91,7 @@ export function BlockRenderer({ sections, moduleDefaults, altTexts, latestPosts 
 
   return (
     <MediaAltProvider altTexts={altTexts}>
-      {sections.filter((s) => s.isVisible).map((section, index) => {
+      {sections.filter((s) => s.isVisible).map((section) => {
         // Merge config: Section specific config > Global Module Default > Empty
         const globalDefault = moduleDefaults[section.type] || {};
         const mergedConfig =
@@ -147,13 +109,10 @@ export function BlockRenderer({ sections, moduleDefaults, altTexts, latestPosts 
         const anchor = candidate && !usedAnchors.has(candidate) ? candidate : "";
         if (anchor) usedAnchors.add(anchor);
 
-        const rendered = (
+        // Blocks run their own entrance motion, so they render as they are.
+        const content = (
           <Component type={typeToRender} label={section.label} config={mergedConfig} posts={latestPosts} />
         );
-
-        // Fade + rise on scroll — except heroes and the first (above-fold) section.
-        const content =
-          index > 0 && !NO_REVEAL.has(typeToRender) ? <Reveal>{rendered}</Reveal> : rendered;
 
         return anchor ? (
           <div key={section.id} id={anchor} className="scroll-mt-24">
