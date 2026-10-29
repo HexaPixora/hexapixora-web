@@ -1,106 +1,51 @@
-"use client";
-
-import React, { useEffect, useRef } from "react";
-import { splideLogoTickerSchema, SplideLogoTickerProps } from "@hexapixora/contracts/blocks/logo-ticker";
-
-import Splide from "@splidejs/splide";
-import { AutoScroll } from "@splidejs/splide-extension-auto-scroll";
-import "@splidejs/splide/css";
+import { useId } from "react";
+import { safeHref } from "@hexapixora/contracts/links";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { splideLogoTickerSchema } from "@hexapixora/contracts/blocks/logo-ticker";
+import { Marquee } from "@hexapixora/motion/marquee";
 import { mediaAlt } from "../../lib/media-alt";
 
-
-
-
-
-export function LogoTickerBlock({ config }: { config?: SplideLogoTickerProps }) {
-  const {
-    heading,
-    speed = "1",
-    perPage = "5",
-    logos = []
-  } = splideLogoTickerSchema.parse(config || {});
-
-  const splideRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!splideRef.current || logos.length === 0) return;
-
-    const splide = new Splide(splideRef.current, {
-      type: "loop",
-      drag: false, // continuous ticker — no manual dragging
-      arrows: false,
-      pagination: false,
-      gap: "4rem",
-      perPage: parseInt(perPage) || 5,
-      // Genuine smooth, infinite continuous scroll (no per-slide "stepping").
-      autoScroll: {
-        speed: parseFloat(speed) || 1,
-        pauseOnHover: false,
-        pauseOnFocus: false,
-      },
-      breakpoints: {
-        1024: {
-          perPage: Math.max(3, (parseInt(perPage) || 5) - 1),
-          gap: "3rem",
-        },
-        768: {
-          perPage: Math.max(2, (parseInt(perPage) || 5) - 2),
-          gap: "2rem",
-        },
-        480: {
-          perPage: 2,
-          gap: "1.5rem",
-        }
-      }
-    });
-
-    splide.mount({ AutoScroll });
-
-    return () => {
-      splide.destroy();
-    };
-  }, [speed, perPage, logos]);
-
-  if (logos.length === 0) {
-    return (
-      <section className="container py-12 border-b">
-        <div className="bg-muted/30 border border-dashed rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
-          <p className="font-semibold text-foreground">Splide Logo Ticker</p>
-          <p className="text-xs mt-1">Please add logos in the settings.</p>
-        </div>
-      </section>
-    );
-  }
+/**
+ * Partner logos sliding endlessly under a small label. The stored "speed"
+ * scales the loop; "per page" no longer applies (logos keep their size).
+ */
+export function LogoTickerBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(splideLogoTickerSchema, config);
+  const headingId = useId();
+  const logos = c.logos.filter((logo) => logo.image || logo.name);
+  if (logos.length === 0) return null;
+  const speed = Math.min(4, Math.max(0.25, parseFloat(c.speed) || 1));
 
   return (
-    <section className="py-12 bg-muted/20 border-y overflow-hidden">
-      <div className="">
-        {heading && (
-          <h4 className="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-8">
-            {heading}
-          </h4>
-        )}
-
-        <div ref={splideRef} className="splide w-full select-none pointer-events-none">
-          <div className="splide__track">
-            <ul className="splide__list items-center">
-              {logos.map((logo, index) => (
-                <li key={index} className="splide__slide flex items-center justify-center">
-                  {logo.image ? (
-                    <img
-                      src={logo.image}
-                      alt={mediaAlt(logo.image, logo.name || `Partner Logo ${index + 1}`)}
-                      className="h-10 w-auto max-w-[130px] object-contain"
-                    />
-                  ) : (
-                    <span className="text-sm font-semibold text-muted-foreground/60">{logo.name || `Partner ${index + 1}`}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
+    <section
+      data-block="logo-ticker"
+      aria-labelledby={c.heading ? headingId : undefined}
+      className="border-y border-line py-12"
+    >
+      {c.heading ? (
+        <h2 id={headingId} className="mono page-width mb-8 text-copy-dim">
+          {c.heading}
+        </h2>
+      ) : null}
+      <Marquee duration={40 / speed} gapClassName="gap-16">
+        {logos.map((logo, i) => {
+          const image = safeHref(logo.image);
+          return image ? (
+            <img
+              key={i}
+              src={image}
+              alt={mediaAlt(image, logo.name || `Partner logo ${i + 1}`)}
+              loading="lazy"
+              decoding="async"
+              className="h-10 w-auto max-w-[140px] object-contain opacity-70 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
+            />
+          ) : (
+            <span key={i} className="wide whitespace-nowrap text-title font-medium text-copy-dim">
+              {logo.name}
+            </span>
+          );
+        })}
+      </Marquee>
     </section>
-  )
+  );
 }

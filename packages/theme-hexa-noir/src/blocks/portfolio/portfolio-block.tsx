@@ -1,78 +1,58 @@
-import React from "react";
-import { portfolioSchema, PortfolioProps } from "@hexapixora/contracts/blocks/portfolio";
-
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { useId } from "react";
+import { safeHref } from "@hexapixora/contracts/links";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { portfolioSchema } from "@hexapixora/contracts/blocks/portfolio";
+import { ClipReveal } from "@hexapixora/motion/clip-reveal";
+import { SectionFrame } from "../../components/section-frame";
+import { SectionHeading } from "../../components/section-heading";
 import { mediaAlt } from "../../lib/media-alt";
 
-
-
-export function PortfolioBlock({ config }: { config?: PortfolioProps }) {
-  const { heading, subheading, items } = portfolioSchema.parse(config || {});
-  const projects = items || [];
+/**
+ * Project cards: image, categories and title. Projects have no page of their
+ * own, so the cards are not links (no dead "#" links for search engines).
+ */
+export function PortfolioBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(portfolioSchema, config);
+  const headingId = useId();
+  const projects = c.items.filter((project) => project.title || project.image);
+  if (projects.length === 0) return null;
 
   return (
-    <section className="py-24">
-      <div className="container">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
-          <div className="max-w-[600px]">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{heading}</h2>
-            {subheading && <p className="text-lg text-muted-foreground">{subheading}</p>}
-          </div>
-          <Link href="/portfolio" className="inline-flex items-center font-medium hover:text-primary transition-colors">
-            View All Projects <ArrowUpRight className="ml-1 w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((project: any, idx: number) => {
-            const image = project.image;
-            // New multi-category array, falling back to the legacy single string.
-            const cats: string[] = Array.isArray(project.categories) && project.categories.length
-              ? project.categories
-              : project.category
-                ? [project.category]
-                : [];
-
-            return (
-              <Link key={idx} href="#" className="group block">
-                <div className="relative overflow-hidden rounded-2xl aspect-[4/3] bg-muted mb-6">
-                  {image ? (
-                    <img 
-                      src={image} 
-                      alt={mediaAlt(image, project.title)} 
-                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground font-medium">
-                      No Image Available
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-                <div>
-                  {cats.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      {cats.map((c) => (
-                        <span key={c} className="text-xs font-semibold uppercase tracking-wider text-primary">
-                          {c}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <h3 className="text-2xl font-bold group-hover:text-primary transition-colors">{project.title}</h3>
-                </div>
-              </Link>
-            );
-          })}
-          
-          {projects.length === 0 && (
-            <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed rounded-xl">
-              No portfolio projects found. Add some in the CMS.
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+    <SectionFrame block="portfolio" labelledBy={c.heading ? headingId : undefined}>
+      <SectionHeading id={headingId} heading={c.heading} subheading={c.subheading} />
+      <ul className="grid gap-x-6 gap-y-12 md:grid-cols-2">
+        {projects.map((project, i) => {
+          const image = safeHref(project.image);
+          const categories = project.categories.length ? project.categories : project.category ? [project.category] : [];
+          return (
+            <ClipReveal key={i} as="li" className="group">
+              <div className="relative mb-5 aspect-[4/3] overflow-hidden border border-line bg-page-raised">
+                {image ? (
+                  <img
+                    src={image}
+                    alt={mediaAlt(image, project.title)}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
+                  />
+                ) : (
+                  <span aria-hidden="true" className="wide grid h-full place-items-center text-display-md text-copy/10">
+                    {project.title.charAt(0)}
+                  </span>
+                )}
+              </div>
+              {categories.length > 0 ? (
+                <p className="mono mb-2 flex flex-wrap gap-x-3 text-signal">
+                  {categories.map((category) => (
+                    <span key={category}>{category}</span>
+                  ))}
+                </p>
+              ) : null}
+              <h3 className="wide text-title font-medium">{project.title}</h3>
+            </ClipReveal>
+          );
+        })}
+      </ul>
+    </SectionFrame>
   );
 }

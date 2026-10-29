@@ -2,6 +2,7 @@ import { SiteLayout } from "@/components/public/site-layout";
 import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
 import { HeroBlock } from "@hexapixora/theme-hexa-noir/blocks/hero"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
+import { getLatestPosts } from "@/lib/latest-posts";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 
 // Revalidate periodically (120s) so cached pages serve in ~20ms and Render
@@ -93,7 +94,12 @@ export default async function HomePage() {
           </div>
         )}
 
-        <BlockRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
+        <BlockRenderer
+          sections={sections}
+          moduleDefaults={moduleDefaults}
+          altTexts={altTexts}
+          latestPosts={await getLatestPosts(sections)}
+        />
       </div>
     </SiteLayout>
   );
