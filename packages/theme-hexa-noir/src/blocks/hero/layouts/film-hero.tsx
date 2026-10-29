@@ -46,6 +46,8 @@ export function FilmHero({ c, titleId }: HeroLayoutProps) {
       {/* Copy sits in the page-width column; the tiles behind stay full-bleed. */}
       <div className="absolute inset-0 z-[3] page-width">
         <div className="relative h-full">
+          {/* The label sits just above the title, clear of the copy at the bottom on short screens. */}
+          {c.label ? <p className="mono absolute left-0 top-[calc(30vh-2.5rem)] text-signal">{c.label}</p> : null}
           <HeroTitle
             id={titleId}
             className="wide absolute inset-x-0 top-[30vh] text-display-lg font-medium"
@@ -53,7 +55,6 @@ export function FilmHero({ c, titleId }: HeroLayoutProps) {
           />
 
           <div className="absolute bottom-[7vh] left-0 max-w-[38ch]">
-            {c.label ? <p className="mono mb-3 text-signal">{c.label}</p> : null}
             {c.intro ? <p className="text-lg font-semibold">{c.intro}</p> : null}
             {actions.length > 0 ? (
               <div className="mt-4 flex flex-wrap gap-3">
