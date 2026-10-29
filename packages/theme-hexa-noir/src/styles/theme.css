@@ -75,6 +75,8 @@
 }
 
 :root {
+  /* Height of the fixed header (without the notch inset). */
+  --header-h: 72px;
   --duration-fast: 0.4s;
   --duration-base: 0.8s;
   --duration-slow: 1.2s;
@@ -113,8 +115,9 @@
   }
 
   /* Anchor targets clear the fixed header. */
-  section[id] {
-    scroll-margin-top: 80px;
+  section[id],
+  [id] > section {
+    scroll-margin-top: calc(var(--header-h) + 8px);
   }
 
   :focus-visible {

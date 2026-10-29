@@ -6,6 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./block-map": "./src/block-map.tsx",
+    "./layout/site-shell": "./src/layout/site-shell.tsx",
+    "./layout/nav-types": "./src/layout/nav-types.ts",
     "./styles/*": "./src/styles/*"
   },
   "scripts": {
