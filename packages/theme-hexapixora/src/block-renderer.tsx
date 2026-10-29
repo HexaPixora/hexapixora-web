@@ -2,6 +2,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 import { resolveAnchorId } from "@hexapixora/contracts/blocks/registry";
 import { Reveal } from "@hexapixora/motion/reveal";
+import { NOIR_BLOCKS } from "@hexapixora/theme-hexa-noir/block-map";
 import { MediaAltProvider } from "./components/media-alt-provider";
 
 // Skip the global scroll-reveal for: heroes/banners (above the fold — fading
@@ -28,6 +29,8 @@ const NO_REVEAL = new Set([
   // Grids with their own Framer stagger (services/why-choose)
   "ServicesSection",
   "WhyChooseModule",
+  // Cinematic blocks run their own entrance motion.
+  ...Object.keys(NOIR_BLOCKS),
 ]);
 
 function DefaultSection({ type, label, config }: { type: string, label?: string, config?: any }) {
@@ -81,6 +84,7 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   CounterStatsModule: dynamic(() => import("./blocks/counter-stats-block").then((m) => m.CounterStatsBlock)),
   StaggeredGridModule: dynamic(() => import("./blocks/staggered-grid-block").then((m) => m.StaggeredGridBlock)),
   CustomCodeModule: dynamic(() => import("./blocks/custom-code-block").then((m) => m.CustomCodeBlock)),
+  ...NOIR_BLOCKS,
 };
 
 interface BlockRendererProps {

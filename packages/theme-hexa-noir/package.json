@@ -2,16 +2,28 @@
   "name": "@hexapixora/theme-hexa-noir",
   "version": "0.0.0",
   "private": true,
-  "description": "Hexa Noir, the HexaPixora public theme: design tokens, base styles and (from Phase 3.3) blocks. Pure UI: data comes in via props.",
+  "description": "Hexa Noir, the HexaPixora public theme: design tokens, base styles and the cinematic section blocks. Pure UI: data comes in via props.",
   "exports": {
     ".": "./src/index.ts",
+    "./block-map": "./src/block-map.tsx",
     "./styles/*": "./src/styles/*"
   },
   "scripts": {
     "check-types": "tsc --noEmit"
   },
+  "dependencies": {
+    "@hexapixora/contracts": "*",
+    "@hexapixora/motion": "*"
+  },
+  "peerDependencies": {
+    "next": "16.4.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
   "devDependencies": {
     "@hexapixora/typescript-config": "*",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "typescript": "5.9.2"
   }
 }

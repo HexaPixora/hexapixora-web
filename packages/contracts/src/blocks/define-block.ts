@@ -36,3 +36,22 @@ export function defineBlock<T extends z.ZodType<Record<string, any>>>(
     defaultConfig,
   };
 }
+
+/**
+ * Validates stored block config against its schema before rendering. Bad or
+ * partial data falls back field by field to the schema defaults instead of
+ * crashing the page, so a broken edit can never take a page down.
+ */
+export function parseBlockConfig<T extends z.ZodType>(schema: T, config: unknown): z.output<T> {
+  const parsed = schema.safeParse(config ?? {});
+  if (parsed.success) return parsed.data;
+  const fallback = schema.parse({}) as Record<string, unknown>;
+  if (config && typeof config === "object") {
+    for (const [key, value] of Object.entries(config)) {
+      if (!(key in fallback)) continue;
+      const one = schema.safeParse({ ...fallback, [key]: value });
+      if (one.success) fallback[key] = (one.data as Record<string, unknown>)[key];
+    }
+  }
+  return fallback as z.output<T>;
+}

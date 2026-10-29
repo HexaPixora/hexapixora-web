@@ -132,7 +132,7 @@ export default function RootLayout({
     // during SSR / first paint — no white flash on any device, JS or not.
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${unbounded.variable} ${manrope.variable} ${jetbrainsMono.variable} ${fraunces.variable} ${sacramento.variable} min-h-screen bg-ink font-body text-bone antialiased`}
+        className={`${unbounded.variable} ${manrope.variable} ${jetbrainsMono.variable} ${fraunces.variable} ${sacramento.variable} min-h-screen bg-page font-body text-copy antialiased`}
       >
         {/* Marks JS as available before content paints, so scroll-reveal only
             hides sections when it can also reveal them (no-JS users see all). */}
