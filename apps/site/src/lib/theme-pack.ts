@@ -1,7 +1,5 @@
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
-
-/** Compiled CSS can never contain markup; refuse it if it somehow does. */
-export const isSafeThemeCss = (css: unknown): css is string => typeof css === "string" && !/<\//.test(css);
+import { isSafeThemeCss } from "./theme-css";
 
 /**
  * The active theme pack's CSS (token overrides, @font-face rules and its

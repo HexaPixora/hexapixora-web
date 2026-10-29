@@ -5,6 +5,7 @@ import { apiUrl } from "@hexapixora/sdk/server";
 import { colors } from "@hexapixora/theme-hexa-noir";
 import { SITE_URL, absoluteMediaUrl } from "@/lib/site-url";
 import { getThemePackCss } from "@/lib/theme-pack";
+import { ThemePreview } from "@/components/public/theme-preview";
 
 // Hexa Noir faces. All three are variable fonts, so each is one file that
 // covers every weight the theme uses.
@@ -136,6 +137,7 @@ export default async function RootLayout({
           </style>
         ) : null}
         {children}
+        <ThemePreview />
       </body>
     </html>
   );
