@@ -13,14 +13,12 @@ export const footerSchema = z.object({
   socials: z.array(z.object({
     platform: z.string().default(""),
     url: z.string().optional().default(""),
-    icon: z.string().optional(),       // key into the social icon registry
-    color: z.string().optional()       // hex color; empty = inherit theme color
+    icon: z.string().optional()       // key into the social icon registry
   })).optional().default([
-    { platform: "X (Twitter)", url: "https://twitter.com", icon: "x", color: "" },
-    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin", color: "" }
+    { platform: "X (Twitter)", url: "https://twitter.com", icon: "x" },
+    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin" }
   ]),
 
-  backgroundColor: z.enum(["default", "muted", "dark", "glass"]).default("glass").describe("Background Color Style"),
   showNewsletter: z.boolean().default(true).describe("Show Newsletter Subscription Box"),
 });
 
@@ -30,10 +28,9 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   tagline: "Building modern digital experiences.",
   col1Title: "Quick Links",
   col2Title: "Legal",
-  backgroundColor: "glass",
   showNewsletter: true,
   socials: [
-    { platform: "X (Twitter)", url: "https://twitter.com", icon: "x", color: "" },
-    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin", color: "" }
+    { platform: "X (Twitter)", url: "https://twitter.com", icon: "x" },
+    { platform: "LinkedIn", url: "https://linkedin.com", icon: "linkedin" }
   ]
 };

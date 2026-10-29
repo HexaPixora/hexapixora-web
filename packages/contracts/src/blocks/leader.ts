@@ -12,7 +12,6 @@ export const leaderSchema = z.object({
   signature: z.string().default("Umair Breet"),
   name: z.string().default("Umair Breet"),
   title: z.string().default("Founder & CEO"),
-  accentColor: z.string().default("#1093fd"),
   stats: z.array(z.object({
       value: z.string().default(""),
       label: z.string().default(""),
@@ -39,7 +38,6 @@ export const LeaderModuleDef = defineBlock(
     { name: "signature", label: "Signature", type: "text", description: "Rendered in a handwritten script." },
     { name: "name", label: "Name", type: "text" },
     { name: "title", label: "Title / Role", type: "text" },
-    { name: "accentColor", label: "Accent color", type: "color", description: "Tints the offset frame, rule and signature." },
     {
       name: "stats",
       label: "Credibility stats",

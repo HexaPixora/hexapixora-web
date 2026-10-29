@@ -1,6 +1,6 @@
 // Shapes shared by block definitions, the registry and the admin field editor.
 
-export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'color' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories' | 'code';
+export type ModuleFieldType = 'text' | 'textarea' | 'image' | 'video' | 'boolean' | 'select' | 'richtext' | 'list' | 'categories';
 
 export type ModuleField = {
   name: string;

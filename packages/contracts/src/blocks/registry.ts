@@ -10,7 +10,6 @@ import { FAQSectionDef } from "./faq";
 import { StatsSectionDef } from "./stats";
 import { AboutSectionDef } from "./about";
 import { GalleryModuleDef } from "./gallery";
-import { VideoPlayerModuleDef } from "./video-player";
 import { SplideSliderModuleDef } from "./slider";
 import { SplideLogoTickerModuleDef } from "./logo-ticker";
 import { SplideGallerySyncModuleDef } from "./gallery-sync";
@@ -28,7 +27,6 @@ import { PortfolioHeroModuleDef } from "./portfolio-hero";
 import { WhyChooseModuleDef } from "./why-choose";
 import { OurStoryModuleDef } from "./our-story";
 import { LeaderModuleDef } from "./leader";
-import { InstagramReelsModuleDef } from "./instagram-reels";
 import { QuoteModuleDef } from "./quote";
 import { RichTextModuleDef } from "./rich-text";
 import { OurProcessModuleDef } from "./our-process";
@@ -36,7 +34,6 @@ import { WorkHeroModuleDef } from "./work-hero";
 import { StoryHeroModuleDef } from "./story-hero";
 import { TechStackModuleDef } from "./tech-stack";
 import { SkillsShowcaseModuleDef } from "./skills-showcase";
-import { CustomCodeModuleDef } from "./custom-code";
 import { FilmHeroDef } from "./film-hero";
 import { StatementDef } from "./statement";
 import { CrewDef } from "./crew";
@@ -61,7 +58,6 @@ export const MODULES: Record<string, ModuleDefinition> = {
   StatsSection: StatsSectionDef,
   AboutSection: AboutSectionDef,
   GalleryModule: GalleryModuleDef,
-  VideoPlayerModule: VideoPlayerModuleDef,
   SplideSliderModule: SplideSliderModuleDef,
   SplideLogoTickerModule: SplideLogoTickerModuleDef,
   SplideGallerySyncModule: SplideGallerySyncModuleDef,
@@ -86,9 +82,7 @@ export const MODULES: Record<string, ModuleDefinition> = {
   SkillsShowcaseModule: SkillsShowcaseModuleDef,
   LeaderModule: LeaderModuleDef,
   QuoteModule: QuoteModuleDef,
-  InstagramReelsModule: InstagramReelsModuleDef,
   RichTextModule: RichTextModuleDef,
-  CustomCodeModule: CustomCodeModuleDef,
   // Cinematic section blocks (Phase 3). Stored under their block id; any
   // theme pack restyles them through tokens and variants.
   "film-hero": FilmHeroDef,
@@ -108,11 +102,11 @@ export const MODULES: Record<string, ModuleDefinition> = {
 export const MODULE_CATEGORIES: { label: string; modules: string[] }[] = [
   { label: "Cinematic sections", modules: ["film-hero", "statement", "crew", "pillars", "case-files", "lab", "process-steps", "faq-list", "closing-cta"] },
   { label: "Hero & Banners", modules: ["HeroSection", "WorkHeroModule", "StoryHeroModule", "AnimatedTextHeroModule", "PortfolioHeroModule", "ParallaxBannerModule"] },
-  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "LeaderModule", "QuoteModule", "RichTextModule", "TechStackModule", "TimelineModule", "ScrollytellingModule", "CustomCodeModule"] },
+  { label: "Content & Story", modules: ["AboutSection", "OurStoryModule", "OurProcessModule", "WhyChooseModule", "LeaderModule", "QuoteModule", "RichTextModule", "TechStackModule", "TimelineModule", "ScrollytellingModule"] },
   { label: "Services & Pricing", modules: ["ServicesSection", "PricingModule"] },
   { label: "Portfolio & Galleries", modules: ["PortfolioSection", "GalleryModule", "SplideGallerySyncModule", "SplideSliderModule", "StaggeredGridModule", "HorizontalScrollModule"] },
   { label: "Social Proof", modules: ["TeamSection", "SkillsShowcaseModule", "SplideLogoTickerModule", "MarqueeModule", "StatsSection", "CounterStatsModule"] },
-  { label: "Blog & Media", modules: ["BlogSection", "VideoPlayerModule", "InstagramReelsModule"] },
+  { label: "Blog", modules: ["BlogSection"] },
   { label: "Lead Generation", modules: ["CTASection", "ContactFormModule", "LeadMagnetModule", "FAQSection"] },
 ];
 
@@ -132,7 +126,6 @@ export const DEFAULT_ANCHOR_IDS: Record<string, string> = {
   TeamSection: "team",
   LeaderModule: "leadership",
   QuoteModule: "quote",
-  InstagramReelsModule: "reels",
   "faq-list": "faq",
   "process-steps": "process",
 };

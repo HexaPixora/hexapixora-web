@@ -47,11 +47,8 @@ const NO_REVEAL = new Set([
   "BlogSection",
   "TeamSection",
   "GalleryModule",
-  "VideoPlayerModule",
-  "InstagramReelsModule",
   "PricingModule",
   "ContactFormModule",
-  "CustomCodeModule",
   // Cinematic blocks run their own entrance motion.
   ...Object.keys(NOIR_BLOCKS),
 ]);
@@ -89,7 +86,6 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   SkillsShowcaseModule: dynamic(() => import("./blocks/skills-showcase/skills-showcase-block").then((m) => m.SkillsShowcaseBlock)),
   LeaderModule: dynamic(() => import("./blocks/leader/leader-block").then((m) => m.LeaderBlock)),
   QuoteModule: dynamic(() => import("./blocks/quote/quote-block").then((m) => m.QuoteBlock)),
-  InstagramReelsModule: dynamic(() => import("./blocks/instagram-reels/instagram-reels-block").then((m) => m.InstagramReelsBlock)),
   RichTextModule: dynamic(() => import("./blocks/rich-text/rich-text-block").then((m) => m.RichTextBlock)),
   BlogSection: dynamic(() => import("./blocks/blog/blog-block").then((m) => m.BlogBlock)),
   TeamSection: dynamic(() => import("./blocks/team/team-block").then((m) => m.TeamBlock)),
@@ -97,7 +93,6 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   StatsSection: dynamic(() => import("./blocks/stats/stats-block").then((m) => m.StatsBlock)),
   AboutSection: dynamic(() => import("./blocks/about/about-block").then((m) => m.AboutBlock)),
   GalleryModule: dynamic(() => import("./blocks/gallery/gallery-block").then((m) => m.GalleryBlock)),
-  VideoPlayerModule: dynamic(() => import("./blocks/video-player/video-player-block").then((m) => m.VideoPlayerBlock)),
   SplideSliderModule: dynamic(() => import("./blocks/slider/slider-block").then((m) => m.SliderBlock)),
   SplideLogoTickerModule: dynamic(() => import("./blocks/logo-ticker/logo-ticker-block").then((m) => m.LogoTickerBlock)),
   SplideGallerySyncModule: dynamic(() => import("./blocks/gallery-sync/gallery-sync-block").then((m) => m.GallerySyncBlock)),
@@ -112,7 +107,6 @@ const SECTION_MAP: Record<string, React.ComponentType<any>> = {
   MarqueeModule: dynamic(() => import("./blocks/marquee/marquee-block").then((m) => m.MarqueeBlock)),
   CounterStatsModule: dynamic(() => import("./blocks/counter-stats/counter-stats-block").then((m) => m.CounterStatsBlock)),
   StaggeredGridModule: dynamic(() => import("./blocks/staggered-grid/staggered-grid-block").then((m) => m.StaggeredGridBlock)),
-  CustomCodeModule: dynamic(() => import("./blocks/custom-code/custom-code-block").then((m) => m.CustomCodeBlock)),
   ...NOIR_BLOCKS,
 };
 
@@ -138,29 +132,12 @@ export function BlockRenderer({ sections, moduleDefaults, altTexts, latestPosts 
       {sections.filter((s) => s.isVisible).map((section, index) => {
         // Merge config: Section specific config > Global Module Default > Empty
         const globalDefault = moduleDefaults[section.type] || {};
-        let mergedConfig =
+        const mergedConfig =
           section.config && Object.keys(section.config).length > 0
             ? section.config
             : globalDefault;
         
-        let typeToRender = section.type;
-
-        if (typeToRender === 'YouTubeEmbedModule') {
-          // Transform old config format to new VideoPlayer format
-          mergedConfig = {
-            heading: "",
-            layout: "single",
-            autoplay: mergedConfig.autoplay,
-            loop: mergedConfig.loop,
-            controls: mergedConfig.controls,
-            videos: [{
-              videoUrl: mergedConfig.videoUrl,
-              posterUrl: "",
-              title: ""
-            }]
-          };
-          typeToRender = 'VideoPlayerModule';
-        }
+        const typeToRender = section.type;
 
         const Component = SECTION_MAP[typeToRender] || DefaultSection;
 

@@ -9,7 +9,6 @@ export const leadMagnetSchema = z.object({
   resourceUrl: z.string().default(""),
   buttonText: z.string().default("Get the free guide"),
   coverImage: z.string().default(""),
-  backgroundColor: z.string().default("#0f172a"),
 });
 
 export type LeadMagnetProps = z.input<typeof leadMagnetSchema>;
@@ -26,6 +25,5 @@ export const LeadMagnetModuleDef = defineBlock(
     { name: "resourceUrl", label: "Resource File URL (PDF, etc.)", type: "image", description: "Upload your file to the Media Library and select it here." },
     { name: "buttonText", label: "Button Text", type: "text" },
     { name: "coverImage", label: "Cover Image (optional)", type: "image" },
-    { name: "backgroundColor", label: "Background Color (Hex)", type: "color" },
   ],
 );

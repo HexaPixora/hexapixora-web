@@ -5,9 +5,6 @@ export const headerSchema = z.object({
   logoUrl: z.string().optional().describe("Custom Logo URL Override"),
   ctaText: z.string().optional().default("Get in Touch").describe("CTA Button Text"),
   ctaUrl: z.string().optional().default("/contact-us").describe("CTA Button Link"),
-  ctaStyle: z.enum(["default", "outline", "ghost", "primary"]).default("default").describe("CTA Button Style"),
-  isSticky: z.boolean().default(true).describe("Sticky Header"),
-  glassmorphism: z.boolean().default(true).describe("Glassmorphism Effect"),
 });
 
 export type HeaderConfig = z.infer<typeof headerSchema>;
@@ -16,7 +13,4 @@ export const DEFAULT_HEADER_CONFIG: HeaderConfig = {
   navId: "main-menu",
   ctaText: "Get in Touch",
   ctaUrl: "/contact-us",
-  ctaStyle: "default",
-  isSticky: true,
-  glassmorphism: true,
 };

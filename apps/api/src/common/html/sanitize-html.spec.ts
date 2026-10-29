@@ -45,8 +45,8 @@ describe('sanitizeSections', () => {
       },
       {
         id: '2',
-        type: 'CustomCodeModule',
-        config: { html: '<script>kept()</script>' },
+        type: 'HeroSection',
+        config: { heading: '<b>kept as text</b>' },
       },
     ];
     const out = sanitizeSections(sections);
