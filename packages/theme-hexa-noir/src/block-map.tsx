@@ -7,10 +7,9 @@ type BlockComponent = ComponentType<BlockProps>;
 
 /**
  * Library block id → component (plans/phase-3c). Each block is its own
- * chunk, so a page only loads the blocks it uses. Blocks not built yet fall
- * back to their old components in LEGACY_BLOCKS.
+ * chunk, so a page only loads the blocks it uses.
  */
-export const LIBRARY_BLOCKS: Partial<Record<BlockId, BlockComponent>> = {
+export const LIBRARY_BLOCKS: Record<BlockId, BlockComponent> = {
   hero: dynamic(() => import("./blocks/hero/hero-block").then((m) => m.HeroBlock)),
   text: dynamic(() => import("./blocks/text/text-block").then((m) => m.TextBlock)),
   quote: dynamic(() => import("./blocks/quote/quote-block").then((m) => m.QuoteBlock)),
@@ -27,8 +26,4 @@ export const LIBRARY_BLOCKS: Partial<Record<BlockId, BlockComponent>> = {
   contact: dynamic(() => import("./blocks/contact/contact-block").then((m) => m.ContactBlock)),
   pricing: dynamic(() => import("./blocks/pricing/pricing-block").then((m) => m.PricingBlock)),
   posts: dynamic(() => import("./blocks/posts/posts-block").then((m) => m.PostsBlock)),
-};
-
-/** Old stored types whose library block is still to come (Phase 3c-3). */
-export const LEGACY_BLOCKS: Record<string, BlockComponent> = {
 };
