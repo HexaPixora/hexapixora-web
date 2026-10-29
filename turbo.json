@@ -9,10 +9,10 @@
         "NODE_ENV",
         "API_URL",
         "API_PROXY_ORIGIN",
-        "NEXT_PUBLIC_API_URL",
-        "NEXT_PUBLIC_SITE_URL",
+        "SITE_URL",
+        "SITE_NAME",
         "ADMIN_URL",
-        "NEXT_PUBLIC_WS_ORIGIN",
+        "TURNSTILE_SITE_KEY",
         "PREVIEW_TOKEN",
         "REVALIDATE_SECRET",
         "MAINTENANCE_MODE"

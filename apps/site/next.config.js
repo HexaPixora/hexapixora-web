@@ -7,7 +7,7 @@ function apiProxyOrigin() {
   const explicit = process.env.API_PROXY_ORIGIN;
   if (explicit) return explicit.replace(/\/+$/, '');
 
-  const base = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  const base = process.env.API_URL;
   if (base) {
     try {
       return new URL(base).origin;
@@ -16,17 +16,6 @@ function apiProxyOrigin() {
     }
   }
   return 'http://localhost:3001';
-}
-
-// Public site URL baked into the client bundle. Admin "View" links run in the
-// browser, where only NEXT_PUBLIC_* vars exist — so if NEXT_PUBLIC_SITE_URL
-// isn't set, derive it from Vercel's production domain at build time instead
-// of letting the browser fall back to localhost.
-function publicSiteUrl() {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  const vercelProd = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (vercelProd) return `https://${vercelProd}`;
-  return '';
 }
 
 // Origin of the admin app (e.g. https://admin.hexapixora.com). Unset in local
@@ -42,9 +31,6 @@ function adminRedirects() {
 const nextConfig = {
   // Workspace packages ship TypeScript source; Next compiles them like app code.
   transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexapixora', '@hexapixora/ui'],
-  env: {
-    NEXT_PUBLIC_SITE_URL: publicSiteUrl(),
-  },
   // Allow the dev server to be reached through a Cloudflare quick tunnel
   // (https://*.trycloudflare.com) so phones/other devices can load it without
   // Next blocking the cross-origin dev request.
