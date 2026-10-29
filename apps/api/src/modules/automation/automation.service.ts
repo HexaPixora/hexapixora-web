@@ -13,6 +13,7 @@ import { createHash } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import MarkdownIt from 'markdown-it';
+import { sanitizeHtml } from '../../common/html/sanitize-html';
 import { PrismaService } from '../../prisma/prisma.service';
 import { env } from '../../config/env';
 import {
@@ -115,7 +116,7 @@ export class AutomationService {
     if (dto.thumbnail) await this.assertOwnMedia(dto.thumbnail);
 
     const categoryIds = await this.resolveCategories(dto.categories ?? []);
-    const content = mdParser.render(dto.markdown);
+    const content = sanitizeHtml(mdParser.render(dto.markdown));
     const words = dto.markdown.split(/\s+/).filter(Boolean).length;
 
     const publishAt = dto.publishAt ? new Date(dto.publishAt) : null;
