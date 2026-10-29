@@ -1,8 +1,9 @@
 import { useId } from "react";
 import Link from "next/link";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { contactFormSchema } from "@hexapixora/contracts/blocks/legacy/contact-form";
+import { contactSchema } from "@hexapixora/contracts/blocks/contact";
 import { SectionFrame } from "../../components/section-frame";
+import type { BlockProps } from "../../lib/block-props";
 import { ContactForm } from "./contact-form";
 
 const EMAIL_PATTERN = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
@@ -12,27 +13,28 @@ const EMAIL_PATTERN = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
  * enquiry form on the right. Email and phone are only linked when they are
  * well-formed, so a stray CMS value can't become an odd `mailto:` or `tel:`.
  */
-export function ContactFormBlock({ config }: { config?: unknown }) {
-  const c = parseBlockConfig(contactFormSchema, config);
+export function ContactBlock({ config }: BlockProps) {
+  const c = parseBlockConfig(contactSchema, config);
   const headingId = useId();
   // Read on the server and handed to the form; Turnstile site keys are public.
   const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY;
 
-  const email = EMAIL_PATTERN.test(c.emailAddress.trim()) ? c.emailAddress.trim() : "";
-  const phoneDigits = c.phoneNumber.replace(/[^0-9+]/g, "");
-  const phone = phoneDigits.length >= 6 ? c.phoneNumber.trim() : "";
+  const email = EMAIL_PATTERN.test(c.email.trim()) ? c.email.trim() : "";
+  const phoneDigits = c.phone.replace(/[^0-9+]/g, "");
+  const phone = phoneDigits.length >= 6 ? c.phone.trim() : "";
 
   return (
-    <SectionFrame block="contact-form" labelledBy={c.title ? headingId : undefined}>
+    <SectionFrame block="contact" variant={c.layout} surface={c.surface} labelledBy={c.heading ? headingId : undefined}>
       <div className="grid gap-16 lg:grid-cols-[1fr_1.25fr]">
         <div className="grid content-start gap-12">
           <div>
-            {c.title ? (
-              <h2 id={headingId} className="wide max-w-[16ch] text-display-md font-medium">
-                {c.title}
+            {c.label ? <p className="mono mb-5 text-signal">{c.label}</p> : null}
+            {c.heading ? (
+              <h2 id={headingId} className="wide max-w-[16ch] whitespace-pre-line text-display-md font-medium">
+                {c.heading}
               </h2>
             ) : null}
-            {c.subtitle ? <p className="mt-5 max-w-[48ch] text-lg text-copy-dim">{c.subtitle}</p> : null}
+            {c.intro ? <p className="mt-5 max-w-[48ch] text-lg text-copy-dim">{c.intro}</p> : null}
           </div>
 
           {email || phone ? (
