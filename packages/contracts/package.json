@@ -4,14 +4,39 @@
   "private": true,
   "description": "Content shapes shared by the API, admin and site: block definitions, layout schemas, permissions.",
   "exports": {
-    "./blocks/*": "./src/blocks/*.ts",
-    "./layout/*": "./src/layout/*.ts",
-    "./links": "./src/links.ts",
-    "./permissions": "./src/permissions.ts",
-    "./countries": "./src/countries.ts",
-    "./theme-pack/*": "./src/theme-pack/*.ts"
+    "./blocks/*": {
+      "types": "./src/blocks/*.ts",
+      "require": "./dist/blocks/*.js",
+      "default": "./src/blocks/*.ts"
+    },
+    "./layout/*": {
+      "types": "./src/layout/*.ts",
+      "require": "./dist/layout/*.js",
+      "default": "./src/layout/*.ts"
+    },
+    "./links": {
+      "types": "./src/links.ts",
+      "require": "./dist/links.js",
+      "default": "./src/links.ts"
+    },
+    "./permissions": {
+      "types": "./src/permissions.ts",
+      "require": "./dist/permissions.js",
+      "default": "./src/permissions.ts"
+    },
+    "./countries": {
+      "types": "./src/countries.ts",
+      "require": "./dist/countries.js",
+      "default": "./src/countries.ts"
+    },
+    "./theme-pack/*": {
+      "types": "./src/theme-pack/*.ts",
+      "require": "./dist/theme-pack/*.js",
+      "default": "./src/theme-pack/*.ts"
+    }
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "check-types": "tsc --noEmit",
     "test": "node --import tsx --test src/blocks/legacy/*.test.ts src/theme-pack/*.test.ts"
   },
