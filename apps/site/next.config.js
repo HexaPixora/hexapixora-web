@@ -30,7 +30,7 @@ function adminRedirects() {
 
 const nextConfig = {
   // Workspace packages ship TypeScript source; Next compiles them like app code.
-  transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexapixora', '@hexapixora/ui'],
+  transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexa-noir', '@hexapixora/theme-hexapixora', '@hexapixora/ui'],
   // Allow the dev server to be reached through a Cloudflare quick tunnel
   // (https://*.trycloudflare.com) so phones/other devices can load it without
   // Next blocking the cross-origin dev request.
