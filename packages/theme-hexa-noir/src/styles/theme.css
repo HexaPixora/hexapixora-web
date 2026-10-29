@@ -1,10 +1,13 @@
 /* Hexa Noir: design tokens and base styles.
- * Imported by the app's globals.css after Tailwind (and, until Phase 3.4,
- * after the old theme so these rules win). Fonts are loaded by the app with
+ * Imported by the app's globals.css after Tailwind and, until Phase 3.4 ends,
+ * after @hexapixora/ui's tokens so these rules win. Fonts are loaded by the app with
  * next/font and arrive as --font-unbounded, --font-manrope, --font-jetbrains-mono. */
 
 /* Shared pieces of the block engines that Tailwind can't express. */
 @import "./blocks.css";
+
+/* Component CSS of the blocks not yet restyled (Phase 3.4). */
+@import "./legacy.css";
 
 /* Scan this package's components so their Tailwind classes are generated. */
 @source "..";
@@ -82,18 +85,19 @@
   --duration-slow: 1.2s;
 }
 
-/* Bridge: point the old theme's surface tokens at the Hexa Noir palette, so
- * existing blocks sit on the same black until Phase 3.4 restyles them. */
+/* Bridge: point the shadcn surface tokens the older blocks still use at the
+ * Hexa Noir palette, so they sit on the same black until they are restyled
+ * (Phase 3.4). Plain colours, because the utilities read them as var(). */
 .dark {
-  --background: 228 26% 4%; /* ink */
-  --foreground: 40 35% 92%; /* bone */
-  --card: 228 26% 4%;
-  --card-foreground: 40 35% 92%;
-  --popover: 228 26% 4%;
-  --popover-foreground: 40 35% 92%;
-  --muted-foreground: 39 7% 58%; /* dim */
-  --border: 240 2% 16%; /* line over ink */
-  --input: 240 2% 16%;
+  --background: var(--color-page);
+  --foreground: var(--color-copy);
+  --card: var(--color-page-raised);
+  --card-foreground: var(--color-copy);
+  --popover: var(--color-page-raised);
+  --popover-foreground: var(--color-copy);
+  --muted-foreground: var(--color-copy-dim);
+  --border: var(--color-line);
+  --input: var(--color-line);
 }
 
 @layer base {

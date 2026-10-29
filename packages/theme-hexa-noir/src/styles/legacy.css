@@ -1,0 +1,103 @@
+/* Component CSS carried over from the previous theme for blocks that are not
+ * restyled yet (Phase 3.4). Removed piece by piece as blocks move to tokens. */
+
+/* Stop iOS Safari from auto-zooming the page when a form field is focused: it
+   zooms whenever the focused control's font-size is below 16px. Force 16px on
+   small screens (desktop browsers don't auto-zoom, so utility text sizes still
+   apply there). */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+
+/* Liquid-glass cards — a slow diagonal specular reflection that drifts across
+   the glass, then pauses. Elegant and barely noticeable (GPU: transform+opacity
+   only). Respects reduced-motion below. */
+@keyframes glassSheen {
+  0% { transform: translateX(-40%) skewX(-14deg); opacity: 0; }
+  10% { opacity: 0.85; }
+  42% { transform: translateX(440%) skewX(-14deg); opacity: 0.85; }
+  50%, 100% { transform: translateX(440%) skewX(-14deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-sheen { animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* Scroll-reveal: sections fade + rise as they enter the viewport. Gated on the
+   `.js` class (set by an inline script in the root layout) so content is never
+   hidden when JS is off — SEO / no-JS safe — and skipped entirely for
+   reduced-motion. The <Reveal> wrapper toggles data-reveal from "out" to "in". */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  html.js [data-reveal="in"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Blog article FAQ — a styled accordion built at import time (see the API's
+   blogs.service renderFaqAccordion). Overrides prose defaults inside articles. */
+.article-faq {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.article-faq details.faq-item {
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+}
+.article-faq details.faq-item[open] {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+.article-faq summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin: 0;
+  font-weight: 600;
+  color: #fff;
+  transition: color 0.2s;
+}
+.article-faq summary::-webkit-details-marker { display: none; }
+.article-faq summary:hover { color: #7cc4ff; }
+.article-faq summary::after {
+  content: "";
+  flex: none;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-right: 2px solid #7cc4ff;
+  border-bottom: 2px solid #7cc4ff;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.25s ease;
+}
+.article-faq details[open] summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+.article-faq .faq-answer {
+  padding: 0 1.25rem 1.1rem;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.65;
+}
+.article-faq .faq-answer > :first-child { margin-top: 0; }
+.article-faq .faq-answer > :last-child { margin-bottom: 0; }

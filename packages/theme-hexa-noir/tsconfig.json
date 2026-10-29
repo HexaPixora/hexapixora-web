@@ -6,7 +6,7 @@
     "jsx": "react-jsx",
     "noEmit": true,
     "strictNullChecks": true,
-    "types": []
+    "types": ["node"]
   },
   "include": [
     "src"

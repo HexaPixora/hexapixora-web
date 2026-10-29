@@ -8,7 +8,7 @@ import { Button } from "@hexapixora/ui/button";
 import { Input } from "@hexapixora/ui/input";
 import { Trash2, Plus } from "lucide-react";
 import { MediaField } from "@/components/admin/media-field";
-import { SocialIcon, SOCIAL_ICON_OPTIONS } from "@hexapixora/theme-hexapixora/icons/social-icons";
+import { SocialIcon, SOCIAL_ICON_OPTIONS } from "@hexapixora/theme-hexa-noir/icons/social-icons";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { PageHeader, SectionCard, Field, PageLoading } from "@hexapixora/ui/admin";
 

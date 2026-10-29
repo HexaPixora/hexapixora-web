@@ -1,6 +1,6 @@
 import { SiteLayout } from "@/components/public/site-layout";
-import { BlockRenderer } from "@hexapixora/theme-hexapixora/block-renderer";
-import { HeroBlock } from "@hexapixora/theme-hexapixora/blocks/hero"; // fallback when no homepage is set
+import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
+import { HeroBlock } from "@hexapixora/theme-hexa-noir/blocks/hero"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 
