@@ -23,14 +23,12 @@ export const LIBRARY_BLOCKS: Partial<Record<BlockId, BlockComponent>> = {
   gallery: dynamic(() => import("./blocks/gallery/gallery-block").then((m) => m.GalleryBlock)),
   ticker: dynamic(() => import("./blocks/ticker/ticker-block").then((m) => m.TickerBlock)),
   faq: dynamic(() => import("./blocks/faq/faq-block").then((m) => m.FaqBlock)),
+  cta: dynamic(() => import("./blocks/cta/cta-block").then((m) => m.CtaBlock)),
 };
 
 /** Old stored types whose library block is still to come (Phase 3c-3). */
 export const LEGACY_BLOCKS: Record<string, BlockComponent> = {
-  CTASection: dynamic(() => import("./blocks/cta/cta-block").then((m) => m.CtaBlock)),
   BlogSection: dynamic(() => import("./blocks/blog/blog-block").then((m) => m.BlogBlock)),
   ContactFormModule: dynamic(() => import("./blocks/contact-form/contact-form-block").then((m) => m.ContactFormBlock)),
   PricingModule: dynamic(() => import("./blocks/pricing/pricing-block").then((m) => m.PricingBlock)),
-  LeadMagnetModule: dynamic(() => import("./blocks/lead-magnet/lead-magnet-block").then((m) => m.LeadMagnetBlock)),
-  "closing-cta": dynamic(() => import("./blocks/closing-cta/closing-cta-block").then((m) => m.ClosingCtaBlock)),
 };

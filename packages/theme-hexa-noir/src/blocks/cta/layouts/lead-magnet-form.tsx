@@ -2,8 +2,8 @@
 
 import { useId, useState, type FormEvent } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
-import { PILL_CLASS } from "../../components/safe-link";
-import { FIELD_CLASS, LABEL_CLASS } from "../../lib/form-classes";
+import { PILL_CLASS } from "../../../components/safe-link";
+import { FIELD_CLASS, LABEL_CLASS } from "../../../lib/form-classes";
 
 /** Name + email form that records a download lead, then offers the file. */
 export function LeadMagnetForm({
