@@ -7,6 +7,11 @@ and never fetches it.
 | Import | Contents |
 |---|---|
 | `@hexapixora/theme-hexa-noir` | Tokens for code that can't read CSS (`colors`, `easings`, `durations`), e.g. canvas and GSAP |
+| `@hexapixora/theme-hexa-noir/block-renderer` | `BlockRenderer`: renders a page's `sections`, mapping stored block types (legacy keys and new ids) to components |
+| `@hexapixora/theme-hexa-noir/blocks/<id>` | One block component, e.g. `blocks/hero` → `src/blocks/hero/hero-block.tsx` |
+| `@hexapixora/theme-hexa-noir/components/<name>` | Shared public components (contact form, insight card, newsletter form…) |
+| `@hexapixora/theme-hexa-noir/icons/social-icons` | Social icon registry (also used by the admin's footer editor) |
+| `@hexapixora/theme-hexa-noir/lib/<name>` | Helpers: `maintenance-page`, `media-alt`, `analytics` |
 | `@hexapixora/theme-hexa-noir/block-map` | `NOIR_BLOCKS`: stored type → component for the cinematic blocks (each its own chunk) |
 | `@hexapixora/theme-hexa-noir/layout/site-shell` | `SiteShell`: skip link, fixed hide-on-scroll header with a full-screen menu (native `<dialog>`), main and footer; the app passes layout data and its newsletter form |
 | `@hexapixora/theme-hexa-noir/layout/nav-types` | `SiteShellData`, `EMPTY_SITE_SHELL_DATA` and navigation types |
@@ -26,8 +31,10 @@ In the app's `globals.css`, after Tailwind:
 `transpilePackages`, and load the fonts with `next/font` as the CSS variables
 `--font-unbounded`, `--font-manrope` and `--font-jetbrains-mono` on `<body>`.
 
-Until Phase 3.4 the site also imports `@hexapixora/theme-hexapixora`; this
-theme is imported after it and maps the old surface tokens onto its palette.
+Until Phase 3.4 ends, the older blocks still use the shadcn surface tokens, so
+the site imports `@hexapixora/ui/styles/tokens.css` before this theme, which
+maps those tokens onto its palette. Their leftover component CSS lives in
+`styles/legacy.css` and shrinks as blocks are restyled.
 
 ## Blocks
 

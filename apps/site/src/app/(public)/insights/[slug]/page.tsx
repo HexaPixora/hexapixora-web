@@ -8,9 +8,9 @@ import { apiUrl } from "@hexapixora/sdk/server";
 import { cmsFetch, readResource } from "@hexapixora/sdk/server";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
-import { InsightCard, CategoryChip } from "@hexapixora/theme-hexapixora/components/insight-card";
-import { InsightCategoryView } from "@hexapixora/theme-hexapixora/components/insight-category-view";
-import { FaqAccordion } from "@hexapixora/theme-hexapixora/components/faq-accordion";
+import { InsightCard, CategoryChip } from "@hexapixora/theme-hexa-noir/components/insight-card";
+import { InsightCategoryView } from "@hexapixora/theme-hexa-noir/components/insight-category-view";
+import { FaqAccordion } from "@hexapixora/theme-hexa-noir/components/faq-accordion";
 
 export const revalidate = 120;
 

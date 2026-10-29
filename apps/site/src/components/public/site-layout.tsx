@@ -1,7 +1,7 @@
 import React from "react";
 import { SiteShell } from "@hexapixora/theme-hexa-noir/layout/site-shell";
 import { EMPTY_SITE_SHELL_DATA, type SiteShellData } from "@hexapixora/theme-hexa-noir/layout/nav-types";
-import { NewsletterForm } from "@hexapixora/theme-hexapixora/components/newsletter-form";
+import { NewsletterForm } from "@hexapixora/theme-hexa-noir/components/newsletter-form";
 import { apiUrl } from "@hexapixora/sdk/server";
 import { readJson } from "@hexapixora/sdk/server";
 

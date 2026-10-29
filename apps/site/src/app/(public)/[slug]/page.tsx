@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { SiteLayout } from "@/components/public/site-layout";
-import { BlockRenderer } from "@hexapixora/theme-hexapixora/block-renderer";
+import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
 import { cmsFetch, readJson, readResource } from "@hexapixora/sdk/server";
 import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 

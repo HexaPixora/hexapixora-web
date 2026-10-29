@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isApiUp, maintenanceMode } from "@hexapixora/sdk/health";
-import { maintenanceResponse } from "@hexapixora/theme-hexapixora/lib/maintenance-page";
+import { maintenanceResponse } from "@hexapixora/theme-hexa-noir/lib/maintenance-page";
 
 /**
  * Runs before every admin page request.

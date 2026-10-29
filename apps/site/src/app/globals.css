@@ -4,9 +4,10 @@
 /* The admin UI kit renders here too; scan it so its classes are generated. */
 @source "../../../../packages/ui/src";
 
-/* Look and feel comes from the theme packages. Hexa Noir loads last so its
-   tokens and base win; the old theme stays until its blocks are restyled. */
-@import "@hexapixora/theme-hexapixora/styles/theme.css";
+/* Admin UI tokens, still read by the older blocks until Phase 3.4 restyles them. */
+@import "@hexapixora/ui/styles/tokens.css";
+
+/* Look and feel comes from the theme; it loads last so its tokens and base win. */
 @import "@hexapixora/theme-hexa-noir/styles/theme.css";
 
 /* CSS half of the motion primitives (hero line rise). */
