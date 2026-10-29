@@ -4,5 +4,7 @@
 /* The admin UI kit renders here too; scan it so its classes are generated. */
 @source "../../../../packages/ui/src";
 
-/* Look and feel comes from the theme package (tokens, base, component CSS). */
+/* Look and feel comes from the theme packages. Hexa Noir loads last so its
+   tokens and base win; the old theme stays until its blocks are restyled. */
 @import "@hexapixora/theme-hexapixora/styles/theme.css";
+@import "@hexapixora/theme-hexa-noir/styles/theme.css";

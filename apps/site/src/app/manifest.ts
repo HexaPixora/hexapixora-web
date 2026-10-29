@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { colors } from "@hexapixora/theme-hexa-noir";
 
 // Web App Manifest. When the site is added to the home screen it launches in
 // "standalone" mode — no browser chrome, edge-to-edge. Combined with
@@ -12,8 +13,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Modern digital agency — where pixels meet logic.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0a0a0a",
-    theme_color: "#0a0a0a",
+    background_color: colors.black,
+    theme_color: colors.black,
     icons: [
       { src: "/favicon.ico", sizes: "any", type: "image/x-icon" },
     ],

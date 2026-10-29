@@ -1,0 +1,17 @@
+{
+  "name": "@hexapixora/theme-hexa-noir",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hexa Noir, the HexaPixora public theme: design tokens, base styles and (from Phase 3.3) blocks. Pure UI: data comes in via props.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles/*": "./src/styles/*"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@hexapixora/typescript-config": "*",
+    "typescript": "5.9.2"
+  }
+}

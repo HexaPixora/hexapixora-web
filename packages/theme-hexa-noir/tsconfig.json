@@ -1,0 +1,14 @@
+{
+  "extends": "@hexapixora/typescript-config/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "strictNullChecks": true,
+    "types": []
+  },
+  "include": [
+    "src"
+  ]
+}
