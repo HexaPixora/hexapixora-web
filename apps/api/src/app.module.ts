@@ -22,6 +22,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { TokensModule } from './modules/tokens/tokens.module';
 import { AutomationModule } from './modules/automation/automation.module';
 import { RevalidateModule } from './modules/revalidate/revalidate.module';
+import { ThemesModule } from './modules/themes/themes.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { RevalidateModule } from './modules/revalidate/revalidate.module';
     TokensModule,
     AutomationModule,
     RevalidateModule,
+    ThemesModule,
   ],
   controllers: [AppController],
   providers: [
