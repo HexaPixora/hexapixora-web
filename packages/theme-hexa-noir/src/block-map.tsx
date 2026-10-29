@@ -18,12 +18,12 @@ export const LIBRARY_BLOCKS: Partial<Record<BlockId, BlockComponent>> = {
   steps: dynamic(() => import("./blocks/steps/steps-block").then((m) => m.StepsBlock)),
   stats: dynamic(() => import("./blocks/stats/stats-block").then((m) => m.StatsBlock)),
   people: dynamic(() => import("./blocks/people/people-block").then((m) => m.PeopleBlock)),
+  work: dynamic(() => import("./blocks/work/work-block").then((m) => m.WorkBlock)),
 };
 
 /** Old stored types whose library block is still to come (Phase 3c-3). */
 export const LEGACY_BLOCKS: Record<string, BlockComponent> = {
   CTASection: dynamic(() => import("./blocks/cta/cta-block").then((m) => m.CtaBlock)),
-  PortfolioSection: dynamic(() => import("./blocks/portfolio/portfolio-block").then((m) => m.PortfolioBlock)),
   BlogSection: dynamic(() => import("./blocks/blog/blog-block").then((m) => m.BlogBlock)),
   FAQSection: dynamic(() => import("./blocks/faq/faq-block").then((m) => m.FaqBlock)),
   GalleryModule: dynamic(() => import("./blocks/gallery/gallery-block").then((m) => m.GalleryBlock)),
@@ -37,14 +37,7 @@ export const LEGACY_BLOCKS: Record<string, BlockComponent> = {
   ContactFormModule: dynamic(() => import("./blocks/contact-form/contact-form-block").then((m) => m.ContactFormBlock)),
   PricingModule: dynamic(() => import("./blocks/pricing/pricing-block").then((m) => m.PricingBlock)),
   LeadMagnetModule: dynamic(() => import("./blocks/lead-magnet/lead-magnet-block").then((m) => m.LeadMagnetBlock)),
-  HorizontalScrollModule: dynamic(() =>
-    import("./blocks/horizontal-scroll/horizontal-scroll-block").then((m) => m.HorizontalScrollBlock),
-  ),
   MarqueeModule: dynamic(() => import("./blocks/marquee/marquee-block").then((m) => m.MarqueeBlock)),
-  StaggeredGridModule: dynamic(() =>
-    import("./blocks/staggered-grid/staggered-grid-block").then((m) => m.StaggeredGridBlock),
-  ),
-  "case-files": dynamic(() => import("./blocks/case-files/case-files-block").then((m) => m.CaseFilesBlock)),
   lab: dynamic(() => import("./blocks/lab/lab-block").then((m) => m.LabBlock)),
   "faq-list": dynamic(() => import("./blocks/faq-list/faq-list-block").then((m) => m.FaqListBlock)),
   "closing-cta": dynamic(() => import("./blocks/closing-cta/closing-cta-block").then((m) => m.ClosingCtaBlock)),
