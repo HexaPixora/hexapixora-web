@@ -4,6 +4,7 @@ import "./globals.css";
 import { apiUrl } from "@hexapixora/sdk/server";
 import { colors } from "@hexapixora/theme-hexa-noir";
 import { SITE_URL, absoluteMediaUrl } from "@/lib/site-url";
+import { getThemePackCss } from "@/lib/theme-pack";
 
 // Hexa Noir faces. All three are variable fonts, so each is one file that
 // covers every weight the theme uses.
@@ -116,16 +117,24 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeCss = await getThemePackCss();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${unbounded.variable} ${manrope.variable} ${jetbrainsMono.variable} ${sacramento.variable} min-h-screen bg-page font-body text-copy antialiased`}
       >
+        {/* The active theme pack: unlayered, so it wins over the built-in tokens. React hoists it into <head>. */}
+        {themeCss ? (
+          <style href="theme-pack" precedence="high">
+            {themeCss}
+          </style>
+        ) : null}
         {children}
       </body>
     </html>
