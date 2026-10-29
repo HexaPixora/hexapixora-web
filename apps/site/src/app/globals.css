@@ -8,3 +8,6 @@
    tokens and base win; the old theme stays until its blocks are restyled. */
 @import "@hexapixora/theme-hexapixora/styles/theme.css";
 @import "@hexapixora/theme-hexa-noir/styles/theme.css";
+
+/* CSS half of the motion primitives (hero line rise). */
+@import "@hexapixora/motion/styles/motion.css";

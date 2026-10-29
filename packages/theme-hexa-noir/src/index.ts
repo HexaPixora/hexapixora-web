@@ -29,4 +29,18 @@ export const durations = {
   drawn: 1.8,
 } as const;
 
+/**
+ * Looks for the generated "footage" canvas (`FilmCanvas` in @hexapixora/motion):
+ * a light colour, the haze it drifts through and the streak angle.
+ */
+export const filmLooks = {
+  ember: { light: colors.ember, shade: "#3a0c02", angle: -0.5 },
+  flare: { light: "#ff8a3d", shade: "#1a0703", angle: 0.4 },
+  rust: { light: "#c2410c", shade: colors.black, angle: -0.2 },
+  brand: { light: colors.blue, shade: colors.black, angle: 0.6 },
+  cobalt: { light: "#2f4bd8", shade: colors.black, angle: -0.6 },
+  dusk: { light: colors.ember, shade: colors.black, angle: 0.3 },
+} as const;
+
 export type NoirColor = keyof typeof colors;
+export type NoirFilmLook = keyof typeof filmLooks;
