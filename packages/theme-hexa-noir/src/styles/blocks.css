@@ -194,3 +194,9 @@
 @media (prefers-reduced-motion: reduce) {
   .article-faq summary::after { transition: none; }
 }
+
+/* At the top of a page that opens on dark footage, the floating header uses
+ * the on-media colour until it turns solid (light themes keep it readable). */
+body:has([data-media-hero]) [data-part="site-header"]:not([data-solid]) {
+  color: var(--color-on-media);
+}

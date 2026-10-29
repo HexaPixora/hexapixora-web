@@ -28,6 +28,7 @@ export function FilmHero({ c, titleId }: HeroLayoutProps) {
     <section
       data-block="hero"
       data-variant="film"
+      data-media-hero=""
       aria-labelledby={titleId}
       className="relative h-svh min-h-[640px] overflow-hidden text-on-media"
     >
