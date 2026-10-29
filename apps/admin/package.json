@@ -18,6 +18,7 @@
     "@hexapixora/theme-hexa-noir": "*",
     "@hexapixora/ui": "*",
     "@hookform/resolvers": "^5.4.0",
+    "@puckeditor/core": "0.24.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tiptap/extension-color": "3.31.4",
     "@tiptap/extension-image": "3.31.4",
@@ -46,6 +47,7 @@
     "eslint": "^9.39.1",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.4",
     "typescript": "5.9.2"
   }
 }
