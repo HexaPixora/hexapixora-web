@@ -8,11 +8,12 @@
     "./layout/*": "./src/layout/*.ts",
     "./links": "./src/links.ts",
     "./permissions": "./src/permissions.ts",
-    "./countries": "./src/countries.ts"
+    "./countries": "./src/countries.ts",
+    "./theme-pack/*": "./src/theme-pack/*.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/blocks/legacy/*.test.ts"
+    "test": "node --import tsx --test src/blocks/legacy/*.test.ts src/theme-pack/*.test.ts"
   },
   "dependencies": {
     "zod": "^4.6.7"
