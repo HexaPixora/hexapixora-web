@@ -7,8 +7,8 @@ import { footerSchema, FooterConfig, DEFAULT_FOOTER_CONFIG } from "@hexapixora/c
 import { Button } from "@hexapixora/ui/button";
 import { Input } from "@hexapixora/ui/input";
 import { Trash2, Plus } from "lucide-react";
-import MediaField from "@/components/admin/media-field";
-import { SocialIcon, SOCIAL_ICON_OPTIONS } from "@hexapixora/theme-hexapixora/icons/social-icons";
+import { MediaField } from "@/components/admin/media-field";
+import { SocialIcon, SOCIAL_ICON_OPTIONS } from "@hexapixora/theme-hexa-noir/icons/social-icons";
 import { useHasPermission } from "@/stores/use-auth-store";
 import { PageHeader, SectionCard, Field, PageLoading } from "@hexapixora/ui/admin";
 
@@ -51,14 +51,14 @@ export default function FooterBuilderPage() {
 
   const update = (key: keyof FooterConfig, value: any) => setConfig({ ...config, [key]: value });
 
-  const updateSocial = (index: number, field: "platform" | "url" | "icon" | "color", value: string) => {
+  const updateSocial = (index: number, field: "platform" | "url" | "icon", value: string) => {
     const newSocials = [...(config.socials || [])];
     newSocials[index] = { ...newSocials[index], [field]: value } as any;
     update("socials", newSocials);
   };
 
   const addSocial = () => {
-    update("socials", [...(config.socials || []), { platform: "New Platform", url: "https://", icon: "link", color: "" }]);
+    update("socials", [...(config.socials || []), { platform: "New Platform", url: "https://", icon: "link" }]);
   };
 
   const removeSocial = (index: number) => {
@@ -113,14 +113,6 @@ export default function FooterBuilderPage() {
               </div>
             )}
           </Field>
-          <Field label="Background Color Style">
-            <select value={config.backgroundColor} onChange={(e) => update("backgroundColor", e.target.value as any)} className={SELECT_CLASS}>
-              <option value="glass">Glass (frosted, matches header)</option>
-              <option value="default">Default</option>
-              <option value="muted">Muted (light/dark gray)</option>
-              <option value="dark">Dark theme fixed</option>
-            </select>
-          </Field>
           <Field label="Tagline / Description" className="md:col-span-2">
             <Input value={config.tagline || ""} onChange={(e) => update("tagline", e.target.value)} placeholder="A short description under the logo…" />
           </Field>
@@ -140,7 +132,7 @@ export default function FooterBuilderPage() {
 
       <SectionCard
         title="Social Links"
-        description="Point each link to a URL, then pick its icon and color."
+        description="Point each link to a URL, then pick its icon."
         action={canManage ? (
           <Button variant="outline" size="sm" className="border-dashed" onClick={addSocial}>
             <Plus size={14} className="mr-1.5" /> Add
@@ -151,7 +143,7 @@ export default function FooterBuilderPage() {
         {config.socials?.map((social, idx) => (
           <div key={idx} className="space-y-3 rounded-lg border bg-background p-4">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-muted/30" style={social.color ? { color: social.color } : undefined}>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-muted/30">
                 <SocialIcon name={social.icon} size={18} />
               </span>
               <Input value={social.platform} onChange={(e) => updateSocial(idx, "platform", e.target.value)} placeholder="Platform name (e.g. LinkedIn)" className="flex-1" />
@@ -162,22 +154,11 @@ export default function FooterBuilderPage() {
             <Field label="Link URL">
               <Input value={social.url || ""} onChange={(e) => updateSocial(idx, "url", e.target.value)} placeholder="https://…" />
             </Field>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <Field label="Icon">
-                <select value={social.icon || "link"} onChange={(e) => updateSocial(idx, "icon", e.target.value)} className={SELECT_CLASS}>
-                  {SOCIAL_ICON_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
-              </Field>
-              <Field label="Icon Color">
-                <div className="flex items-center gap-2">
-                  <input type="color" value={social.color || "#000000"} onChange={(e) => updateSocial(idx, "color", e.target.value)} className="h-10 w-12 cursor-pointer rounded-md border border-input bg-background p-1" />
-                  <Input value={social.color || ""} onChange={(e) => updateSocial(idx, "color", e.target.value)} placeholder="Inherit theme" className="flex-1 font-mono text-sm" />
-                  {social.color && (
-                    <Button variant="ghost" size="sm" className="shrink-0" onClick={() => updateSocial(idx, "color", "")}>Reset</Button>
-                  )}
-                </div>
-              </Field>
-            </div>
+            <Field label="Icon">
+              <select value={social.icon || "link"} onChange={(e) => updateSocial(idx, "icon", e.target.value)} className={SELECT_CLASS}>
+                {SOCIAL_ICON_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+              </select>
+            </Field>
           </div>
         ))}
         {(!config.socials || config.socials.length === 0) && (

@@ -7,7 +7,7 @@
     "dev": "next dev -H 0.0.0.0 --port 3002",
     "build": "next build",
     "start": "next start --port 3002",
-    "lint": "eslint --max-warnings 0",
+    "lint": "eslint .",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
@@ -15,7 +15,7 @@
     "@hexapixora/contracts": "*",
     "@hexapixora/motion": "*",
     "@hexapixora/sdk": "*",
-    "@hexapixora/theme-hexapixora": "*",
+    "@hexapixora/theme-hexa-noir": "*",
     "@hexapixora/ui": "*",
     "@hookform/resolvers": "^5.4.0",
     "@tailwindcss/typography": "^0.5.20",

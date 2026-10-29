@@ -1,5 +1,7 @@
 import React from "react";
-import { SiteShell, EMPTY_SITE_SHELL_DATA, type SiteShellData } from "@hexapixora/theme-hexapixora/layout/site-shell";
+import { SiteShell } from "@hexapixora/theme-hexa-noir/layout/site-shell";
+import { EMPTY_SITE_SHELL_DATA, type SiteShellData } from "@hexapixora/theme-hexa-noir/layout/nav-types";
+import { NewsletterForm } from "@hexapixora/theme-hexa-noir/components/newsletter-form";
 import { apiUrl } from "@hexapixora/sdk/server";
 import { readJson } from "@hexapixora/sdk/server";
 
@@ -35,12 +37,12 @@ interface SiteLayoutProps {
   children: React.ReactNode;
   showHeader?: boolean;
   showFooter?: boolean;
-  /** Pull the content up so the first section sits BEHIND the transparent
-   *  header (no empty band above the hero). Used by module-built pages. */
+  /** Let the first section sit behind the fixed header (no empty band above
+   *  a full-screen hero). Used by module-built pages. */
   headerOverlay?: boolean;
 }
 
-export default async function SiteLayout({
+export async function SiteLayout({
   children,
   showHeader = true,
   showFooter = true,
@@ -49,7 +51,13 @@ export default async function SiteLayout({
   const data = (showHeader || showFooter) ? await getLayoutData() : EMPTY_SITE_SHELL_DATA;
 
   return (
-    <SiteShell data={data} showHeader={showHeader} showFooter={showFooter} headerOverlay={headerOverlay}>
+    <SiteShell
+      data={data}
+      showHeader={showHeader}
+      showFooter={showFooter}
+      headerOverlay={headerOverlay}
+      newsletter={<NewsletterForm />}
+    >
       {children}
     </SiteShell>
   );

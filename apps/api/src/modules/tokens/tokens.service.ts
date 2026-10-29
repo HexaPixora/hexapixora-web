@@ -45,7 +45,9 @@ export class TokensService {
       await this.prisma.verificationToken
         .delete({ where: { id: record.id } })
         .catch(() => undefined);
-      throw new BadRequestException('This link has expired. Please request a new one.');
+      throw new BadRequestException(
+        'This link has expired. Please request a new one.',
+      );
     }
     await this.prisma.verificationToken.delete({ where: { id: record.id } });
     return record;

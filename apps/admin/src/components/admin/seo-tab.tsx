@@ -3,7 +3,7 @@
 import React from "react";
 import { Input } from "@hexapixora/ui/input";
 import { Textarea } from "@hexapixora/ui/textarea";
-import MediaField from "@/components/admin/media-field";
+import { MediaField } from "@/components/admin/media-field";
 
 interface SeoTabProps {
   values: {
@@ -15,7 +15,7 @@ interface SeoTabProps {
   onChange: (field: string, value: string) => void;
 }
 
-export default function SeoTab({ values, onChange }: SeoTabProps) {
+export function SeoTab({ values, onChange }: SeoTabProps) {
   const titleLen = values.metaTitle?.length || 0;
   const descLen = values.metaDescription?.length || 0;
 

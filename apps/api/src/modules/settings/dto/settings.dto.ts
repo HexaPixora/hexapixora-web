@@ -1,8 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 // Single-row site configuration. All fields optional — the service merges into
 // the existing "global" row. Server-managed fields (id, timestamps) are

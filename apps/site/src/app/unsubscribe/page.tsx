@@ -1,15 +1,20 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { apiClient } from "@hexapixora/sdk/browser";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@hexapixora/ui/card";
-import { Button } from "@hexapixora/ui/button";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { PILL_CLASS } from "@hexapixora/theme-hexa-noir/components/safe-link";
+
+const LABELS = {
+  loading: "Working",
+  ok: "Unsubscribed",
+  error: "Link problem",
+} as const;
 
 function UnsubscribeInner() {
   const token = useSearchParams().get("token") || "";
-  const [state, setState] = useState<"loading" | "ok" | "error">("loading");
+  const [state, setState] = useState<keyof typeof LABELS>("loading");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -31,41 +36,33 @@ function UnsubscribeInner() {
   }, [token]);
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">Unsubscribe</CardTitle>
-        <CardDescription>Managing your newsletter subscription.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center gap-4 py-4 text-center">
-          {state === "loading" && <Loader2 className="h-10 w-10 animate-spin text-primary" />}
-          {state === "ok" && <CheckCircle2 className="h-10 w-10 text-emerald-500" />}
-          {state === "error" && <XCircle className="h-10 w-10 text-destructive" />}
-          <p className="text-sm text-muted-foreground">{state === "loading" ? "Please wait…" : message}</p>
-          {state === "ok" && (
-            <p className="text-xs text-muted-foreground">
-              Changed your mind? You can subscribe again anytime from our site.
-            </p>
-          )}
-          {state !== "loading" && (
-            <a href="/" className="w-full">
-              <Button className="w-full" variant="outline">
-                Back to site
-              </Button>
-            </a>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div role="status" aria-live="polite" className="grid gap-5">
+      <p className="mono text-signal">{LABELS[state]}</p>
+      <p className="text-lg text-copy">{state === "loading" ? "Please wait…" : message}</p>
+      {state === "ok" ? (
+        <p className="text-copy-dim">Changed your mind? You can subscribe again anytime from our site.</p>
+      ) : null}
+      {state !== "loading" ? (
+        <Link
+          href="/"
+          className={`${PILL_CLASS} mt-4 justify-self-start border border-copy px-5 py-3.5 text-sm hover:bg-copy hover:text-page`}
+        >
+          Back to site <span aria-hidden="true">→</span>
+        </Link>
+      ) : null}
+    </div>
   );
 }
 
 export default function UnsubscribePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
-      <Suspense fallback={<div className="text-sm text-muted-foreground">Loading…</div>}>
-        <UnsubscribeInner />
-      </Suspense>
-    </div>
+    <main id="main" className="page-width grid min-h-screen content-center py-section">
+      <div className="max-w-xl">
+        <h1 className="wide mb-10 text-display-md font-medium">Newsletter</h1>
+        <Suspense fallback={<p className="mono text-copy-dim">Loading…</p>}>
+          <UnsubscribeInner />
+        </Suspense>
+      </div>
+    </main>
   );
 }

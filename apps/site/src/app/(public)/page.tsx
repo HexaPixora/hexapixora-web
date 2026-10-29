@@ -1,7 +1,9 @@
-import SiteLayout from "@/components/public/site-layout";
-import DynamicRenderer from "@hexapixora/theme-hexapixora/block-renderer";
-import HeroModule from "@hexapixora/theme-hexapixora/blocks/hero"; // fallback when no homepage is set
+import { SiteLayout } from "@/components/public/site-layout";
+import { PageHeader } from "@hexapixora/theme-hexa-noir/components/page-header";
+import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
+import { HeroBlock } from "@hexapixora/theme-hexa-noir/blocks/hero"; // fallback when no homepage is set
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
+import { getLatestPosts } from "@/lib/latest-posts";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
 
 // Revalidate periodically (120s) so cached pages serve in ~20ms and Render
@@ -78,7 +80,7 @@ export default async function HomePage() {
   if (!page) {
     return (
       <SiteLayout headerOverlay>
-        <HeroModule config={(moduleDefaults as any)["HeroSection"] || {}} />
+        <HeroBlock config={(moduleDefaults as any)["HeroSection"] || {}} />
       </SiteLayout>
     );
   }
@@ -86,14 +88,14 @@ export default async function HomePage() {
   return (
     <SiteLayout showHeader={page.showHeader} showFooter={page.showFooter} headerOverlay>
       <div className="flex flex-col min-h-screen">
-        {sections.length === 0 && (
-          <div className="container py-24 text-center">
-            <h1 className="text-4xl font-bold tracking-tight mb-4">{page.title}</h1>
-            <p className="text-muted-foreground text-lg">This page is currently empty.</p>
-          </div>
-        )}
+        {sections.length === 0 && <PageHeader title={page.title} intro="This page is currently empty." />}
 
-        <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
+        <BlockRenderer
+          sections={sections}
+          moduleDefaults={moduleDefaults}
+          altTexts={altTexts}
+          latestPosts={await getLatestPosts(sections)}
+        />
       </div>
     </SiteLayout>
   );

@@ -1,0 +1,43 @@
+{
+  "name": "@hexapixora/theme-hexa-noir",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hexa Noir, the HexaPixora public theme: design tokens, base styles, every block, the renderer and the site shell. Pure UI: data comes in via props.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./block-renderer": "./src/block-renderer.tsx",
+    "./block-map": "./src/block-map.tsx",
+    "./blocks/*": "./src/blocks/*/*-block.tsx",
+    "./components/*": "./src/components/*.tsx",
+    "./icons/*": "./src/icons/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./layout/site-shell": "./src/layout/site-shell.tsx",
+    "./layout/nav-types": "./src/layout/nav-types.ts",
+    "./styles/*": "./src/styles/*"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hexapixora/contracts": "*",
+    "@hexapixora/motion": "*",
+    "@hexapixora/sdk": "*",
+    "@hexapixora/ui": "*",
+    "@hookform/resolvers": "^5.4.0",
+    "lucide-react": "^1.17.0",
+    "react-hook-form": "^7.78.0",
+    "zod": "^4.6.7"
+  },
+  "peerDependencies": {
+    "next": "16.4.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@hexapixora/typescript-config": "*",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "5.9.2"
+  }
+}

@@ -1,19 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces, Sacramento } from "next/font/google";
+import { JetBrains_Mono, Manrope, Sacramento, Unbounded } from "next/font/google";
 import "./globals.css";
 import { apiUrl } from "@hexapixora/sdk/server";
+import { colors } from "@hexapixora/theme-hexa-noir";
 import { SITE_URL, absoluteMediaUrl } from "@/lib/site-url";
 
-const inter = Inter({ subsets: ["latin"] });
-
-// Editorial display + handwritten signature faces, used only by the Leader/CEO
-// module. `preload: false` so they're not fetched on pages that don't use them —
-// they download only when an element references the CSS variable.
-const fraunces = Fraunces({
+// Hexa Noir faces. All three are variable fonts, so each is one file that
+// covers every weight the theme uses.
+const unbounded = Unbounded({
   subsets: ["latin"],
-  variable: "--font-serif",
+  variable: "--font-unbounded",
   display: "swap",
 });
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+// Labels only, never the LCP text, so it isn't preloaded.
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  preload: false,
+  display: "swap",
+});
+
+// Handwritten signature face, used only by the Leader block. `preload: false`
+// so it is fetched only on pages that render a signature.
 const sacramento = Sacramento({
   subsets: ["latin"],
   weight: "400",
@@ -27,9 +40,8 @@ const sacramento = Sacramento({
 // browser chrome render dark on every device.
 export const viewport: Viewport = {
   colorScheme: "dark",
-  // Matches the site's dark --background (oklch(0.145 0 0)) so the mobile
-  // status-bar area blends seamlessly with the page.
-  themeColor: "#0a0a0a",
+  // Matches the page background so the mobile status-bar area blends in.
+  themeColor: colors.black,
   // Paint under the notch / home indicator so we control those pixels with the
   // page background + glass, instead of a browser-drawn bar.
   viewportFit: "cover",
@@ -113,7 +125,9 @@ export default function RootLayout({
     // `dark` is hardcoded (not toggled at runtime) so the dark theme is applied
     // during SSR / first paint — no white flash on any device, JS or not.
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} ${fraunces.variable} ${sacramento.variable} min-h-screen bg-background font-sans antialiased`}>
+      <body
+        className={`${unbounded.variable} ${manrope.variable} ${jetbrainsMono.variable} ${sacramento.variable} min-h-screen bg-page font-body text-copy antialiased`}
+      >
         {/* Marks JS as available before content paints, so scroll-reveal only
             hides sections when it can also reveal them (no-JS users see all). */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />

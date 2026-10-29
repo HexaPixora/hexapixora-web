@@ -8,6 +8,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { PrismaService } from '../../prisma/prisma.service';
+import type { AuthRequest } from '../../modules/auth/auth.types';
 
 const MUTATIONS: Record<string, string> = {
   POST: 'CREATE',
@@ -28,8 +29,8 @@ export class AuditInterceptor implements NestInterceptor {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const req = context.switchToHttp().getRequest();
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const req = context.switchToHttp().getRequest<AuthRequest>();
     const action = MUTATIONS[req.method];
     const user = req.user;
 
@@ -39,11 +40,15 @@ export class AuditInterceptor implements NestInterceptor {
     }
 
     return next.handle().pipe(
-      tap((body) => {
+      tap((body: unknown) => {
         // Derive entity from the path: /api/blogs/:id → "blogs".
-        const segments = String(req.path || req.url).split('?')[0].split('/').filter(Boolean);
+        const segments = (req.path || req.url)
+          .split('?')[0]
+          .split('/')
+          .filter(Boolean);
         const entity = segments[0] === 'api' ? segments[1] : segments[0];
-        const rawId = req.params?.id ?? body?.id ?? body?.data?.id ?? null;
+        const rawId =
+          req.params?.id ?? idOf(body) ?? idOf(fieldOf(body, 'data'));
 
         this.prisma.auditLog
           .create({
@@ -54,8 +59,22 @@ export class AuditInterceptor implements NestInterceptor {
               entityId: rawId != null ? String(rawId) : null,
             },
           })
-          .catch((err) => this.logger.warn(`Audit write failed: ${err.message}`));
+          .catch((err: Error) =>
+            this.logger.warn(`Audit write failed: ${err.message}`),
+          );
       }),
     );
   }
+}
+
+function fieldOf(value: unknown, key: string): unknown {
+  return value && typeof value === 'object'
+    ? (value as Record<string, unknown>)[key]
+    : undefined;
+}
+
+// Response bodies carry the written record's id as `id` or `data.id`.
+function idOf(value: unknown): string | number | undefined {
+  const id = fieldOf(value, 'id');
+  return typeof id === 'string' || typeof id === 'number' ? id : undefined;
 }

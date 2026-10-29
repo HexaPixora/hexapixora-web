@@ -7,11 +7,13 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { TokensService } from '../tokens/tokens.service';
 import { MailService } from '../mail/mail.service';
-import { User, Prisma, Role, TokenType } from '@hexapixora/database';
+import { User, Prisma, TokenType } from '@hexapixora/database';
 import { env } from '../../config/env';
 import * as bcrypt from 'bcryptjs';
 
-const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+// Invite links last 7 days; used once the invite flow is wired up again.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 // Fields safe to return to clients (everything except the password hash).
 const SAFE_SELECT = {
@@ -73,14 +75,24 @@ export class UsersService {
     });
   }
 
-  async changePassword(id: string, currentPassword: string, newPassword: string) {
+  async changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
-    if (!user.password || !(await bcrypt.compare(currentPassword, user.password))) {
+    if (
+      !user.password ||
+      !(await bcrypt.compare(currentPassword, user.password))
+    ) {
       throw new BadRequestException('Your current password is incorrect.');
     }
     const hashed = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({ where: { id }, data: { password: hashed } });
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: hashed },
+    });
     return { message: 'Password updated.' };
   }
 
@@ -94,20 +106,25 @@ export class UsersService {
     const taken = await this.findByEmail(newEmail);
     if (taken) throw new ConflictException('That email is already in use.');
 
-    const token = await this.tokens.issue(id, TokenType.EMAIL_CHANGE, { newEmail });
+    const token = await this.tokens.issue(id, TokenType.EMAIL_CHANGE, {
+      newEmail,
+    });
     await this.mail.sendEmailChangeVerification({
       to: newEmail,
       name: user.name,
       url: `${env.adminUrl}/verify-email?token=${token}`,
       siteName: await this.siteName(),
     });
-    return { message: 'Check your new inbox — we sent a link to confirm the change.' };
+    return {
+      message: 'Check your new inbox — we sent a link to confirm the change.',
+    };
   }
 
   /** Step 2 of an email change: consume the token and apply the new address. */
   async confirmEmailChange(token: string) {
     const record = await this.tokens.consume(token, TokenType.EMAIL_CHANGE);
-    if (!record.newEmail) throw new BadRequestException('This link is invalid.');
+    if (!record.newEmail)
+      throw new BadRequestException('This link is invalid.');
     const taken = await this.findByEmail(record.newEmail);
     if (taken && taken.id !== record.userId) {
       throw new ConflictException('That email is already in use.');

@@ -19,7 +19,7 @@ function apiProxyOrigin() {
 
 const nextConfig = {
   // Workspace packages ship TypeScript source; Next compiles them like app code.
-  transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexapixora', '@hexapixora/ui'],
+  transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexa-noir', '@hexapixora/ui'],
   // The public site's address is not a secret: it appears in every "View page"
   // link the admin renders in the browser.
   env: {

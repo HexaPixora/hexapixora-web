@@ -61,12 +61,10 @@ jobs:
           # Build-time only; the apps talk to the API at runtime via env.
           NEXT_TELEMETRY_DISABLED: "1"
 
-      # Lint is advisory for now: the codebase carries known warning-level
-      # findings (any / exhaustive-deps / next-img) to be cleared in the rebuild.
-      # It reports but does not fail the build.
-      - name: Lint (advisory)
+      # Lint errors fail the build. Known findings in code the Phase 3 theme and
+      # Phase 4 editor rewrite are warnings until then (eslint-config base.js).
+      - name: Lint
         run: npm run lint
-        continue-on-error: true
 
   # Tag + GitHub Release on every green push to a release branch:
   # main -> vX.Y.Z, develop -> vX.Y.Z-beta.N, alpha -> vX.Y.Z-alpha.N.

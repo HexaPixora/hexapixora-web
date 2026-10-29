@@ -9,7 +9,6 @@ export const quoteSchema = z.object({
   avatar: z.string().default(""),
   name: z.string().default("Umair Breet"),
   title: z.string().default("Founder & CEO"),
-  accentColor: z.string().default("#1093fd"),
 });
 
 export type QuoteProps = z.input<typeof quoteSchema>;
@@ -25,6 +24,5 @@ export const QuoteModuleDef = defineBlock(
     { name: "avatar", label: "Author photo", type: "image", description: "Optional small round avatar." },
     { name: "name", label: "Author name", type: "text" },
     { name: "title", label: "Author title / role", type: "text" },
-    { name: "accentColor", label: "Accent color", type: "color", description: "Tints the medallion, border glow and divider." },
   ],
 );

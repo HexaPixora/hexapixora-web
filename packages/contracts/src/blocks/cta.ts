@@ -6,7 +6,6 @@ export const ctasectionSchema = z.object({
   subtitle: z.string().default("Join us today and transform your business."),
   buttonText: z.string().default("Get in Touch"),
   buttonUrl: z.string().default("/contact-us"),
-  backgroundColor: z.string().default("#0f172a"),
 });
 
 export type CTAProps = z.input<typeof ctasectionSchema>;
@@ -36,11 +35,6 @@ export const CTASectionDef = defineBlock(
         name: "buttonUrl",
         label: "Button URL",
         type: "text"
-    },
-    {
-        name: "backgroundColor",
-        label: "Background Color (Hex)",
-        type: "color"
     }
 ]
 );

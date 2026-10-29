@@ -4,8 +4,21 @@
   "private": true,
   "description": "Animation layer for themes: GSAP setup and motion primitives.",
   "exports": {
-    "./gsap": "./src/gsap.ts",
-    "./reveal": "./src/reveal.tsx"
+    "./load-gsap": "./src/load-gsap.ts",
+    "./reveal": "./src/reveal.tsx",
+    "./clip-reveal": "./src/clip-reveal.tsx",
+    "./word-light": "./src/word-light.tsx",
+    "./count-up": "./src/count-up.tsx",
+    "./draw-line": "./src/draw-line.tsx",
+    "./redact-bar": "./src/redact-bar.tsx",
+    "./hero-title": "./src/hero-title.tsx",
+    "./drift": "./src/drift.tsx",
+    "./parallax": "./src/parallax.tsx",
+    "./marquee": "./src/marquee.tsx",
+    "./hide-on-scroll-header": "./src/hide-on-scroll-header.tsx",
+    "./film-canvas": "./src/film-canvas.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./styles/*": "./src/styles/*"
   },
   "scripts": {
     "check-types": "tsc --noEmit"

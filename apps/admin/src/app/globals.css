@@ -4,5 +4,8 @@
 /* The admin UI kit renders here; scan it so its classes are generated. */
 @source "../../../../packages/ui/src";
 
-/* Same tokens and base styles as the site, so block previews look identical. */
-@import "@hexapixora/theme-hexapixora/styles/theme.css";
+/* The admin's own tokens and base styles. */
+@import "@hexapixora/ui/styles/tokens.css";
+
+/* Block previews render theme components; scan them so their classes exist. */
+@source "../../../../packages/theme-hexa-noir/src";
