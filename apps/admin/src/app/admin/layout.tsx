@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import {
   LayoutDashboard, Wrench, Image as ImageIcon, BookOpen, Settings,
   Mail, MessageSquare, Menu, Layers, LogOut,
-  ChevronRight, X, FileText, Tag
+  ChevronRight, X, FileText, Tag, Palette
 } from "lucide-react";
 import { Toaster } from "sonner";
 import { ConfirmProvider } from "@/components/admin/confirm-dialog";
@@ -36,6 +36,7 @@ const navGroups = [
       { href: "/admin/layouts/menu", label: "Navigations", icon: Menu, permission: "layouts" },
       { href: "/admin/layouts/header", label: "Global Header", icon: Layers, permission: "layouts" },
       { href: "/admin/layouts/footer", label: "Global Footer", icon: Layers, permission: "layouts" },
+      { href: "/admin/themes", label: "Themes", icon: Palette, permission: "layouts" },
     ],
   },
   {
