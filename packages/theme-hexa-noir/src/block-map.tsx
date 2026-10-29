@@ -19,6 +19,7 @@ export const LIBRARY_BLOCKS: Partial<Record<BlockId, BlockComponent>> = {
   stats: dynamic(() => import("./blocks/stats/stats-block").then((m) => m.StatsBlock)),
   people: dynamic(() => import("./blocks/people/people-block").then((m) => m.PeopleBlock)),
   work: dynamic(() => import("./blocks/work/work-block").then((m) => m.WorkBlock)),
+  products: dynamic(() => import("./blocks/products/products-block").then((m) => m.ProductsBlock)),
 };
 
 /** Old stored types whose library block is still to come (Phase 3c-3). */
@@ -38,7 +39,6 @@ export const LEGACY_BLOCKS: Record<string, BlockComponent> = {
   PricingModule: dynamic(() => import("./blocks/pricing/pricing-block").then((m) => m.PricingBlock)),
   LeadMagnetModule: dynamic(() => import("./blocks/lead-magnet/lead-magnet-block").then((m) => m.LeadMagnetBlock)),
   MarqueeModule: dynamic(() => import("./blocks/marquee/marquee-block").then((m) => m.MarqueeBlock)),
-  lab: dynamic(() => import("./blocks/lab/lab-block").then((m) => m.LabBlock)),
   "faq-list": dynamic(() => import("./blocks/faq-list/faq-list-block").then((m) => m.FaqListBlock)),
   "closing-cta": dynamic(() => import("./blocks/closing-cta/closing-cta-block").then((m) => m.ClosingCtaBlock)),
 };

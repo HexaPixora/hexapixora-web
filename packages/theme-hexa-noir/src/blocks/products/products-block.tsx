@@ -1,12 +1,13 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { labSchema } from "@hexapixora/contracts/blocks/legacy/lab";
+import { productsSchema } from "@hexapixora/contracts/blocks/products";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { FilmCanvas } from "@hexapixora/motion/film-canvas";
 import { filmLooks } from "../../index";
-import { ChapterHeading } from "../../components/chapter-heading";
+import { BlockHead, labelledBy } from "../../components/block-head";
 import { PILL_CLASS, SafeLink } from "../../components/safe-link";
 import { SectionFrame } from "../../components/section-frame";
+import type { BlockProps } from "../../lib/block-props";
 
 /** A small decorative network of nodes for products without imagery. */
 function NodeNetwork() {
@@ -32,14 +33,15 @@ function NodeNetwork() {
   );
 }
 
-export function LabBlock({ config }: { config?: unknown }) {
-  const c = parseBlockConfig(labSchema, config);
+/** Products the studio owns, as large cards over a moving film or a node network. */
+export function ProductsBlock({ config }: BlockProps) {
+  const c = parseBlockConfig(productsSchema, config);
   const headingId = useId();
   if (c.items.length === 0) return null;
 
   return (
-    <SectionFrame block="lab" labelledBy={c.heading ? headingId : undefined}>
-      <ChapterHeading id={headingId} chapter={c.chapter} heading={c.heading} aside={c.aside} />
+    <SectionFrame block="products" variant={c.layout} surface={c.surface} labelledBy={labelledBy(headingId, c)}>
+      <BlockHead id={headingId} head={c} />
       <ul className="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         {c.items.map((item, i) => (
           <ClipReveal
@@ -53,13 +55,13 @@ export function LabBlock({ config }: { config?: unknown }) {
             ) : (
               <NodeNetwork />
             )}
-            <span className="mono relative z-[1]">{item.kind}</span>
+            <span className="mono relative z-[1]">{item.label}</span>
             <article className="relative z-[1]">
               <h3 className="wide text-[clamp(2rem,11.5cqi,5rem)] font-bold leading-[0.9]">{item.title}</h3>
               {item.text ? <p className="mt-2.5 max-w-[34ch] font-semibold">{item.text}</p> : null}
               {item.linkText ? (
                 <SafeLink
-                  href={item.linkUrl}
+                  href={item.url}
                   className={`${PILL_CLASS} mt-[18px] bg-copy px-[18px] py-3 text-sm text-page`}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
