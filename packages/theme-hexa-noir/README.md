@@ -8,6 +8,8 @@ and never fetches it.
 |---|---|
 | `@hexapixora/theme-hexa-noir` | Tokens for code that can't read CSS (`colors`, `easings`, `durations`), e.g. canvas and GSAP |
 | `@hexapixora/theme-hexa-noir/block-map` | `NOIR_BLOCKS`: stored type → component for the cinematic blocks (each its own chunk) |
+| `@hexapixora/theme-hexa-noir/layout/site-shell` | `SiteShell`: skip link, fixed hide-on-scroll header with a full-screen menu (native `<dialog>`), main and footer; the app passes layout data and its newsletter form |
+| `@hexapixora/theme-hexa-noir/layout/nav-types` | `SiteShellData`, `EMPTY_SITE_SHELL_DATA` and navigation types |
 | `@hexapixora/theme-hexa-noir/styles/theme.css` | Tailwind `@theme` tokens, base styles, grain overlay and the `mono` / `wide` / `gutter-x` utilities; declares its own `@source` |
 
 ## Tokens
