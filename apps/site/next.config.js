@@ -28,7 +28,19 @@ function adminRedirects() {
   );
 }
 
+// The admin's origin, for the theme editor's live preview: the only other page
+// allowed to frame the site, and the only sender the site accepts theme CSS from.
+function adminOrigin() {
+  try {
+    return process.env.ADMIN_URL ? new URL(process.env.ADMIN_URL).origin : '';
+  } catch {
+    return '';
+  }
+}
+
 const nextConfig = {
+  // Public address only (no secrets): read by the theme preview in the browser.
+  env: { ADMIN_ORIGIN: adminOrigin() },
   // Workspace packages ship TypeScript source; Next compiles them like app code.
   transpilePackages: ['@hexapixora/contracts', '@hexapixora/motion', '@hexapixora/sdk', '@hexapixora/theme-hexa-noir', '@hexapixora/ui'],
   // Allow the dev server to be reached through a Cloudflare quick tunnel
@@ -54,6 +66,21 @@ const nextConfig = {
         hostname: 'res.cloudinary.com',
       },
     ],
+  },
+  async headers() {
+    // Only the site itself and the admin's theme editor may frame the site
+    // (clickjacking protection).
+    const ancestors = ["'self'", adminOrigin()].filter(Boolean).join(' ');
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Content-Security-Policy', value: `frame-ancestors ${ancestors}` },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+    ];
   },
   async rewrites() {
     return [

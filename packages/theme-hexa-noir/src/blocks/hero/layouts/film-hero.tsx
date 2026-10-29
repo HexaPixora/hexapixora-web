@@ -28,8 +28,9 @@ export function FilmHero({ c, titleId }: HeroLayoutProps) {
     <section
       data-block="hero"
       data-variant="film"
+      data-media-hero=""
       aria-labelledby={titleId}
-      className="relative h-svh min-h-[640px] overflow-hidden"
+      className="relative h-svh min-h-[640px] overflow-hidden text-on-media"
     >
       {c.backdrop === "film" ? (
         <div aria-hidden="true" className="absolute inset-0 grid grid-cols-2 grid-rows-2">
@@ -62,7 +63,7 @@ export function FilmHero({ c, titleId }: HeroLayoutProps) {
                   <SafeLink
                     key={i}
                     href={action.url}
-                    className={`${PILL_CLASS} border border-copy px-5 py-3.5 text-sm hover:bg-copy hover:text-page`}
+                    className={`${PILL_CLASS} border border-on-media px-5 py-3.5 text-sm hover:bg-on-media/15`}
                   >
                     {action.label} <span aria-hidden="true">→</span>
                   </SafeLink>

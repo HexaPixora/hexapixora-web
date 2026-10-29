@@ -12,10 +12,13 @@ import { prefersReducedMotion } from "./load-gsap";
 export function HideOnScrollHeader({
   children,
   className,
+  part,
   solidAfter = 80,
 }: {
   children: ReactNode;
   className?: string;
+  /** A data-part hook for themes. */
+  part?: string;
   /** Scroll distance in px after which the header gets its background. */
   solidAfter?: number;
 }) {
@@ -52,7 +55,7 @@ export function HideOnScrollHeader({
   }, [solidAfter]);
 
   return (
-    <header ref={ref} className={className}>
+    <header ref={ref} data-part={part} className={className}>
       {children}
     </header>
   );

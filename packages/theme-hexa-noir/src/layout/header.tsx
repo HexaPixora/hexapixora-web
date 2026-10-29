@@ -22,7 +22,7 @@ export function Header({ data }: { data: SiteShellData }) {
   const ctaUrl = config.ctaUrl ?? "/contact-us";
 
   return (
-    <HideOnScrollHeader className="fixed inset-x-0 top-0 z-40 border-b border-transparent pt-[env(safe-area-inset-top)] transition-[transform,background-color,border-color] duration-500 ease-cut data-[away]:-translate-y-full data-[solid]:border-line data-[solid]:bg-page/80 data-[solid]:backdrop-blur-md">
+    <HideOnScrollHeader part="site-header" className="fixed inset-x-0 top-0 z-40 border-b border-transparent pt-[env(safe-area-inset-top)] transition-[transform,background-color,border-color] duration-500 ease-cut data-[away]:-translate-y-full data-[solid]:border-line data-[solid]:bg-page/80 data-[solid]:backdrop-blur-md">
       <div className="page-width grid h-[var(--header-h)] grid-cols-[1fr_auto_1fr] items-center gap-4">
         <div className="min-w-0">
           <DesktopNav items={items} />
