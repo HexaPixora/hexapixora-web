@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { splideSliderSchema } from "@hexapixora/contracts/blocks/slider";
+import { splideSliderSchema } from "@hexapixora/contracts/blocks/legacy/slider";
 import { PillLink } from "../../components/pill-link";
 import { SectionFrame } from "../../components/section-frame";
 import { SectionHeading } from "../../components/section-heading";

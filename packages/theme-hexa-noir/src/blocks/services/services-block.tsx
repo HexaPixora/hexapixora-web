@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { servicesSchema } from "@hexapixora/contracts/blocks/services";
+import { servicesSchema } from "@hexapixora/contracts/blocks/legacy/services";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { ContentIcon } from "../../components/content-icon";
 import { SafeLink } from "../../components/safe-link";

@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { processStepsSchema } from "@hexapixora/contracts/blocks/process-steps";
+import { processStepsSchema } from "@hexapixora/contracts/blocks/legacy/process-steps";
 import { DrawLine } from "@hexapixora/motion/draw-line";
 import { ChapterHeading } from "../../components/chapter-heading";
 import { SectionFrame } from "../../components/section-frame";

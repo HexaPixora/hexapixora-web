@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { statsSchema } from "@hexapixora/contracts/blocks/stats";
+import { statsSchema } from "@hexapixora/contracts/blocks/legacy/stats";
 import { SectionFrame } from "../../components/section-frame";
 import { SectionHeading } from "../../components/section-heading";
 import { StatGrid } from "../../components/stat-grid";

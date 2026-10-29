@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { defineBlock } from '../define-block';
 
 export const portfolioHeroSchema = z.object({
   eyebrow: z.string().default("Portfolio"),

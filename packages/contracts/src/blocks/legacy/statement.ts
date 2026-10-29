@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
-import { chapterFields, chapterShape } from './section-fields';
+import { defineBlock } from '../define-block';
+import { chapterFields, chapterShape } from '../section-fields';
 
 export const statementSchema = z.object({
   ...chapterShape,

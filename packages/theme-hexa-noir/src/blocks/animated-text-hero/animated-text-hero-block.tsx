@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { animatedTextHeroSchema } from "@hexapixora/contracts/blocks/animated-text-hero";
+import { animatedTextHeroSchema } from "@hexapixora/contracts/blocks/legacy/animated-text-hero";
 import { FilmCanvas } from "@hexapixora/motion/film-canvas";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { filmLooks } from "../../index";

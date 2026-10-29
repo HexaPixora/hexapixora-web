@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
-import { chapterFields, chapterShape } from './section-fields';
+import { defineBlock } from '../define-block';
+import { chapterFields, chapterShape } from '../section-fields';
 
 /** The detail rows of a case file, in display order. */
 export const CASE_FILE_ROWS = [

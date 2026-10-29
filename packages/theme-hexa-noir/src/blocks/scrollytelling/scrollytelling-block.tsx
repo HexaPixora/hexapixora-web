@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { scrollytellingSchema } from "@hexapixora/contracts/blocks/scrollytelling";
+import { scrollytellingSchema } from "@hexapixora/contracts/blocks/legacy/scrollytelling";
 import { SectionFrame } from "../../components/section-frame";
 import { mediaAlt } from "../../lib/media-alt";
 import { ScrollStory } from "./scroll-story";

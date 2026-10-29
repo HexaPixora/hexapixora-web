@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { statementSchema } from "@hexapixora/contracts/blocks/statement";
+import { statementSchema } from "@hexapixora/contracts/blocks/legacy/statement";
 import { WordLight } from "@hexapixora/motion/word-light";
 import { ChapterHeading } from "../../components/chapter-heading";
 import { SectionFrame } from "../../components/section-frame";

@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { pillarsSchema } from "@hexapixora/contracts/blocks/pillars";
+import { pillarsSchema } from "@hexapixora/contracts/blocks/legacy/pillars";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { ChapterHeading } from "../../components/chapter-heading";
 import { SafeLink } from "../../components/safe-link";

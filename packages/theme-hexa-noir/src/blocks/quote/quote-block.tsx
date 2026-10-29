@@ -1,6 +1,6 @@
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { quoteSchema } from "@hexapixora/contracts/blocks/quote";
+import { quoteSchema } from "@hexapixora/contracts/blocks/legacy/quote";
 import { WordLight } from "@hexapixora/motion/word-light";
 import { SectionFrame } from "../../components/section-frame";
 import { mediaAlt } from "../../lib/media-alt";

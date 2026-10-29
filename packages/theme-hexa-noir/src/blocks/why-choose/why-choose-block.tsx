@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { whyChooseSchema } from "@hexapixora/contracts/blocks/why-choose";
+import { whyChooseSchema } from "@hexapixora/contracts/blocks/legacy/why-choose";
 import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { ContentIcon } from "../../components/content-icon";
 import { SectionFrame } from "../../components/section-frame";

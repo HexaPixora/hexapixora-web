@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { storyHeroSchema } from "@hexapixora/contracts/blocks/story-hero";
+import { storyHeroSchema } from "@hexapixora/contracts/blocks/legacy/story-hero";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { mediaAlt } from "../../lib/media-alt";
 

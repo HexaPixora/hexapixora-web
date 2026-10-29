@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { defineBlock } from '../define-block';
 
 export const leaderSchema = z.object({
   kicker: z.string().default("A Letter From Our CEO"),

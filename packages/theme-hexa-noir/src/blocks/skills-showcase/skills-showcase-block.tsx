@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { skillsShowcaseSchema } from "@hexapixora/contracts/blocks/skills-showcase";
+import { skillsShowcaseSchema } from "@hexapixora/contracts/blocks/legacy/skills-showcase";
 import { SectionFrame } from "../../components/section-frame";
 import { SectionHeading } from "../../components/section-heading";
 import { mediaAlt } from "../../lib/media-alt";

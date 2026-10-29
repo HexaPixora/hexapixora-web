@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { defineBlock } from '../define-block';
 
 export const staggeredGridSchema = z.object({
   heading: z.string().default("Featured"),

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { defineBlock } from '../define-block';
 
 export const leadMagnetSchema = z.object({
   heading: z.string().default("Free guide: 10 ways to grow your traffic"),

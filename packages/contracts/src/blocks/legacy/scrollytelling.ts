@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { defineBlock } from '../define-block';
 
 export const scrollytellingSchema = z.object({
   heading: z.string().default("How We Work"),

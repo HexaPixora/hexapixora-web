@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { defineBlock } from '../define-block';
 
 // Curated icon set — the admin picks one per reason from a dropdown. Values map
 // to lucide icons in the component (tiny inline SVGs, no image loads).

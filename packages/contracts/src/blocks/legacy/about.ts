@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
+import { defineBlock } from '../define-block';
 
 export const aboutSchema = z.object({
   eyebrow: z.string().default("About Us"),

@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { safeHref } from "@hexapixora/contracts/links";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
-import { horizontalScrollSchema } from "@hexapixora/contracts/blocks/horizontal-scroll";
+import { horizontalScrollSchema } from "@hexapixora/contracts/blocks/legacy/horizontal-scroll";
 import { SafeLink } from "../../components/safe-link";
 import { mediaAlt } from "../../lib/media-alt";
 import { PinnedTrack } from "./pinned-track";

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { defineBlock } from './define-block';
-import { linkFields } from './section-fields';
+import { defineBlock } from '../define-block';
+import { linkFields } from '../section-fields';
 
 export const filmHeroSchema = z.object({
   variant: z.enum(["film", "plain"]).default("film"),
