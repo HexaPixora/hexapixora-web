@@ -18,7 +18,7 @@
         "REVALIDATE_SECRET",
         "MAINTENANCE_MODE"
       ],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**", "public/editor-frame.css"]
     },
     "lint": {
       "dependsOn": ["^lint"]
