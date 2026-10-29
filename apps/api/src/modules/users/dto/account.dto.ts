@@ -21,7 +21,6 @@ export class ChangeEmailDto {
   newEmail: string;
 }
 
-
 export class VerifyEmailDto {
   @IsString()
   token: string;

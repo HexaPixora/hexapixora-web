@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@hexapixora/ui/card";
@@ -48,11 +49,11 @@ function UnsubscribeInner() {
             </p>
           )}
           {state !== "loading" && (
-            <a href="/" className="w-full">
+            <Link href="/" className="w-full">
               <Button className="w-full" variant="outline">
                 Back to site
               </Button>
-            </a>
+            </Link>
           )}
         </div>
       </CardContent>

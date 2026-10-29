@@ -7,7 +7,7 @@ import { staggeredGridSchema, StaggeredGridProps } from "@hexapixora/contracts/b
 import { LiquidGlass } from "../components/liquid-glass";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function StaggeredGridModule({ config }: { config?: StaggeredGridProps }) {
+export function StaggeredGridBlock({ config }: { config?: StaggeredGridProps }) {
   const { heading, subheading, items } = staggeredGridSchema.parse(config || {});
   const cards = (items || []).filter((i: any) => i.image || i.title || i.text);
   const root = useRef<HTMLElement>(null);

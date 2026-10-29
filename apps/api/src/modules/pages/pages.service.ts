@@ -1,8 +1,16 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { ContentStatus } from '@prisma/client';
+import { ContentStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RevalidateService } from '../revalidate/revalidate.service';
+import { CreatePageDto, UpdatePageDto } from './dto/page.dto';
+
+// A write payload while normalizeStatus fills in derived fields.
+type PageDraft = Omit<UpdatePageDto, 'publishAt' | 'sections'> & {
+  publishAt?: Date | string | null;
+  // Free-form builder JSON, validated by the admin, stored as-is.
+  sections?: Prisma.InputJsonValue;
+};
 
 @Injectable()
 export class PagesService {
@@ -75,14 +83,17 @@ export class PagesService {
     return { id, isHomepage: true };
   }
 
-  async create(data: any) {
-    return this.prisma.page.create({ data: this.normalizeStatus(data) });
+  async create(data: CreatePageDto) {
+    const draft = this.normalizeStatus(data as PageDraft);
+    return this.prisma.page.create({
+      data: { ...draft, title: data.title, slug: data.slug },
+    });
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: UpdatePageDto) {
     return this.prisma.page.update({
       where: { id },
-      data: this.normalizeStatus(data),
+      data: this.normalizeStatus(data as PageDraft),
     });
   }
 
@@ -94,7 +105,7 @@ export class PagesService {
 
   // Keep status/publishAt coherent: a publishAt in the past with SCHEDULED is
   // promoted straight to PUBLISHED; clearing the schedule drops publishAt.
-  private normalizeStatus(data: any) {
+  private normalizeStatus(data: PageDraft) {
     if (data.publishAt) data.publishAt = new Date(data.publishAt);
     if (
       data.status === ContentStatus.SCHEDULED &&
@@ -114,7 +125,10 @@ export class PagesService {
   @Cron(CronExpression.EVERY_MINUTE)
   async publishScheduled() {
     const due = await this.prisma.page.updateMany({
-      where: { status: ContentStatus.SCHEDULED, publishAt: { lte: new Date() } },
+      where: {
+        status: ContentStatus.SCHEDULED,
+        publishAt: { lte: new Date() },
+      },
       data: { status: ContentStatus.PUBLISHED },
     });
     if (due.count > 0) {

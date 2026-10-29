@@ -36,7 +36,7 @@ function getEmbedSrc(url: string, { autoplay, loop, controls }: PlaybackOpts): s
   return /^https?:\/\//.test(url) ? url : null;
 }
 
-export default function VideoPlayerModule({ config }: { config?: VideoPlayerProps }) {
+export function VideoPlayerBlock({ config }: { config?: VideoPlayerProps }) {
   const {
     heading,
     layout = "single",

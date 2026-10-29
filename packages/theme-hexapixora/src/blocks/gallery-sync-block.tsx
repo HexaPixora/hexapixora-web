@@ -13,7 +13,7 @@ import { mediaAlt } from "../lib/media-alt";
 
 
 
-export default function SplideGallerySyncModule({ config }: { config?: SplideGallerySyncProps }) {
+export function GallerySyncBlock({ config }: { config?: SplideGallerySyncProps }) {
   const {
     heading,
     height = "450px",

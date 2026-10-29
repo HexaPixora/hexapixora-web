@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@h
 
 
 
-export default function FAQModule({ config }: { config?: FAQProps }) {
+export function FaqBlock({ config }: { config?: FAQProps }) {
   const { heading, subheading, items } = faqsectionSchema.parse(config || {});
   const faqs = items || [];
 

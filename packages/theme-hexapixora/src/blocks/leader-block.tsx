@@ -7,7 +7,7 @@ import { mediaAlt } from "../lib/media-alt";
 const SERIF = "var(--font-serif), Georgia, 'Times New Roman', serif";
 const SCRIPT = "var(--font-signature), 'Segoe Script', cursive";
 
-export default function LeaderModule({ config }: { config?: LeaderProps }) {
+export function LeaderBlock({ config }: { config?: LeaderProps }) {
   const c = leaderSchema.parse(config || {});
   const accent = c.accentColor || "#1093fd";
   const paragraphs = (c.letter || "")

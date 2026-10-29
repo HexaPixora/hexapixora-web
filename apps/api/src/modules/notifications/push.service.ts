@@ -23,13 +23,19 @@ export class PushService implements OnModuleInit {
   onModuleInit() {
     if (env.push.publicKey && env.push.privateKey) {
       try {
-        webpush.setVapidDetails(env.push.subject, env.push.publicKey, env.push.privateKey);
+        webpush.setVapidDetails(
+          env.push.subject,
+          env.push.publicKey,
+          env.push.privateKey,
+        );
         this.configured = true;
       } catch (err) {
         this.logger.error(`Invalid VAPID config: ${(err as Error).message}`);
       }
     } else {
-      this.logger.warn('VAPID keys not set — Web Push disabled (the in-app bell still works).');
+      this.logger.warn(
+        'VAPID keys not set — Web Push disabled (the in-app bell still works).',
+      );
     }
   }
 
@@ -42,11 +48,17 @@ export class PushService implements OnModuleInit {
   }
 
   async subscribe(userId: string, sub: PushSub) {
-    if (!sub?.endpoint || !sub?.keys?.p256dh || !sub?.keys?.auth) return { ok: false };
+    if (!sub?.endpoint || !sub?.keys?.p256dh || !sub?.keys?.auth)
+      return { ok: false };
     await this.prisma.pushSubscription.upsert({
       where: { endpoint: sub.endpoint },
       update: { userId, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
-      create: { userId, endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+      create: {
+        userId,
+        endpoint: sub.endpoint,
+        p256dh: sub.keys.p256dh,
+        auth: sub.keys.auth,
+      },
     });
     return { ok: true };
   }
@@ -81,12 +93,18 @@ export class PushService implements OnModuleInit {
             { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
             data,
           );
-        } catch (err: any) {
-          const status = err?.statusCode;
+        } catch (e) {
+          // web-push rejects with a WebPushError carrying the HTTP status.
+          const err = e as { statusCode?: number; message?: string };
+          const status = err.statusCode;
           if (status === 404 || status === 410) {
-            await this.prisma.pushSubscription.delete({ where: { id: s.id } }).catch(() => undefined);
+            await this.prisma.pushSubscription
+              .delete({ where: { id: s.id } })
+              .catch(() => undefined);
           } else {
-            this.logger.error(`Push send failed (${status ?? '?'}): ${err?.message}`);
+            this.logger.error(
+              `Push send failed (${status ?? '?'}): ${err.message}`,
+            );
           }
         }
       }),

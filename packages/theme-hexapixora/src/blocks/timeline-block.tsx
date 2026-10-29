@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import { gsap, ScrollTrigger } from "@hexapixora/motion/gsap";
 import { timelineSchema, TimelineProps } from "@hexapixora/contracts/blocks/timeline";
 
-export default function TimelineModule({ config }: { config?: TimelineProps }) {
+export function TimelineBlock({ config }: { config?: TimelineProps }) {
   const { heading, subheading, lineColor, backgroundImage, overlay, steps } = timelineSchema.parse(config || {});
   const items = (steps || []).filter((s: any) => s.title || s.text || s.date);
   const bg = backgroundImage?.trim();

@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { ContentStatus } from '@prisma/client';
+import { ContentStatus, Prisma } from '@prisma/client';
 import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import MarkdownIt from 'markdown-it';
@@ -9,12 +9,44 @@ import AdmZip from 'adm-zip';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RevalidateService } from '../revalidate/revalidate.service';
 import { CategoriesService, slugify } from '../categories/categories.service';
+import { CreateBlogDto, FaqItemDto, UpdateBlogDto } from './dto/blog.dto';
+
+// Parsed YAML front matter: any JSON value per key.
+type FrontMatter = Record<string, unknown>;
+
+// A front-matter scalar as text. Objects and lists (malformed fields) become ''.
+function text(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (value instanceof Date) return value.toISOString();
+  return '';
+}
+
+// A write payload while normalizeStatus/applyReadTime fill in derived fields.
+type BlogDraft = Omit<
+  UpdateBlogDto,
+  'categoryIds' | 'publishAt' | 'publishDate'
+> & {
+  publishAt?: Date | string | null;
+  publishDate?: Date | string;
+  readTime?: number;
+};
 
 // Markdown → HTML for imported posts. html:false escapes raw HTML in the source
 // so imported files can't inject markup into the rendered article.
-const mdParser = new MarkdownIt({ html: false, linkify: true, typographer: true });
+const mdParser = new MarkdownIt({
+  html: false,
+  linkify: true,
+  typographer: true,
+});
 // HTML → Markdown for export.
-const htmlToMd = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced', bulletListMarker: '-' });
+const htmlToMd = new TurndownService({
+  headingStyle: 'atx',
+  codeBlockStyle: 'fenced',
+  bulletListMarker: '-',
+});
 
 @Injectable()
 export class BlogsService {
@@ -30,36 +62,64 @@ export class BlogsService {
   // content is included so cards/featured can derive a snippet when a post has
   // no explicit excerpt; readTime powers the "x min read" label.
   private readonly listSelect = {
-    id: true, title: true, slug: true, excerpt: true, content: true, readTime: true,
-    tags: true, thumbnail: true, isPublished: true, status: true,
-    publishDate: true, publishAt: true, createdAt: true, updatedAt: true,
+    id: true,
+    title: true,
+    slug: true,
+    excerpt: true,
+    content: true,
+    readTime: true,
+    tags: true,
+    thumbnail: true,
+    isPublished: true,
+    status: true,
+    publishDate: true,
+    publishAt: true,
+    createdAt: true,
+    updatedAt: true,
     categories: { select: { id: true, name: true, slug: true, color: true } },
   };
 
-  async create(data: any) {
+  async create(data: CreateBlogDto) {
     const { categoryIds, ...rest } = data;
-    this.applyReadTime(rest);
+    const draft: BlogDraft = rest;
+    this.applyReadTime(draft);
     return this.prisma.blog.create({
       data: {
-        ...this.normalizeStatus(rest),
-        ...(categoryIds ? { categories: { connect: categoryIds.map((id: string) => ({ id })) } } : {}),
+        ...this.normalizeStatus(draft),
+        title: rest.title,
+        slug: rest.slug,
+        content: rest.content,
+        faq: rest.faq as Prisma.InputJsonValue | undefined,
+        ...(categoryIds
+          ? { categories: { connect: categoryIds.map((id) => ({ id })) } }
+          : {}),
       },
       include: { categories: true },
     });
   }
 
-  async findAll(params: { page?: number; limit?: number; category?: string; published?: boolean } = {}) {
+  async findAll(
+    params: {
+      page?: number;
+      limit?: number;
+      category?: string;
+      published?: boolean;
+    } = {},
+  ) {
     const { page = 1, limit = 10, category, published } = params;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.BlogWhereInput = {};
     // `category` is a category slug, matched through the relation.
     if (category) where.categories = { some: { slug: category } };
     if (published !== undefined) where.isPublished = published;
 
     const [data, total] = await Promise.all([
       this.prisma.blog.findMany({
-        where, skip, take: limit, orderBy: { createdAt: 'desc' },
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
         select: this.listSelect,
       }),
       this.prisma.blog.count({ where }),
@@ -87,7 +147,7 @@ export class BlogsService {
     if (!current) return [];
 
     const catIds = current.categories.map((c) => c.id);
-    let related: any[] = [];
+    let related: Awaited<ReturnType<typeof this.findRecent>> = [];
     if (catIds.length) {
       related = await this.prisma.blog.findMany({
         where: {
@@ -122,29 +182,39 @@ export class BlogsService {
   }
 
   async findOne(id: string) {
-    const blog = await this.prisma.blog.findUnique({ where: { id }, include: { categories: true } });
+    const blog = await this.prisma.blog.findUnique({
+      where: { id },
+      include: { categories: true },
+    });
     if (!blog) throw new NotFoundException('Blog post not found');
     return blog;
   }
 
   // Public render path — only published posts.
   async findBySlug(slug: string) {
-    const blog = await this.prisma.blog.findUnique({ where: { slug }, include: { categories: true } });
+    const blog = await this.prisma.blog.findUnique({
+      where: { slug },
+      include: { categories: true },
+    });
     if (!blog || !blog.isPublished) {
       throw new NotFoundException('Blog post not found');
     }
     return blog;
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: UpdateBlogDto) {
     await this.findOne(id);
     const { categoryIds, ...rest } = data;
-    this.applyReadTime(rest);
+    const draft: BlogDraft = rest;
+    this.applyReadTime(draft);
     return this.prisma.blog.update({
       where: { id },
       data: {
-        ...this.normalizeStatus(rest),
-        ...(categoryIds !== undefined ? { categories: { set: categoryIds.map((id: string) => ({ id })) } } : {}),
+        ...this.normalizeStatus(draft),
+        faq: rest.faq as Prisma.InputJsonValue | undefined,
+        ...(categoryIds !== undefined
+          ? { categories: { set: categoryIds.map((id) => ({ id })) } }
+          : {}),
       },
       include: { categories: true },
     });
@@ -162,11 +232,18 @@ export class BlogsService {
   // exists (so the editor can review/bulk-edit before committing).
   async previewImport(files: Array<{ originalname?: string; buffer: Buffer }>) {
     const docs = this.collectMarkdownDocs(files || []);
-    const posts: any[] = [];
+    const posts: Array<
+      ReturnType<typeof this.parseDoc> & { willOverwrite: boolean }
+    > = [];
     for (const doc of docs) {
       const parsed = this.parseDoc(doc.name, doc.raw);
       const willOverwrite = parsed.ok
-        ? Boolean(await this.prisma.blog.findUnique({ where: { slug: parsed.slug }, select: { id: true } }))
+        ? Boolean(
+            await this.prisma.blog.findUnique({
+              where: { slug: parsed.slug },
+              select: { id: true },
+            }),
+          )
         : false;
       posts.push({ ...parsed, willOverwrite });
     }
@@ -174,63 +251,97 @@ export class BlogsService {
   }
 
   // Save the (possibly edited) posts returned from the preview.
-  async commitImport(posts: Array<Record<string, any>>, overwrite = false) {
-    type Result = { file: string; slug?: string; status: 'imported' | 'updated' | 'skipped' | 'failed'; message?: string };
+  async commitImport(posts: FrontMatter[], overwrite = false) {
+    type Result = {
+      file: string;
+      slug?: string;
+      status: 'imported' | 'updated' | 'skipped' | 'failed';
+      message?: string;
+    };
     const results: Result[] = [];
 
     for (const p of posts || []) {
-      const file = String(p.file || p.title || 'post');
+      const file = text(p.file || p.title || 'post');
       try {
-        const title = String(p.title || '').trim();
-        const content = String(p.content || '').trim();
-        const slug = slugify(String(p.slug || title));
+        const title = text(p.title || '').trim();
+        const content = text(p.content || '').trim();
+        const slug = slugify(text(p.slug || title));
         if (!title || !content || !slug) {
-          results.push({ file, status: 'failed', message: 'Missing title, content or slug' });
+          results.push({
+            file,
+            status: 'failed',
+            message: 'Missing title, content or slug',
+          });
           continue;
         }
 
-        const categoryIds = Array.isArray(p.categories) && p.categories.length
-          ? await this.categories.ensureByNames(p.categories.map(String))
-          : [];
+        const categoryIds =
+          Array.isArray(p.categories) && p.categories.length
+            ? await this.categories.ensureByNames(
+                (p.categories as unknown[]).map(String),
+              )
+            : [];
 
-        const data: Record<string, any> = {
+        const data: CreateBlogDto = {
           title,
           slug,
           content,
           tags: this.toStringArray(p.tags),
           status: this.resolveImportStatus(p.status),
           categoryIds,
-          ...(p.excerpt ? { excerpt: String(p.excerpt) } : {}),
-          ...(p.thumbnail ? { thumbnail: String(p.thumbnail) } : {}),
-          ...(p.ogImage ? { ogImage: String(p.ogImage) } : {}),
-          ...(p.metaTitle ? { metaTitle: String(p.metaTitle) } : {}),
-          ...(p.metaDescription ? { metaDescription: String(p.metaDescription) } : {}),
-          ...(p.metaKeywords ? { metaKeywords: String(p.metaKeywords) } : {}),
-          ...(Array.isArray(p.faq) && p.faq.length ? { faq: p.faq } : {}),
+          ...(p.excerpt ? { excerpt: text(p.excerpt) } : {}),
+          ...(p.thumbnail ? { thumbnail: text(p.thumbnail) } : {}),
+          ...(p.ogImage ? { ogImage: text(p.ogImage) } : {}),
+          ...(p.metaTitle ? { metaTitle: text(p.metaTitle) } : {}),
+          ...(p.metaDescription
+            ? { metaDescription: text(p.metaDescription) }
+            : {}),
+          ...(p.metaKeywords ? { metaKeywords: text(p.metaKeywords) } : {}),
+          ...(Array.isArray(p.faq) && p.faq.length
+            ? { faq: p.faq as FaqItemDto[] }
+            : {}),
         };
 
-        const existing = await this.prisma.blog.findUnique({ where: { slug }, select: { id: true } });
+        const existing = await this.prisma.blog.findUnique({
+          where: { slug },
+          select: { id: true },
+        });
         if (existing && !overwrite) {
-          results.push({ file, slug, status: 'skipped', message: 'A post with this slug already exists' });
+          results.push({
+            file,
+            slug,
+            status: 'skipped',
+            message: 'A post with this slug already exists',
+          });
           continue;
         }
 
-        const saved = existing ? await this.update(existing.id, data) : await this.create(data);
+        const saved = existing
+          ? await this.update(existing.id, data)
+          : await this.create(data);
 
         // Honor an explicit date (migrating historical posts) over the auto-now.
         if (p.date) {
-          const d = new Date(p.date);
+          const d = new Date(text(p.date));
           if (!isNaN(d.getTime())) {
-            await this.prisma.blog.update({ where: { id: saved.id }, data: { publishDate: d } });
+            await this.prisma.blog.update({
+              where: { id: saved.id },
+              data: { publishDate: d },
+            });
           }
         }
         results.push({ file, slug, status: existing ? 'updated' : 'imported' });
       } catch (err) {
-        results.push({ file, status: 'failed', message: (err as Error).message?.slice(0, 200) });
+        results.push({
+          file,
+          status: 'failed',
+          message: (err as Error).message?.slice(0, 200),
+        });
       }
     }
 
-    const count = (s: Result['status']) => results.filter((r) => r.status === s).length;
+    const count = (s: Result['status']) =>
+      results.filter((r) => r.status === s).length;
     const summary = {
       total: results.length,
       imported: count('imported'),
@@ -256,7 +367,11 @@ export class BlogsService {
 
     const zip = new AdmZip();
     for (const post of posts) {
-      const front: Record<string, any> = { title: post.title, slug: post.slug, status: post.status };
+      const front: FrontMatter = {
+        title: post.title,
+        slug: post.slug,
+        status: post.status,
+      };
       if (post.excerpt) front.excerpt = post.excerpt;
       const cats = post.categories.map((c) => c.name);
       if (cats.length) front.categories = cats;
@@ -267,13 +382,20 @@ export class BlogsService {
       if (post.metaTitle) front.metaTitle = post.metaTitle;
       if (post.metaDescription) front.metaDescription = post.metaDescription;
       if (post.metaKeywords) front.metaKeywords = post.metaKeywords;
-      if (post.publishDate) front.date = post.publishDate.toISOString().slice(0, 10);
+      if (post.publishDate)
+        front.date = post.publishDate.toISOString().slice(0, 10);
 
       const md = htmlToMd.turndown(post.content || '');
       const fileContent = matter.stringify(`\n${md}\n`, front);
-      zip.addFile(`${post.slug || post.id}.md`, Buffer.from(fileContent, 'utf8'));
+      zip.addFile(
+        `${post.slug || post.id}.md`,
+        Buffer.from(fileContent, 'utf8'),
+      );
     }
-    return { filename: `hexapixora-posts-${posts.length}.zip`, buffer: zip.toBuffer() };
+    return {
+      filename: `hexapixora-posts-${posts.length}.zip`,
+      buffer: zip.toBuffer(),
+    };
   }
 
   // Parse one markdown doc into a structured preview record (no DB writes).
@@ -300,28 +422,31 @@ export class BlogsService {
       faq: [] as { question: string; answer: string }[],
     };
 
-    let fm: Record<string, any>;
+    let fm: FrontMatter;
     let body: string;
     try {
       const parsed = this.parseFrontMatter(raw);
       fm = parsed.data;
       body = parsed.content.trim();
     } catch (err) {
-      return { ...base, error: `Invalid front matter: ${(err as Error).message?.slice(0, 120)}` };
+      return {
+        ...base,
+        error: `Invalid front matter: ${(err as Error).message?.slice(0, 120)}`,
+      };
     }
 
-    const title = String(fm.title || '').trim();
+    const title = text(fm.title || '').trim();
     if (!title) return { ...base, error: 'Missing "title" in front matter' };
     if (!body) return { ...base, title, error: 'The file has no body content' };
-    const slug = slugify(String(fm.slug || title));
+    const slug = slugify(text(fm.slug || title));
     if (!slug) return { ...base, title, error: 'Could not derive a slug' };
 
     const categories = this.toStringArray(fm.categories);
-    const excerpt = fm.excerpt ? String(fm.excerpt) : '';
-    const thumbnail = fm.thumbnail ? String(fm.thumbnail) : '';
-    const ogImage = fm.ogImage ? String(fm.ogImage) : '';
+    const excerpt = fm.excerpt ? text(fm.excerpt) : '';
+    const thumbnail = fm.thumbnail ? text(fm.thumbnail) : '';
+    const ogImage = fm.ogImage ? text(fm.ogImage) : '';
     const rawDate = fm.date || fm.publishDate;
-    const date = rawDate ? new Date(rawDate) : null;
+    const date = rawDate ? new Date(text(rawDate)) : null;
 
     const { content, faq } = this.extractContentAndFaq(body);
 
@@ -344,9 +469,9 @@ export class BlogsService {
       tags: this.toStringArray(fm.tags),
       thumbnail,
       ogImage,
-      metaTitle: fm.metaTitle ? String(fm.metaTitle) : '',
-      metaDescription: fm.metaDescription ? String(fm.metaDescription) : '',
-      metaKeywords: fm.metaKeywords ? String(fm.metaKeywords) : '',
+      metaTitle: fm.metaTitle ? text(fm.metaTitle) : '',
+      metaDescription: fm.metaDescription ? text(fm.metaDescription) : '',
+      metaKeywords: fm.metaKeywords ? text(fm.metaKeywords) : '',
       status: this.resolveImportStatus(fm.status),
       date: date && !isNaN(date.getTime()) ? date.toISOString() : '',
       headings: this.extractHeadings(body),
@@ -359,7 +484,7 @@ export class BlogsService {
     for (const line of body.split('\n')) {
       // Linear (no overlapping quantifiers): 1–6 hashes, one space/tab, rest.
       const m = line.match(/^(#{1,6})[ \t](.*)$/);
-      if (m && m[2]!.trim()) out.push({ level: m[1]!.length, text: m[2]!.trim() });
+      if (m && m[2].trim()) out.push({ level: m[1].length, text: m[2].trim() });
     }
     return out;
   }
@@ -367,14 +492,19 @@ export class BlogsService {
   // Safe front-matter parse: split the leading `---` block and parse it with
   // js-yaml's JSON schema (no code-executing YAML tags), rather than running an
   // untrusted uploaded file through gray-matter's parser.
-  private parseFrontMatter(raw: string): { data: Record<string, any>; content: string } {
+  private parseFrontMatter(raw: string): {
+    data: FrontMatter;
+    content: string;
+  } {
     const text = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
-    const m = text.match(/^---[^\S\r\n]*\r?\n([\s\S]*?)\r?\n---[^\S\r\n]*(?:\r?\n)?([\s\S]*)$/);
+    const m = text.match(
+      /^---[^\S\r\n]*\r?\n([\s\S]*?)\r?\n---[^\S\r\n]*(?:\r?\n)?([\s\S]*)$/,
+    );
     if (!m) return { data: {}, content: text };
-    const parsed = yaml.load(m[1]!, { schema: yaml.JSON_SCHEMA });
+    const parsed = yaml.load(m[1], { schema: yaml.JSON_SCHEMA });
     const data =
       parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-        ? (parsed as Record<string, any>)
+        ? (parsed as FrontMatter)
         : {};
     return { data, content: m[2] ?? '' };
   }
@@ -387,9 +517,13 @@ export class BlogsService {
     content: string;
     faq: { question: string; answer: string }[];
   } {
-    const main = body.replace(/\n#{1,6}\s+Related Articles[\s\S]*$/i, '').trim();
+    const main = body
+      .replace(/\n#{1,6}\s+Related Articles[\s\S]*$/i, '')
+      .trim();
 
-    const faqMatch = main.match(/\n#{1,6}\s+(?:Frequently Asked Questions|FAQs?)\s*\n/i);
+    const faqMatch = main.match(
+      /\n#{1,6}\s+(?:Frequently Asked Questions|FAQs?)\s*\n/i,
+    );
     if (!faqMatch || faqMatch.index === undefined) {
       return { content: mdParser.render(main), faq: [] };
     }
@@ -403,16 +537,24 @@ export class BlogsService {
       .map((item) => {
         const m = item.match(/^\*\*(.+?)\*\*\s*([\s\S]*)$/);
         if (!m) return null;
-        return { question: m[1]!.trim(), answer: m[2]!.replace(/\s+/g, ' ').trim() };
+        return {
+          question: m[1].trim(),
+          answer: m[2].replace(/\s+/g, ' ').trim(),
+        };
       })
-      .filter((x): x is { question: string; answer: string } => !!x?.question && !!x?.answer);
+      .filter(
+        (x): x is { question: string; answer: string } =>
+          !!x?.question && !!x?.answer,
+      );
 
     return { content: mdParser.render(before), faq };
   }
 
   // Expand uploaded files into { name, raw } markdown docs — .md/.markdown as-is,
   // plus any .md entries found inside a .zip bundle.
-  private collectMarkdownDocs(files: Array<{ originalname?: string; buffer: Buffer }>) {
+  private collectMarkdownDocs(
+    files: Array<{ originalname?: string; buffer: Buffer }>,
+  ) {
     const docs: Array<{ name: string; raw: string }> = [];
     for (const f of files) {
       const name = f.originalname || 'file';
@@ -423,7 +565,10 @@ export class BlogsService {
             if (entry.isDirectory) continue;
             if (entry.entryName.startsWith('__MACOSX')) continue;
             if (!/\.(md|markdown)$/i.test(entry.entryName)) continue;
-            docs.push({ name: entry.entryName, raw: entry.getData().toString('utf8') });
+            docs.push({
+              name: entry.entryName,
+              raw: entry.getData().toString('utf8'),
+            });
           }
         } catch {
           docs.push({ name, raw: '' }); // unreadable zip → fails validation, reported
@@ -435,21 +580,27 @@ export class BlogsService {
     return docs;
   }
 
-  private toStringArray(value: any): string[] {
-    if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+  private toStringArray(value: unknown): string[] {
+    if (Array.isArray(value))
+      return value.map((v) => String(v).trim()).filter(Boolean);
     if (value === undefined || value === null || value === '') return [];
-    return String(value).split(',').map((v) => v.trim()).filter(Boolean);
+    return text(value)
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
   }
 
-  private resolveImportStatus(fmStatus: any): ContentStatus {
-    return String(fmStatus || '').toUpperCase() === 'PUBLISHED'
+  private resolveImportStatus(fmStatus: unknown): ContentStatus {
+    return text(fmStatus).toUpperCase() === 'PUBLISHED'
       ? ContentStatus.PUBLISHED
       : ContentStatus.DRAFT;
   }
 
-  private applyReadTime(data: any) {
+  private applyReadTime(data: BlogDraft) {
     if (data.content) {
-      const wordCount = data.content.replace(/<[^<>]*>?/g, ' ').split(/\s+/).length;
+      const wordCount = data.content
+        .replace(/<[^<>]*>?/g, ' ')
+        .split(/\s+/).length;
       data.readTime = Math.ceil(wordCount / 200);
     }
   }
@@ -457,7 +608,7 @@ export class BlogsService {
   // isPublished stays the canonical public filter; status is the richer label.
   // Keep them coherent however the client phrases the request (new clients send
   // `status`, legacy ones send only `isPublished`).
-  private normalizeStatus(data: any) {
+  private normalizeStatus(data: BlogDraft) {
     if (data.publishAt) data.publishAt = new Date(data.publishAt);
 
     if (data.status !== undefined) {
@@ -473,7 +624,9 @@ export class BlogsService {
       if (data.status !== ContentStatus.SCHEDULED) data.publishAt = null;
     } else if (data.isPublished !== undefined) {
       // Legacy path: derive status from the boolean.
-      data.status = data.isPublished ? ContentStatus.PUBLISHED : ContentStatus.DRAFT;
+      data.status = data.isPublished
+        ? ContentStatus.PUBLISHED
+        : ContentStatus.DRAFT;
     }
 
     // Auto-stamp the publish date to the current time whenever a post is

@@ -10,7 +10,7 @@ import { Textarea } from "@hexapixora/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@hexapixora/ui/dialog";
 import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, ArrowLeft, ToggleLeft, ToggleRight, Plus, Trash2 } from "lucide-react";
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
-import MediaField from "@/components/admin/media-field";
+import { MediaField } from "@/components/admin/media-field";
 import { MODULES, groupedModules, DEFAULT_ANCHOR_IDS } from "@hexapixora/contracts/blocks/registry";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";

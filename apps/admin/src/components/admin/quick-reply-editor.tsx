@@ -20,7 +20,7 @@ const MAX_DEPTH = 2; // 0,1,2 → up to 3 nested levels
  * a clarifying menu (clicking it drills into sub-questions); a leaf chip can
  * carry a canned answer or fall back to the AI.
  */
-export default function QuickReplyEditor({
+export function QuickReplyEditor({
   value,
   onChange,
   depth = 0,

@@ -11,7 +11,7 @@ import { ArrowRight } from "lucide-react";
 
 
 
-export default function SplideSliderModule({ config }: { config?: SplideSliderProps }) {
+export function SliderBlock({ config }: { config?: SplideSliderProps }) {
   const {
     heading,
     subheading,

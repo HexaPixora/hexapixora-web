@@ -62,4 +62,4 @@ async function bootstrap() {
   // API reachable from other devices on the LAN.
   await app.listen(env.port, '0.0.0.0');
 }
-bootstrap();
+void bootstrap();

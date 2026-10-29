@@ -7,7 +7,7 @@ import { horizontalScrollSchema, HorizontalScrollProps } from "@hexapixora/contr
 import { LiquidGlass } from "../components/liquid-glass";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function HorizontalScrollModule({ config }: { config?: HorizontalScrollProps }) {
+export function HorizontalScrollBlock({ config }: { config?: HorizontalScrollProps }) {
   const { heading, subheading, aspectRatio, items } = horizontalScrollSchema.parse(config || {});
   const cards = (items || []).filter((i: any) => i.image || i.title);
   const aspectClass: Record<string, string> = {

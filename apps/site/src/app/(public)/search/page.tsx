@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Search, Newspaper, FileText, ArrowUpRight, SearchX } from "lucide-react";
-import SiteLayout from "@/components/public/site-layout";
+import { SiteLayout } from "@/components/public/site-layout";
 import { apiUrl } from "@hexapixora/sdk/server";
 import { readJson } from "@hexapixora/sdk/server";
 

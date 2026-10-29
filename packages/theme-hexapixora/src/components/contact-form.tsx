@@ -33,7 +33,7 @@ interface ContactFormExtendedProps extends ContactFormProps {
   turnstileSiteKey?: string;
 }
 
-export default function ContactForm(props: ContactFormExtendedProps) {
+export function ContactForm(props: ContactFormExtendedProps) {
   const { title, subtitle, emailAddress, phoneNumber } = contactFormSchema.parse(props || {});
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);

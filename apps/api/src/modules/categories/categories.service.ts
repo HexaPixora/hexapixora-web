@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@hexapixora/database';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export function slugify(input: string): string {
@@ -36,16 +37,23 @@ export class CategoriesService {
     let candidate = root;
     let n = 1;
     // Append -2, -3, … until free (ignoring the row being updated).
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
-      const hit = await this.prisma.category.findUnique({ where: { slug: candidate } });
+      const hit = await this.prisma.category.findUnique({
+        where: { slug: candidate },
+      });
       if (!hit || hit.id === excludeId) return candidate;
       n += 1;
       candidate = `${root}-${n}`;
     }
   }
 
-  async create(dto: { name: string; slug?: string; description?: string; color?: string }) {
+  async create(dto: {
+    name: string;
+    slug?: string;
+    description?: string;
+    color?: string;
+  }) {
     const name = dto.name.trim();
     if (await this.prisma.category.findUnique({ where: { name } })) {
       throw new ConflictException('A category with this name already exists');
@@ -63,11 +71,14 @@ export class CategoriesService {
     if (!(await this.prisma.category.findUnique({ where: { id } }))) {
       throw new NotFoundException('Category not found');
     }
-    const data: any = {};
+    const data: Prisma.CategoryUpdateInput = {};
     if (dto.name !== undefined) {
       const name = dto.name.trim();
-      const dup = await this.prisma.category.findFirst({ where: { name, id: { not: id } } });
-      if (dup) throw new ConflictException('A category with this name already exists');
+      const dup = await this.prisma.category.findFirst({
+        where: { name, id: { not: id } },
+      });
+      if (dup)
+        throw new ConflictException('A category with this name already exists');
       data.name = name;
     }
     if (dto.slug !== undefined) data.slug = await this.uniqueSlug(dto.slug, id);
@@ -92,13 +103,17 @@ export class CategoriesService {
     for (const raw of names) {
       const name = (raw ?? '').trim();
       if (!name) continue;
-      const existing = await this.prisma.category.findUnique({ where: { name } });
+      const existing = await this.prisma.category.findUnique({
+        where: { name },
+      });
       if (existing) {
         ids.push(existing.id);
         continue;
       }
       const slug = await this.uniqueSlug(name);
-      const created = await this.prisma.category.create({ data: { name, slug } });
+      const created = await this.prisma.category.create({
+        data: { name, slug },
+      });
       ids.push(created.id);
     }
     return ids;

@@ -6,7 +6,7 @@ import { scrollytellingSchema, ScrollytellingProps } from "@hexapixora/contracts
 import { LiquidGlass } from "../components/liquid-glass";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function ScrollytellingModule({ config }: { config?: ScrollytellingProps }) {
+export function ScrollytellingBlock({ config }: { config?: ScrollytellingProps }) {
   const { heading, steps } = scrollytellingSchema.parse(config || {});
   const items = (steps || []).filter((s: any) => s.title || s.text || s.image);
   const root = useRef<HTMLDivElement>(null);

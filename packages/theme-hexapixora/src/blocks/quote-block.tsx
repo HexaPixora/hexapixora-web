@@ -6,7 +6,7 @@ import { mediaAlt } from "../lib/media-alt";
 // on the leadership page. Loaded once in the root layout as a CSS variable.
 const SERIF = "var(--font-serif), Georgia, 'Times New Roman', serif";
 
-export default function QuoteModule({ config }: { config?: QuoteProps }) {
+export function QuoteBlock({ config }: { config?: QuoteProps }) {
   const c = quoteSchema.parse(config || {});
   const accent = c.accentColor || "#1093fd";
 

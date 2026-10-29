@@ -40,7 +40,7 @@ interface SiteLayoutProps {
   headerOverlay?: boolean;
 }
 
-export default async function SiteLayout({
+export async function SiteLayout({
   children,
   showHeader = true,
   showFooter = true,

@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 import { techStackSchema, TechStackProps } from "@hexapixora/contracts/blocks/tech-stack";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function TechStackModule({ config }: { config?: TechStackProps }) {
+export function TechStackBlock({ config }: { config?: TechStackProps }) {
   const { eyebrow, heading, subheading, technologies } = techStackSchema.parse(config || {});
   const list = (technologies || []).filter((t: any) => t.name);
   const hasCategories = list.some((t: any) => t.category?.trim());

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UpdateSettingsDto } from './dto/settings.dto';
 
 @Injectable()
 export class SettingsService {
@@ -14,8 +15,8 @@ export class SettingsService {
     });
   }
 
-  async upsert(data: any) {
-    const { id, createdAt, updatedAt, ...updateData } = data;
+  // The DTO whitelist already strips id and timestamps.
+  async upsert(updateData: UpdateSettingsDto) {
     return this.prisma.siteSetting.upsert({
       where: { id: 'global' },
       update: updateData,

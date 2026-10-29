@@ -14,13 +14,13 @@ import {
   Palette, Eraser, Code2
 } from "lucide-react";
 
-interface TipTapEditorProps {
+interface TiptapEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
 }
 
-export default function TipTapEditor({ value, onChange, placeholder = "Start writing..." }: TipTapEditorProps) {
+export function TiptapEditor({ value, onChange, placeholder = "Start writing..." }: TiptapEditorProps) {
   // When non-null, we're editing raw HTML in a textarea (lets you paste ready-
   // made HTML — e.g. long legal pages — that the WYSIWYG can't accept directly).
   const [source, setSource] = useState<string | null>(null);

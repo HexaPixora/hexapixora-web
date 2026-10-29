@@ -6,7 +6,7 @@ import { leadMagnetSchema, LeadMagnetProps } from "@hexapixora/contracts/blocks/
 import { Download, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { mediaAlt } from "../lib/media-alt";
 
-export default function LeadMagnetModule({ config }: { config?: LeadMagnetProps }) {
+export function LeadMagnetBlock({ config }: { config?: LeadMagnetProps }) {
   const {
     heading, subheading, resourceTitle, resourceUrl, buttonText, coverImage, backgroundColor,
   } = leadMagnetSchema.parse(config || {});

@@ -47,7 +47,7 @@ function SocialGlyph({ platform, className }: { platform: string; className?: st
 
 /* ---------- module ---------- */
 
-export default function PortfolioHeroModule({ config }: { config?: PortfolioHeroProps }) {
+export function PortfolioHeroBlock({ config }: { config?: PortfolioHeroProps }) {
   const { eyebrow, name, title, bio, image, availability, skills, stats, ctas, socials } =
     portfolioHeroSchema.parse(config || {});
 

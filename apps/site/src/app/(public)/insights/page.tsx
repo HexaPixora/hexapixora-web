@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import SiteLayout from "@/components/public/site-layout";
+import { SiteLayout } from "@/components/public/site-layout";
 import Link from "next/link";
 import { ArrowUpRight, Calendar, Clock, BookOpen } from "lucide-react";
 import { Metadata } from "next";

@@ -5,7 +5,7 @@ import { gsap } from "@hexapixora/motion/gsap";
 import { ArrowUpRight } from "lucide-react";
 import { heroSchema, HeroProps } from "@hexapixora/contracts/blocks/hero";
 
-export default function HeroModule({ config }: { config?: HeroProps }) {
+export function HeroBlock({ config }: { config?: HeroProps }) {
   const {
     heading,
     subheading,

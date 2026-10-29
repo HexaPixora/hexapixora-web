@@ -7,7 +7,7 @@ import { mediaAlt } from "../lib/media-alt";
 
 
 
-export default function PortfolioModule({ config }: { config?: PortfolioProps }) {
+export function PortfolioBlock({ config }: { config?: PortfolioProps }) {
   const { heading, subheading, items } = portfolioSchema.parse(config || {});
   const projects = items || [];
 

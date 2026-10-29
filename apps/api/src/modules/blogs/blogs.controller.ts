@@ -1,6 +1,16 @@
 import {
-  Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards,
-  UseInterceptors, UploadedFiles, Res,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  UploadedFiles,
+  Res,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
@@ -66,8 +76,12 @@ export class BlogsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('blogs')
   @Post('import/preview')
-  @UseInterceptors(FilesInterceptor('files', 200, { limits: { fileSize: 15 * 1024 * 1024 } }))
-  previewImport(@UploadedFiles() files: Array<{ originalname?: string; buffer: Buffer }>) {
+  @UseInterceptors(
+    FilesInterceptor('files', 200, { limits: { fileSize: 15 * 1024 * 1024 } }),
+  )
+  previewImport(
+    @UploadedFiles() files: Array<{ originalname?: string; buffer: Buffer }>,
+  ) {
     return this.blogsService.previewImport(files || []);
   }
 
@@ -75,16 +89,30 @@ export class BlogsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('blogs')
   @Post('import/commit')
-  commitImport(@Body() body: { posts?: any[]; overwrite?: boolean }) {
-    return this.blogsService.commitImport(body?.posts || [], Boolean(body?.overwrite));
+  commitImport(
+    @Body()
+    body: {
+      posts?: Array<Record<string, unknown>>;
+      overwrite?: boolean;
+    },
+  ) {
+    return this.blogsService.commitImport(
+      body?.posts || [],
+      Boolean(body?.overwrite),
+    );
   }
 
   // Export posts (all, or the given ids) as a downloadable .zip of Markdown.
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('blogs')
   @Post('export')
-  async exportPosts(@Body('ids') ids: string[] | undefined, @Res() res: Response) {
-    const { filename, buffer } = await this.blogsService.exportPosts(Array.isArray(ids) ? ids : undefined);
+  async exportPosts(
+    @Body('ids') ids: string[] | undefined,
+    @Res() res: Response,
+  ) {
+    const { filename, buffer } = await this.blogsService.exportPosts(
+      Array.isArray(ids) ? ids : undefined,
+    );
     res
       .set({
         'Content-Type': 'application/zip',

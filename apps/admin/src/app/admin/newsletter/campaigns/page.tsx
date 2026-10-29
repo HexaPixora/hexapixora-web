@@ -10,7 +10,7 @@ import { Plus, Send, Mail, TestTube2, Rocket } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { NewsletterTabs } from "@/components/admin/newsletter-tabs";
-import TipTapEditor from "@/components/admin/tiptap-editor";
+import { TiptapEditor } from "@/components/admin/tiptap-editor";
 import { Field, PageHeader, TableCard, THead, TH, TBody, TR, TD, EmptyRow, TableSkeleton, StatusPill } from "@hexapixora/ui/admin";
 
 type Campaign = {
@@ -200,7 +200,7 @@ export default function CampaignsPage() {
               <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Your newsletter subject line" />
             </Field>
             <Field label="Content">
-              <TipTapEditor value={content} onChange={setContent} placeholder="Write your newsletter…" />
+              <TiptapEditor value={content} onChange={setContent} placeholder="Write your newsletter…" />
             </Field>
             <Field label="Send a test to" hint="Emails a preview (subject prefixed with [TEST]).">
               <div className="flex gap-2">

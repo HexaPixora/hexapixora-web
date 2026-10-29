@@ -37,7 +37,7 @@ interface MediaPickerProps {
 
 const isImage = (m: Media) => m.mimetype?.startsWith("image/");
 
-export default function MediaPicker({
+export function MediaPicker({
   open,
   onClose,
   onSelect,

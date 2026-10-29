@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { notFound } from "next/navigation";
-import SiteLayout from "@/components/public/site-layout";
-import DynamicRenderer from "@hexapixora/theme-hexapixora/block-renderer";
+import { SiteLayout } from "@/components/public/site-layout";
+import { BlockRenderer } from "@hexapixora/theme-hexapixora/block-renderer";
 import { cmsFetch, readJson, readResource } from "@hexapixora/sdk/server";
 import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 
@@ -98,7 +98,7 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
           </div>
         )}
         
-        <DynamicRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
+        <BlockRenderer sections={sections} moduleDefaults={moduleDefaults} altTexts={altTexts} />
       </div>
     </SiteLayout>
   );
