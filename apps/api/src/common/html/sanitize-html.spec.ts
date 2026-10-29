@@ -54,6 +54,20 @@ describe('sanitizeSections', () => {
     expect(out[1]).toBe(sections[1]);
   });
 
+  it('cleans the text block content', () => {
+    const out = sanitizeSections([
+      {
+        id: '3',
+        type: 'text',
+        config: {
+          layout: 'prose',
+          content: '<p onclick="x()">hi</p><iframe src="//evil"></iframe>',
+        },
+      },
+    ]);
+    expect(out[0].config).toEqual({ layout: 'prose', content: '<p>hi</p>' });
+  });
+
   it('returns non-arrays unchanged', () => {
     expect(sanitizeSections(undefined)).toBeUndefined();
   });

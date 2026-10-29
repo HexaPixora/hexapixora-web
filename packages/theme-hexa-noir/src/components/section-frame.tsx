@@ -1,5 +1,13 @@
 import type { ReactNode } from "react";
 
+/** Section backgrounds from theme tokens; theme packs can restyle them via data-surface. */
+const SURFACES = { default: "", raised: "bg-page-raised", brand: "bg-brand" } as const;
+
+export type Surface = keyof typeof SURFACES;
+
+/** The background class for sections that draw their own frame (heroes). */
+export const surfaceClass = (surface: Surface) => SURFACES[surface];
+
 /**
  * The outer <section> of every block. The section itself is full-bleed (its
  * border and `backdrop` span the screen); the content sits in the centred
@@ -9,6 +17,7 @@ import type { ReactNode } from "react";
 export function SectionFrame({
   block,
   variant,
+  surface = "default",
   labelledBy,
   className = "",
   innerClassName = "",
@@ -17,6 +26,7 @@ export function SectionFrame({
 }: {
   block: string;
   variant?: string;
+  surface?: Surface;
   labelledBy?: string;
   className?: string;
   innerClassName?: string;
@@ -28,8 +38,9 @@ export function SectionFrame({
     <section
       data-block={block}
       data-variant={variant}
+      data-surface={surface === "default" ? undefined : surface}
       aria-labelledby={labelledBy}
-      className={`relative border-t border-line py-section ${className}`}
+      className={`relative border-t border-line py-section ${SURFACES[surface]} ${className}`}
     >
       {backdrop}
       <div className={`page-width relative ${innerClassName}`}>{children}</div>

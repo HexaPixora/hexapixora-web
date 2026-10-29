@@ -55,6 +55,10 @@ jobs:
       - name: Type-check (site, admin, api)
         run: npm run check-types
 
+      # Unit tests of the content shapes (block library and content moves).
+      - name: Test (contracts)
+        run: npx turbo run test --filter=@hexapixora/contracts
+
       - name: Build (site, admin, api)
         run: npm run build
         env:

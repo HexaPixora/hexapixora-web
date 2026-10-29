@@ -51,6 +51,21 @@ export const transitionalRules = {
 };
 
 /**
+ * The same rules as errors, for packages already rewritten (Hexa Noir theme,
+ * motion). Append after the preset so it wins over transitionalRules.
+ *
+ * @type {import("eslint").Linter.Config}
+ */
+export const strictRules = {
+  rules: {
+    "no-undef": "off",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "no-empty": "error",
+  },
+};
+
+/**
  * A shared ESLint configuration for the repository.
  *
  * @type {import("eslint").Linter.Config[]}

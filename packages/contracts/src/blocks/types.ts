@@ -11,6 +11,8 @@ export type ModuleField = {
   description?: string;
   options?: { label: string, value: string }[];
   itemFields?: Omit<ModuleField, 'itemFields'>[];
+  /** Show this field only for these values of the block's `layout`. */
+  showFor?: string[];
 };
 
 export type ModuleDefinition = {

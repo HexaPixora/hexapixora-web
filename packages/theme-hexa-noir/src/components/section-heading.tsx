@@ -20,7 +20,7 @@ export function SectionHeading({
     <div className={`mb-chapter ${className}`}>
       {eyebrow ? <p className="mono mb-5 text-signal">{eyebrow}</p> : null}
       {heading ? (
-        <h2 id={id} className="wide max-w-[20ch] text-display-md font-medium">
+        <h2 id={id} className="wide max-w-[20ch] whitespace-pre-line text-display-md font-medium">
           {heading}
         </h2>
       ) : null}
