@@ -7,6 +7,7 @@ import MarkdownIt from 'markdown-it';
 import TurndownService from 'turndown';
 import AdmZip from 'adm-zip';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RevalidateService } from '../revalidate/revalidate.service';
 import { CategoriesService, slugify } from '../categories/categories.service';
 
 // Markdown → HTML for imported posts. html:false escapes raw HTML in the source
@@ -22,6 +23,7 @@ export class BlogsService {
   constructor(
     private prisma: PrismaService,
     private categories: CategoriesService,
+    private revalidate: RevalidateService,
   ) {}
 
   // Fields returned to list/related views (includes related categories).
@@ -506,5 +508,6 @@ export class BlogsService {
       ),
     );
     this.logger.log(`Auto-published ${due.length} scheduled blog post(s).`);
+    this.revalidate.schedule();
   }
 }

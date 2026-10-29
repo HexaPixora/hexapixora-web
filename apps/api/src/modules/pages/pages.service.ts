@@ -2,12 +2,16 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ContentStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RevalidateService } from '../revalidate/revalidate.service';
 
 @Injectable()
 export class PagesService {
   private readonly logger = new Logger(PagesService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private revalidate: RevalidateService,
+  ) {}
 
   // Public listing — only published pages.
   async findAll() {
@@ -115,6 +119,7 @@ export class PagesService {
     });
     if (due.count > 0) {
       this.logger.log(`Auto-published ${due.count} scheduled page(s).`);
+      this.revalidate.schedule();
     }
   }
 }
