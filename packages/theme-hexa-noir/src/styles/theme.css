@@ -109,6 +109,13 @@
   }
 
   body {
+    /* The font stacks as real variables, declared where next/font sets
+     * --font-unbounded etc. The @theme inline mapping only inlines them
+     * into utilities, so CSS rules (and theme packs) read these. */
+    --font-display: var(--font-unbounded), "Arial Black", sans-serif;
+    --font-body: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
+    --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
     background-color: var(--color-page);
     color: var(--color-copy);
     font-family: var(--font-body);
