@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { Button } from "@hexapixora/ui/button";
 import { PageHeader, PageLoading, SectionCard } from "@hexapixora/ui/admin";
 import { PACK_LIMITS } from "@hexapixora/contracts/theme-pack/files";
-import { Download, Eye, Palette, Trash2, Upload } from "lucide-react";
+import { Download, Eye, Palette, Pencil, Trash2, Upload } from "lucide-react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { siteUrl } from "@/lib/site-url";
 import { useHasPermission } from "@/stores/use-auth-store";
@@ -60,7 +61,11 @@ export default function ThemesPage() {
 
   const install = async (file: File) => {
     if (file.size > PACK_LIMITS.zipBytes) {
-      setReport({ title: "Not installed", lines: [`The file is larger than ${PACK_LIMITS.zipBytes / 1024 / 1024} MB.`], tone: "error" });
+      setReport({
+        title: "Not installed",
+        lines: [`The file is larger than ${PACK_LIMITS.zipBytes / 1024 / 1024} MB.`],
+        tone: "error",
+      });
       return;
     }
     setBusy("install");
@@ -72,7 +77,9 @@ export default function ThemesPage() {
       const removed: string[] = res.data?.data?.removed ?? [];
       setReport({
         title: res.data?.message ?? "Installed",
-        lines: removed.length ? ["These theme.css rules were left out:", ...removed] : ["Everything in the pack was accepted."],
+        lines: removed.length
+          ? ["These theme.css rules were left out:", ...removed]
+          : ["Everything in the pack was accepted."],
         tone: "ok",
       });
       await load();
@@ -206,7 +213,9 @@ export default function ThemesPage() {
         <div
           role={report.tone === "error" ? "alert" : "status"}
           className={`rounded-lg border p-4 text-sm ${
-            report.tone === "error" ? "border-destructive/40 bg-destructive/5" : "border-emerald-500/40 bg-emerald-500/5"
+            report.tone === "error"
+              ? "border-destructive/40 bg-destructive/5"
+              : "border-emerald-500/40 bg-emerald-500/5"
           }`}
         >
           <p className="font-semibold">{report.title}</p>
@@ -222,21 +231,37 @@ export default function ThemesPage() {
         title="Built-in theme"
         description="Hexa Noir, as shipped with the site. Visitors see it whenever no pack is active."
         action={
-          activePack && canManage ? (
-            <Button variant="outline" size="sm" onClick={useBuiltIn} disabled={busy === "builtin"}>
-              Use built-in theme
-            </Button>
-          ) : (
-            <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">Active</span>
-          )
+          <div className="flex items-center gap-2">
+            {canManage ? (
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/admin/themes/edit">
+                  <Pencil size={14} className="mr-1.5" /> Customise
+                </Link>
+              </Button>
+            ) : null}
+            {activePack && canManage ? (
+              <Button variant="outline" size="sm" onClick={useBuiltIn} disabled={busy === "builtin"}>
+                Use built-in theme
+              </Button>
+            ) : !activePack ? (
+              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+                Active
+              </span>
+            ) : null}
+          </div>
         }
       >
         <p className="text-sm text-muted-foreground">
-          {activePack ? `Currently replaced by ${activePack.name} ${activePack.version}.` : "This is what visitors see now."}
+          {activePack
+            ? `Currently replaced by ${activePack.name} ${activePack.version}.`
+            : "This is what visitors see now."}
         </p>
       </SectionCard>
 
-      <SectionCard title="Installed packs" description={`A pack is a .zip with theme.json, an optional theme.css and assets/ (fonts and images), up to ${PACK_LIMITS.zipBytes / 1024 / 1024} MB.`}>
+      <SectionCard
+        title="Installed packs"
+        description={`A pack is a .zip with theme.json, an optional theme.css and assets/ (fonts and images), up to ${PACK_LIMITS.zipBytes / 1024 / 1024} MB.`}
+      >
         {packs.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-10 text-center text-sm text-muted-foreground">
             <Palette size={28} />
@@ -270,6 +295,11 @@ export default function ThemesPage() {
                         Activate
                       </Button>
                     ) : null}
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/admin/themes/edit?base=${pack.id}`}>
+                        <Pencil size={14} className="mr-1.5" /> Edit
+                      </Link>
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => void download(pack)} title="Download as zip">
                       <Download size={14} />
                     </Button>
