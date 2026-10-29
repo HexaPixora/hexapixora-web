@@ -12,6 +12,7 @@ import { GripVertical, Eye, EyeOff, Settings2, LayoutDashboard, ArrowLeft, Toggl
 import { ModuleConfigForm } from "@/components/admin/module-config-form";
 import { MediaField } from "@/components/admin/media-field";
 import { MODULES, groupedModules } from "@hexapixora/contracts/blocks/registry";
+import { migrateSection } from "@hexapixora/contracts/blocks/legacy/migrate";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { StatusControl, ContentStatus } from "@/components/admin/status-control";
@@ -94,6 +95,13 @@ export default function CustomPageBuilderPage() {
         parsedSections = typeof pData.sections === 'string' ? JSON.parse(pData.sections) : pData.sections;
         if (!Array.isArray(parsedSections)) parsedSections = [];
       } catch(e) {}
+
+      // Old block types open as their library block (plans/phase-3c), so the
+      // next save stores the new shape. Unknown types stay so they can be removed.
+      const defaults: Record<string, Record<string, unknown>> = defaultsRes?.data?.data ?? {};
+      parsedSections = parsedSections.map(
+        (section: Section) => (migrateSection(section, defaults[section.type]) as Section | null) ?? section,
+      );
 
       setSections(parsedSections);
       setSavedSnapshot(JSON.stringify({ page: loadedPage, sections: parsedSections }));
