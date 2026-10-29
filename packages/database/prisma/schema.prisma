@@ -333,3 +333,43 @@ model PushSubscription {
 
   @@index([userId])
 }
+
+// ==========================================
+// Theme packs (plans/phase-3b)
+// ==========================================
+
+// An installed theme pack: validated theme.json, its raw theme.css (cleaned
+// again on every compile) and the compiled CSS the site serves. Each install
+// or edit is a new row, so asset URLs never change. One pack is active.
+model ThemePack {
+  id          String   @id @default(uuid())
+  slug        String
+  name        String
+  version     String
+  author      String   @default("")
+  description String   @default("")
+  manifest    Json
+  sourceCss   String   @default("")
+  css         String
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assets ThemeAsset[]
+
+  @@unique([slug, version])
+  @@index([isActive])
+}
+
+// A font or image from a pack, served by the API with long cache headers.
+model ThemeAsset {
+  id     String    @id @default(uuid())
+  packId String
+  pack   ThemePack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  path   String
+  mime   String
+  size   Int
+  bytes  Bytes
+
+  @@unique([packId, path])
+}

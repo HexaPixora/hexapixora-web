@@ -20,10 +20,12 @@ const CONTENT = new Set([
   'settings',
   'categories',
   'automation',
+  'themes',
 ]);
 
-// POST routes on content resources that only read.
-const READ_ONLY = /\/blogs\/(export|import\/preview)$/;
+// POST routes on content resources that only read (or only sign a preview link).
+const READ_ONLY =
+  /\/blogs\/(export|import\/preview)$|\/themes\/[^/]+\/preview-token$/;
 
 /** Refreshes the site's cache after every successful content write. */
 @Injectable()

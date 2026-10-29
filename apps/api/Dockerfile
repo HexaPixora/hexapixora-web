@@ -11,10 +11,12 @@ RUN apt-get update \
 WORKDIR /app
 COPY . .
 
-# Only the API and database workspaces (skips the Next.js app's dependencies).
-# Dev deps stay installed: the Prisma CLI and tsx are used at startup.
-RUN npm ci --include=dev --workspace=api --workspace=@hexapixora/database --include-workspace-root \
+# Only the API, database and contracts workspaces (skips the Next.js apps'
+# dependencies). Dev deps stay installed: the Prisma CLI and tsx are used at
+# startup. Contracts are compiled first: the API requires their runtime code.
+RUN npm ci --include=dev --workspace=api --workspace=@hexapixora/database --workspace=@hexapixora/contracts --include-workspace-root \
   && npx prisma generate --schema=packages/database/prisma/schema.prisma \
+  && npm run build --workspace=@hexapixora/contracts \
   && npm run build --workspace=api
 
 ENV NODE_ENV=production
