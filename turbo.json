@@ -12,6 +12,7 @@
         "SITE_URL",
         "SITE_NAME",
         "ADMIN_URL",
+        "ADMIN_ORIGIN",
         "TURNSTILE_SITE_KEY",
         "PREVIEW_TOKEN",
         "REVALIDATE_SECRET",

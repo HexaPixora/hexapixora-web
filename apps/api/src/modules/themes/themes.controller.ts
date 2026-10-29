@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Delete,
   Get,
@@ -18,6 +19,7 @@ import { PACK_LIMITS } from '@hexapixora/contracts/theme-pack/files';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permissions } from '../auth/decorators/permissions.decorator';
+import { SaveThemeVersionDto } from './dto/save-theme-version.dto';
 import { ThemesService } from './themes.service';
 
 const ASSET_FILE = /^[a-z0-9][a-z0-9._-]{0,80}\.[a-z0-9]+$/;
@@ -136,6 +138,25 @@ export class ThemesController {
       'Cache-Control': 'no-store',
     });
     res.send(zip.bytes);
+  }
+
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('layouts')
+  @Post('versions')
+  async saveVersion(@Body() dto: SaveThemeVersionDto) {
+    const result = await this.themes.saveVersion(dto);
+    return {
+      data: result,
+      message: `${result.pack.name} ${result.pack.version} saved`,
+    };
+  }
+
+  // Declared after the public GET routes, so "active" and "preview" match first.
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions('layouts')
+  @Get(':id')
+  async detail(@Param('id', new ParseUUIDPipe()) id: string) {
+    return { data: await this.themes.detail(id) };
   }
 
   @UseGuards(JwtAuthGuard, PermissionsGuard)
