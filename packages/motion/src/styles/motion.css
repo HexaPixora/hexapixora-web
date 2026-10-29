@@ -59,3 +59,14 @@
     animation: none;
   }
 }
+
+/* The page editor's preview (data-motion="static"): everything at rest, like
+ * reduced motion, so editors see the finished layout. */
+[data-motion="static"] [data-rise-line] > span,
+[data-motion="static"] [data-marquee-track] {
+  animation: none;
+}
+
+[data-motion="static"] [data-marquee] {
+  overflow-x: auto;
+}

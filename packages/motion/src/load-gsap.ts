@@ -31,6 +31,12 @@ export function whenIdle(task: () => void, timeout = 1500): () => void {
   return () => clearTimeout(id);
 }
 
-export function prefersReducedMotion(): boolean {
+/**
+ * True when motion should stay off: the visitor asked for reduced motion, or
+ * `el` sits inside a `data-motion="static"` container (the page editor's
+ * preview, where blocks must show at rest and the scroll belongs to the editor).
+ */
+export function prefersReducedMotion(el?: Element | null): boolean {
+  if (el?.closest('[data-motion="static"]')) return true;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
