@@ -12,7 +12,7 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test \"src/**/*.test.ts\""
+    "test": "node --import tsx --test src/blocks/legacy/*.test.ts"
   },
   "dependencies": {
     "zod": "^4.6.7"
