@@ -3,9 +3,7 @@
 import { useId, useState, type FormEvent } from "react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { PILL_CLASS } from "../../components/safe-link";
-
-const FIELD_CLASS =
-  "w-full border-b border-line bg-transparent py-3 text-base outline-none transition-colors placeholder:text-copy-dim focus:border-signal";
+import { FIELD_CLASS, LABEL_CLASS } from "../../lib/form-classes";
 
 /** Name + email form that records a download lead, then offers the file. */
 export function LeadMagnetForm({
@@ -85,7 +83,7 @@ export function LeadMagnetForm({
         />
       </div>
       <div>
-        <label htmlFor={`${id}-name`} className="mono text-copy-dim">
+        <label htmlFor={`${id}-name`} className={LABEL_CLASS}>
           Your name
         </label>
         <input
@@ -98,7 +96,7 @@ export function LeadMagnetForm({
         />
       </div>
       <div>
-        <label htmlFor={`${id}-email`} className="mono text-copy-dim">
+        <label htmlFor={`${id}-email`} className={LABEL_CLASS}>
           Email address
         </label>
         <input

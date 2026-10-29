@@ -1,16 +1,15 @@
-import React, { cache } from "react";
-import { SiteLayout } from "@/components/public/site-layout";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, Clock, BookOpen, User } from "lucide-react";
-import { Metadata } from "next";
-import { apiUrl } from "@hexapixora/sdk/server";
-import { cmsFetch, readResource } from "@hexapixora/sdk/server";
+import type { Metadata } from "next";
+import { apiUrl, cmsFetch, readResource } from "@hexapixora/sdk/server";
+import { safeHref } from "@hexapixora/contracts/links";
+import { SiteLayout } from "@/components/public/site-layout";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
-import { InsightCard, CategoryChip } from "@hexapixora/theme-hexa-noir/components/insight-card";
+import { CategoryChip, InsightCard, type InsightPost } from "@hexapixora/theme-hexa-noir/components/insight-card";
 import { InsightCategoryView } from "@hexapixora/theme-hexa-noir/components/insight-category-view";
-import { FaqAccordion } from "@hexapixora/theme-hexa-noir/components/faq-accordion";
+import { FaqDetails } from "@hexapixora/theme-hexa-noir/components/faq-details";
 
 export const revalidate = 120;
 
@@ -21,18 +20,24 @@ export const revalidate = 120;
 // A missing post/category returns null (→ notFound); an unreachable API throws
 // instead, so an outage is never cached as a 404.
 const getInsight = cache(async (slug: string) => {
-  const res = await cmsFetch(`/blogs/slug/${slug}`, { next: { revalidate: 120 } }).catch(() => null);
+  const res = await cmsFetch(`/blogs/slug/${slug}`, {
+    next: { revalidate: 120 },
+  }).catch(() => null);
   return readResource(res);
 });
 
 const getCategory = cache(async (slug: string) => {
-  const res = await fetch(apiUrl(`/categories/${slug}`), { next: { revalidate: 120 } }).catch(() => null);
+  const res = await fetch(apiUrl(`/categories/${slug}`), {
+    next: { revalidate: 120 },
+  }).catch(() => null);
   return readResource(res);
 });
 
 async function getRelated(slug: string) {
   try {
-    const res = await fetch(apiUrl(`/blogs/slug/${slug}/related?limit=3`), { next: { revalidate: 120 } });
+    const res = await fetch(apiUrl(`/blogs/slug/${slug}/related?limit=3`), {
+      next: { revalidate: 120 },
+    });
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -42,10 +47,9 @@ async function getRelated(slug: string) {
 
 async function getCategoryPosts(slug: string) {
   try {
-    const res = await fetch(
-      apiUrl(`/blogs?published=true&limit=100&category=${encodeURIComponent(slug)}`),
-      { next: { revalidate: 120 } },
-    );
+    const res = await fetch(apiUrl(`/blogs?published=true&limit=100&category=${encodeURIComponent(slug)}`), {
+      next: { revalidate: 120 },
+    });
     const json = await res.json();
     return json?.data || [];
   } catch {
@@ -60,8 +64,7 @@ interface InsightPageProps {
 // Search results show ~60 characters of a title, so the brand suffix is only
 // added when it still fits.
 const TITLE_SUFFIX = " | HexaPixora Insights";
-const withSuffix = (title: string) =>
-  title.length + TITLE_SUFFIX.length <= 60 ? `${title}${TITLE_SUFFIX}` : title;
+const withSuffix = (title: string) => (title.length + TITLE_SUFFIX.length <= 60 ? `${title}${TITLE_SUFFIX}` : title);
 
 export async function generateMetadata(props: InsightPageProps): Promise<Metadata> {
   const { slug } = await props.params;
@@ -150,11 +153,28 @@ export default async function InsightPage(props: InsightPageProps) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: siteUrl("/") },
-      { "@type": "ListItem", position: 2, name: "Insights", item: siteUrl("/insights") },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Insights",
+        item: siteUrl("/insights"),
+      },
       ...(primaryCat
-        ? [{ "@type": "ListItem", position: 3, name: primaryCat.name, item: siteUrl(`/insights/${primaryCat.slug}`) }]
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: primaryCat.name,
+              item: siteUrl(`/insights/${primaryCat.slug}`),
+            },
+          ]
         : []),
-      { "@type": "ListItem", position: primaryCat ? 4 : 3, name: post.title, item: canonical },
+      {
+        "@type": "ListItem",
+        position: primaryCat ? 4 : 3,
+        name: post.title,
+        item: canonical,
+      },
     ],
   };
   const faq: { question: string; answer: string }[] = Array.isArray(post.faq) ? post.faq : [];
@@ -170,97 +190,107 @@ export default async function InsightPage(props: InsightPageProps) {
       }
     : null;
 
+  const heroImage = safeHref(image);
+  const tags: string[] = Array.isArray(post.tags) ? post.tags.filter((tag: unknown) => typeof tag === "string") : [];
+  const categories: { id: string; slug: string; name: string }[] = Array.isArray(post.categories)
+    ? post.categories
+    : [];
+
   return (
     <SiteLayout showHeader showFooter>
       <JsonLd data={articleLd} />
       <JsonLd data={breadcrumbLd} />
       {faqLd && <JsonLd data={faqLd} />}
-      <article className="relative isolate flex-1 overflow-hidden pb-24">
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_100%_at_50%_0%,rgba(16,147,253,0.14),transparent)]" />
-
-        <div className="container relative z-10 max-w-6xl pt-8 md:pt-12">
-          <Link
-            href="/insights"
-            className="group mb-8 inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-[#7cc4ff]"
-          >
-            <ArrowLeft className="mr-1.5 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            Back to Insights
-          </Link>
-
-          <div className="space-y-6">
-            {Array.isArray(post.categories) && post.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {post.categories.map((c: any) => (
-                  <Link key={c.id} href={`/insights/${c.slug}`}>
-                    <CategoryChip category={c} className="transition-transform hover:-translate-y-0.5" />
-                  </Link>
+      <article className="pb-section">
+        <header className="page-width pt-16 md:pt-24">
+          <div className="max-w-[52rem]">
+            <nav aria-label="Breadcrumb" className="mono text-copy-dim">
+              <Link href="/insights" className="transition-colors hover:text-signal">
+                <span aria-hidden="true">← </span>Insights
+              </Link>
+            </nav>
+            {categories.length > 0 ? (
+              <ul className="mt-8 flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <li key={category.id}>
+                    <Link href={`/insights/${category.slug}`} className="group">
+                      <CategoryChip category={category} className="transition-colors group-hover:border-copy" />
+                    </Link>
+                  </li>
                 ))}
-              </div>
-            )}
-
-            <h1 className="bg-gradient-to-b from-white to-white/65 bg-clip-text text-3xl font-black leading-[1.12] tracking-tight text-transparent md:text-5xl">
-              {post.title}
-            </h1>
-
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-white/10 py-4 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1093fd]/15 text-[#7cc4ff]">
-                  <User size={13} />
-                </span>
-                <span className="font-medium text-foreground/90">HexaPixora Team</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5"><Calendar size={14} /> {new Date(date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
-              {post.readTime ? <span className="inline-flex items-center gap-1.5"><Clock size={14} /> {post.readTime} min read</span> : null}
-            </div>
+              </ul>
+            ) : null}
+            <h1 className="wide mt-6 text-statement font-medium">{post.title}</h1>
+            <p className="mono mt-8 flex flex-wrap gap-x-5 gap-y-1 border-y border-line py-4 text-copy-dim">
+              <span className="text-copy">HexaPixora Team</span>
+              {date ? (
+                <time dateTime={date}>
+                  {new Date(date).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </time>
+              ) : null}
+              {post.readTime ? <span>{post.readTime} min read</span> : null}
+            </p>
           </div>
-
-          {image && (
-            <figure className="relative my-10 overflow-hidden rounded-[1.5rem] border border-white/10 shadow-[0_40px_100px_-40px_rgba(16,147,253,0.5)] ring-1 ring-inset ring-white/10">
-              <div className="aspect-[16/9]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image} alt={post.title} className="h-full w-full object-cover" />
-              </div>
-              <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+          {heroImage ? (
+            <figure className="mt-12 aspect-[16/9] overflow-hidden border border-line bg-page-raised">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={heroImage} alt={post.title} decoding="async" className="h-full w-full object-cover" />
             </figure>
-          )}
+          ) : null}
+        </header>
 
-          <div
-            className="prose prose-lg mt-10 max-w-none break-words text-foreground/90 dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#7cc4ff] hover:prose-a:underline prose-img:rounded-2xl prose-img:border prose-img:border-white/10"
-            // The page header already renders the post title as the only <h1>;
-            // imported posts often repeat it inside the body, so demote those.
-            dangerouslySetInnerHTML={{ __html: post.content.replace(/<(\/?)h1(?=[\s>])/gi, "<$1h2") }}
-          />
+        <div className="page-width">
+          <div className="max-w-[52rem]">
+            <div
+              className="prose prose-lg prose-invert noir-prose mt-14 max-w-none break-words"
+              // Cleaned in the API on save. The page header already renders the
+              // title as the only <h1>; imported posts often repeat it in the
+              // body, so those are demoted.
+              dangerouslySetInnerHTML={{
+                __html: String(post.content ?? "").replace(/<(\/?)h1(?=[\s>])/gi, "<$1h2"),
+              }}
+            />
 
-          {faq.length > 0 && (
-            <section className="mt-14">
-              <h2 className="mb-6 text-2xl font-bold tracking-tight">Frequently Asked Questions</h2>
-              <FaqAccordion items={faq} />
-            </section>
-          )}
+            {faq.length > 0 ? (
+              <section aria-labelledby="article-faq" className="mt-section">
+                <h2 id="article-faq" className="wide mb-chapter text-promise font-medium">
+                  Frequently asked questions
+                </h2>
+                <FaqDetails items={faq} />
+              </section>
+            ) : null}
 
-          {Array.isArray(post.tags) && post.tags.length > 0 && (
-            <div className="mt-10 flex flex-wrap gap-2 border-t border-white/10 pt-6">
-              {post.tags.map((tag: string) => (
-                <span key={tag} className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+            {tags.length > 0 ? (
+              <ul aria-label="Tags" className="mono mt-14 flex flex-wrap gap-2 border-t border-line pt-6 text-copy-dim">
+                {tags.map((tag) => (
+                  <li key={tag} className="border border-line px-2.5 py-1">
+                    #{tag}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         </div>
 
-        {related.length > 0 && (
-          <div className="container relative z-10 mt-20 max-w-6xl">
-            <h2 className="mb-8 flex items-center gap-2 text-2xl font-bold tracking-tight">
-              <BookOpen size={20} className="text-[#7cc4ff]" /> Continue Reading
+        {related.length > 0 ? (
+          <section aria-labelledby="related-insights" className="page-width mt-section">
+            <h2 id="related-insights" className="mono mb-chapter flex items-center gap-5 text-copy-dim">
+              Continue reading
+              <span aria-hidden="true" className="h-px flex-1 bg-line" />
             </h2>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((r: any) => (
-                <InsightCard key={r.id} post={r} />
+            <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {(related as InsightPost[]).map((item) => (
+                <li key={item.id ?? item.slug}>
+                  <InsightCard post={item} />
+                </li>
               ))}
-            </div>
-          </div>
-        )}
+            </ul>
+          </section>
+        ) : null}
       </article>
     </SiteLayout>
   );

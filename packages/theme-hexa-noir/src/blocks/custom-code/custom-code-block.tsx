@@ -1,139 +1,79 @@
-"use client";
+import { useId } from "react";
+import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
+import { customCodeSchema } from "@hexapixora/contracts/blocks/custom-code";
+import { SectionHeading } from "../../components/section-heading";
+import { colors } from "../../index";
+import { CustomScript } from "./custom-script";
 
-import React, { useEffect, useRef, useId } from "react";
-import { customCodeSchema, CustomCodeProps } from "@hexapixora/contracts/blocks/custom-code";
-
-const PADDING_MAP: Record<string, string> = {
+const PADDING: Record<string, string> = {
   none: "py-0",
-  small: "py-8 md:py-12",
-  medium: "py-16 md:py-24",
-  large: "py-24 md:py-32",
+  small: "py-12",
+  medium: "py-section",
+  large: "py-[calc(var(--spacing-section)*1.4)]",
 };
 
-const WIDTH_MAP: Record<string, string> = {
-  full: "w-full",
-  container: "container",
-  "max-w-4xl": "container max-w-4xl",
-  "max-w-6xl": "container max-w-6xl",
+// Every width stays inside the page column (the 1440px rule); "full" is the column itself.
+const WIDTH: Record<string, string> = {
+  full: "",
+  container: "",
+  "max-w-4xl": "max-w-4xl",
+  "max-w-6xl": "max-w-6xl",
 };
 
-export function CustomCodeBlock({ config }: { config?: CustomCodeProps }) {
-  const parsed = customCodeSchema.parse(config || {});
-  const { title, html, css, js, renderMode, containerWidth, paddingY } = parsed;
+/** A closing tag inside admin CSS must not end our <style> element early. */
+const guardStyle = (css: string) => css.replace(/<\/style/gi, "<\/style");
 
-  const rawId = useId();
-  const instanceId = `custom-code-${rawId.replace(/:/g, "")}`;
-  const containerRef = useRef<HTMLDivElement>(null);
+/**
+ * Admin-authored HTML, CSS and JS, raw by design (only admins can edit it).
+ * Inline mode renders the HTML on the server (visible to search engines) and
+ * runs the script after hydration. Iframe mode isolates everything in a
+ * sandbox without same-origin access, so the code can't reach this site's
+ * cookies or DOM.
+ */
+export function CustomCodeBlock({ config }: { config?: unknown }) {
+  const c = parseBlockConfig(customCodeSchema, config);
+  const headingId = useId();
+  const instanceId = `custom-code-${headingId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const width = WIDTH[c.containerWidth] ?? "";
 
-  // Scoped CSS for inline mode
-  const scopedCss = React.useMemo(() => {
-    if (!css || !css.trim()) return "";
-    // If the CSS already mentions the instance ID or doesn't have selectors, scope it
-    const trimmed = css.trim();
-    if (trimmed.includes(`#${instanceId}`)) return trimmed;
-    
-    // Add instance scoping prefix to top-level CSS rules
-    return `#${instanceId} {\n${trimmed}\n}`;
-  }, [css, instanceId]);
-
-  // Execute custom JavaScript safely when mounted in inline mode
-  useEffect(() => {
-    if (renderMode !== "inline" || !js || !js.trim() || !containerRef.current) {
-      return;
-    }
-
-    const containerNode = containerRef.current;
-    let cleanupFn: (() => void) | void;
-
-    try {
-      // Pass 'container' as a scoped parameter to the custom script
-      const scriptFn = new Function("container", "window", "document", js);
-      cleanupFn = scriptFn(containerNode, window, document);
-    } catch (err) {
-      console.error(`[CustomCodeBlock] Error executing custom JS script:`, err);
-    }
-
-    return () => {
-      if (typeof cleanupFn === "function") {
-        try {
-          cleanupFn();
-        } catch (e) {
-          console.error(`[CustomCodeBlock] Error in custom script cleanup:`, e);
-        }
-      }
-    };
-  }, [js, renderMode, html]);
-
-  const paddingClass = PADDING_MAP[paddingY] || PADDING_MAP.medium;
-  const widthClass = WIDTH_MAP[containerWidth] || WIDTH_MAP.full;
-
-  if (renderMode === "iframe") {
-    const iframeSrcDoc = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <style>
-            * { box-sizing: border-box; }
-            body { margin: 0; padding: 1rem; font-family: system-ui, -apple-system, sans-serif; color: #fff; background: transparent; }
-            ${css || ""}
-          </style>
-        </head>
-        <body>
-          ${html || ""}
-          <script>
-            document.addEventListener("DOMContentLoaded", function() {
-              const container = document.body;
-              try {
-                ${js || ""}
-              } catch(e) { console.error("[iFrame JS Error]", e); }
-            });
-          </script>
-        </body>
-      </html>
-    `;
-
-    return (
-      <section className={`relative overflow-hidden ${paddingClass}`}>
-        <div className={`mx-auto ${widthClass}`}>
-          {title && (
-            <h2 className="mb-6 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-              {title}
-            </h2>
-          )}
-          <iframe
-            title={title || "Custom Code Frame"}
-            srcDoc={iframeSrcDoc}
-            className="w-full border-0 rounded-xl bg-card min-h-[300px]"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-          />
-        </div>
-      </section>
+  let body;
+  if (c.renderMode === "iframe") {
+    const srcDoc = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;padding:1rem;font-family:system-ui,-apple-system,sans-serif;color:${colors.bone};background:transparent}${guardStyle(c.css)}</style></head><body>${c.html}<script>(function(){var container=document.body;try{${c.js}}catch(e){console.error(e)}})();</script></body></html>`;
+    body = (
+      <iframe
+        title={c.title || "Embedded content"}
+        srcDoc={srcDoc}
+        loading="lazy"
+        sandbox="allow-scripts allow-forms allow-popups"
+        className="block min-h-[300px] w-full border border-line"
+      />
+    );
+  } else {
+    // Unscoped selectors are nested under the instance so they can't restyle the page.
+    const css = c.css.trim();
+    const scopedCss = css ? (css.includes(`#${instanceId}`) ? css : `#${instanceId} {\n${css}\n}`) : "";
+    body = (
+      <>
+        {/* Safe by design: admin-only raw code (see the block contract). */}
+        {scopedCss ? <style dangerouslySetInnerHTML={{ __html: guardStyle(scopedCss) }} /> : null}
+        <div id={instanceId} data-part="custom-code" dangerouslySetInnerHTML={{ __html: c.html }} />
+        {c.js.trim() ? <CustomScript containerId={instanceId} code={c.js} /> : null}
+      </>
     );
   }
 
   return (
-    <section className={`relative overflow-hidden ${paddingClass}`}>
-      <div className={`mx-auto ${widthClass}`}>
-        {title && (
-          <h2 className="mb-6 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-            {title}
-          </h2>
-        )}
-
-        {/* Custom scoped styles */}
-        {scopedCss && (
-          <style dangerouslySetInnerHTML={{ __html: scopedCss }} />
-        )}
-
-        {/* Custom HTML container */}
-        <div
-          id={instanceId}
-          ref={containerRef}
-          className="custom-code-wrapper relative w-full"
-          dangerouslySetInnerHTML={{ __html: html || "" }}
-        />
+    <section
+      data-block="custom-code"
+      data-variant={c.renderMode}
+      aria-labelledby={c.title ? headingId : undefined}
+      className={`relative border-t border-line ${PADDING[c.paddingY] ?? PADDING.medium}`}
+    >
+      <div className="page-width relative">
+        <div className={`${width} mx-auto w-full`}>
+          <SectionHeading id={headingId} heading={c.title} />
+          {body}
+        </div>
       </div>
     </section>
   );

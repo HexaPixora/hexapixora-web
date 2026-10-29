@@ -1,14 +1,12 @@
 import { useId } from "react";
 import { parseBlockConfig } from "@hexapixora/contracts/blocks/define-block";
 import { faqsectionSchema } from "@hexapixora/contracts/blocks/faq";
+import { FaqDetails, faqPageData } from "../../components/faq-details";
 import { SectionFrame } from "../../components/section-frame";
-import { jsonLd } from "../../lib/json-ld";
 import { SectionHeading } from "../../components/section-heading";
+import { jsonLd } from "../../lib/json-ld";
 
-/**
- * Questions as native <details> (keyboard and screen-reader friendly,
- * readable without JS), plus FAQPage structured data for search engines.
- */
+/** Questions and answers, plus FAQPage structured data for search engines. */
 export function FaqBlock({ config }: { config?: unknown }) {
   const c = parseBlockConfig(faqsectionSchema, config);
   const headingId = useId();
@@ -18,28 +16,11 @@ export function FaqBlock({ config }: { config?: unknown }) {
   return (
     <SectionFrame block="faq" labelledBy={c.heading ? headingId : undefined}>
       <SectionHeading id={headingId} heading={c.heading} subheading={c.subheading} />
-      {items.map((item, i) => (
-        <details key={i} data-part="faq-item" className="border-t border-line py-[22px] last:border-b">
-          <summary className="flex cursor-pointer justify-between gap-5 text-question font-extrabold">
-            <h3 className="font-extrabold">{item.question}</h3>
-          </summary>
-          <p className="mt-2.5 max-w-[64ch] whitespace-pre-line text-copy-dim">{item.answer}</p>
-        </details>
-      ))}
+      <FaqDetails items={items} />
       <script
         type="application/ld+json"
         // Safe: serialised data, not CMS HTML; see jsonLd().
-        dangerouslySetInnerHTML={{
-          __html: jsonLd({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: items.map((item) => ({
-              "@type": "Question",
-              name: item.question,
-              acceptedAnswer: { "@type": "Answer", text: item.answer },
-            })),
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(faqPageData(items)) }}
       />
     </SectionFrame>
   );
