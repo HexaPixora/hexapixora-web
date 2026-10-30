@@ -1,7 +1,7 @@
 import { BLOCK_GROUPS, BLOCKS } from "./library";
 import type { ModuleDefinition } from "./types";
 
-export type { ModuleFieldType, ModuleField, ModuleDefinition } from "./types";
+export type { ModuleFieldType, ModuleField, ModuleDefinition, Section } from "./types";
 
 /**
  * The blocks editors can add: the block library (plans/phase-3c). Old block
