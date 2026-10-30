@@ -20,7 +20,7 @@ export function useGsapEffect<T extends Element>(
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el || prefersReducedMotion(el)) return;
 
     let cancelled = false;
     let revert: (() => void) | undefined;

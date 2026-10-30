@@ -28,7 +28,7 @@ export function HideOnScrollHeader({
     const el = ref.current;
     if (!el) return;
     // Reduced motion keeps the header in place; it only changes background.
-    const reduce = prefersReducedMotion();
+    const reduce = prefersReducedMotion(el);
     let lastY = window.scrollY;
     let frame = 0;
 

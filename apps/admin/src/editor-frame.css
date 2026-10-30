@@ -1,0 +1,8 @@
+/* The page editor's preview frame: the site's own stylesheet (see the site's
+ * globals.css), compiled to public/editor-frame.css by `npm run frame-css`.
+ * Kept out of the admin's CSS because the theme styles html, body and *. */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@import "@hexapixora/theme-hexa-noir/styles/theme.css";
+@import "@hexapixora/motion/styles/motion.css";

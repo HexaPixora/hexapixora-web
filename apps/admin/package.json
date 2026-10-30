@@ -4,11 +4,15 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "frame-css": "tailwindcss -i src/editor-frame.css -o public/editor-frame.css --minify",
+    "predev": "npm run frame-css",
     "dev": "next dev -H 0.0.0.0 --port 3002",
+    "prebuild": "npm run frame-css",
     "build": "next build",
     "start": "next start --port 3002",
     "lint": "eslint .",
-    "check-types": "next typegen && tsc --noEmit"
+    "check-types": "next typegen && tsc --noEmit",
+    "test": "node --import tsx --test src/lib/puck/*.test.ts"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -18,6 +22,7 @@
     "@hexapixora/theme-hexa-noir": "*",
     "@hexapixora/ui": "*",
     "@hookform/resolvers": "^5.4.0",
+    "@puckeditor/core": "0.24.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tiptap/extension-color": "3.31.4",
     "@tiptap/extension-image": "3.31.4",
@@ -39,6 +44,7 @@
   "devDependencies": {
     "@hexapixora/eslint-config": "*",
     "@hexapixora/typescript-config": "*",
+    "@tailwindcss/cli": "4.3.0",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
@@ -46,6 +52,7 @@
     "eslint": "^9.39.1",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.4",
     "typescript": "5.9.2"
   }
 }
