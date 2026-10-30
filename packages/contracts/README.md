@@ -5,8 +5,8 @@ Content shapes shared by the API, the admin and the site. No React, no I/O.
 | Import | Contents |
 |---|---|
 | `@hexapixora/contracts/blocks/<id>` | One block: zod schema, props type, definition (`defineBlock`) |
-| `@hexapixora/contracts/blocks/registry` | All blocks, categories, default anchor ids |
-| `@hexapixora/contracts/blocks/legacy-types` | Stored block type (`HeroSection`) → block id (`hero`) |
+| `@hexapixora/contracts/blocks/library` | The block library: definitions, schemas, groups |
+| `@hexapixora/contracts/blocks/registry` | Editor helpers, field and stored-section types |
 | `@hexapixora/contracts/layout/header`, `/layout/footer` | Header and footer schemas |
 | `@hexapixora/contracts/permissions` | Grantable admin sections |
 | `@hexapixora/contracts/countries` | Country list for forms |

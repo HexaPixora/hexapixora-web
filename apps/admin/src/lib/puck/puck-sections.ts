@@ -1,9 +1,6 @@
 import type { ComponentData } from "@puckeditor/core";
 import { BLOCKS, isBlockId } from "@hexapixora/contracts/blocks/library";
-import {
-  migrateSection,
-  type Section,
-} from "@hexapixora/contracts/blocks/legacy/migrate";
+import type { Section } from "@hexapixora/contracts/blocks/registry";
 
 /**
  * A stored section's label and visibility travel as these props, so they never
@@ -21,30 +18,28 @@ export type StoredSection = {
 };
 
 /**
- * Stored sections → Puck content. Old block types move to the library first
- * (plans/phase-3c), so they open as library blocks. Sections that can't be
- * edited (unknown or removed types) are left out and returned as `dropped`,
- * so the editor can say they will go on the next save.
+ * Stored sections → Puck content. Sections that can't be edited (types
+ * outside the block library) are left out and returned as `dropped`, so the
+ * editor can say they will go on the next save.
  */
-export function sectionsToPuck(
-  sections: Section[],
-  moduleDefaults: Record<string, Record<string, unknown>> = {},
-): { content: ComponentData[]; dropped: Section[] } {
+export function sectionsToPuck(sections: Section[]): {
+  content: ComponentData[];
+  dropped: Section[];
+} {
   const content: ComponentData[] = [];
   const dropped: Section[] = [];
   for (const section of sections) {
-    const moved = migrateSection(section, moduleDefaults[section.type]);
-    if (!moved || !isBlockId(moved.type)) {
+    if (!isBlockId(section.type)) {
       dropped.push(section);
       continue;
     }
     content.push({
-      type: moved.type,
+      type: section.type,
       props: {
-        ...(moved.config ?? {}),
-        id: moved.id,
-        [LABEL_PROP]: moved.label || BLOCKS[moved.type].label,
-        [HIDDEN_PROP]: moved.isVisible === false,
+        ...(section.config ?? {}),
+        id: section.id,
+        [LABEL_PROP]: section.label || BLOCKS[section.type].label,
+        [HIDDEN_PROP]: section.isVisible === false,
       },
     });
   }

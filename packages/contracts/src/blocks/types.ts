@@ -22,3 +22,15 @@ export type ModuleDefinition = {
   fields: ModuleField[];
   defaultConfig: Record<string, any>;
 };
+
+/**
+ * A section as stored in `Page.sections`. Types outside the block library
+ * (removed blocks, typos) render nothing and are dropped by the editor.
+ */
+export type Section = {
+  id: string;
+  type: string;
+  label?: string;
+  isVisible?: boolean;
+  config?: Record<string, unknown> | null;
+};

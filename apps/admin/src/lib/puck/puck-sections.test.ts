@@ -42,20 +42,6 @@ describe("sectionsToPuck / puckToSections", () => {
     assert.deepEqual(puckToSections([item]), [withLabel]);
   });
 
-  it("opens old block types as library blocks", () => {
-    const old = {
-      id: "c",
-      type: "CTASection",
-      label: "Old",
-      isVisible: true,
-      config: { title: "Talk", buttonText: "Go", buttonUrl: "/go" },
-    };
-    const section = puckToSections(sectionsToPuck([old]).content)[0]!;
-    assert.equal(section.type, "cta");
-    assert.equal(section.config.heading, "Talk");
-    assert.equal(section.label, "Old");
-  });
-
   it("reports sections it can't edit instead of failing", () => {
     const unknown = {
       id: "d",

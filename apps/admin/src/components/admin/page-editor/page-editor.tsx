@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { Button } from "@hexapixora/ui/button";
-import type { Section } from "@hexapixora/contracts/blocks/legacy/migrate";
+import type { Section } from "@hexapixora/contracts/blocks/registry";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { buildPuckConfig } from "@/lib/puck/puck-config";
 import { pageToRoot, toPayload } from "@/lib/puck/puck-page";
@@ -113,7 +113,6 @@ export function PageEditor({ pageId }: { pageId: string }) {
       const defaults = (json(defaultsRes) ?? {}) as Loaded["defaults"];
       const { content, dropped } = sectionsToPuck(
         Array.isArray(stored) ? (stored as Section[]) : [],
-        defaults,
       );
       const data: Data = { content, root: { props: pageToRoot(page) } };
       const css = (json(themeRes) as { css?: unknown } | undefined)?.css;
