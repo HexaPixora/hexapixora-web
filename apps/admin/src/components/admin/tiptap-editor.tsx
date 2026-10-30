@@ -41,7 +41,7 @@ export function TiptapEditor({ value, onChange, placeholder = "Start writing..."
     },
     editorProps: {
       attributes: {
-        class: "prose prose-invert max-w-none min-h-[400px] focus:outline-none p-4",
+        class: "prose dark:prose-invert max-w-none min-h-[400px] focus:outline-none p-4",
       },
     },
   });
