@@ -148,7 +148,6 @@ export default function ModulesLibraryPage() {
                     config: moduleDefaults[previewId] || MODULES[previewId]?.defaultConfig,
                   },
                 ]}
-                moduleDefaults={{}}
               />
             ) : null}
           </div>

@@ -20,14 +20,9 @@ async function getAltTexts(): Promise<Record<string, string>> {
 // Wrapped in React cache() so generateMetadata and the page component share ONE
 // execution per request instead of double-fetching.
 const getPageData = cache(async (slug: string) => {
-  const [pageRes, defaultsRes] = await Promise.all([
-    cmsFetch(`/pages/${slug}`, { next: { revalidate: 120 } }).catch(() => null),
-    cmsFetch("/layouts/module-defaults", { next: { revalidate: 120 } }).catch(() => null),
-  ]);
+  const pageRes = await cmsFetch(`/pages/${slug}`, { next: { revalidate: 120 } }).catch(() => null);
 
-  // The page itself must exist: a 404 means notFound(), an outage throws (see
-  // readResource). Sub-responses like module-defaults use readJson, which never
-  // throws, so they can't take down the whole page.
+  // The page must exist: a 404 means notFound(), an outage throws (see readResource).
   const pageData = (await readResource(pageRes))?.data;
   if (!pageData) return null;
 
@@ -39,7 +34,6 @@ const getPageData = cache(async (slug: string) => {
   return {
     page: pageData,
     sections: Array.isArray(parsedSections) ? parsedSections : [],
-    moduleDefaults: (await readJson(defaultsRes))?.data || {},
   };
 });
 
@@ -88,7 +82,7 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
     notFound();
   }
 
-  const { page, sections, moduleDefaults } = data;
+  const { page, sections } = data;
 
   return (
     <SiteLayout showHeader={page.showHeader} showFooter={page.showFooter} headerOverlay>
@@ -97,7 +91,6 @@ export default async function CustomDynamicPage(props: { params: Promise<{ slug:
 
         <BlockRenderer
           sections={sections}
-          moduleDefaults={moduleDefaults}
           altTexts={altTexts}
           latestPosts={await getLatestPosts(sections)}
         />

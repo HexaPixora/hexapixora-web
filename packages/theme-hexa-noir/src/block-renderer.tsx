@@ -1,7 +1,6 @@
 import React from "react";
-import { resolveAnchorId } from "@hexapixora/contracts/blocks/registry";
-import { migrateSection, type Section } from "@hexapixora/contracts/blocks/legacy/migrate";
-import type { BlockId } from "@hexapixora/contracts/blocks/library";
+import { resolveAnchorId, type Section } from "@hexapixora/contracts/blocks/registry";
+import { isBlockId, type BlockId } from "@hexapixora/contracts/blocks/library";
 import { LIBRARY_BLOCKS } from "./block-map";
 import { MediaAltProvider } from "./components/media-alt-provider";
 import type { BlockProps } from "./lib/block-props";
@@ -26,29 +25,21 @@ function DefaultSection({ type, label }: { type: string; label?: string }) {
 
 type Resolved = { type: BlockId; config: Record<string, unknown>; Block: React.ComponentType<BlockProps> };
 
-/**
- * What to render for a stored section. Old sections move to the block library
- * on the fly (plans/phase-3c), so a page looks the same before and after its
- * stored data is migrated; an empty old section uses the module defaults.
- * Unknown and removed types resolve to nothing.
- */
-function resolve(section: Section, moduleDefaults: Record<string, Record<string, unknown>>): Resolved | null {
-  const moved = migrateSection(section, moduleDefaults[section.type]);
-  if (!moved) return null;
-  const type = moved.type as BlockId;
-  return { type, config: moved.config ?? {}, Block: LIBRARY_BLOCKS[type] };
+/** What to render for a stored section; types outside the block library resolve to nothing. */
+function resolve(section: Section): Resolved | null {
+  if (!isBlockId(section.type)) return null;
+  return { type: section.type, config: section.config ?? {}, Block: LIBRARY_BLOCKS[section.type] };
 }
 
 interface BlockRendererProps {
   sections: Section[];
-  moduleDefaults: Record<string, Record<string, unknown>>;
   // filename -> alt text from the media library (GET /media/alt-text)
   altTexts?: Record<string, string>;
   /** Latest published posts, loaded by the app when a page has a blog block. */
   latestPosts?: unknown[];
 }
 
-export function BlockRenderer({ sections, moduleDefaults, altTexts, latestPosts }: BlockRendererProps) {
+export function BlockRenderer({ sections, altTexts, latestPosts }: BlockRendererProps) {
   if (!sections || sections.length === 0) {
     return null;
   }
@@ -61,7 +52,7 @@ export function BlockRenderer({ sections, moduleDefaults, altTexts, latestPosts 
       {sections
         .filter((s) => s.isVisible)
         .map((section, index) => {
-          const resolved = resolve(section, moduleDefaults);
+          const resolved = resolve(section);
           if (!resolved) return <DefaultSection key={section.id} type={section.type} label={section.label} />;
           const { type, config, Block } = resolved;
 
