@@ -62,14 +62,15 @@ export function MediaField({
 
   return (
     <div className={className}>
-      <div className="flex items-center gap-2">
+      {/* Wraps in narrow panels (the page editor) so the address stays usable. */}
+      <div className="flex flex-wrap items-center gap-2">
         {showUrlInput && (
           <Input
             type="text"
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder ?? `URL or upload ${type}...`}
-            className="flex-1 text-sm"
+            className="min-w-48 flex-1 text-sm"
           />
         )}
 
