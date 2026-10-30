@@ -35,7 +35,10 @@ jobs:
           npx -y -p @commitlint/cli@21.2.3 -p @commitlint/config-conventional@21.2.3
           commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
+  # The develop -> main PR skips the build: develop's own push already built
+  # the same code, and main builds again before the stable release.
   build:
+    if: github.event_name != 'pull_request' || github.head_ref != 'develop'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
