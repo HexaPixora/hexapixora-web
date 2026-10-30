@@ -52,22 +52,25 @@ export function mediaField(label: string, type: "image" | "video"): Field {
 }
 
 /** Draft / scheduled / published, with the publish time when scheduled. */
-export function publishingField(label: string): Field<Publishing> {
+export function publishingField(label: string): Field {
   return {
     type: "custom",
     label,
-    render: ({ value, onChange, readOnly }) => (
-      <Labelled label={label} readOnly={readOnly}>
-        <StatusControl
-          status={value?.status ?? "PUBLISHED"}
-          publishAt={value?.publishAt ?? null}
-          disabled={readOnly}
-          onChange={(status: ContentStatus, publishAt) =>
-            onChange({ status, publishAt })
-          }
-        />
-      </Labelled>
-    ),
+    render: ({ value, onChange, readOnly }) => {
+      const publishing = value as Publishing | undefined;
+      return (
+        <Labelled label={label} readOnly={readOnly}>
+          <StatusControl
+            status={publishing?.status ?? "PUBLISHED"}
+            publishAt={publishing?.publishAt ?? null}
+            disabled={readOnly}
+            onChange={(status: ContentStatus, publishAt) =>
+              onChange({ status, publishAt })
+            }
+          />
+        </Labelled>
+      );
+    },
   };
 }
 
