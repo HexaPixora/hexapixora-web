@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { toast } from "sonner";
 import { Button } from "@hexapixora/ui/button";
@@ -40,6 +41,7 @@ function reasonsOf(err: unknown): string[] {
 export default function ThemesPage() {
   const canManage = useHasPermission("layouts");
   const confirm = useConfirm();
+  const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const [packs, setPacks] = useState<ThemePack[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -103,6 +105,8 @@ export default function ThemesPage() {
       await apiClient.post(`/themes/${pack.id}/activate`);
       toast.success(`${pack.name} is live`);
       await load();
+      // The admin wears the active theme too: re-render it with the new one.
+      router.refresh();
     } catch (err) {
       toast.error(reasonsOf(err)[0]);
     } finally {
@@ -122,6 +126,8 @@ export default function ThemesPage() {
       await apiClient.post("/themes/deactivate");
       toast.success("Built-in theme is live");
       await load();
+      // The admin wears the active theme too: re-render it with the new one.
+      router.refresh();
     } catch (err) {
       toast.error(reasonsOf(err)[0]);
     } finally {
