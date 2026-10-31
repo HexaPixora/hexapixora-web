@@ -10,6 +10,13 @@ import { absoluteMediaUrl, siteUrl } from "@/lib/site-url";
 // Revalidate periodically (120s) so custom pages serve instantly from cache.
 export const revalidate = 120;
 
+// No paths at build time: each page renders on its first visit and is then
+// served from the cache (refreshed every 120 s and on every content save).
+// Without this, Next renders these routes on every request.
+export function generateStaticParams() {
+  return [];
+}
+
 // Media-library alt text (filename -> alt). Failure just means module fallbacks.
 async function getAltTexts(): Promise<Record<string, string>> {
   const res = await cmsFetch("/media/alt-text", { next: { revalidate: 300 } }).catch(() => null);
