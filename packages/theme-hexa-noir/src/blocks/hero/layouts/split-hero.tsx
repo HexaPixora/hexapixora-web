@@ -2,6 +2,7 @@ import { safeHref } from "@hexapixora/contracts/links";
 import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { Actions } from "../../../components/actions";
 import { surfaceClass } from "../../../components/section-frame";
+import { MediaImage } from "../../../components/media-image";
 import { mediaAlt } from "../../../lib/media-alt";
 import { headingLines, type HeroLayoutProps } from "../hero-layout";
 
@@ -18,11 +19,13 @@ export function SplitHero({ c, titleId }: HeroLayoutProps) {
     >
       {image ? (
         <>
-          <img
+          <MediaImage
             src={image}
             alt={mediaAlt(image, c.heading)}
-            fetchPriority="high"
-            className="absolute inset-0 -z-20 h-full w-full object-cover"
+            fill
+            sizes="100vw"
+            preload
+            className="-z-20 object-cover"
           />
           <div
             aria-hidden="true"

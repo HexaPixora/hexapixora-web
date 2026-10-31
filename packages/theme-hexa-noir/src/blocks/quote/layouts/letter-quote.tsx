@@ -4,6 +4,7 @@ import { SectionFrame } from "../../../components/section-frame";
 import { StatGrid } from "../../../components/stat-grid";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { QuoteLayoutProps } from "../quote-block";
+import { MediaImage } from "../../../components/media-image";
 
 // The handwritten face is loaded by the app (next/font, not preloaded).
 const SIGNATURE_FONT = "var(--font-signature), 'Segoe Script', cursive";
@@ -33,12 +34,12 @@ export function LetterQuote({ c, headingId }: QuoteLayoutProps) {
           <div aria-hidden="true" className="absolute inset-0 translate-x-4 translate-y-4 bg-signal" />
           <div className="relative aspect-[4/5] overflow-hidden bg-page-raised">
             {portrait ? (
-              <img
+              <MediaImage
                 src={portrait}
                 alt={mediaAlt(portrait, c.name)}
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
+                fill
+                sizes="384px"
+                className="object-cover"
               />
             ) : (
               <span aria-hidden="true" className="wide grid h-full place-items-center text-display-lg text-copy/20">

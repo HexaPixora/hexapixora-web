@@ -6,6 +6,7 @@
   "exports": {
     "./server": "./src/server.ts",
     "./browser": "./src/browser.ts",
+    "./post-json": "./src/post-json.ts",
     "./health": "./src/health.ts"
   },
   "scripts": {

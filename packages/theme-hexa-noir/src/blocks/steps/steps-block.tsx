@@ -9,6 +9,7 @@ import { MilestoneSteps } from "./layouts/milestone-steps";
 import { RowSteps } from "./layouts/row-steps";
 import { StorySteps } from "./layouts/story-steps";
 import { TimelineSteps } from "./layouts/timeline-steps";
+import { MediaImage } from "../../components/media-image";
 
 export type StepItem = StepsConfig["items"][number];
 export type StepsLayoutProps = { items: StepItem[]; note: string };
@@ -42,12 +43,12 @@ export function StepsBlock({ config }: BlockProps) {
       backdrop={
         image ? (
           <>
-            <img
+            <MediaImage
               src={image}
               alt=""
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 -z-20 h-full w-full object-cover"
+              fill
+              sizes="100vw"
+              className="-z-20 object-cover"
             />
             <div
               aria-hidden="true"

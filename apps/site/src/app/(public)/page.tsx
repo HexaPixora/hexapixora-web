@@ -1,6 +1,7 @@
 import { SiteLayout } from "@/components/public/site-layout";
 import { PageHeader } from "@hexapixora/theme-hexa-noir/components/page-header";
 import { BlockRenderer } from "@hexapixora/theme-hexa-noir/block-renderer";
+import { BLOCKS } from "@hexapixora/contracts/blocks/library";
 import { cmsFetch, readJson } from "@hexapixora/sdk/server";
 import { getLatestPosts } from "@/lib/latest-posts";
 import { absoluteMediaUrl, SITE_URL } from "@/lib/site-url";
@@ -18,15 +19,8 @@ async function getAltTexts(): Promise<Record<string, string>> {
 
 async function getHomepage() {
   try {
-    const [pageRes, defaultsRes] = await Promise.all([
-      cmsFetch("/pages/homepage", { next: { revalidate: 120 } }),
-      cmsFetch("/layouts/module-defaults", { next: { revalidate: 120 } }),
-    ]);
-
-    // readJson never throws on an empty/invalid body (e.g. module-defaults),
-    // so a bad sub-response can't blank out the homepage.
+    const pageRes = await cmsFetch("/pages/homepage", { next: { revalidate: 120 } });
     const page: any = (await readJson(pageRes))?.data ?? null;
-    const moduleDefaults = (await readJson(defaultsRes))?.data ?? {};
 
     let sections: any[] = [];
     if (page) {
@@ -35,10 +29,10 @@ async function getHomepage() {
       } catch (e) {}
     }
 
-    return { page, sections: Array.isArray(sections) ? sections : [], moduleDefaults };
+    return { page, sections: Array.isArray(sections) ? sections : [] };
   } catch (err) {
     console.error("Failed to fetch homepage:", err);
-    return { page: null, sections: [], moduleDefaults: {} };
+    return { page: null, sections: [] };
   }
 }
 
@@ -72,14 +66,14 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const [{ page, sections, moduleDefaults }, altTexts] = await Promise.all([getHomepage(), getAltTexts()]);
+  const [{ page, sections }, altTexts] = await Promise.all([getHomepage(), getAltTexts()]);
 
   // No page has been designated as the homepage yet — render a minimal hero so
   // the site isn't blank. Set one from Admin → Pages ("Set as homepage").
   if (!page) {
     return (
       <SiteLayout headerOverlay>
-        <BlockRenderer sections={[{ id: "fallback-hero", type: "HeroSection", isVisible: true }]} moduleDefaults={moduleDefaults} />
+        <BlockRenderer sections={[{ id: "fallback-hero", type: "hero", isVisible: true, config: BLOCKS.hero.defaultConfig }]} />
       </SiteLayout>
     );
   }
@@ -91,7 +85,6 @@ export default async function HomePage() {
 
         <BlockRenderer
           sections={sections}
-          moduleDefaults={moduleDefaults}
           altTexts={altTexts}
           latestPosts={await getLatestPosts(sections)}
         />

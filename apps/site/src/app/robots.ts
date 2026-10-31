@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       // Keep the admin app and internal API rewrite out of search indexes.
       disallow: ["/admin", "/login", "/api/"],
     },
+    // No `Host:` line: it is a non-standard Yandex directive that validators reject.
     sitemap: siteUrl("/sitemap.xml"),
-    host: siteUrl("/"),
   };
 }

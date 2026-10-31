@@ -3,6 +3,7 @@ import { WordLight } from "@hexapixora/motion/word-light";
 import { SectionFrame } from "../../../components/section-frame";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { QuoteLayoutProps } from "../quote-block";
+import { MediaImage } from "../../../components/media-image";
 
 /** One large quote whose words light up while scrolling, with its author. */
 export function PullQuote({ c, headingId }: QuoteLayoutProps) {
@@ -24,13 +25,12 @@ export function PullQuote({ c, headingId }: QuoteLayoutProps) {
         {c.name || c.role ? (
           <figcaption className="mt-10 flex items-center gap-4">
             {avatar ? (
-              <img
+              <MediaImage
                 src={avatar}
                 alt={mediaAlt(avatar, c.name)}
                 width={48}
                 height={48}
-                loading="lazy"
-                decoding="async"
+                sizes="48px"
                 className="h-12 w-12 rounded-full object-cover"
               />
             ) : (

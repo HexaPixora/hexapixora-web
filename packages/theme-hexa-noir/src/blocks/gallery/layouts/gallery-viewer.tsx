@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MediaImage } from "../../../components/media-image";
 
 type Item = { src: string; alt: string; title: string; description: string };
 
@@ -16,7 +17,14 @@ export function GalleryViewer({ items }: { items: Item[] }) {
   return (
     <div>
       <figure className="relative aspect-[16/9] overflow-hidden border border-line bg-page-raised">
-        <img key={current.src} src={current.src} alt={current.alt} decoding="async" className="h-full w-full object-cover" />
+        <MediaImage
+          key={current.src}
+          src={current.src}
+          alt={current.alt}
+          fill
+          sizes="(min-width: 1440px) 1360px, 100vw"
+          className="object-cover"
+        />
         {current.title || current.description ? (
           <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-page/90 to-transparent p-6 pt-16">
             {current.title ? <span className="wide block text-title font-medium">{current.title}</span> : null}
@@ -36,7 +44,13 @@ export function GalleryViewer({ items }: { items: Item[] }) {
                 i === active ? "border-signal" : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
-              <img src={item.src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+              <MediaImage
+                src={item.src}
+                alt=""
+                fill
+                sizes="112px"
+                className="object-cover"
+              />
             </button>
           </li>
         ))}

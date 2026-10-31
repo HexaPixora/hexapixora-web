@@ -3,6 +3,7 @@ import { SectionFrame } from "../../../components/section-frame";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { CtaLayoutProps } from "../cta-block";
 import { LeadMagnetForm } from "./lead-magnet-form";
+import { MediaImage } from "../../../components/media-image";
 
 /**
  * A free download behind a short form. The copy renders on the server; only
@@ -28,12 +29,11 @@ export function DownloadCta({ c, headingId }: CtaLayoutProps) {
         ) : null}
         {c.intro ? <p className="mt-5 max-w-[48ch] text-lg text-copy-dim">{c.intro}</p> : null}
         {cover ? (
-          <img
+          <MediaImage
             src={cover}
             alt={mediaAlt(cover, c.resourceTitle)}
-            loading="lazy"
-            decoding="async"
-            className="mt-8 w-full max-w-xs border border-line"
+            sizes="320px"
+            className="mt-8 h-auto w-full max-w-xs border border-line"
           />
         ) : null}
       </div>

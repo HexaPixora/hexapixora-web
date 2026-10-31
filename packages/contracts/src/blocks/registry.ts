@@ -1,13 +1,9 @@
 import { BLOCK_GROUPS, BLOCKS } from "./library";
 import type { ModuleDefinition } from "./types";
 
-export type { ModuleFieldType, ModuleField, ModuleDefinition } from "./types";
+export type { ModuleFieldType, ModuleField, ModuleDefinition, Section } from "./types";
 
-/**
- * The blocks editors can add: the block library (plans/phase-3c). Old block
- * types are no longer offered; stored ones move to the library through
- * legacy/migrate.ts.
- */
+/** The blocks editors can add: the block library (plans/phase-3c). */
 export const MODULES: Record<string, ModuleDefinition> = BLOCKS;
 
 /**

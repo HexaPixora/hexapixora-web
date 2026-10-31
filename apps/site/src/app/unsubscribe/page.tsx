@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { apiClient } from "@hexapixora/sdk/browser";
+import { ApiError, postJson } from "@hexapixora/sdk/post-json";
 import { PILL_CLASS } from "@hexapixora/theme-hexa-noir/components/safe-link";
 
 const LABELS = {
@@ -23,15 +23,14 @@ function UnsubscribeInner() {
       setMessage("This unsubscribe link is missing its token.");
       return;
     }
-    apiClient
-      .post("/newsletter/unsubscribe", { token })
+    postJson<{ message?: string }>("/newsletter/unsubscribe", { token })
       .then((r) => {
         setState("ok");
-        setMessage(r.data?.message || "You've been unsubscribed.");
+        setMessage(r?.message || "You've been unsubscribed.");
       })
-      .catch((e) => {
+      .catch((e: unknown) => {
         setState("error");
-        setMessage(e.response?.data?.message || "This link is invalid or has expired.");
+        setMessage((e instanceof ApiError && e.apiMessage) || "This link is invalid or has expired.");
       });
   }, [token]);
 

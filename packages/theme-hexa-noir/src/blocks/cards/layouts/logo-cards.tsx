@@ -1,5 +1,6 @@
 import { safeHref } from "@hexapixora/contracts/links";
 import type { CardItem } from "../cards-block";
+import { MediaImage } from "../../../components/media-image";
 
 /** Groups by label (category) in first-seen order; one unnamed group when none are set. */
 function groupByLabel(items: CardItem[]) {
@@ -25,13 +26,12 @@ export function LogoCards({ items }: { items: CardItem[] }) {
               return (
                 <li key={i} className="flex items-center gap-2.5 text-lg font-semibold">
                   {icon ? (
-                    <img
+                    <MediaImage
                       src={icon}
                       alt=""
                       width={22}
                       height={22}
-                      loading="lazy"
-                      decoding="async"
+                      sizes="22px"
                       className="h-[22px] w-[22px] object-contain"
                     />
                   ) : (
