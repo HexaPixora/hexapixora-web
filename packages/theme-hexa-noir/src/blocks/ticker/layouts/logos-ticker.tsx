@@ -3,6 +3,7 @@ import { Marquee } from "@hexapixora/motion/marquee";
 import { surfaceClass } from "../../../components/section-frame";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { TickerLayoutProps } from "../ticker-block";
+import { MediaImage } from "../../../components/media-image";
 
 /** Seconds per loop. */
 const DURATION = { slow: 60, normal: 40, fast: 24 } as const;
@@ -25,12 +26,11 @@ export function LogosTicker({ c, items, headingId }: TickerLayoutProps) {
         {items.map((item, i) => {
           const image = safeHref(item.image);
           return image ? (
-            <img
+            <MediaImage
               key={i}
               src={image}
               alt={mediaAlt(image, item.title || `Partner logo ${i + 1}`)}
-              loading="lazy"
-              decoding="async"
+              sizes="140px"
               className="h-10 w-auto max-w-[140px] object-contain opacity-70 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
             />
           ) : (
