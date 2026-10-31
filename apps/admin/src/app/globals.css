@@ -9,3 +9,44 @@
 
 /* Block previews render theme components; scan them so their classes exist. */
 @source "../../../../packages/theme-hexa-noir/src";
+
+/* The page editor (Puck) in the theme's colours and fonts. Puck keeps its own
+   tokens in a cascade layer, so these unlayered ones win. Colours go on
+   :root, where Puck resolves its semantic names from these scales; the font
+   goes on body, where the theme's font roles live. The grey scale runs from
+   text (01) to page (12), so it suits light and dark themes alike; the azure
+   scale is the theme's accent mixed toward the text (01-03) or the page
+   (06-12). */
+body {
+  --puck-font-family: var(--font-body);
+}
+
+:root {
+  --puck-color-white: var(--color-page);
+  --puck-color-black: var(--color-copy);
+  --puck-color-text-inverse: var(--color-on-signal);
+  --puck-color-grey-01: var(--color-copy);
+  --puck-color-grey-02: color-mix(in srgb, var(--color-copy) 88%, var(--color-page));
+  --puck-color-grey-03: color-mix(in srgb, var(--color-copy) 76%, var(--color-page));
+  --puck-color-grey-04: color-mix(in srgb, var(--color-copy) 64%, var(--color-page));
+  --puck-color-grey-05: color-mix(in srgb, var(--color-copy) 52%, var(--color-page));
+  --puck-color-grey-06: color-mix(in srgb, var(--color-copy) 42%, var(--color-page));
+  --puck-color-grey-07: color-mix(in srgb, var(--color-copy) 33%, var(--color-page));
+  --puck-color-grey-08: color-mix(in srgb, var(--color-copy) 25%, var(--color-page));
+  --puck-color-grey-09: color-mix(in srgb, var(--color-copy) 16%, var(--color-page));
+  --puck-color-grey-10: color-mix(in srgb, var(--color-copy) 9%, var(--color-page));
+  --puck-color-grey-11: color-mix(in srgb, var(--color-copy) 5%, var(--color-page));
+  --puck-color-grey-12: color-mix(in srgb, var(--color-copy) 2%, var(--color-page));
+  --puck-color-azure-01: color-mix(in srgb, var(--color-signal) 55%, var(--color-copy));
+  --puck-color-azure-02: color-mix(in srgb, var(--color-signal) 70%, var(--color-copy));
+  --puck-color-azure-03: color-mix(in srgb, var(--color-signal) 85%, var(--color-copy));
+  --puck-color-azure-04: var(--color-signal);
+  --puck-color-azure-05: var(--color-signal);
+  --puck-color-azure-06: color-mix(in srgb, var(--color-signal) 80%, var(--color-page));
+  --puck-color-azure-07: color-mix(in srgb, var(--color-signal) 65%, var(--color-page));
+  --puck-color-azure-08: color-mix(in srgb, var(--color-signal) 50%, var(--color-page));
+  --puck-color-azure-09: color-mix(in srgb, var(--color-signal) 35%, var(--color-page));
+  --puck-color-azure-10: color-mix(in srgb, var(--color-signal) 22%, var(--color-page));
+  --puck-color-azure-11: color-mix(in srgb, var(--color-signal) 12%, var(--color-page));
+  --puck-color-azure-12: color-mix(in srgb, var(--color-signal) 7%, var(--color-page));
+}

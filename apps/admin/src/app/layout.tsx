@@ -1,33 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces, Sacramento } from "next/font/google";
 import "./globals.css";
+import { getAdminTheme } from "@/lib/theme/admin-theme";
+import { EDITOR_FONT_CLASSES } from "@/lib/theme/theme-fonts";
 
-const inter = Inter({ subsets: ["latin"] });
-// Block previews (the Leader module) use these; loaded only when referenced.
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
-const sacramento = Sacramento({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-signature",
-  preload: false,
-  display: "swap",
-});
-
-export const viewport: Viewport = {
-  colorScheme: "dark",
-  themeColor: "#0a0a0a",
-};
+// The browser chrome takes the theme's page colour and scheme.
+export async function generateViewport(): Promise<Viewport> {
+  const theme = await getAdminTheme();
+  return { colorScheme: theme.dark ? "dark" : "light" };
+}
 
 export const metadata: Metadata = {
   title: { default: "Admin", template: "%s | Admin" },
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // The admin wears the active theme pack (plans/admin-redesign).
+  const theme = await getAdminTheme();
   return (
-    // Dark-only, like the site, so previews and the editor share one look.
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} ${fraunces.variable} ${sacramento.variable} min-h-screen bg-background font-sans antialiased`}>
+    <html
+      lang="en"
+      className={theme.dark ? "dark" : undefined}
+      style={{ colorScheme: theme.dark ? "dark" : "light" }}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Theme roles: built-in tokens, then the active pack's overrides. Checked to hold no markup. */}
+        <style id="admin-theme" dangerouslySetInnerHTML={{ __html: theme.css }} />
+      </head>
+      <body className={`${EDITOR_FONT_CLASSES.join(" ")} min-h-screen bg-background font-sans antialiased`}>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         {children}
       </body>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { EDITOR_FONT_CLASSES } from "./editor-fonts";
+import { EDITOR_FONT_CLASSES } from "@/lib/theme/theme-fonts";
 
 const FRAME_CSS_ID = "editor-frame-css";
 const PACK_CSS_ID = "theme-pack";
