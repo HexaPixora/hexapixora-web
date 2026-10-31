@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import { loadGsap, prefersReducedMotion, whenIdle, type GsapTools } from "../load-gsap";
+import { loadGsap, prefersReducedMotion, scheduleSetup, whenIdle, type GsapTools } from "../load-gsap";
 
 /**
  * Runs a GSAP setup for one element once the page is idle. The markup is
@@ -25,11 +25,13 @@ export function useGsapEffect<T extends Element>(
     let cancelled = false;
     let revert: (() => void) | undefined;
     const cancelIdle = whenIdle(() => {
-      void loadGsap().then((tools) => {
-        if (cancelled) return;
-        const ctx = tools.gsap.context(() => setupRef.current(tools, el), el);
-        revert = () => ctx.revert();
-      });
+      void loadGsap().then((tools) =>
+        scheduleSetup(() => {
+          if (cancelled) return;
+          const ctx = tools.gsap.context(() => setupRef.current(tools, el), el);
+          revert = () => ctx.revert();
+        }),
+      );
     });
 
     return () => {

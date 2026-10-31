@@ -21,6 +21,31 @@ export function loadGsap(): Promise<GsapTools> {
   return pending;
 }
 
+const queue: Array<() => void> = [];
+let draining = false;
+
+// Budget per batch: well under the 50 ms that counts as a long task.
+const BATCH_MS = 30;
+
+function drain() {
+  const until = performance.now() + BATCH_MS;
+  while (queue.length > 0 && performance.now() < until) queue.shift()!();
+  if (queue.length > 0) setTimeout(drain, 0);
+  else draining = false;
+}
+
+/**
+ * Runs effect setups a few at a time, yielding to the browser between
+ * batches. Every effect on a page waits for the same GSAP load, so without
+ * this they would all start in one long task and block input.
+ */
+export function scheduleSetup(task: () => void): void {
+  queue.push(task);
+  if (draining) return;
+  draining = true;
+  setTimeout(drain, 0);
+}
+
 /** Runs `task` when the browser is idle (or after `timeout` ms at the latest). */
 export function whenIdle(task: () => void, timeout = 1500): () => void {
   if ("requestIdleCallback" in window) {
