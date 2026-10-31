@@ -2,35 +2,17 @@ import React from "react";
 import { SiteShell } from "@hexapixora/theme-hexa-noir/layout/site-shell";
 import { EMPTY_SITE_SHELL_DATA, type SiteShellData } from "@hexapixora/theme-hexa-noir/layout/nav-types";
 import { NewsletterForm } from "@hexapixora/theme-hexa-noir/components/newsletter-form";
-import { apiUrl } from "@hexapixora/sdk/server";
-import { readJson } from "@hexapixora/sdk/server";
+import { getFooterConfig, getHeaderConfig, getNavigations, getSettings } from "@/lib/site-data";
 
 // The app loads layout data; the theme's SiteShell renders it.
 async function getLayoutData(): Promise<SiteShellData> {
-  try {
-    // Revalidate periodically (120s) so pages serve instantly from edge cache
-    // without stalling visitors during cold starts.
-    const [settingsRes, headerRes, footerRes, navsRes] = await Promise.all([
-      fetch(apiUrl('/settings'), { next: { revalidate: 120 } }).catch(() => null),
-      fetch(apiUrl('/layouts/header'), { next: { revalidate: 120 } }).catch(() => null),
-      fetch(apiUrl('/layouts/footer'), { next: { revalidate: 120 } }).catch(() => null),
-      fetch(apiUrl('/layouts/navigations'), { next: { revalidate: 120 } }).catch(() => null),
-    ]);
-
-    // readJson never throws on an empty/invalid body, so one missing layout
-    // record (empty 200) can't blank out the whole header/footer/nav.
-    return {
-      // /settings returns the SiteSetting row directly (a flat object), unlike
-      // the layout endpoints which nest their config under a `data` column.
-      settings: await readJson(settingsRes),
-      headerConfig: (await readJson(headerRes))?.data ?? null,
-      footerConfig: (await readJson(footerRes))?.data ?? null,
-      navigations: (await readJson(navsRes))?.data ?? []
-    };
-  } catch (err) {
-    console.error("Layout fetch error:", err);
-    return EMPTY_SITE_SHELL_DATA;
-  }
+  const [settings, headerConfig, footerConfig, navigations] = await Promise.all([
+    getSettings(),
+    getHeaderConfig(),
+    getFooterConfig(),
+    getNavigations(),
+  ]);
+  return { settings, headerConfig, footerConfig, navigations };
 }
 
 interface SiteLayoutProps {

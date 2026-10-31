@@ -1,5 +1,6 @@
 import { apiUrl } from "@hexapixora/sdk/server";
 import { siteUrl } from "@/lib/site-url";
+import { getSettings } from "@/lib/site-data";
 
 // Rebuild the feed at most hourly.
 export const revalidate = 3600;
@@ -14,16 +15,7 @@ function escapeXml(value: string): string {
 }
 
 async function getSiteName(): Promise<string> {
-  try {
-    const res = await fetch(apiUrl("/settings"), { next: { revalidate } });
-    if (res.ok) {
-      const settings = await res.json();
-      if (settings?.siteName) return settings.siteName;
-    }
-  } catch {
-    // fall through to default
-  }
-  return "HexaPixora";
+  return (await getSettings())?.siteName || "HexaPixora";
 }
 
 async function getInsights(): Promise<any[]> {

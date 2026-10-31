@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Manrope, Sacramento, Unbounded } from "next/font/google";
 import "./globals.css";
-import { apiUrl } from "@hexapixora/sdk/server";
+import { getSettings } from "@/lib/site-data";
 import { colors } from "@hexapixora/theme-hexa-noir";
 import { SITE_URL, absoluteMediaUrl } from "@/lib/site-url";
 import { getThemePackCss } from "@/lib/theme-pack";
@@ -49,17 +49,11 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-// Pull branding (favicon, site name) from site settings. Tagged 'layouts' so it
-// revalidates when settings are saved in the admin. The favicon URL is an
-// app-relative /api/media/file/... path, served via the web app's /api rewrite.
+// Pull branding (favicon, site name) from site settings; saving settings in
+// the admin refreshes them. The favicon URL is an app-relative
+// /api/media/file/... path, served via the web app's /api rewrite.
 export async function generateMetadata(): Promise<Metadata> {
-  let settings: any = null;
-  try {
-    const res = await fetch(apiUrl("/settings"), { next: { tags: ["layouts"] } });
-    if (res.ok) settings = await res.json();
-  } catch {
-    // Fall back to defaults if settings can't be loaded.
-  }
+  const settings = await getSettings();
 
   const siteName = settings?.siteName || "HexaPixora";
   // Global SEO defaults from Settings → SEO, falling back to branding/tagline.

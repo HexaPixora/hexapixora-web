@@ -1,18 +1,8 @@
 import React from "react";
-import { apiUrl } from "@hexapixora/sdk/server";
+import { getFooterConfig, getSettings } from "@/lib/site-data";
 import { siteUrl, absoluteMediaUrl } from "@/lib/site-url";
 import { JsonLd } from "@/components/seo/json-ld";
 import { CookieConsent } from "@/components/public/cookie-consent";
-
-async function getSettings(): Promise<any | null> {
-  try {
-    const res = await fetch(apiUrl("/settings"), { next: { revalidate: 120 } });
-    if (res.ok) return await res.json();
-  } catch {
-    // ignore — JSON-LD is best-effort
-  }
-  return null;
-}
 
 // Social profile URLs live in the footer CMS config (managed at
 // /admin/layouts/footer), not in settings — so pull them from there to power
@@ -26,10 +16,7 @@ async function getFooterSocials(): Promise<string[]> {
     /* keep default */
   }
   try {
-    const res = await fetch(apiUrl("/layouts/footer"), { next: { revalidate: 120 } });
-    if (!res.ok) return [];
-    const body = await res.json();
-    const socials = body?.data?.socials;
+    const socials = (await getFooterConfig())?.socials;
     if (!Array.isArray(socials)) return [];
     const out: string[] = [];
     for (const s of socials) {
