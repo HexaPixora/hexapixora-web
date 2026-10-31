@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
-import { apiClient } from "@hexapixora/sdk/browser";
+import { postJson } from "@hexapixora/sdk/post-json";
 import { PILL_CLASS } from "../../../components/safe-link";
 import { FIELD_CLASS, LABEL_CLASS } from "../../../lib/form-classes";
 
@@ -36,7 +36,7 @@ export function LeadMagnetForm({
 
     setSubmitting(true);
     try {
-      await apiClient.post("/leads", {
+      await postJson("/leads", {
         name: name.trim(),
         email: email.trim(),
         type: "download",

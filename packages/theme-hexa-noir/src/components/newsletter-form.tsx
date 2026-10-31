@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
-import { apiClient } from "@hexapixora/sdk/browser";
+import { ApiError, postJson } from "@hexapixora/sdk/post-json";
 import { trackEvent } from "../lib/analytics";
 import { ERROR_CLASS, FIELD_CLASS } from "../lib/form-classes";
 
@@ -20,19 +20,15 @@ export function NewsletterForm() {
     setError("");
     setLoading(true);
     try {
-      await apiClient.post("/newsletter/subscribe", {
+      await postJson("/newsletter/subscribe", {
         email: email.trim(),
         ...(name.trim() ? { name: name.trim() } : {}),
       });
       trackEvent("newsletter_signup");
       setDone("new");
     } catch (err: unknown) {
-      const response = (err as { response?: { status?: number; data?: { message?: unknown } } })?.response;
-      if (response?.status === 409) setDone("already");
-      else
-        setError(
-          typeof response?.data?.message === "string" ? response.data.message : "Couldn't subscribe. Please try again.",
-        );
+      if (err instanceof ApiError && err.status === 409) setDone("already");
+      else setError((err instanceof ApiError && err.apiMessage) || "Couldn't subscribe. Please try again.");
     } finally {
       setLoading(false);
     }

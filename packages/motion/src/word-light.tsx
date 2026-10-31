@@ -11,12 +11,15 @@ export function WordLight({
   text,
   as: Tag = "p",
   className,
-  dim = 0.12,
+  dim = 0.55,
 }: {
   text: string;
   as?: "p" | "h2" | "h3";
   className?: string;
-  /** Opacity of a word before it lights up. */
+  /**
+   * Opacity of a word before it lights up. At 0.55 an unlit word still passes
+   * WCAG contrast for large text on the theme's backgrounds; 0.12 did not.
+   */
   dim?: number;
 }) {
   const ref = useGsapEffect<HTMLElement>(({ gsap }, el) => {
