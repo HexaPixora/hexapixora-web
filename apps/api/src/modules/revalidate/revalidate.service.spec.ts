@@ -34,6 +34,15 @@ describe('RevalidateService', () => {
     );
   });
 
+  it('records the last refresh and whether it worked', async () => {
+    expect(service.lastRefresh).toBeNull();
+    await service.send();
+    expect(service.lastRefresh?.ok).toBe(true);
+    fetchMock.mockRejectedValueOnce(new Error('down'));
+    await service.send();
+    expect(service.lastRefresh?.ok).toBe(false);
+  });
+
   it('does nothing when unconfigured', async () => {
     env.revalidate.secret = '';
     service.schedule();
