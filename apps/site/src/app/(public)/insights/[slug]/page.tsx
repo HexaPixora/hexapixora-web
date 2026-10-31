@@ -13,6 +13,13 @@ import { FaqDetails } from "@hexapixora/theme-hexa-noir/components/faq-details";
 
 export const revalidate = 120;
 
+// No paths at build time: each page renders on its first visit and is then
+// served from the cache (refreshed every 120 s and on every content save).
+// Without this, Next renders these routes on every request.
+export function generateStaticParams() {
+  return [];
+}
+
 // URLs are fully flat: /insights/<slug> is EITHER a post or a category. Resolve
 // the post first (posts take precedence on a slug clash), then fall back to a
 // category. Wrapped in cache() so generateMetadata and the page share one fetch
