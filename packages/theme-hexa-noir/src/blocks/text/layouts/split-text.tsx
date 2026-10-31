@@ -5,6 +5,7 @@ import { labelledBy } from "../../../components/block-head";
 import { SectionFrame } from "../../../components/section-frame";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { TextLayoutProps } from "../text-block";
+import { MediaImage } from "../../../components/media-image";
 
 /** An image beside a heading, paragraphs, highlight cards and buttons. */
 export function SplitText({ c, headingId }: TextLayoutProps) {
@@ -25,12 +26,12 @@ export function SplitText({ c, headingId }: TextLayoutProps) {
     >
       {image ? (
         <ClipReveal className="relative aspect-[4/3] overflow-hidden border border-line lg:aspect-square">
-          <img
+          <MediaImage
             src={image}
             alt={mediaAlt(image, c.heading)}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw"
+            className="object-cover"
           />
         </ClipReveal>
       ) : null}

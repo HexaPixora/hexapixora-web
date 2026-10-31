@@ -5,6 +5,7 @@ import { surfaceClass } from "../../../components/section-frame";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { WorkItem } from "../work-block";
 import { PinnedTrack } from "./pinned-track";
+import { MediaImage } from "../../../components/media-image";
 
 const RATIO: Record<WorkConfig["ratio"], string> = {
   square: "aspect-square",
@@ -51,12 +52,12 @@ export function ScrollWork({ c, items, headingId }: { c: WorkConfig; items: Work
               className={`group relative h-[50vh] shrink-0 overflow-hidden border border-line bg-page-raised ${ratio}`}
             >
               {image ? (
-                <img
+                <MediaImage
                   src={image}
                   alt={mediaAlt(image, item.title)}
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  fill
+                  sizes="(min-width: 768px) 60vw, 90vw"
+                  className="object-cover"
                 />
               ) : null}
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-page/90 to-transparent p-5 pt-16">

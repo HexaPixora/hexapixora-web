@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { MediaImage } from "../../../components/media-image";
 
 type Step = { title: string; text: string; image: string; alt: string };
 
@@ -33,13 +34,13 @@ export function ScrollStory({ steps }: { steps: Step[] }) {
         <div className="sticky top-[calc(var(--header-h)+24px)] aspect-square overflow-hidden border border-line bg-page-raised">
           {steps.map((step, i) =>
             step.image ? (
-              <img
+              <MediaImage
                 key={i}
                 src={step.image}
                 alt=""
-                loading="lazy"
-                decoding="async"
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 motion-reduce:transition-none ${
+                fill
+                sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw"
+                className={`object-cover transition-opacity duration-500 motion-reduce:transition-none ${
                   i === active ? "opacity-100" : "opacity-0"
                 }`}
               />
@@ -62,12 +63,11 @@ export function ScrollStory({ steps }: { steps: Step[] }) {
             className="flex min-h-[70vh] flex-col justify-center py-10"
           >
             {step.image ? (
-              <img
+              <MediaImage
                 src={step.image}
                 alt={step.alt}
-                loading="lazy"
-                decoding="async"
-                className="mb-6 w-full border border-line md:hidden"
+                sizes="100vw"
+                className="mb-6 h-auto w-full border border-line md:hidden"
               />
             ) : null}
             <span className={`mono transition-colors ${i === active ? "text-signal" : "text-copy-dim"}`}>

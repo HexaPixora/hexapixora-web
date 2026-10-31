@@ -3,6 +3,7 @@ import { ClipReveal } from "@hexapixora/motion/clip-reveal";
 import { SafeLink } from "../../../components/safe-link";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { Person } from "../people-block";
+import { MediaImage } from "../../../components/media-image";
 
 /** Portrait cards with a large index number, name, role and a profile link. */
 export function PhotoPeople({ people }: { people: Person[] }) {
@@ -15,12 +16,12 @@ export function PhotoPeople({ people }: { people: Person[] }) {
             <article>
               <div className="relative aspect-[4/5] overflow-hidden border border-line bg-page-raised">
                 {image ? (
-                  <img
+                  <MediaImage
                     src={image}
                     alt={mediaAlt(image, person.title)}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="(min-width: 1440px) 450px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
                   />
                 ) : (
                   <span aria-hidden="true" className="wide grid h-full place-items-center text-display-lg text-copy/10">

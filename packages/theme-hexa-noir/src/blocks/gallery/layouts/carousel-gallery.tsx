@@ -1,6 +1,7 @@
 import { PillLink } from "../../../components/pill-link";
 import { SnapCarousel } from "../../../components/snap-carousel";
 import type { GalleryImage } from "../gallery-block";
+import { MediaImage } from "../../../components/media-image";
 
 /**
  * Full-width slides with a title, text and button, swiped or stepped with
@@ -18,12 +19,12 @@ export function CarouselGallery({ images, label }: { images: GalleryImage[]; lab
         >
           {slide.src ? (
             <>
-              <img
+              <MediaImage
                 src={slide.src}
                 alt=""
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 -z-20 h-full w-full object-cover"
+                fill
+                sizes="(min-width: 1440px) 1360px, 100vw"
+                className="-z-20 object-cover"
               />
               <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-page via-page/60 to-page/10" />
             </>
