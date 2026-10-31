@@ -21,6 +21,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html
       lang="en"
       className={theme.dark ? "dark" : undefined}
+      data-theme-name={theme.name}
       style={{ colorScheme: theme.dark ? "dark" : "light" }}
       suppressHydrationWarning
     >
