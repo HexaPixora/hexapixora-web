@@ -10,6 +10,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { CategoryChip, InsightCard, type InsightPost } from "@hexapixora/theme-hexa-noir/components/insight-card";
 import { InsightCategoryView } from "@hexapixora/theme-hexa-noir/components/insight-category-view";
 import { FaqDetails } from "@hexapixora/theme-hexa-noir/components/faq-details";
+import { MediaImage } from "@hexapixora/theme-hexa-noir/components/media-image";
 
 export const revalidate = 120;
 
@@ -243,9 +244,15 @@ export default async function InsightPage(props: InsightPageProps) {
             </p>
           </div>
           {heroImage ? (
-            <figure className="mt-12 aspect-[16/9] overflow-hidden border border-line bg-page-raised">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroImage} alt={post.title} decoding="async" className="h-full w-full object-cover" />
+            <figure className="relative mt-12 aspect-[16/9] overflow-hidden border border-line bg-page-raised">
+              <MediaImage
+                src={heroImage}
+                alt={post.title}
+                fill
+                sizes="(min-width: 1440px) 1360px, 100vw"
+                preload
+                className="object-cover"
+              />
             </figure>
           ) : null}
         </header>

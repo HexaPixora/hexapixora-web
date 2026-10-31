@@ -6,6 +6,7 @@ import { NavLink } from "../components/nav-link";
 import { DesktopNav } from "./desktop-nav";
 import { MenuDialog } from "./menu-dialog";
 import { findNavItems, settingText, type SiteShellData } from "./nav-types";
+import { MediaImage } from "../components/media-image";
 
 /**
  * Fixed header: main links (wide screens), the brand in the centre, and the
@@ -31,7 +32,16 @@ export function Header({ data }: { data: SiteShellData }) {
         <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-light tracking-[0.06em] sm:text-[22px]">
           {logoUrl ? (
             // Decorative next to the name; sized up front so it never shifts layout.
-            <img src={logoUrl} alt="" width={30} height={30} decoding="async" className="h-[30px] w-[30px] object-contain" />
+            <MediaImage
+              src={logoUrl}
+              alt=""
+              width={30}
+              height={30}
+              sizes="30px"
+              // Above the fold on every page, so it never waits for lazy loading.
+              preload
+              className="h-[30px] w-[30px] object-contain"
+            />
           ) : null}
           <span className="uppercase">{siteName}</span>
         </Link>

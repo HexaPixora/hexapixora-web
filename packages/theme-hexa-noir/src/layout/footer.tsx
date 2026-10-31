@@ -6,6 +6,7 @@ import { safeHref } from "@hexapixora/contracts/links";
 import { CookiePreferencesButton } from "../components/cookie-preferences-button";
 import { NavLink } from "../components/nav-link";
 import { findNavItems, settingText, type MenuItem, type SiteShellData } from "./nav-types";
+import { MediaImage } from "../components/media-image";
 
 const LINK_CLASS = "transition-colors duration-300 hover:text-signal";
 
@@ -50,7 +51,14 @@ export function Footer({ data, newsletter }: { data: SiteShellData; newsletter?:
           <div className="grid content-start gap-5">
             <Link href="/" className="flex items-center gap-2.5 font-display text-[22px] font-light tracking-[0.06em]">
               {logoUrl ? (
-                <img src={logoUrl} alt="" width={30} height={30} decoding="async" className="h-[30px] w-[30px] object-contain" />
+                <MediaImage
+                  src={logoUrl}
+                  alt=""
+                  width={30}
+                  height={30}
+                  sizes="30px"
+                  className="h-[30px] w-[30px] object-contain"
+                />
               ) : null}
               <span className="uppercase">{siteName}</span>
             </Link>

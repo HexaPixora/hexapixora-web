@@ -3,6 +3,7 @@ import { Marquee } from "@hexapixora/motion/marquee";
 import { surfaceClass } from "../../../components/section-frame";
 import { mediaAlt } from "../../../lib/media-alt";
 import type { TickerLayoutProps } from "../ticker-block";
+import { MediaImage } from "../../../components/media-image";
 
 /** Seconds per loop. */
 const DURATION = { slow: 50, normal: 32, fast: 18 } as const;
@@ -28,11 +29,10 @@ export function WordsTicker({ c, items, headingId }: TickerLayoutProps) {
           return (
             <span key={i} className="flex items-center gap-12">
               {image ? (
-                <img
+                <MediaImage
                   src={image}
                   alt={mediaAlt(image, item.title)}
-                  loading="lazy"
-                  decoding="async"
+                  sizes="160px"
                   className="h-10 w-auto object-contain opacity-70 grayscale md:h-12"
                 />
               ) : (
