@@ -14,6 +14,7 @@ import {
   insightPostUrl,
   type InsightPost,
 } from "@hexapixora/theme-hexa-noir/components/insight-card";
+import { MediaImage } from "@hexapixora/theme-hexa-noir/components/media-image";
 
 export const revalidate = 120;
 
@@ -61,12 +62,14 @@ function FeaturedInsight({ post }: { post: InsightPost }) {
     <article className="group relative grid border border-line transition-colors duration-[400ms] hover:bg-page-raised lg:grid-cols-[1.15fr_1fr]">
       <div className="relative aspect-[16/10] overflow-hidden bg-page-raised lg:aspect-auto lg:min-h-[26rem]">
         {thumbnail ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          // The newest post leads the page, so its image loads first.
+          <MediaImage
             src={thumbnail}
             alt=""
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02] motion-reduce:transition-none"
+            fill
+            sizes="(min-width: 1440px) 760px, (min-width: 1024px) 53vw, 100vw"
+            preload
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.02] motion-reduce:transition-none"
           />
         ) : null}
         <span className="mono absolute left-4 top-4 bg-signal px-2.5 py-1 text-on-signal">Latest</span>
