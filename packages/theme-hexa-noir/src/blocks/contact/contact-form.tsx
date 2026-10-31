@@ -2,25 +2,36 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { ApiError, postJson } from "@hexapixora/sdk/post-json";
 import { COUNTRIES } from "@hexapixora/contracts/countries";
 import { PILL_CLASS } from "../../components/safe-link";
 import { trackEvent } from "../../lib/analytics";
 import { ERROR_CLASS, FIELD_CLASS, LABEL_CLASS } from "../../lib/form-classes";
 
-const schema = z.object({
-  name: z.string().trim().min(2, "Please enter your full name."),
-  email: z.string().trim().email("Please enter a valid email address."),
-  phone: z.string().optional(),
-  country: z.string().min(1, "Please select your country."),
-  message: z.string().trim().min(10, "Please add a few more details (at least 10 characters)."),
+type FormValues = {
+  name: string;
+  email: string;
+  phone?: string;
+  country: string;
+  message: string;
   // Honeypot: people never see it, bots that fill every field trip it.
-  website: z.string().optional(),
-});
+  website?: string;
+};
 
-type FormValues = z.infer<typeof schema>;
+const EMAIL = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
+const trim = (value: unknown) => (typeof value === "string" ? value.trim() : value);
+
+// The form library's own rules rather than a schema library: the checks are
+// simple, and the API validates every lead again on save.
+const RULES = {
+  name: { setValueAs: trim, validate: (v: string) => v.length >= 2 || "Please enter your full name." },
+  email: { setValueAs: trim, validate: (v: string) => EMAIL.test(v) || "Please enter a valid email address." },
+  country: { required: "Please select your country." },
+  message: {
+    setValueAs: trim,
+    validate: (v: string) => v.length >= 10 || "Please add a few more details (at least 10 characters).",
+  },
+} as const;
 
 type TurnstileWindow = Window & {
   turnstile?: {
@@ -78,7 +89,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>();
 
   // Move focus to the confirmation so screen-reader and keyboard users hear it.
   useEffect(() => {
@@ -169,7 +180,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
             autoComplete="name"
             className={FIELD_CLASS}
             {...describe("name")}
-            {...register("name")}
+            {...register("name", RULES.name)}
           />
           {errorLine("name")}
         </div>
@@ -183,7 +194,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
             autoComplete="email"
             className={FIELD_CLASS}
             {...describe("email")}
-            {...register("email")}
+            {...register("email", RULES.email)}
           />
           {errorLine("email")}
         </div>
@@ -206,7 +217,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
             autoComplete="country-name"
             className={`${FIELD_CLASS} cursor-pointer appearance-none pr-8`}
             {...describe("country")}
-            {...register("country")}
+            {...register("country", RULES.country)}
           >
             <option value="" disabled className="bg-page">
               Select your country
@@ -234,7 +245,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
           placeholder="Your project, goals and timeline"
           className={`${FIELD_CLASS} resize-none`}
           {...describe("message")}
-          {...register("message")}
+          {...register("message", RULES.message)}
         />
         {errorLine("message")}
       </div>
