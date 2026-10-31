@@ -41,12 +41,30 @@ type TurnstileWindow = Window & {
 
 const TURNSTILE_SCRIPT_ID = "cf-turnstile-script";
 
-/** Loads Cloudflare Turnstile once and renders the check into `ref`. */
+/**
+ * Loads Cloudflare Turnstile once, when the form comes near the screen (its
+ * script is large and most visitors never scroll to the form), and renders
+ * the check into `ref`.
+ */
 function useTurnstile(siteKey: string | undefined, onToken: (token: string | null) => void) {
   const ref = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
 
   useEffect(() => {
-    if (!siteKey || !ref.current) return;
+    const el = ref.current;
+    if (!siteKey || !el || near) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) setNear(true);
+      },
+      { rootMargin: "600px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [siteKey, near]);
+
+  useEffect(() => {
+    if (!siteKey || !near || !ref.current) return;
     const w = window as TurnstileWindow;
     const render = () => {
       if (!w.turnstile || !ref.current || ref.current.childElementCount > 0) return;
@@ -70,7 +88,7 @@ function useTurnstile(siteKey: string | undefined, onToken: (token: string | nul
     script.async = true;
     script.addEventListener("load", render, { once: true });
     document.head.appendChild(script);
-  }, [siteKey, onToken]);
+  }, [siteKey, near, onToken]);
 
   return ref;
 }
