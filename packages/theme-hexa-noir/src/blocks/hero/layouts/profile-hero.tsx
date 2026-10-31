@@ -4,6 +4,7 @@ import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { Actions } from "../../../components/actions";
 import { surfaceClass } from "../../../components/section-frame";
 import { StatGrid } from "../../../components/stat-grid";
+import { MediaImage } from "../../../components/media-image";
 import { mediaAlt } from "../../../lib/media-alt";
 import { headingLines, type HeroLayoutProps } from "../hero-layout";
 
@@ -53,11 +54,14 @@ export function ProfileHero({ c, titleId }: HeroLayoutProps) {
 
         {image ? (
           <ClipReveal className="relative aspect-[4/5] overflow-hidden border border-line">
-            <img
+            {/* The image column is 5/12 of the 1440px page from lg up. */}
+            <MediaImage
               src={image}
               alt={mediaAlt(image, c.heading)}
-              fetchPriority="high"
-              className="h-full w-full object-cover"
+              fill
+              sizes="(min-width: 1440px) 600px, (min-width: 1024px) 42vw, 100vw"
+              preload
+              className="object-cover"
             />
           </ClipReveal>
         ) : null}

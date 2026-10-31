@@ -4,6 +4,7 @@ import { HeroTitle } from "@hexapixora/motion/hero-title";
 import { Parallax } from "@hexapixora/motion/parallax";
 import { filmLooks } from "../../../index";
 import { Actions } from "../../../components/actions";
+import { MediaImage } from "../../../components/media-image";
 import { mediaAlt } from "../../../lib/media-alt";
 import { headingLines, type HeroLayoutProps } from "../hero-layout";
 
@@ -15,7 +16,7 @@ const SCRIM: Record<string, number> = { none: 0, light: 0.3, medium: 0.55, dark:
 export function ImageHero({ c, titleId }: HeroLayoutProps) {
   const image = safeHref(c.image);
   const picture = image ? (
-    <img src={image} alt={mediaAlt(image)} fetchPriority="high" className="h-full w-full object-cover" />
+    <MediaImage src={image} alt={mediaAlt(image)} fill sizes="100vw" preload className="object-cover" />
   ) : null;
 
   return (
