@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { apiClient } from "@hexapixora/sdk/browser";
+import { ApiError, postJson } from "@hexapixora/sdk/post-json";
 import { COUNTRIES } from "@hexapixora/contracts/countries";
 import { PILL_CLASS } from "../../components/safe-link";
 import { trackEvent } from "../../lib/analytics";
@@ -93,7 +93,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
       return;
     }
     try {
-      await apiClient.post("/leads", {
+      await postJson("/leads", {
         ...lead,
         type: "contact",
         turnstileToken: turnstileToken || undefined,
@@ -103,8 +103,7 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey?: string })
       reset();
       setTurnstileToken(null);
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: unknown } } })?.response?.data?.message;
-      setError(typeof message === "string" ? message : "Something went wrong. Please try again later.");
+      setError((err instanceof ApiError && err.apiMessage) || "Something went wrong. Please try again later.");
     }
   };
 
