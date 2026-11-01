@@ -2,6 +2,7 @@ import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { Role } from '@hexapixora/database';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthRequest } from '../auth/auth.types';
+import { env } from '../../config/env';
 import { DashboardService } from './dashboard.service';
 
 @Controller('dashboard')
@@ -17,8 +18,8 @@ export class DashboardController {
     const may = (section: string) =>
       admin || user.permissions.includes(section);
     return this.dashboard.summary({
-      leads: may('leads'),
-      newsletter: may('newsletter'),
+      leads: env.features.leads && may('leads'),
+      newsletter: env.features.newsletter && may('newsletter'),
       pages: may('pages'),
       blogs: may('blogs'),
     });

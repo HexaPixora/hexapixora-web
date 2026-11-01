@@ -140,6 +140,21 @@ describe('checkEnv', () => {
     );
   });
 
+  it('refuses unknown feature names', () => {
+    expect(prod({ FEATURES: 'leads,themes' }).errors).toEqual([]);
+    expect(
+      mentions(prod({ FEATURES: 'leads,shop' }).errors, 'unknown name "shop"'),
+    ).toBe(true);
+  });
+
+  it('skips the spam-check warning when leads are off', () => {
+    const { warnings } = prod({
+      FEATURES: 'themes',
+      TURNSTILE_SECRET_KEY: undefined,
+    });
+    expect(warnings).toEqual([]);
+  });
+
   it('refuses non-numeric numbers', () => {
     expect(
       mentions(

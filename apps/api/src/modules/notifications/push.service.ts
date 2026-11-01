@@ -21,6 +21,10 @@ export class PushService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   onModuleInit() {
+    if (!env.features.push) {
+      this.logger.log('Web Push is switched off (FEATURES).');
+      return;
+    }
     if (env.push.publicKey && env.push.privateKey) {
       try {
         webpush.setVapidDetails(
