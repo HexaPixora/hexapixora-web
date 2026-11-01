@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Bell, BellRing, BellOff, Check } from "lucide-react";
 import { useNotifications } from "@/lib/use-notifications";
 import { getPushState, enablePush, disablePush, type PushState } from "@/lib/push";
+import { useFeature } from "@/stores/use-features-store";
 
 const TYPE_EMOJI: Record<string, string> = {
   LEAD: "🎯",
@@ -26,12 +27,13 @@ function PushControl() {
   const [state, setState] = useState<PushState | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const pushOn = useFeature("push");
 
   useEffect(() => {
     getPushState().then(setState);
   }, []);
 
-  if (state === null || state === "unsupported") return null;
+  if (!pushOn || state === null || state === "unsupported") return null;
 
   const enable = async () => {
     setBusy(true);
