@@ -23,6 +23,7 @@ import { TokensModule } from './modules/tokens/tokens.module';
 import { AutomationModule } from './modules/automation/automation.module';
 import { RevalidateModule } from './modules/revalidate/revalidate.module';
 import { ThemesModule } from './modules/themes/themes.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ThemesModule } from './modules/themes/themes.module';
     AutomationModule,
     RevalidateModule,
     ThemesModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [
