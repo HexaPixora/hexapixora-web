@@ -92,6 +92,15 @@ export const env = {
   // When unset, every /api/automation route is disabled.
   automationApiKey: process.env.AUTOMATION_API_KEY ?? '',
 
+  // Real visitor addresses for rate limits. The site and admin proxies send
+  // the visitor's IP in X-Client-IP with this shared secret in X-Proxy-Secret;
+  // the API trusts X-Client-IP only when the secret matches. When unset, the
+  // header is ignored and the connection address is used.
+  proxySecret: process.env.API_PROXY_SECRET ?? '',
+  // Load balancers in front of the API (Express "trust proxy" hop count), so
+  // the connection address is the caller's, not the balancer's. 0 = none.
+  trustProxyHops: parseInt(process.env.TRUST_PROXY_HOPS ?? '0', 10) || 0,
+
   // On-demand revalidation of the site's cached pages after content writes.
   // SITE_REVALIDATE_URL is the site's /hooks/revalidate route; when it or the
   // secret is unset, pages refresh only on their normal revalidate interval.
