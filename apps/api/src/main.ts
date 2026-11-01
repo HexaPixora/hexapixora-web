@@ -17,6 +17,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // Behind a load balancer the socket address is the balancer's; trusting the
+  // configured number of hops makes req.ip the caller's address instead.
+  if (env.trustProxyHops > 0) app.set('trust proxy', env.trustProxyHops);
+
   // Raise the JSON body limit above Express's 100kb default: page-builder saves
   // serialize a whole page's module tree, which can exceed it. (File uploads go
   // through multer with its own limit, not this parser.)
