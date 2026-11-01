@@ -1,24 +1,33 @@
 /**
  * Centralized, validated environment access.
  *
- * Required secrets must be present in production — the process refuses to
- * start otherwise, so we never silently fall back to a publicly-known signing
- * key. In non-production a clearly-labeled dev default is used and a warning is
- * logged.
+ * Every setting is checked at startup (./env-check). In production any error
+ * stops the process with the full list, so the API never runs with a missing
+ * or publicly-known signing key or a half-configured feature. In development
+ * problems are logged and clearly-labeled dev defaults are used.
  */
+import { checkEnv, formatEnvProblems } from './env-check';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-function required(name: string, devDefault: string): string {
+const problems = checkEnv(process.env, isProd);
+if (isProd && problems.errors.length > 0) {
+  throw new Error(`The API cannot start.
+${formatEnvProblems(problems)}`);
+}
+const report = formatEnvProblems(
+  isProd
+    ? problems
+    : { errors: [], warnings: [...problems.errors, ...problems.warnings] },
+);
+if (report)
+  console.warn(`[env]
+${report}`);
+
+// Production is guaranteed a value by the check above.
+function withDevDefault(name: string, devDefault: string): string {
   const value = process.env[name];
   if (value && value.length > 0) return value;
-
-  if (isProd) {
-    throw new Error(
-      `Missing required environment variable "${name}". Refusing to start in production.`,
-    );
-  }
-
   console.warn(
     `[env] ${name} is not set — using an insecure development default. Set it before deploying.`,
   );
@@ -49,8 +58,14 @@ export const env = {
   // Origin of the admin app, which hosts the account pages (password reset,
   // email verification). Falls back to the site while both share one origin.
   adminUrl: (process.env.ADMIN_URL || appUrl).replace(/\/+$/, ''),
-  jwtAccessSecret: required('JWT_ACCESS_SECRET', 'dev_only_access_secret'),
-  jwtRefreshSecret: required('JWT_REFRESH_SECRET', 'dev_only_refresh_secret'),
+  jwtAccessSecret: withDevDefault(
+    'JWT_ACCESS_SECRET',
+    'dev_only_access_secret',
+  ),
+  jwtRefreshSecret: withDevDefault(
+    'JWT_REFRESH_SECRET',
+    'dev_only_refresh_secret',
+  ),
   corsOrigins: list('CORS_ORIGINS', [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
