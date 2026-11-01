@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cmsFetch, readJson } from "@hexapixora/sdk/server";
 import "./globals.css";
 import { getAdminTheme } from "@/lib/theme/admin-theme";
 import { EDITOR_FONT_CLASSES } from "@/lib/theme/theme-fonts";
@@ -9,10 +10,18 @@ export async function generateViewport(): Promise<Viewport> {
   return { colorScheme: theme.dark ? "dark" : "light" };
 }
 
-export const metadata: Metadata = {
-  title: { default: "Admin", template: "%s | Admin" },
-  robots: { index: false, follow: false },
-};
+// The favicon follows Settings → Branding, like the site's, with the bundled
+// HexaPixora icon when none is set or the API can't be reached.
+export async function generateMetadata(): Promise<Metadata> {
+  const res = await cmsFetch("/settings", { next: { revalidate: 300 } }).catch(() => null);
+  const settings = (await readJson(res)) as { faviconUrl?: unknown } | null;
+  const favicon = typeof settings?.faviconUrl === "string" && settings.faviconUrl ? settings.faviconUrl : "/favicon.png";
+  return {
+    title: { default: "Admin", template: "%s | Admin" },
+    robots: { index: false, follow: false },
+    icons: { icon: favicon },
+  };
+}
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   // The admin wears the active theme pack (plans/admin-redesign).
