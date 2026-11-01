@@ -15,6 +15,8 @@ const TIMEOUT_MS = 5_000;
 export class RevalidateService implements OnModuleDestroy {
   private readonly logger = new Logger(RevalidateService.name);
   private timer: NodeJS.Timeout | null = null;
+  /** The last refresh request since the API started (for the admin dashboard). */
+  lastRefresh: { at: Date; ok: boolean } | null = null;
 
   get enabled() {
     return Boolean(env.revalidate.url && env.revalidate.secret);
@@ -36,8 +38,10 @@ export class RevalidateService implements OnModuleDestroy {
         headers: { 'X-Revalidate-Secret': env.revalidate.secret },
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
+      this.lastRefresh = { at: new Date(), ok: res.ok };
       if (!res.ok) this.logger.warn(`Site revalidation returned ${res.status}`);
     } catch (err) {
+      this.lastRefresh = { at: new Date(), ok: false };
       this.logger.warn(`Site revalidation failed: ${(err as Error).message}`);
     }
   }

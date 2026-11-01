@@ -154,20 +154,6 @@ export function PageEditor({ pageId }: { pageId: string }) {
   const dirty = !!payload && JSON.stringify(payload) !== saved;
   useUnsavedChanges(dirty);
 
-  // Puck's panels are light; the admin is dark. Our controls inside them (and
-  // the media and confirm dialogs) follow the admin's tokens, so the editor
-  // switches the admin to light while it is open.
-  useEffect(() => {
-    const html = document.documentElement;
-    const scheme = html.style.colorScheme;
-    html.classList.remove("dark");
-    html.style.colorScheme = "light";
-    return () => {
-      html.classList.add("dark");
-      html.style.colorScheme = scheme;
-    };
-  }, []);
-
   const save = async () => {
     if (!payload) return;
     setSaving(true);

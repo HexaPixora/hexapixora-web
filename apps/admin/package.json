@@ -12,7 +12,7 @@
     "start": "next start --port 3002",
     "lint": "eslint .",
     "check-types": "next typegen && tsc --noEmit",
-    "test": "node --import tsx --test src/lib/puck/*.test.ts"
+    "test": "node --import tsx --test src/lib/puck/*.test.ts src/lib/theme/*.test.ts"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
