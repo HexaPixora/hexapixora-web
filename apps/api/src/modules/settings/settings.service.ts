@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { env } from '../../config/env';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpdateSettingsDto } from './dto/settings.dto';
 
@@ -11,7 +12,7 @@ export class SettingsService {
     return this.prisma.siteSetting.upsert({
       where: { id: 'global' },
       update: {},
-      create: { id: 'global', siteName: 'HexaPixora' },
+      create: { id: 'global', siteName: env.siteName },
     });
   }
 
@@ -20,7 +21,7 @@ export class SettingsService {
     return this.prisma.siteSetting.upsert({
       where: { id: 'global' },
       update: updateData,
-      create: { id: 'global', siteName: 'HexaPixora', ...updateData },
+      create: { id: 'global', siteName: env.siteName, ...updateData },
     });
   }
 }

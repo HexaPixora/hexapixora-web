@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ClientThrottlerGuard } from './common/guards/client-throttler.guard';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { RevalidateInterceptor } from './common/interceptors/revalidate.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
@@ -53,7 +54,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
   controllers: [AppController],
   providers: [
     AppService,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: ClientThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     { provide: APP_INTERCEPTOR, useClass: RevalidateInterceptor },
   ],

@@ -7,7 +7,8 @@
     "./server": "./src/server.ts",
     "./browser": "./src/browser.ts",
     "./post-json": "./src/post-json.ts",
-    "./health": "./src/health.ts"
+    "./health": "./src/health.ts",
+    "./client-ip-headers": "./src/client-ip-headers.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit"
