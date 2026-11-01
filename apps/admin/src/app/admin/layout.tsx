@@ -9,8 +9,9 @@ import { ConfirmProvider } from "@/components/admin/confirm-dialog";
 import { AdminSidebar } from "@/components/admin/shell/admin-sidebar";
 import { AdminTopbar } from "@/components/admin/shell/admin-topbar";
 import { CommandMenu } from "@/components/admin/shell/command-menu";
-import type { NavItem } from "@/components/admin/shell/nav";
+import { itemFor, type NavItem } from "@/components/admin/shell/nav";
 import { useAuthStore, useIsAdmin } from "@/stores/use-auth-store";
+import { isFeatureOn, useFeaturesStore } from "@/stores/use-features-store";
 
 type Branding = { siteName?: string; logoUrl?: string | null };
 
@@ -18,6 +19,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { setUser, user } = useAuthStore();
   const isAdmin = useIsAdmin();
   const [loading, setLoading] = useState(true);
+  const [featuresReady, setFeaturesReady] = useState(false);
+  const { features, setFeatures } = useFeaturesStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [branding, setBranding] = useState<Branding | null>(null);
@@ -25,13 +28,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   // Items carry a permission (section key); admins see everything, team
-  // members only the sections they were granted.
+  // members only the sections they were granted. Switched-off features
+  // (FEATURES in the API) are hidden for everyone.
   const canSee = useCallback(
     (item: NavItem) =>
-      !item.permission ||
-      isAdmin ||
-      (Array.isArray(user?.permissions) && user.permissions.includes(item.permission)),
-    [isAdmin, user],
+      (!item.feature || isFeatureOn(features, item.feature)) &&
+      (!item.permission ||
+        isAdmin ||
+        (Array.isArray(user?.permissions) && user.permissions.includes(item.permission))),
+    [isAdmin, user, features],
   );
 
   useEffect(() => {
@@ -44,15 +49,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .catch(() => {
         window.location.href = "/login";
       });
+    // Which optional features the API runs. If it can't say, everything shows
+    // (the API's own default) and a switched-off area just reports its 404.
+    apiClient
+      .get("/features")
+      .then((res) => setFeatures(res.data?.data ?? {}))
+      .catch(() => {})
+      .finally(() => setFeaturesReady(true));
     // Branding (logo and site name) for the sidebar.
     apiClient
       .get("/settings")
       .then((res) => setBranding(res.data))
       .catch(() => {});
-  }, [setUser]);
+  }, [setUser, setFeatures]);
 
   // New leads waiting, for the sidebar badge.
-  const canLeads = !loading && canSee({ href: "", label: "", icon: X, permission: "leads" });
+  const canLeads =
+    !loading && featuresReady && canSee({ href: "", label: "", icon: X, permission: "leads", feature: "leads" });
   useEffect(() => {
     if (!canLeads) return;
     apiClient
@@ -83,7 +96,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     window.location.href = "/login";
   };
 
-  if (loading) {
+  if (loading || !featuresReady) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
@@ -93,6 +106,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     );
   }
+
+  // A direct link to a switched-off area shows a note instead of a broken screen.
+  const current = itemFor(pathname);
+  const switchedOff = current?.feature && !isFeatureOn(features, current.feature) ? current.label : null;
 
   const sidebar = (
     <AdminSidebar
@@ -136,11 +153,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           notifications={!loading}
         />
         <main className="flex-1 p-4 md:p-7 lg:p-8">
-          <ConfirmProvider>{children}</ConfirmProvider>
+          <ConfirmProvider>{switchedOff ? <SwitchedOff label={switchedOff} /> : children}</ConfirmProvider>
         </main>
       </div>
 
       <CommandMenu open={searchOpen} onOpenChange={setSearchOpen} canSee={canSee} />
+    </div>
+  );
+}
+
+function SwitchedOff({ label }: { label: string }) {
+  return (
+    <div className="mx-auto max-w-md py-16 text-center">
+      <h1 className="font-heading text-xl font-medium">{label} is switched off</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        This site doesn&apos;t run this feature. It can be switched on in the API&apos;s FEATURES setting.
+      </p>
+      <a href="/admin" className="mt-6 inline-block text-sm text-primary hover:underline">
+        Back to the dashboard
+      </a>
     </div>
   );
 }

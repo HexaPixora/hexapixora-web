@@ -15,6 +15,7 @@ import {
   UserRound,
   type LucideIcon,
 } from "lucide-react";
+import type { Feature } from "@/stores/use-features-store";
 
 export type NavItem = {
   href: string;
@@ -22,6 +23,8 @@ export type NavItem = {
   icon: LucideIcon;
   /** Only for admins or team members granted this section. */
   permission?: string;
+  /** Hidden when the API switches this optional feature off (FEATURES). */
+  feature?: Feature;
   /** Active only on this exact path (the dashboard), not its children. */
   exact?: boolean;
   /** Shows the count of new leads. */
@@ -46,7 +49,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Site design",
     items: [
-      { href: "/admin/themes", label: "Themes", icon: Palette, permission: "layouts" },
+      { href: "/admin/themes", label: "Themes", icon: Palette, permission: "layouts", feature: "themes" },
       { href: "/admin/layouts/header", label: "Header", icon: PanelTop, permission: "layouts" },
       { href: "/admin/layouts/footer", label: "Footer", icon: PanelBottom, permission: "layouts" },
       { href: "/admin/layouts/menu", label: "Menus", icon: Menu, permission: "layouts" },
@@ -56,8 +59,8 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Audience",
     items: [
-      { href: "/admin/leads", label: "Leads", icon: Inbox, permission: "leads", badge: "newLeads" },
-      { href: "/admin/newsletter", label: "Newsletter", icon: Mail, permission: "newsletter" },
+      { href: "/admin/leads", label: "Leads", icon: Inbox, permission: "leads", feature: "leads", badge: "newLeads" },
+      { href: "/admin/newsletter", label: "Newsletter", icon: Mail, permission: "newsletter", feature: "newsletter" },
     ],
   },
   {

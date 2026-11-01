@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { apiClient } from "@hexapixora/sdk/browser";
 import { useHasPermission } from "@/stores/use-auth-store";
+import { useFeature } from "@/stores/use-features-store";
 import {
   Eyebrow,
   ListRow,
@@ -43,11 +44,13 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [failed, setFailed] = useState(false);
   const [latency, setLatency] = useState<number | null>(null);
+  const themesOn = useFeature("themes");
+  const newsletterOn = useFeature("newsletter");
   const canPages = useHasPermission("pages");
   const canBlogs = useHasPermission("blogs");
   const canMedia = useHasPermission("media");
-  const canThemes = useHasPermission("layouts");
-  const canNewsletter = useHasPermission("newsletter");
+  const canThemes = useHasPermission("layouts") && themesOn;
+  const canNewsletter = useHasPermission("newsletter") && newsletterOn;
 
   useEffect(() => {
     const started = performance.now();
