@@ -51,6 +51,9 @@ const appUrl = (
 
 export const env = {
   isProd,
+  // The site's name until Settings has one: the name a new site starts with
+  // and the fallback in emails. Settings → Site name wins once saved.
+  siteName: process.env.SITE_NAME?.trim() || 'Website',
   port: parseInt(process.env.PORT ?? '3001', 10),
   // Public origin of the site — used for links to public pages in outgoing
   // emails (unsubscribe, blog posts). Set APP_URL in prod.
@@ -76,9 +79,11 @@ export const env = {
   mail: {
     // https://resend.com/api-keys
     resendApiKey: process.env.RESEND_API_KEY ?? '',
-    // Must be a verified Resend sender, e.g. "HexaPixora <hello@hexapixora.com>".
+    // Must be a verified Resend sender, e.g. "Studio <hello@example.com>".
     // Defaults to Resend's shared test sender so dev works out of the box.
-    from: process.env.MAIL_FROM ?? 'HexaPixora <onboarding@resend.dev>',
+    from:
+      process.env.MAIL_FROM ||
+      `${process.env.SITE_NAME?.trim() || 'Website'} <onboarding@resend.dev>`,
     // Internal address that receives new-lead notifications. Falls back to the
     // site's businessEmail (from settings) when unset — see LeadsService.
     notifyTo: process.env.LEADS_NOTIFY_TO ?? '',
@@ -89,7 +94,11 @@ export const env = {
   push: {
     publicKey: process.env.VAPID_PUBLIC_KEY ?? '',
     privateKey: process.env.VAPID_PRIVATE_KEY ?? '',
-    subject: process.env.VAPID_SUBJECT ?? 'mailto:admin@hexapixora.com',
+    // Contact for push services: a mailto: or https: address. Defaults to the
+    // admin's address (https in production, checked at startup).
+    subject:
+      process.env.VAPID_SUBJECT ||
+      (process.env.ADMIN_URL || appUrl).replace(/\/+$/, ''),
   },
 
   // Cloudflare Turnstile for the contact form. Verification is skipped when unset.

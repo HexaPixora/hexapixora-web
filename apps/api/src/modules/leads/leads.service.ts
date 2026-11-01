@@ -95,7 +95,7 @@ export class LeadsService {
       .findUnique({ where: { id: 'global' } })
       .catch(() => null);
 
-    const siteName = settings?.siteName || 'HexaPixora';
+    const siteName = settings?.siteName || env.siteName;
     const notifyTo = env.mail.notifyTo || settings?.businessEmail || '';
 
     await Promise.all([

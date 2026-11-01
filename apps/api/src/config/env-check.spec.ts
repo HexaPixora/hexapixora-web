@@ -129,6 +129,17 @@ describe('checkEnv', () => {
     ).toBe(true);
   });
 
+  it('requires a mailto: or https: push contact', () => {
+    const bad = 'VAPID_SUBJECT must be a mailto: or https: address.';
+    expect(prod({ VAPID_SUBJECT: 'admin@example.com' }).errors).toContain(bad);
+    expect(prod({ VAPID_SUBJECT: 'mailto:admin@example.com' }).errors).toEqual(
+      [],
+    );
+    expect(prod({ VAPID_SUBJECT: 'https://admin.example.com' }).errors).toEqual(
+      [],
+    );
+  });
+
   it('refuses non-numeric numbers', () => {
     expect(
       mentions(

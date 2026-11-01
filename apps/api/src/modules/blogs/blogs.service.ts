@@ -403,7 +403,7 @@ export class BlogsService {
       );
     }
     return {
-      filename: `hexapixora-posts-${posts.length}.zip`,
+      filename: `posts-${posts.length}.zip`,
       buffer: zip.toBuffer(),
     };
   }

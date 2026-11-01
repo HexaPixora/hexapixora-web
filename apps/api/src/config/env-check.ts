@@ -11,8 +11,11 @@
 export type EnvVars = Record<string, string | undefined>;
 export type EnvProblems = { errors: string[]; warnings: string[] };
 
-/** Signing keys shorter than this are guessable; `openssl rand -base64 48` gives 64 characters. */
+/** Signing keys shorter than this are guessable; KEY_HINT's command gives 64 characters. */
 export const MIN_SECRET_LENGTH = 32;
+
+/** Works wherever Node runs (Windows has no openssl by default). */
+const KEY_HINT = `Generate one with: node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"`;
 
 const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/;
 
@@ -80,13 +83,10 @@ export function checkEnv(vars: EnvVars, isProd: boolean): EnvProblems {
     ['JWT_REFRESH_SECRET', refresh],
   ] as const) {
     if (!secret) {
-      if (isProd)
-        errors.push(
-          `${name} is not set. Generate one with: openssl rand -base64 48`,
-        );
+      if (isProd) errors.push(`${name} is not set. ${KEY_HINT}`);
     } else if (isProd && secret.length < MIN_SECRET_LENGTH) {
       errors.push(
-        `${name} is too short (at least ${MIN_SECRET_LENGTH} characters). Generate one with: openssl rand -base64 48`,
+        `${name} is too short (at least ${MIN_SECRET_LENGTH} characters). ${KEY_HINT}`,
       );
     }
   }
@@ -137,6 +137,12 @@ export function checkEnv(vars: EnvVars, isProd: boolean): EnvProblems {
   // ── Features that need two settings ───────────────────────────────────────
   pair('SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'Media storage');
   pair('VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'Push notifications');
+  if (
+    has('VAPID_SUBJECT') &&
+    !/^(mailto:\S+@\S+|https:\/\/\S+)$/.test(value(vars, 'VAPID_SUBJECT'))
+  ) {
+    errors.push('VAPID_SUBJECT must be a mailto: or https: address.');
+  }
   pair('SITE_REVALIDATE_URL', 'REVALIDATE_SECRET', 'Instant site refresh');
   if (has('SUPABASE_URL')) checkPublicUrl('SUPABASE_URL', { required: false });
   if (has('SITE_REVALIDATE_URL'))
