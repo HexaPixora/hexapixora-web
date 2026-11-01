@@ -11,6 +11,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { NotificationsService } from './notifications.service';
 import { PushService } from './push.service';
+import { PushEnabledGuard } from './guards/push-enabled.guard';
 import { PushSubscribeDto, PushUnsubscribeDto } from './dto/push.dto';
 
 // In-app notification feed for any logged-in admin/team member.
@@ -29,11 +30,13 @@ export class NotificationsController {
 
   // --- Web Push ---
 
+  @UseGuards(PushEnabledGuard)
   @Get('vapid-key')
   vapidKey() {
     return { key: this.push.publicKey() };
   }
 
+  @UseGuards(PushEnabledGuard)
   @Post('push/subscribe')
   subscribe(
     @CurrentUser() user: { id: string },
@@ -42,6 +45,7 @@ export class NotificationsController {
     return this.push.subscribe(user.id, body);
   }
 
+  @UseGuards(PushEnabledGuard)
   @Post('push/unsubscribe')
   unsubscribe(@Body() body: PushUnsubscribeDto) {
     return this.push.unsubscribe(body.endpoint);
