@@ -23,7 +23,7 @@ export class AuthService {
     const s = await this.prisma.siteSetting
       .findUnique({ where: { id: 'global' } })
       .catch(() => null);
-    return s?.siteName || 'HexaPixora';
+    return s?.siteName || env.siteName;
   }
 
   async validateUser(email: string, pass: string): Promise<AuthUser | null> {

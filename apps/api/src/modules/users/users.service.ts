@@ -39,7 +39,7 @@ export class UsersService {
     const s = await this.prisma.siteSetting
       .findUnique({ where: { id: 'global' } })
       .catch(() => null);
-    return s?.siteName || 'HexaPixora';
+    return s?.siteName || env.siteName;
   }
 
   async findByEmail(email: string): Promise<User | null> {

@@ -126,7 +126,7 @@ export class NewsletterService {
       .findUnique({ where: { id: 'global' } })
       .catch(() => null);
     return {
-      siteName: s?.siteName || 'HexaPixora',
+      siteName: s?.siteName || env.siteName,
       logoUrl: this.absoluteUrl(s?.logoUrl),
     };
   }
