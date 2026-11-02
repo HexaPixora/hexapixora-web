@@ -8,6 +8,8 @@
  * features). Warnings are features that quietly do nothing until set.
  */
 
+import { FEATURE_KEYS, parseFeatures } from './features';
+
 export type EnvVars = Record<string, string | undefined>;
 export type EnvProblems = { errors: string[]; warnings: string[] };
 
@@ -128,6 +130,14 @@ export function checkEnv(vars: EnvVars, isProd: boolean): EnvProblems {
     }
   }
 
+  // ── Optional features ─────────────────────────────────────────────────────
+  const { features, unknown } = parseFeatures(vars.FEATURES);
+  if (unknown.length) {
+    errors.push(
+      `FEATURES has unknown ${unknown.length === 1 ? 'name' : 'names'} ${unknown.map((k) => `"${k}"`).join(', ')}. Use "none" or any of: ${FEATURE_KEYS.join(', ')}.`,
+    );
+  }
+
   // ── Numbers ───────────────────────────────────────────────────────────────
   for (const name of ['PORT', 'TRUST_PROXY_HOPS']) {
     if (has(name) && !/^\d+$/.test(value(vars, name)))
@@ -169,7 +179,7 @@ export function checkEnv(vars: EnvVars, isProd: boolean): EnvProblems {
         'API_PROXY_SECRET is not set: rate limits count all visitors behind the site and admin as one.',
       );
     }
-    if (!has('TURNSTILE_SECRET_KEY')) {
+    if (features.leads && !has('TURNSTILE_SECRET_KEY')) {
       warnings.push(
         'TURNSTILE_SECRET_KEY is not set: the contact form has no spam check.',
       );

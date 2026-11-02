@@ -7,6 +7,7 @@
  * problems are logged and clearly-labeled dev defaults are used.
  */
 import { checkEnv, formatEnvProblems } from './env-check';
+import { parseFeatures } from './features';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -54,6 +55,8 @@ export const env = {
   // The site's name until Settings has one: the name a new site starts with
   // and the fallback in emails. Settings → Site name wins once saved.
   siteName: process.env.SITE_NAME?.trim() || 'Website',
+  // Optional features this site runs (./features); all on when FEATURES is unset.
+  features: parseFeatures(process.env.FEATURES).features,
   port: parseInt(process.env.PORT ?? '3001', 10),
   // Public origin of the site — used for links to public pages in outgoing
   // emails (unsubscribe, blog posts). Set APP_URL in prod.

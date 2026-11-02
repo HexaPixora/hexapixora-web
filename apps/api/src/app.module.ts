@@ -25,6 +25,7 @@ import { AutomationModule } from './modules/automation/automation.module';
 import { RevalidateModule } from './modules/revalidate/revalidate.module';
 import { ThemesModule } from './modules/themes/themes.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { env } from './config/env';
 
 @Module({
   imports: [
@@ -38,18 +39,19 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     BlogsModule,
     CategoriesModule,
     MediaModule,
-    LeadsModule,
-    NewsletterModule,
     SettingsModule,
     PagesModule,
     LayoutsModule,
-    SearchModule,
     NotificationsModule,
     TokensModule,
-    AutomationModule,
     RevalidateModule,
-    ThemesModule,
     DashboardModule,
+    // Optional features (FEATURES): a switched-off feature has no routes.
+    ...(env.features.leads ? [LeadsModule] : []),
+    ...(env.features.newsletter ? [NewsletterModule] : []),
+    ...(env.features.search ? [SearchModule] : []),
+    ...(env.features.automation ? [AutomationModule] : []),
+    ...(env.features.themes ? [ThemesModule] : []),
   ],
   controllers: [AppController],
   providers: [

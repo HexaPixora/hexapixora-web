@@ -1,5 +1,6 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { AppService } from './app.service';
+import { env } from './config/env';
 
 @Controller()
 export class AppController {
@@ -18,5 +19,12 @@ export class AppController {
     const result = await this.appService.health();
     if (result.db !== 'up') throw new ServiceUnavailableException(result);
     return result;
+  }
+
+  // Which optional features this site runs, so the site and admin can hide
+  // what is switched off. Public: it reveals only on/off flags.
+  @Get('features')
+  features() {
+    return { data: env.features };
   }
 }
